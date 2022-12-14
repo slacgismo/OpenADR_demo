@@ -1,0 +1,3 @@
+[console_scripts]
+fingerprint = openleadr.fingerprint:show_fingerprint
+
