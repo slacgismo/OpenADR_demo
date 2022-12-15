@@ -196,13 +196,13 @@ server.add_handler('on_register_report', on_register_report)
 logger.debug(f"vtn add_handler on_register_report")
 
 # Add a prepared event for a VEN that will be picked up when it polls for new messages.
-# server.add_event(ven_id='ven_id_123',
-#                 signal_name='simple',
-#                 signal_type='level',
-#                 intervals=[{'dtstart': datetime(2021, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
-#                             'duration': timedelta(minutes=10),
-#                             'signal_payload': 1}],
-#                 callback=event_response_callback)
+server.add_event(ven_id='ven_id_123',
+                 signal_name='simple',
+                 signal_type='level',
+                 intervals=[{'dtstart': datetime(2021, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+                            'duration': timedelta(minutes=10),
+                             'signal_payload': 1}],
+                 callback=event_response_callback)
 
 
 server.app.add_routes([
