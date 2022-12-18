@@ -43,3 +43,7 @@ https://techsparx.com/energy-system/openadr/openleadr-docker.html
 041414866712.dkr.ecr.us-east-2.amazonaws.com/openleadr-vtn:latest
 https://levelup.gitconnected.com/deploy-a-dockerized-fastapi-application-to-aws-cc757830ba1b
 https://jonathanserrano.medium.com/deploy-a-fastapi-app-to-production-using-docker-and-aws-ecr-928e17312445
+
+#### check aws cloud init log
+
+sudo cat /var/log/cloud-init-output.log

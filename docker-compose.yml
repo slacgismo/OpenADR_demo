@@ -1,10 +1,12 @@
 services:
   vtn:
-    image: jimmyleu76/python-openleadr-nodemon:latest
+    build:
+      context: ./docker-nodemon
+    # image: jimmyleu76/python-openleadr-nodemon:latest
     # image: 041414866712.dkr.ecr.us-east-2.amazonaws.com/openleadr-vtn:latest
     volumes:
       - /Users/jimmyleu/Development/gismo/openADR:/openleadr-python
-      - ./testvtn.py:/app/app.py
+      # - ./testvtn.py:/app/app.py
     # networks:
     #   - adrnet
     environment:

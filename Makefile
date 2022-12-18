@@ -36,9 +36,20 @@ tf-apply:
 tf-destroy:
 	docker-compose -f deploy/docker-compose.yml run --rm terraform destroy
 
+.PHONY: list-tf-workspace
+list-tf-workspace:
+	docker-compose -f deploy/docker-compose.yml run --rm terraform workspace list
+
+.PHONY: create-tf-workspace-dev
+create-tf-workspace-dev:
+	docker-compose -f deploy/docker-compose.yml run --rm terraform workspace new dev
+
 .PHONY: tf-workspace-dev
 tf-workspace-dev:
 	docker-compose -f deploy/docker-compose.yml run --rm terraform workspace select dev
+
+
+
 
 .PHONY: tf-workspace-staging
 tf-workspace-staging:

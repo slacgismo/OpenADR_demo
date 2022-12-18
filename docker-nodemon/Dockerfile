@@ -15,6 +15,7 @@ COPY requirements.txt /setup/requirements.txt
 RUN pip3 install -r /setup/requirements.txt
 
 COPY nodemon.json /setup/nodemon.json
+COPY testvtn.py /app/app.py
 
 # CMD nodemon --config /setup/nodemon.json
 CMD nodemon --watch /app --watch /openleadr-python \
