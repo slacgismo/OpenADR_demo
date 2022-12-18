@@ -18,7 +18,7 @@ resource "aws_instance" "ec2" {
   )
   subnet_id = aws_subnet.public_a.id
   vpc_security_group_ids = [
-    aws_security_group.bastion.id
+    aws_security_group.ec2.id
   ]
 
 
@@ -32,18 +32,24 @@ resource "aws_security_group" "ec2" {
 
   # Allow outbound port 22 and 8080
   ingress {
-    protocol    = "tcp"
-    from_port   = 22
-    to_port     = 22
+    protocol    = "-1"
+    from_port   = 0
+    to_port     = 0
     cidr_blocks = ["0.0.0.0/0"]
   }
+  # ingress {
+  #   protocol    = "tcp"
+  #   from_port   = 22
+  #   to_port     = 22
+  #   cidr_blocks = ["0.0.0.0/0"]
+  # }
 
-  ingress {
-    protocol    = "tcp"
-    from_port   = 8080
-    to_port     = 8080
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  # ingress {
+  #   protocol    = "tcp"
+  #   from_port   = 8080
+  #   to_port     = 8080
+  #   cidr_blocks = ["0.0.0.0/0"]
+  # }
 
   # Allow outbound all traffic
   egress {

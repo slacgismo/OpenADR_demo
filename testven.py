@@ -10,7 +10,7 @@ import logging
 # RESOURCE_NAME = os.environ['RESOURCE_NAME']
 VEN_NAME = 'ven123'
 # VTN_URL = 'http://3.142.120.75:8080/OpenADR2/Simple/2.0b'
-VTN_URL = 'http://0.0.0.0:8080/OpenADR2/Simple/2.0b'
+VTN_URL = 'http://3.142.120.7:8080/OpenADR2/Simple/2.0b'
 RESOURCE_NAME = 'resource'
 
 VEN_ID = VEN_NAME + "_id"
