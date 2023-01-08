@@ -1,3 +1,61 @@
+# OpenLEADR
+
+This project demostrate how to deply [OpendLEADR](https://github.com/openleadr) server on the `EC2` instance of `AWS` through `Terraform`.
+
+---
+
+## Install & Step
+
+### Installations
+
+First, please make sure the [Docker server](https://docs.docker.com/engine/install/) is installed and running on your local machine. If you don't have the docker installed, please install the `Docker` first.
+
+Second,download the source code from this github respository.
+
+```
+git clone https://github.com/slacgismo/openADR-nodemon
+```
+
+Third, create and activate the python virtunal environment.(User python 3.8+ version)
+
+```
+python3 -m venv venv
+soruce ./venv/bin/activate
+```
+
+Intall the python dependencies.
+
+```
+pip install --upgrade pip
+pip install -r docker-nodemon/requirements.txt
+```
+
+### Local Test
+
+Test the `OpenADR` server and cline in your local machine
+
+Activate the OpendADR server through docker-compose
+
+```
+docker-compose up
+```
+
+If you see the output of your terminal as follow, the server is activate and running successfully.
+
+```
+vtn_1  | INFO:asyncio:<Server sockets=(<asyncio.TransportSocket fd=6, family=2, type=1, proto=6, laddr=('0.0.0.0', 8080)>,)> is serving
+```
+
+Activate the OpendADR client by the following command
+
+```
+python testven.py
+```
+
+### Deploy on AWS through Terraform
+
+# Sytem Diagram
+
 ## docker push
 
 docker push jimmyleu76/python-openleadr-nodemon
