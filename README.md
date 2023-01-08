@@ -27,7 +27,7 @@ Intall the python dependencies.
 
 ```
 pip install --upgrade pip
-pip install -r docker-nodemon/requirements.txt
+pip install -r docker/requirements.txt
 ```
 
 ### Local Test
@@ -54,46 +54,91 @@ python testven.py
 
 ### Deploy on AWS through Terraform
 
-# Sytem Diagram
+#### Set up the AWS credentials
 
-## docker push
+Please ask the project administrator to set up the correct AWS credentials. This project is relied on `openadr-devops-tfstate` bucket on S3 and a DynamoDB `openadr-devops-tf-state-lock` table to track the deployment state.
 
-docker push jimmyleu76/python-openleadr-nodemon
+You can use `aws configure` or [aws-vault](https://github.com/99designs/aws-vault) to set up the AWS credentials
 
-## aws ECR login
+**_Note_** : <span style="color:blue">Please use the Terraform commmand to manage all the resources that created by the Terraform command. Modify or destroy the resources manually could cause serious issues of Terraform states</span>
 
-aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 041414866712.dkr.ecr.us-east-2.amazonaws.com
+#### Setup the Terraform environment
 
-## docker tag ecr images
+In order to keep the Terraform enviroment in the same version, this project actviate the Terraform in a docker environment. Please check the `deploy/docker-compose.yml` to see the detail.
 
-docker tag jimmyleu76/python-openleadr-nodemon:latest 041414866712.dkr.ecr.us-east-2.amazonaws.com/openleadr-vtn:latest
+Please follow the steps to activate the Terraform
 
-## install docker in ec2
+##### Terraform workspace
 
-# Update the installed packages and package cache on your instance.
+Create the Terraform dev workspace. This will create a `-dev` tag on all the colud resources. (This is optional)
 
-sudo yum update -y
-sudo yum install git nano -y
+```
+make create-tf-workspace-dev
+```
 
-## Install the most recent Docker Community Edition package.sudo
+List all the Terraform workspaces.
 
-sudo amazon-linux-extras install docker
+```
+make list-tf-workspace
+```
 
-## Start the Docker service.
+Select the Terraform dev workspace.
 
-sudo service docker start
+```
+make tf-workspace-dev
+```
 
-## Add the ec2-user to the docker group so you can execute Docker #commands without using sudo.
+##### Terraform Init
 
-sudo usermod -a -G docker ec2-user
+This is a requirement step every time you change the Terrafrom code.
 
-sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+```
+make tf-init
+```
 
-sudo chmod +x /usr/local/bin/docker-compose
+##### Terraform Format
 
-docker-compose version
+This is a optinal setp to fromat the your Terraform code.
 
-# reference
+```
+make tf-fmt
+```
+
+##### Terraform validation
+
+After you change your terrafrom code, you can use this command to validate the code.
+
+```
+make tf-validate
+```
+
+##### Terraform plan
+
+Before you really create and provision your AWS cloud resources, you can use this command to simluate the deployment in case of any issue.
+
+```
+make tf-paln
+```
+
+##### Terraform apply
+
+You can use this command to create and provision the AWS resources.
+
+```
+make tf-apply
+```
+
+##### Terraform destroy
+
+You can use this command to destroy the AWS resources that Terraform creatred.
+
+```
+make tf-destroy
+```
+
+### Sytem Diagram
+
+#### reference
 
 https://github.com/robogeek/openleadr-docker-setup/blob/main/testven.py
 https://github.com/robogeek/openleadr-docker-setup/blob/main/docker-compose.yml
@@ -102,6 +147,10 @@ https://techsparx.com/energy-system/openadr/openleadr-docker.html
 https://levelup.gitconnected.com/deploy-a-dockerized-fastapi-application-to-aws-cc757830ba1b
 https://jonathanserrano.medium.com/deploy-a-fastapi-app-to-production-using-docker-and-aws-ecr-928e17312445
 
-#### check aws cloud init log
+#### Check aws cloud init log
 
+Under the ec2 instance, we can use the following command to check the log of EC2 instance.
+
+```
 sudo cat /var/log/cloud-init-output.log
+```
