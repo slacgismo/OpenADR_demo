@@ -45,7 +45,8 @@ async def event_response_callback(ven_id, event_id, opt_type):
     print(f"VEN {ven_id} responded to Event {event_id} with: {opt_type}")
 
 # Create the server object
-server = OpenADRServer(vtn_id='myvtn')
+server = OpenADRServer(vtn_id='myvtn',
+                       http_host='0.0.0.0')
 
 # Add the handler for client (VEN) registrations
 server.add_handler('on_create_party_registration',

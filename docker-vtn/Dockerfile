@@ -20,3 +20,4 @@ COPY testvtn.py /app/app.py
 # CMD nodemon --config /setup/nodemon.json
 CMD nodemon --watch /app --watch /openleadr-python \
             --exec python3 /app/app.py
+# CMD python3 /app/app.py
