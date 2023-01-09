@@ -128,6 +128,42 @@ You can use this command to create and provision the AWS resources.
 make tf-apply
 ```
 
+After you execute `make tf-apply`, the terraform will print out all the infomation of resources. Then it will ask you again to confirm the execution as follow.
+
+```
+Do you want to perform these actions in workspace "dev"?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value:
+```
+
+Type `yes` to execute command.
+
+##### Public IP of The EC2
+
+After the Terrafrom apply command completed, the terminal prints out the public ip of the EC2 instance.
+
+```
+Apply complete! Resources: 9 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+ec2_host = "ec2-18-217-184-xxx.us-east-2.compute.amazonaws.com"
+```
+
+The public address of EC2 instance is `18.217.184.xxx`
+
+#### Update the clinet IP
+
+Use any code editor such as VSCode or nano to edit the `textven.py` file. When you do the local test, the `vtn_url='http://18.217.184.115:8080/OpenADR2/Simple/2.0b'`. When you do the AWS deploy test, the `vtn_url='http://18.217.184.xxx:8080/OpenADR2/Simple/2.0b'`.
+
+After the EC2 instance is deployed on AWS, we need to wait couple minutes until the VTN server is ready. Then we activate the VEN client in the local machine by following command.
+
+```
+python testven.py
+```
+
 ##### Terraform destroy
 
 You can use this command to destroy the AWS resources that Terraform creatred.
@@ -137,6 +173,8 @@ make tf-destroy
 ```
 
 ### Sytem Diagram
+
+![System diagram](./OpenADR.png)
 
 #### reference
 
