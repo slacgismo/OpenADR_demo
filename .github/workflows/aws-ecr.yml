@@ -1,0 +1,61 @@
+name: DeployToAWSECR
+on:
+  push:
+    branches: [main, develop]
+    paths-ignore:
+      - "**/README.md"
+    tags:
+      - "v*.*.*"
+  pull_request:
+    branches: [main, develop]
+    paths-ignore:
+      - "**/README.md"
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      DOCKER_BUILDKIT: "1"
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Extract tag version
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+        id: extract_tags
+
+      - name: Check tag
+        env:
+          RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
+        run: |
+          echo $RELEASE_VERSION
+          echo ${{ steps.vars.outputs.tag }}
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Build and run the stack
+        run: docker-compose up -d
+      - name: Check running containers
+        run: docker-compose ps
+
+      - name: Tag images
+        run: |
+          docker image tag worker ${{ secrets.ECR_REGISTRY }}/worker:${{ steps.extract_branch.outputs.branch }}
+          docker image tag server ${{ secrets.ECR_REGISTRY }}/server:${{ steps.extract_branch.outputs.branch }}
+      - name: Push to ECR
+        id: ecr
+        run: |
+          docker push ${{ secrets.ECR_REGISTRY }}/worker:${{ steps.extract_branch.outputs.branch }}
+          docker push ${{ secrets.ECR_REGISTRY }}/server:${{ steps.extract_branch.outputs.branch }}
