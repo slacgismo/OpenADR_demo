@@ -1,5 +1,7 @@
 services:
   vtn:
+    image: vtn
+    container_name: vtn
     build:
       context: ./docker-vtn
     # image: jimmyleu76/python-openleadr-nodemon:latest
