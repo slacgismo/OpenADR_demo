@@ -185,6 +185,11 @@ https://techsparx.com/energy-system/openadr/openleadr-docker.html
 https://levelup.gitconnected.com/deploy-a-dockerized-fastapi-application-to-aws-cc757830ba1b
 https://jonathanserrano.medium.com/deploy-a-fastapi-app-to-production-using-docker-and-aws-ecr-928e17312445
 
+#### timestream
+
+https://betterprogramming.pub/deep-dive-into-amazon-timestream-data-ingestion-in-python-18c6c09accd
+https://towardsdatascience.com/amazon-timestream-is-finally-released-is-it-worth-your-time-e6b7eff10867
+
 #### Check aws cloud init log
 
 Under the ec2 instance, we can use the following command to check the log of EC2 instance.

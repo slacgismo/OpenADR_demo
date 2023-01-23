@@ -2,15 +2,6 @@
 # Makefile containing shortcut commands for project #
 #####################################################
 
-# MACOS USERS:
-#  Make should be installed with XCode dev tools.
-#  If not, run `xcode-select --install` in Terminal to install.
-
-# WINDOWS USERS:
-#  1. Install Chocolately package manager: https://chocolatey.org/
-#  2. Open Command Prompt in administrator mode
-#  3. Run `choco install make`
-#  4. Restart all Git Bash/Terminal windows.
 
 .PHONY: tf-init
 tf-init:
@@ -47,8 +38,6 @@ create-tf-workspace-dev:
 .PHONY: tf-workspace-dev
 tf-workspace-dev:
 	docker-compose -f deploy/docker-compose.yml run --rm terraform workspace select dev
-
-
 
 
 .PHONY: tf-workspace-staging
