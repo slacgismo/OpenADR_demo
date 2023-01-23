@@ -5,12 +5,12 @@ from openleadr import OpenADRClient, enable_default_logging
 import os
 import logging
 
-# VEN_NAME = os.environ['VEN_NAME']
-# VTN_URL = os.environ['VTN_URL']
-# RESOURCE_NAME = os.environ['RESOURCE_NAME']
-VEN_NAME = 'ven123'
-VTN_URL = 'http://18.116.60.235:8080/OpenADR2/Simple/2.0b'
-RESOURCE_NAME = 'resource'
+VEN_NAME = os.environ['VEN_NAME']
+VTN_URL = os.environ['VTN_URL']
+RESOURCE_NAME = os.environ['RESOURCE_NAME']
+# VEN_NAME = 'ven123'
+# VTN_URL = 'http://0.0.0.0:8080/OpenADR2/Simple/2.0b'
+# RESOURCE_NAME = 'resource'
 
 VEN_ID = VEN_NAME + "_id"
 
