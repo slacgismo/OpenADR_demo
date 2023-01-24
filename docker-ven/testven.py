@@ -17,7 +17,7 @@ async def handle_event(event):
 
 # Create the client object
 client = OpenADRClient(ven_name='ven123',
-                       vtn_url='http://18.217.7.109:8080/OpenADR2/Simple/2.0b')
+                       vtn_url='http://vtn:8080/OpenADR2/Simple/2.0b')
 
 # Add the report capability to the client
 client.add_report(callback=collect_report_value,
