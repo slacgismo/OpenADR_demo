@@ -18,7 +18,8 @@ services:
       - TIMEZONE=America/Los_Angeles
     ports:
       - 8080:8080
-
+    depends_on:
+      - postgres
   ven:
     build:
       context: ./docker-ven
@@ -36,5 +37,17 @@ services:
       - TIMEZONE=America/Los_Angeles
     depends_on:
       - vtn
+
+  postgres:
+    build:
+      context: ./docker-db
+      dockerfile: Dockerfile
+    expose:
+      - 5432
+    networks:
+      - adrnet
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
 networks:
   adrnet:
