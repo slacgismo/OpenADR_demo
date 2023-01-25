@@ -25,3 +25,5 @@ tzlocal==2.1
 xmltodict==0.12.0
 yarl
 lxml
+sqlalchemy
+psycopg2
