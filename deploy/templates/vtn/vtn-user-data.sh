@@ -19,5 +19,5 @@ sudo chmod +rwx home/ec2-user/openADR
 sudo git clone https://github.com/slacgismo/openADR-nodemon.git /home/ec2-user/openADR
 echo "start docker-compose"
 # start docker-compose
-cd /home/ec2-user/openADR 
-docker-compose up 
+cd /home/ec2-user/openADR/docker-vtn
+# docker-compose up 

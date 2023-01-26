@@ -36,30 +36,12 @@ class Measurement(Base):
     def __repr__(self):
         return f"({self.measurement_id} {self.ven_id} {self.measurement} {self.value} {self.time} {self.resource_id})"
 
-# class Person(Base):
-#     __tablename__ = "people"
-#     # Column
-#     ssn = Column("ssn", Integer, primary_key=True)
-#     firstname = Column("firstname", String)
-#     lastname = Column("lastname", String)
-#     gender = Column("gender", CHAR)
-#     age = Column("age", Integer)
-
-#     def __init__(self, ssn, first, last, gender, age):
-#         self.ssn = ssn
-#         self.firstname = first
-#         self.lastname = last
-#         self.gender = gender
-#         self.age = age
-
-#     def __repr__(self):
-#         return f"({self.ssn} {self.firstname} {self.lastname} {self.gender} {self.age})"
-
 
 # db environments
 POSTGRES_USER = os.environ['POSTGRES_USER']
 POSTGRES_PASSWORD = os.environ['POSTGRES_PASSWORD']
-DATABASE_URL = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@postgres:5432/books'
+DB_HOST = os.environ['DB_HOST']
+DATABASE_URL = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{DB_HOST}:5432/openADR'
 
 print(f"DATABASE_URL  {DATABASE_URL}")
 

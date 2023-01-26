@@ -1,0 +1,16 @@
+services:
+  vtn:
+    # container_name: vtn
+    build:
+      context: .
+
+    environment:
+      - PYTHONPATH=/openleadr-python:/app
+      - VTN_NAME=vtn001
+      - PYTHONASYNCIODEBUG=1
+      - TIMEZONE=America/Los_Angeles
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - DB_HOST="${DB_HOST_VAR:-postgres}"
+    ports:
+      - 8080:8080
