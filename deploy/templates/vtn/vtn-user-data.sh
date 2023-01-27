@@ -16,14 +16,15 @@ sudo docker-compose version
 # sudo mkdir home/ec2-user/openADR
 echo "mkdir home/ec2-user/openADR"
 sudo chmod +rwx home/ec2-user/openADR
-sudo git clone -b deploy_db https://github.com/slacgismo/openADR-nodemon.git /home/ec2-user/openADR
+sudo git clone https://github.com/slacgismo/OpenADR_demo.git /home/ec2-user/openADR
 echo "start docker-compose"
 # start docker-compose
 cd /home/ec2-user/openADR/docker-vtn
 # docker-compose up 
-touch  home/ec2-user/openADR/tmp.txt
-chmod +rwx home/ec2-user/openADR/tmp.txt
-echo "DB_HOST = ${DB_HOST}" >> home/ec2-user/openADR/tmp.txt
-echo "DB_USER = ${DB_USER}" >> home/ec2-user/openADR/tmp.txt
-echo "DB_PASSWORD = ${DB_PASSWORD}" >> home/ec2-user/openADR/tmp.txt
-echo "DB_NAME = ${DB_NAME}" >> home/ec2-user/openADR/tmp.txt
+touch  /home/ec2-user/openADR/tmp.txt
+chmod +rwx /home/ec2-user/openADR/tmp.txt
+# echo "hello=$db" | sudo tee -a tmp.txt  # add -a for append (>>)
+echo "DB_HOST = ${DB_HOST}" | sudo tee -a /home/ec2-user/openADR/tmp.txt
+echo "DB_USER = ${DB_USER}" | sudo tee -a /home/ec2-user/openADR/tmp.txt
+echo "DB_PASSWORD = ${DB_PASSWORD}" | sudo tee -a /home/ec2-user/openADR/tmp.txt
+echo "DB_NAME = ${DB_NAME}" | sudo tee -a /home/ec2-user/openADR/tmp.txt
