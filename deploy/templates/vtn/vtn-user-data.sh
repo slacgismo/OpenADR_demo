@@ -28,8 +28,9 @@ echo "export DB_HOST=${DB_HOST}" | sudo tee -a /home/ec2-user/openADR/tmp.txt
 echo "export DB_USER=${DB_USER}" | sudo tee -a /home/ec2-user/openADR/tmp.txt
 echo "export DB_PASSWORD=${DB_PASSWORD}" | sudo tee -a /home/ec2-user/openADR/tmp.txt
 echo "export DB_NAME=${DB_NAME}" | sudo tee -a /home/ec2-user/openADR/tmp.txt
-source .tmp.txt
+cd /home/ec2-user/openADR
+source ./tmp.txt
 echo "============================"
 echo "start docker-compose"
-cd /home/ec2-user/openADR/docker-vtn
-docker-compose up 
+cd /home/ec2-user/openADR
+docker-compose -f ./docker-vtn/docker-compose.yml up
