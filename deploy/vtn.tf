@@ -7,11 +7,49 @@ data "aws_ami" "amazon_linux" {
   owners = ["amazon"]
 }
 
+# data "template_file" "init" {
+#   template = "${file("./templates/vtn/vtn-user-data.sh.tpl")}"
+#   # depends = [
+#   #   aws_db_instance.main.address,
+#   #   aws_db_instance.main.db_name,
+#   #   aws_db_instance.main.username,
+#   #   aws_db_instance.main.password
+#   # ]
+#   vars = {
+#     DB_HOST          = aws_db_instance.main.address
+#     DB_NAME          = aws_db_instance.main.db_name
+#     DB_USER          = aws_db_instance.main.username
+#     DB_PASSWORD          = aws_db_instance.main.password
+#   }
+# }
+
+# locals {
+#   db_host       = aws_db_instance.main.address
+#   db_name       = aws_db_instance.main.db_name
+#   db_user      = aws_db_instance.main.username
+#   db_pass  = aws_db_instance.main.password
+# }
+    
+
 resource "aws_instance" "vtn" {
   ami           = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
-  user_data     = file("./templates/vtn/vtn-user-data.sh")
-
+  # user_data     = file("./templates/vtn/vtn-user-data.sh")
+  user_data = base64encode(
+    templatefile(
+      "./templates/vtn/vtn-user-data.sh", 
+      {
+        DB_HOST          = aws_db_instance.main.address
+        DB_NAME          = aws_db_instance.main.db_name
+        DB_USER          = aws_db_instance.main.username
+        DB_PASSWORD          = aws_db_instance.main.password
+        # db_address      = local.db_address
+        # admin_user      = local.variable1
+        # admin_password  = local.variable2
+        # public_alb_dns  = local.private_alb_dns
+      } 
+    )
+  )
   tags = merge(
     local.common_tags,
     tomap({ "Name" = "${local.prefix}-vtn" })

@@ -5,12 +5,9 @@ services:
       context: .
 
     environment:
-      - PYTHONPATH=/openleadr-python:/app
-      - VTN_NAME=vtn001
-      - PYTHONASYNCIODEBUG=1
-      - TIMEZONE=America/Los_Angeles
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - DB_HOST="${DB_HOST_VAR:-postgres}"
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=opendADR
+      - DB_HOST=postgres
     ports:
       - 8080:8080

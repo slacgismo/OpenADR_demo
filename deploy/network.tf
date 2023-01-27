@@ -176,7 +176,7 @@ resource "aws_subnet" "private_b" {
 
   tags = merge(
     local.common_tags,
-    tomap({"Name"= "${local.prefix}-private-b"})
+    tomap({ "Name" = "${local.prefix}-private-b" })
   )
 }
 
@@ -185,7 +185,7 @@ resource "aws_route_table" "private_b" {
 
   tags = merge(
     local.common_tags,
-    tomap({"Name"="${local.prefix}-private-b"})
+    tomap({ "Name" = "${local.prefix}-private-b" })
   )
 }
 

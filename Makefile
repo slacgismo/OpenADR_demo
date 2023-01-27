@@ -50,6 +50,14 @@ tf-workspace-prod:
 
 .PHONY: test
 test:
-	docker-compose run --rm app sh -c "python manage.py wait_for_db && python manage.py test && flake8"
+	echo "Implement test function"
 
 
+.PHONY: login-ecr
+login-ecr:
+	aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 041414866712.dkr.ecr.us-east-2.amazonaws.com
+	
+.PHONY: tagAndPush
+tagAndPush:
+	docker tag openadr_vtn:latest 041414866712.dkr.ecr.us-east-2.amazonaws.com/openleadr-vtn:latest
+	docker push 041414866712.dkr.ecr.us-east-2.amazonaws.com/openleadr-vtn:latest

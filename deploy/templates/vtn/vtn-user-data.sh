@@ -21,3 +21,9 @@ echo "start docker-compose"
 # start docker-compose
 cd /home/ec2-user/openADR/docker-vtn
 # docker-compose up 
+touch  home/ec2-user/openADR/tmp.txt
+chmod +rwx home/ec2-user/openADR/tmp.txt
+echo "DB_HOST = ${DB_HOST}" >> home/ec2-user/openADR/tmp.txt
+echo "DB_USER = ${DB_USER}" >> home/ec2-user/openADR/tmp.txt
+echo "DB_PASSWORD = ${DB_PASSWORD}" >> home/ec2-user/openADR/tmp.txt
+echo "DB_NAME = ${DB_NAME}" >> home/ec2-user/openADR/tmp.txt
