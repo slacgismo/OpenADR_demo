@@ -16,7 +16,7 @@ sudo docker-compose version
 # sudo mkdir home/ec2-user/openADR
 echo "mkdir home/ec2-user/openADR"
 sudo chmod +rwx home/ec2-user/openADR
-sudo git clone https://github.com/slacgismo/openADR-nodemon.git /home/ec2-user/openADR
+sudo git clone -b deploy_db https://github.com/slacgismo/openADR-nodemon.git /home/ec2-user/openADR
 echo "start docker-compose"
 # start docker-compose
 cd /home/ec2-user/openADR/docker-vtn
