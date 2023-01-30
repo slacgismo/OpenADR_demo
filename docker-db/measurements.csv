@@ -1,0 +1,3 @@
+meter_id,ven_id,measurement,value,time,device_id
+1,123,Voltage,1.23,2022-03-05 10:48:06.188016,ven_id_123
+

@@ -4,7 +4,7 @@ db_host="${DB_HOST:-postgres}"
 # echo "DB_HOST $DB_HOST"
 
 
-while ! nc -z $db_host 5432; do
+while ! nc -z $db_host 3306; do
   sleep 0.5
 done
 echo "==================="

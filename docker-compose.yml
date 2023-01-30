@@ -9,46 +9,54 @@ services:
     networks:
       - adrnet
     environment:
-      # - PYTHONPATH=/openleadr-python:/app
-      # - VTN_NAME=vtn001
-      # - PYTHONASYNCIODEBUG=1
       - TIMEZONE=America/Los_Angeles
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
+      - DB_USER=mysql
+      - DB_PASSWORD=mysql
       - DB_NAME=opendADR
-      - DB_HOST=postgres
+      - DB_HOST=mysql
     ports:
       - 8080:8080
     depends_on:
-      - postgres
-  ven:
-    build:
-      context: ./docker-ven
-    networks:
-      - adrnet
-    volumes:
-      - /Users/jimmyleu/Development/gismo/openADR:/openleadr-python
-    # - ./testven.py:/app/app.py
-    environment:
-      - VEN_NAME=ven123
-      - VTN_URL=http://vtn:8080/OpenADR2/Simple/2.0b
-      - RESOURCE_NAME=resource
-      - PYTHONPATH=/openleadr-python:/app
-      - PYTHONASYNCIODEBUG=1
-      - TIMEZONE=America/Los_Angeles
-    depends_on:
-      - vtn
+      - mysql
+  # ven:
+  #   build:
+  #     context: ./docker-ven
+  #   networks:
+  #     - adrnet
+  #   volumes:
+  #     - /Users/jimmyleu/Development/gismo/openADR:/openleadr-python
+  #   # - ./testven.py:/app/app.py
+  #   environment:
+  #     - VEN_NAME=ven123
+  #     - VTN_URL=http://vtn:8080/OpenADR2/Simple/2.0b
+  #     - RESOURCE_NAME=resource
+  #     - PYTHONPATH=/openleadr-python:/app
+  #     - PYTHONASYNCIODEBUG=1
+  #     - TIMEZONE=America/Los_Angeles
+  #   depends_on:
+  #     - vtn
 
-  postgres:
+  mysql:
     build:
       context: ./docker-db
-      dockerfile: Dockerfile
     expose:
-      - 5432
+      - 3306
     networks:
       - adrnet
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - MYSQL_USER=mysql
+      - MYSQL_PASSWORD=mysql
+      - MYSQL_ROOT_PASSWORD=mysql
+  # postgres:
+  #   build:
+  #     context: ./docker-db
+  #     dockerfile: Dockerfile
+  #   expose:
+  #     - 5432
+  #   networks:
+  #     - adrnet
+  #   environment:
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres
 networks:
   adrnet:

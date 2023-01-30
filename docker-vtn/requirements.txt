@@ -27,3 +27,4 @@ yarl
 lxml
 sqlalchemy
 psycopg2
+mysql-connector-python
