@@ -9,11 +9,12 @@ services:
     networks:
       - adrnet
     environment:
-      - TIMEZONE=America/Los_Angeles
-      - DB_USER=mysql
-      - DB_PASSWORD=mysql
-      - DB_NAME=opendADR
+      # - TIMEZONE=America/Los_Angeles
+      # - DB_USER=mysql
+      # - DB_PASSWORD=mysql
+      # - DB_NAME=opendADR
       - DB_HOST=mysql
+      - DB_PORT=3306
     ports:
       - 8080:8080
     depends_on:
@@ -44,9 +45,10 @@ services:
     networks:
       - adrnet
     environment:
-      - MYSQL_USER=mysql
-      - MYSQL_PASSWORD=mysql
-      - MYSQL_ROOT_PASSWORD=mysql
+      - MYSQL_DATABASE=openADR
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=password
   # postgres:
   #   build:
   #     context: ./docker-db
