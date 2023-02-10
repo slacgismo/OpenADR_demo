@@ -53,28 +53,28 @@ enable_default_logging()
 # db connection
 
 
-def create_db_session(engine):
-    Session = sessionmaker(bind=engine)
+# def create_db_session(engine):
+#     Session = sessionmaker(bind=engine)
 
-    session = Session()
-    return session
-
-
-def db_connection():
-    try:
-        engine = create_engine(DATABASE_URL)
-        Base.metadata.create_all(bind=engine)
-        print("*************************")
-        print("Connected db successfully")
-        print("*************************")
-        return engine
-
-    except Exception as e:
-        print(f"Connected to db failed {e}")
+#     session = Session()
+#     return session
 
 
-db_engine = db_connection()
-db_session = create_db_session(db_engine)
+# def db_connection():
+#     try:
+#         engine = create_engine(DATABASE_URL)
+#         Base.metadata.create_all(bind=engine)
+#         print("*************************")
+#         print("Connected db successfully")
+#         print("*************************")
+#         return engine
+
+#     except Exception as e:
+#         print(f"Connected to db failed {e}")
+
+
+# db_engine = db_connection()
+# db_session = create_db_session(db_engine)
 
 
 async def on_create_party_registration(registration_info):
