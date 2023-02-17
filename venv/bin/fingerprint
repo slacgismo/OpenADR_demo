@@ -1,8 +1,0 @@
-#!/Users/jimmyleu/Development/gismo/openADR/venv/bin/python3.8
-# -*- coding: utf-8 -*-
-import re
-import sys
-from openleadr.fingerprint import show_fingerprint
-if __name__ == '__main__':
-    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
-    sys.exit(show_fingerprint())
