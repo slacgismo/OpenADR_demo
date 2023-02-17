@@ -1,54 +1,45 @@
+version: "3.9"
+
 services:
   vtn:
-    container_name: vtn
+    platform: linux/amd64
     build:
-      context: ./docker-vtn
-    volumes:
-      - /Users/jimmyleu/Development/gismo/openADR:/openleadr-python
-      # - ./testvtn.py:/app/app.py
-    networks:
-      - adrnet
+      context: ./services/vtn
+      args:
+        - DEV=true
     environment:
-      # - PYTHONPATH=/openleadr-python:/app
-      # - VTN_NAME=vtn001
-      # - PYTHONASYNCIODEBUG=1
       - TIMEZONE=America/Los_Angeles
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=opendADR
-      - DB_HOST=postgres
+    networks:
+      - adrnet
     ports:
-      - 8080:8080
-    depends_on:
-      - postgres
+      - "8080:8080"
+    volumes:
+      - ./services/vtn:/app
+    command: >
+      sh -c "python vtn.py"
+
   ven:
+    platform: linux/amd64
     build:
-      context: ./docker-ven
+      context: ./services/ven
+      args:
+        - DEV=true
     networks:
       - adrnet
     volumes:
-      - /Users/jimmyleu/Development/gismo/openADR:/openleadr-python
-    # - ./testven.py:/app/app.py
+      - ./services/ven:/app
     environment:
       - VEN_NAME=ven123
       - VTN_URL=http://vtn:8080/OpenADR2/Simple/2.0b
-      - RESOURCE_NAME=resource
-      - PYTHONPATH=/openleadr-python:/app
-      - PYTHONASYNCIODEBUG=1
-      - TIMEZONE=America/Los_Angeles
+      - BATTERY_TOKEN="token123"
+      - BATTERY_SERIAL="ba123"
+      - DEVICE_ID="device_01"
+    # env_file:
+    #   - ./services/ven/.env #battery_token
+    command: >
+      sh -c "python ven.py"
+
     depends_on:
       - vtn
-
-  postgres:
-    build:
-      context: ./docker-db
-      dockerfile: Dockerfile
-    expose:
-      - 5432
-    networks:
-      - adrnet
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
 networks:
   adrnet:
