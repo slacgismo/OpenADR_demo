@@ -10,6 +10,50 @@ from aiohttp import web
 import os
 import logging
 from openleadr import objects, enums, utils
+from enum import Enum
+
+
+class SonnenBatteryOperatingMode(Enum):
+    TimeofUseMode = 10
+    ManualMode = 1
+    SelfConsumptionMode = 2
+    BackupMode = 7
+
+class SonnenBatterySystemStatus(Enum):
+    OnGrid = 1
+    OffGrid = 0
+
+class SonnenBatteryAttributeKey(Enum):
+    BackupBuffer = 0
+    BatteryCharging = 1
+    BatteryDischarging = 2
+    Consumption_Avg = 3
+    Consumption_W = 4
+    Fac = 5
+    FlowConsumptionBattery = 6
+    FlowConsumptionGrid = 7
+    FlowConsumptionProduction = 8
+    FlowGridBattery = 9
+    FlowProductionBattery = 10
+    FlowProductionGrid = 11
+    GridFeedIn_W = 12
+    IsSystemInstalled = 13
+    OperatingMode = 14
+    Pac_total_W = 15
+    Production_W = 16
+    RSOC = 17
+    RemainingCapacity_W = 18
+    SystemStatus = 19
+    USOC = 20
+    Uac = 21
+    Ubat = 22
+    Timestamp = "Timestamp" 
+
+
+class DEVICE_TYPES(Enum):
+    SONNEN_BATTERY='SONNEN_BATTERY'
+    E_GUAGE='E_GUAGE'
+
 TIMEZONE = os.environ['TIMEZONE']
 
 tz_local = pytz.timezone(TIMEZONE)
@@ -37,7 +81,7 @@ VENS = {
 
 def find_ven(form_data):
     for v in VENS.values():
-        logger.debug(v['ven_id'])
+        # logger.debug(v['ven_id'])
         if v.get('ven_id') == form_data:
             return True
         else:
@@ -47,7 +91,7 @@ def find_ven(form_data):
 def ven_lookup(ven_id):
     logger.info(f"ven_lookup {ven_id}")
     for v in VENS.values():
-        logger.debug(v['ven_id'])
+        # logger.debug(v['ven_id'])
         if v.get('ven_id') == ven_id:
             return {'ven_id': v['ven_id'],
                     'ven_name': v['ven_name'],
@@ -66,45 +110,82 @@ async def on_create_party_registration(registration_info):
     for v in VENS.values():
         # print(values['ven_name'])
         if v.get('ven_name') == ven_name:
-            logger.debug(
-                f"REGISTRATION SUCCESS WITH NAME:  {v.get('ven_name')} FROM PAYLOAD, MATCH FOUND {ven_name}")
+            # logger.debug(
+            #     f"REGISTRATION SUCCESS WITH NAME:  {v.get('ven_name')} FROM PAYLOAD, MATCH FOUND {ven_name}")
             return v['ven_id'], v['registration_id']
         else:
-            logger.debug(
-                f"REGISTRATION FAIL BAD VEN NAME: {registration_info['ven_name']}")
+            # logger.debug(
+            #     f"REGISTRATION FAIL BAD VEN NAME: {registration_info['ven_name']}")
             return False
-
+        
 
 async def on_register_report(ven_id, resource_id, measurement, unit, scale,
                              min_sampling_interval, max_sampling_interval):
     """
     Inspect a report offering from the VEN and return a callback and sampling interval for receiving the reports.
     """
-    logger.debug(f"on_register_report {ven_id} {resource_id} {measurement}")
-    callback = partial(on_update_report, ven_id=ven_id,
-                       resource_id=resource_id, measurement=measurement)
-    sampling_interval = min_sampling_interval
-    return callback, sampling_interval
+    # logger.debug(f"on_register_report {ven_id} {resource_id} {measurement}")
+
+    if measurement == DEVICE_TYPES.SONNEN_BATTERY.value:
+        callback = partial(on_update_sonnen_battery_report, ven_id=ven_id,
+                        resource_id=resource_id, measurement=measurement)
+        sampling_interval = min_sampling_interval
+        return callback, sampling_interval
+    else:
+        pass
 
 
-async def on_update_report(data, ven_id, resource_id, measurement):
-    """
-    Callback that receives report data from the VEN and handles it.
-    """
-    for time, value in data:
-        logger.debug(
-            f"Ven {ven_id} reported {measurement} = {value} at time {time} for resource {resource_id}")
-        print("=================")
+async def on_update_sonnen_battery_report(data, ven_id, resource_id, measurement):
+
+    index = 0
+    josn_report = {}
+    # josn_report[SonnenBatteryAttributeKey.Timestamp.name] = 
+    if len(data) > len (SonnenBatteryAttributeKey):
+        raise ValueError(f"Length of data is larger to SonnenBatteryAttributeKey")
+    
+    for time , value in data:
+        if SonnenBatteryAttributeKey(index).name == SonnenBatteryAttributeKey.SystemStatus.name:
+            # convert back to OnGrid or OffGrid
+            if int(value) == 1:
+                josn_report[SonnenBatteryAttributeKey(index).name] = SonnenBatterySystemStatus.OnGrid.name
+            elif int(value) == 0:
+                josn_report[SonnenBatteryAttributeKey(index).name] = SonnenBatterySystemStatus.OffGrid.name
+            else:
+                raise ValueError(f"Woops! convert to SonnenBatterySystemStatus fail {value}")
+            
+        elif (SonnenBatteryAttributeKey(index).name == SonnenBatteryAttributeKey.BatteryCharging.name) \
+            or (SonnenBatteryAttributeKey(index).name == SonnenBatteryAttributeKey.BatteryDischarging.name) \
+            or (SonnenBatteryAttributeKey(index).name == SonnenBatteryAttributeKey.FlowConsumptionBattery.name) \
+            or (SonnenBatteryAttributeKey(index).name == SonnenBatteryAttributeKey.FlowConsumptionGrid.name) \
+            or (SonnenBatteryAttributeKey(index).name == SonnenBatteryAttributeKey.FlowConsumptionProduction.name) \
+            or (SonnenBatteryAttributeKey(index).name == SonnenBatteryAttributeKey.FlowGridBattery.name) \
+            or (SonnenBatteryAttributeKey(index).name == SonnenBatteryAttributeKey.FlowProductionBattery.name) \
+            or (SonnenBatteryAttributeKey(index).name == SonnenBatteryAttributeKey.FlowProductionGrid.name):
+            # convert integert to boolean in the specific attributes
+            if int(value) == 1:
+                josn_report[SonnenBatteryAttributeKey(index).name] = True
+            elif int(value) == 0:
+                josn_report[SonnenBatteryAttributeKey(index).name] = False
+            else:
+                raise ValueError(f"Woops! convert to boolean fail {value}")
+        else:
+            josn_report[SonnenBatteryAttributeKey(index).name] = value
+
+        josn_report[SonnenBatteryAttributeKey.Timestamp.name] = time.strftime("%Y-%m-%d %H:%M:%S")
+        
+        index  += 1
+
+    print(josn_report)
 
 
 async def event_response_callback(ven_id, event_id, opt_type):
     """
     Callback that receives the response from a VEN to an Event.
     """
-    print("*************")
+
     logger.info(
         f"VEN {ven_id} responded to Event {event_id} with: {opt_type}")
-    print("*************")
+
 
 
 async def handle_cancel_event(request):
@@ -209,7 +290,7 @@ server.app.add_routes([
 logger.debug(f"Configured server {server}")
 
 loop = asyncio.new_event_loop()
-loop.set_debug(True)
+# loop.set_debug(True)
 asyncio.set_event_loop(loop)
 loop.create_task(server.run())
 # Using this line causes failure

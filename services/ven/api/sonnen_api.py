@@ -8,6 +8,52 @@ import json
 # import pandas as pd
 import time as t
 import os
+from datetime import datetime, timezone, timedelta
+from enum import Enum
+import types
+# from dataclasses import dataclass
+
+
+class SonnenBatteryOperatingMode(Enum):
+    TimeofUseMode = 10
+    ManualMode = 1
+    SelfConsumptionMode = 2
+    BackupMode = 7
+
+class SonnenBatterySystemStatus(Enum):
+    OnGrid = 1
+    OffGrid = 0
+
+class SonnenBatteryAttributeKey(Enum):
+    BackupBuffer = 0
+    BatteryCharging = 1
+    BatteryDischarging = 2
+    Consumption_Avg = 3
+    Consumption_W = 4
+    Fac = 5
+    FlowConsumptionBattery = 6
+    FlowConsumptionGrid = 7
+    FlowConsumptionProduction = 8
+    FlowGridBattery = 9
+    FlowProductionBattery = 10
+    FlowProductionGrid = 11
+    GridFeedIn_W = 12
+    IsSystemInstalled = 13
+    OperatingMode = 14
+    Pac_total_W = 15
+    Production_W = 16
+    RSOC = 17
+    RemainingCapacity_W = 18
+    SystemStatus = 19
+    USOC = 20
+    Uac = 21
+    Ubat = 22
+    Timestamp = 'Timestamp'
+
+
+
+
+
 
 
 class SonnenInterface():
@@ -31,6 +77,83 @@ class SonnenInterface():
             print(err)
 
         return resp.json()
+
+    def get_status_and_convert_to_openleadr_report(self):
+        """ 
+        Get battery status and convert to the openADR historical report format
+        Since openADR protocol not allow to pass json format, we have to pass the 
+        data in an array with [(datetime, value)] format. The value is float type. 
+        It's important to keep the same sequence, then the VTN can parse correctly. 
+        Otherwise, VTN may get wrong data.
+        Original json format
+
+        {
+            "BackupBuffer": "10", "BatteryCharging": true, "BatteryDischarging": false,
+            "Consumption_Avg": 0, "Consumption_W": 0, "Fac": 60, "FlowConsumptionBattery": false, 
+            "FlowConsumptionGrid": false, "FlowConsumptionProduction": false, "FlowGridBattery": true, 
+            "FlowProductionBattery": true, "FlowProductionGrid": true, "GridFeedIn_W": 196, 
+            "IsSystemInstalled": 1, "OperatingMode": "2", "Pac_total_W": -1800, 
+            "Production_W": 1792, "RSOC": 52, "RemainingCapacity_W": 5432, "SystemStatus": "OnGrid", 
+            "Timestamp": "2023-02-09 14:50:32", "USOC": 49, "Uac": 237, "Ubat": 54
+        }
+
+        """
+        status_endpoint = '/api/v1/status'
+        
+
+        try:
+            resp = requests.get(self.url_ini + self.serial +
+                                status_endpoint, headers=self.headers)
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            print(err)
+
+        battery_data = []
+        try:
+            batt_staus = resp.json()
+
+            timestamp_str = batt_staus[SonnenBatteryAttributeKey.Timestamp.name]
+            # datetime_str = '2023-02-09 14:50:32'
+            datetime_object = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+            
+            index =0
+    
+            for attribute, value in batt_staus.items():
+                # print(f"index:{index} attribute :{attribute} value: {value} type:{type(value)}")
+                if attribute == SonnenBatteryAttributeKey.Timestamp.name:
+                    # skip TimeStamp . since the datetime of the array is this Timestamp
+                    pass
+                elif attribute == SonnenBatteryAttributeKey.SystemStatus.name:
+                    if value == SonnenBatterySystemStatus.OnGrid.name:
+                        new_value = 1
+                    elif value == SonnenBatterySystemStatus.OffGrid.name:
+                        new_value = 0
+                    else:
+                        raise ValueError(f"Wops!! SonnenBatterySystemStatus key error {value}")
+                    battery_data.append((datetime_object, new_value))
+                elif isinstance(value,bool):
+                    if value is True: 
+                        new_value = 1
+                    else:
+                        new_value = 0 
+                    battery_data.append((datetime_object, new_value))
+
+                elif isinstance(value, (float, int)):
+                    
+                    battery_data.append((datetime_object, value))
+                elif value.isnumeric():
+                    new_value = float(value)
+                    battery_data.append((datetime_object, new_value))
+                else:
+                    print(f"WOPS!! we miss a value here: attribute:{attribute} value: {value} ")
+                index += 1
+
+        except ValueError as e:
+            print(f"convert to openADR report error:{e} ")
+
+        return battery_data
+
+
 
     # Backup:
     # Intended to maintain an energy reserve for situations where the Grid is no longer available. During the off-grid
@@ -163,7 +286,7 @@ class SonnenInterface():
         control_endpoint = '/api/v1/setpoint/'
         # Checking if system is in off-grid mode
         voltage = SonnenInterface(
-            serial=self.serial, auth_token=token).get_status()['Uac']
+            serial=self.serial, auth_token=self.token).get_status()['Uac']
 
         if voltage == 0:
             print('Battery is in off-grid mode... Cannot execute the command')

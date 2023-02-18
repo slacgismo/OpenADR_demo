@@ -1,27 +1,58 @@
 import asyncio
-from datetime import timedelta
+from datetime import datetime, timezone, timedelta
 from openleadr import OpenADRClient, enable_default_logging
-from api.sonnen_api import SonnenInterface
-# from models.SonnenBattery import SonnenBatteryAttributeKey
+from api.sonnen_api import SonnenInterface, SonnenBatteryAttributeKey
+
+
+from enum import Enum
 import os
+
+
+class DEVICE_TYPES(Enum):
+    SONNEN_BATTERY='SONNEN_BATTERY'
+    E_GUAGE='E_GUAGE'
+
 
 VEN_NAME = os.getenv('VEN_NAME')
 VTN_URL = os.getenv('VTN_URL')
 BATTERY_TOKEN = os.getenv('BATTERY_TOKEN')
 BATTERY_SN = os.getenv('BATTERY_SN')
 DEVICE_ID = os.getenv('DEVICE_ID')
+DEVICE_TYPE= os.getenv('DEVICE_TYPE')
+TIMEZONE = os.environ['TIMEZONE']
+print(f"DEVICE_TYPE: {DEVICE_TYPE}")
+
 enable_default_logging()
 
 
+
+
 # start to implement Sonnen API
-async def collect_report_value():
+async def collect_report_value(date_from, date_to, sampling_interval):
+    if DEVICE_TYPE == DEVICE_TYPES.SONNEN_BATTERY.value:
+        # print(f"BATTERY_SN: {BATTERY_SN}, BATTERY_TOKEN:{BATTERY_TOKEN}, TIMEZONE:{TIMEZONE}")
+        try:
+            battery_interface = SonnenInterface(serial=BATTERY_SN, auth_token=BATTERY_TOKEN)
+            report_data = battery_interface.get_status_and_convert_to_openleadr_report()
+            # print(f"report_data {report_data}")
+        except Exception as e:
+            raise Exception(f"something wrong: {e}")
+        return report_data
+        datetime_str = '2023-02-09 14:50:32'
+        datetime_object = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
+        return [(datetime_object, 10.0),(datetime_object, 11.0)]
+    
+    elif DEVICE_TYPE == DEVICE_TYPES.E_GUAGE.value:
+        # get data from e gauate api
+        return 1.23
+    else :
+        raise ValueError('DEVICE_TYPE not found')
     # This callback is called when you need to collect a value for your Report
-    # battery_interface = SonnenInterface(
-    #     serial=BATTERY_SN, auth_token=BATTERY_TOKEN)
+
     # batt_staus = battery_interface.get_status()
     # Consumption_W = batt_staus['Consumption_W']
     # return Consumption_W
-    return 1.23
+    # return 1.23
 
 
 async def handle_event(event):
@@ -36,17 +67,14 @@ async def handle_event(event):
 client = OpenADRClient(ven_name=VEN_NAME,
                        vtn_url=VTN_URL)
 # Add the report capability to the client
-# client.add_report(callback=collect_report_value,
-#                   resource_id=DEVICE_ID,
-#                   measurement="hello",
-#                   report_duration=timedelta(seconds=30),
-#                   sampling_rate=timedelta(seconds=30))
+client.add_report(callback=collect_report_value,
+                  resource_id=DEVICE_ID,
+                  report_specifier_id='BatteryReport',
+                  data_collection_mode='full',
+                  measurement=DEVICE_TYPES.SONNEN_BATTERY.value,
+                  report_duration=timedelta(seconds=3600),
+                  sampling_rate=timedelta(seconds=10))
 
-# client.add_report(callback=collect_report_value,
-#                   resource_id=DEVICE_ID,
-#                   measurement=SonnenBatteryAttributeKey.BackupBuffer,
-#                   report_duration=timedelta(seconds=30),
-#                   sampling_rate=timedelta(seconds=30))
 
 # Add event handling capability to the client
 client.add_handler('on_event', handle_event)

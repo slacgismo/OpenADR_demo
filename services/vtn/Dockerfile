@@ -6,9 +6,6 @@ ENV PYTHONUNBUFFERED 1
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 
-COPY . /app
-WORKDIR  /app
-EXPOSE 8000
 
 ARG DEV=true
 RUN python -m venv /py && \
@@ -28,6 +25,10 @@ RUN if [ $DEV = "true" ]; \
         --disabled-password \
         --no-create-home \
         openadr-user
+
+COPY . /app
+WORKDIR  /app
+
 
 ENV PATH="/py/bin:$PATH"
 # CMD [ "python ./app/vtn.py" ]

@@ -31,9 +31,11 @@ services:
     environment:
       - VEN_NAME=ven123
       - VTN_URL=http://vtn:8080/OpenADR2/Simple/2.0b
-      - BATTERY_TOKEN="token123"
-      - BATTERY_SERIAL="ba123"
-      - DEVICE_ID="device_01"
+      - BATTERY_TOKEN=${BATTERY_TOKEN}
+      - BATTERY_SN=66352
+      - DEVICE_ID=device_01
+      - DEVICE_TYPE=SONNEN_BATTERY
+      - TIMEZONE=America/Los_Angeles
     # env_file:
     #   - ./services/ven/.env #battery_token
     command: >
