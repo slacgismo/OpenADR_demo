@@ -13,6 +13,7 @@ DEVICE_ID = os.getenv('DEVICE_ID')
 enable_default_logging()
 
 
+# start to implement Sonnen API
 async def collect_report_value():
     # This callback is called when you need to collect a value for your Report
     # battery_interface = SonnenInterface(
