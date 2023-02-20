@@ -94,7 +94,7 @@ def send_report_data_to_url(url: str, data: dict) -> bool:
             raise ValueError(
                 f'Request failed with status {response.status_code}')
         response_json = response.json()
-        # print(f"response_json: {response_json}")
+        print(f"response_json: {response_json}")
         return True
     except Exception as e:
         raise e
@@ -116,7 +116,7 @@ def check_if_ven_exist_in_tess_db(ven_url: str, ven_name: str) -> bool:
         response_json = response.json()
         print(f"response_json: {response_json}")
 
-        message = response_json.get('message')c
+        message = response_json.get('message')
         print(f"body: {message}")
         if not message:
             raise ValueError('Response body is missing or empty')

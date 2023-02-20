@@ -22,6 +22,30 @@ resource "aws_iam_role_policy_attachment" "hello_lambda_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+resource "aws_iam_policy" "test_s3_bucket_access" {
+  name        = "TestS3BucketAccess"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+        ]
+        Effect   = "Allow"
+        Resource = "arn:aws:s3:::${aws_s3_bucket.test.id}/*"
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "s3_lambda_test_s3_bucket_access" {
+  role       = aws_iam_role.hello_lambda_exec.name
+  policy_arn = aws_iam_policy.test_s3_bucket_access.arn
+}
+
+
 resource "aws_lambda_function" "hello" {
   function_name = "hello"
 
