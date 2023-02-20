@@ -12,6 +12,7 @@ import logging
 from openleadr import objects, enums, utils
 from enum import Enum
 import json
+import requests
 
 
 class SonnenBatteryOperatingMode(Enum):
@@ -59,6 +60,9 @@ class DEVICE_TYPES(Enum):
 
 
 TIMEZONE = os.environ['TIMEZONE']
+GET_VENS_URL = os.environ['GET_VENS_URL']
+SAVE_DATA_URL = os.environ['SAVE_DATA_URL']
+
 
 tz_local = pytz.timezone(TIMEZONE)
 
@@ -72,15 +76,63 @@ logger = logging.getLogger('openleadr')
 logger.info("vtn at top")
 
 # Future db
-VENS = {
-    "ven123": {
-        "ven_name": "ven123",
-        "ven_id": "ven_id_ven123",
-        "registration_id": "reg_id_ven123"
-    }
-}
-
+# VENS = {
+#     "ven123": {
+#         "ven_name": "ven123",
+#         "ven_id": "ven_id_ven123",
+#         "registration_id": "reg_id_ven123"
+#     }
+# }
+VENS = {}
 # form data lookup for creating an event with the html page
+
+
+def send_report_data_to_url(url: str, data: dict) -> bool:
+    try:
+        response = requests.post(url, json=data)
+        if response.status_code != 200:
+            raise ValueError(
+                f'Request failed with status {response.status_code}')
+        response_json = response.json()
+        # print(f"response_json: {response_json}")
+        return True
+    except Exception as e:
+        raise e
+
+
+def check_if_ven_exist_in_tess_db(ven_url: str, ven_name: str) -> bool:
+    try:
+        params = {"NAME": ven_name}
+        url = GET_VENS_URL
+        response = requests.get(
+            url,
+            params=params
+        )
+        # print(f"000 url {url}")
+        # print(f"response:{response}")
+        if response.status_code != 200:
+            raise ValueError(
+                f'Request failed with status {response.status_code}')
+        response_json = response.json()
+        print(f"response_json: {response_json}")
+
+        message = response_json.get('message')c
+        print(f"body: {message}")
+        if not message:
+            raise ValueError('Response body is missing or empty')
+        # # if "message" in body:
+        if ven_name in message:
+            # print("find ven ")
+            ven_info = message[ven_name]
+            VENS[ven_name] = ven_info
+            # print("======================")
+            # print(f"VEN {VENS}")
+            return ven_info['ven_id'], ven_info['registration_id'],
+        else:
+            return False
+
+    except Exception as e:
+        raise e
 
 
 def find_ven(form_data):
@@ -117,10 +169,9 @@ async def on_create_party_registration(registration_info):
             # logger.debug(
             #     f"REGISTRATION SUCCESS WITH NAME:  {v.get('ven_name')} FROM PAYLOAD, MATCH FOUND {ven_name}")
             return v['ven_id'], v['registration_id']
-        else:
-            # logger.debug(
-            #     f"REGISTRATION FAIL BAD VEN NAME: {registration_info['ven_name']}")
-            return False
+    print("****************")
+    print("Cannot find ven_name, try to fetch from url")
+    return check_if_ven_exist_in_tess_db(ven_url=GET_VENS_URL, ven_name=ven_name)
 
 
 async def on_register_report(ven_id, resource_id, measurement, unit, scale,
@@ -184,7 +235,9 @@ async def on_update_sonnen_battery_report(data, ven_id, resource_id, measurement
 
         index += 1
 
-    print(josn_report)
+    print("---------------")
+    print("get report and send to the post url")
+    send_report_data_to_url(url=SAVE_DATA_URL, data=josn_report)
 
 
 async def event_response_callback(ven_id, event_id, opt_type):
