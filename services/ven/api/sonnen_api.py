@@ -20,9 +20,11 @@ class SonnenBatteryOperatingMode(Enum):
     SelfConsumptionMode = 2
     BackupMode = 7
 
+
 class SonnenBatterySystemStatus(Enum):
     OnGrid = 1
     OffGrid = 0
+
 
 class SonnenBatteryAttributeKey(Enum):
     BackupBuffer = 0
@@ -49,11 +51,6 @@ class SonnenBatteryAttributeKey(Enum):
     Uac = 21
     Ubat = 22
     Timestamp = 'Timestamp'
-
-
-
-
-
 
 
 class SonnenInterface():
@@ -99,7 +96,6 @@ class SonnenInterface():
 
         """
         status_endpoint = '/api/v1/status'
-        
 
         try:
             resp = requests.get(self.url_ini + self.serial +
@@ -107,6 +103,7 @@ class SonnenInterface():
             resp.raise_for_status()
         except requests.exceptions.HTTPError as err:
             print(err)
+            return requests.exceptions.HTTPError
 
         battery_data = []
         try:
@@ -114,10 +111,11 @@ class SonnenInterface():
 
             timestamp_str = batt_staus[SonnenBatteryAttributeKey.Timestamp.name]
             # datetime_str = '2023-02-09 14:50:32'
-            datetime_object = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
-            
-            index =0
-    
+            datetime_object = datetime.strptime(
+                timestamp_str, "%Y-%m-%d %H:%M:%S")
+
+            index = 0
+
             for attribute, value in batt_staus.items():
                 # print(f"index:{index} attribute :{attribute} value: {value} type:{type(value)}")
                 if attribute == SonnenBatteryAttributeKey.Timestamp.name:
@@ -129,31 +127,31 @@ class SonnenInterface():
                     elif value == SonnenBatterySystemStatus.OffGrid.name:
                         new_value = 0
                     else:
-                        raise ValueError(f"Wops!! SonnenBatterySystemStatus key error {value}")
+                        raise ValueError(
+                            f"Wops!! SonnenBatterySystemStatus key error {value}")
                     battery_data.append((datetime_object, new_value))
-                elif isinstance(value,bool):
-                    if value is True: 
+                elif isinstance(value, bool):
+                    if value is True:
                         new_value = 1
                     else:
-                        new_value = 0 
+                        new_value = 0
                     battery_data.append((datetime_object, new_value))
 
                 elif isinstance(value, (float, int)):
-                    
+
                     battery_data.append((datetime_object, value))
                 elif value.isnumeric():
                     new_value = float(value)
                     battery_data.append((datetime_object, new_value))
                 else:
-                    print(f"WOPS!! we miss a value here: attribute:{attribute} value: {value} ")
+                    print(
+                        f"WOPS!! we miss a value here: attribute:{attribute} value: {value} ")
                 index += 1
 
         except ValueError as e:
             print(f"convert to openADR report error:{e} ")
 
         return battery_data
-
-
 
     # Backup:
     # Intended to maintain an energy reserve for situations where the Grid is no longer available. During the off-grid

@@ -1,0 +1,1 @@
+{"errorMessage": "'httpMethod'", "errorType": "KeyError", "stackTrace": ["  File \"/var/task/function.py\", line 5, in lambda_handler\n    http_method = event['httpMethod']\n"]}

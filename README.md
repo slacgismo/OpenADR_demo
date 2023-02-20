@@ -190,6 +190,10 @@ https://jonathanserrano.medium.com/deploy-a-fastapi-app-to-production-using-dock
 https://betterprogramming.pub/deep-dive-into-amazon-timestream-data-ingestion-in-python-18c6c09accd
 https://towardsdatascience.com/amazon-timestream-is-finally-released-is-it-worth-your-time-e6b7eff10867
 
+#### terraform lambda
+
+https://www.litiverse.com/posts/deploying-docker-image-lambda
+
 #### Check aws cloud init log
 
 Under the ec2 instance, we can use the following command to check the log of EC2 instance.
