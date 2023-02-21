@@ -76,14 +76,14 @@ logger = logging.getLogger('openleadr')
 logger.info("vtn at top")
 
 # Future db
-# VENS = {
-#     "ven123": {
-#         "ven_name": "ven123",
-#         "ven_id": "ven_id_ven123",
-#         "registration_id": "reg_id_ven123"
-#     }
-# }
-VENS = {}
+VENS = {
+    "ven234": {
+        "ven_name": "ven234",
+        "ven_id": "ven_id_ven234",
+        "registration_id": "reg_id_ven234"
+    }
+}
+# VENS = {}
 # form data lookup for creating an event with the html page
 
 
