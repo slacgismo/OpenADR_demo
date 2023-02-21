@@ -9,8 +9,8 @@ services:
         - DEV=true
     environment:
       - TIMEZONE=America/Los_Angeles
-      - SAVE_DATA_URL=https://9w4l57hst1.execute-api.us-east-2.amazonaws.com/dev/hello
-      - GET_VENS_URL=https://9w4l57hst1.execute-api.us-east-2.amazonaws.com/dev/hello
+      - SAVE_DATA_URL=https://lv55k5wqj2.execute-api.us-east-2.amazonaws.com/dev/openadr_devices
+      - GET_VENS_URL=https://lv55k5wqj2.execute-api.us-east-2.amazonaws.com/dev/openadr_devices
     networks:
       - adrnet
     ports:
