@@ -5,7 +5,7 @@ data "template_file" "ven_container_definitions" {
   vars = {
     app_image        = var.ecr_image_ven
     ven_name         = "ven123"
-    vtn_url          = "http://3.144.221.239:8080/OpenADR2/Simple/2.0b"
+    vtn_url          = "http://3.17.184.76:8080/OpenADR2/Simple/2.0b"
     battery_token    = var.battery_token
     battery_sn       = var.battery_sn
     device_id        = var.device_id
