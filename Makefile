@@ -60,6 +60,6 @@ login-ecr:
 .PHONY: tagAndPush
 tagAndPush:
 	docker tag openadr_vtn:latest 041414866712.dkr.ecr.us-east-2.amazonaws.com/vtn:latest
-	docker tag openadr_vtn:latest 041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest
+	docker tag openadr_ven:latest 041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest
 	docker push 041414866712.dkr.ecr.us-east-2.amazonaws.com/vtn:latest
 	docker push 041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest
