@@ -21,3 +21,27 @@ variable "private_instance_count" {
   type        = number
   default     = 1
 }
+
+variable "ven_name" {
+  description = "VEN Name"
+  default = "ven123"
+}
+variable "battery_token" {
+  description = "Battery token"
+}
+variable "battery_sn" {
+  description = "Battery sn"
+}
+variable "device_id" {
+  description = "Device ID"
+  default = "device_01"
+}
+variable "device_type" {
+  description = "Device type"
+  default = "SONNEN_BATTERY"
+}
+variable "price_threshold" {
+  description = "Price threshold "
+  default = "0.15"
+}
+

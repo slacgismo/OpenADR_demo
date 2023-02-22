@@ -32,4 +32,4 @@ WORKDIR  /app
 
 
 ENV PATH="/py/bin:$PATH"
-CMD [ "python ven.py" ]
+# CMD [ "python ven.py" ]

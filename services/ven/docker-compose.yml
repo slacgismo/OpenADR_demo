@@ -6,8 +6,6 @@ services:
     #image: 041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest
     build:
       context: .
-    volumes:
-      - ./services/ven:/app
     environment:
       - VEN_NAME=${VEN_NAME}
       - VTN_URL=${VTN_URL}

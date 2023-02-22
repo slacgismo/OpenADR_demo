@@ -39,8 +39,7 @@ services:
       - DEVICE_TYPE=SONNEN_BATTERY
       - TIMEZONE=America/Los_Angeles
       - PRICE_THRESHOLD=0.15
-    # env_file:
-    #   - ./services/ven/.env #battery_token
+
     command: >
       sh -c "python ven.py"
 
