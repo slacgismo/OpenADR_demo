@@ -3,9 +3,9 @@ version: "3.9"
 services:
   ven:
     platform: linux/amd64
-    #image: 041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest
-    build:
-      context: .
+    image: 041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest
+    # build:
+    #   context: .
     environment:
       - VEN_NAME=${VEN_NAME}
       - VTN_URL=${VTN_URL}

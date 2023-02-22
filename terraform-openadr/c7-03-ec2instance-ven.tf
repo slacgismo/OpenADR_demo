@@ -15,6 +15,7 @@ module "ec2_public_ven" {
   #monitoring             = true
   subnet_id              = module.vpc.public_subnets[0]
   vpc_security_group_ids = [module.public_ven_sg.this_security_group_id]
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
   user_data = base64encode(
     templatefile(
       "./templates/ven-install.sh", 
