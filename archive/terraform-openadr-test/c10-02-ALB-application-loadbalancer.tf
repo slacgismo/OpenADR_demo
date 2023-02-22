@@ -14,7 +14,7 @@ module "alb" {
   # Listeners
   http_tcp_listeners = [
     {
-      port               = 80
+      port               = 8080
       protocol           = "HTTP"
       target_group_index = 0 # App1 TG associated to this listener
     }
@@ -25,13 +25,13 @@ module "alb" {
     {
       name_prefix          = "app1-"
       backend_protocol     = "HTTP"
-      backend_port         = 80
+      backend_port         = 8080
       target_type          = "instance"
       deregistration_delay = 10
       health_check = {
         enabled             = true
         interval            = 30
-        path                = "/app1/index.html"
+        path                = "/vens"
         port                = "traffic-port"
         healthy_threshold   = 3
         unhealthy_threshold = 3
@@ -44,11 +44,11 @@ module "alb" {
       targets = {
         my_app1_vm1 = {
           target_id = module.ec2_private.id[0]
-          port      = 80
+          port      = 8080
         },
         my_app1_vm2 = {
           target_id = module.ec2_private.id[1]
-          port      = 80
+          port      = 8080
         }
       }
       tags = local.common_tags # Target Group Tags

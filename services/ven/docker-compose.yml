@@ -3,18 +3,20 @@ version: "3.9"
 services:
   ven:
     platform: linux/amd64
-    image: 041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest
+    #image: 041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest
+    build:
+      context: .
     volumes:
       - ./services/ven:/app
     environment:
-      - VEN_NAME=ven123
-      - VTN_URL=http://vtn:8080/OpenADR2/Simple/2.0b
+      - VEN_NAME=${VEN_NAME}
+      - VTN_URL=${VTN_URL}
       - BATTERY_TOKEN=${BATTERY_TOKEN}
-      - BATTERY_SN=66352
-      - DEVICE_ID=device_01
-      - DEVICE_TYPE=SONNEN_BATTERY
-      - TIMEZONE=America/Los_Angeles
-      - PRICE_THRESHOLD=0.15
+      - BATTERY_SN=${BATTERY_SN}
+      - DEVICE_ID=${DEVICE_ID}
+      - DEVICE_TYPE=${DEVICE_TYPE}
+      - TIMEZONE=${TIMEZONE}
+      - PRICE_THRESHOLD=${PRICE_THRESHOLD}
 
     command: >
       sh -c "python ven.py"

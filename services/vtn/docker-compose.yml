@@ -3,11 +3,13 @@ version: "3.9"
 services:
   vtn:
     platform: linux/amd64
-    image: 041414866712.dkr.ecr.us-east-2.amazonaws.com/vtn:latest
+    # image: 041414866712.dkr.ecr.us-east-2.amazonaws.com/vtn:latest
+    build:
+      context: .
     environment:
       - TIMEZONE=America/Los_Angeles
-      - SAVE_DATA_URL=https://lv55k5wqj2.execute-api.us-east-2.amazonaws.com/dev/openadr_devices
-      - GET_VENS_URL=https://lv55k5wqj2.execute-api.us-east-2.amazonaws.com/dev/openadr_devices
+      - SAVE_DATA_URL=${SAVE_DATA_URL}
+      - GET_VENS_URL=${GET_VENS_URL}
     ports:
       - "8080:8080"
     command: >

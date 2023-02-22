@@ -98,7 +98,7 @@ client.add_report(callback=collect_report_value,
                   data_collection_mode='full',
                   measurement=DEVICE_TYPES.SONNEN_BATTERY.value,
                   report_duration=timedelta(seconds=3600),
-                  sampling_rate=timedelta(seconds=10))
+                  sampling_rate=timedelta(seconds=300))
 
 
 # Add event handling capability to the client
