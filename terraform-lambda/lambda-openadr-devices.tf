@@ -34,7 +34,7 @@ resource "aws_iam_policy" "test_s3_bucket_access" {
           "s3:PutObject",
         ]
         Effect   = "Allow"
-        Resource = "arn:aws:s3:::${aws_s3_bucket.openadr-device.id}/*"
+        Resource = "arn:aws:s3:::${aws_s3_bucket.batteries.id}/*"
       },
     ]
   })

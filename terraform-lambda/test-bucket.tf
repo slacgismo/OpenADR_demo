@@ -1,15 +1,15 @@
-resource "random_pet" "openadr-device_bucket_name" {
-  prefix = "openadr-device"
+resource "random_pet" "batteries_bucket_name" {
+  prefix = "openadr-batteries"
   length = 2
 }
 
-resource "aws_s3_bucket" "openadr-device" {
-  bucket        = random_pet.openadr-device_bucket_name.id
+resource "aws_s3_bucket" "batteries" {
+  bucket        = random_pet.batteries_bucket_name.id
   force_destroy = true
 }
 
-resource "aws_s3_bucket_public_access_block" "openadr-device" {
-  bucket = aws_s3_bucket.openadr-device.id
+resource "aws_s3_bucket_public_access_block" "batteries" {
+  bucket = aws_s3_bucket.batteries.id
 
   block_public_acls       = true
   block_public_policy     = true
@@ -17,13 +17,15 @@ resource "aws_s3_bucket_public_access_block" "openadr-device" {
   restrict_public_buckets = true
 }
 
-resource "aws_s3_object" "openadr-device" {
-  bucket = aws_s3_bucket.openadr-device.id
+resource "aws_s3_object" "batteris" {
+  bucket = aws_s3_bucket.batteries.id
 
-  key     = "openadr_devices.json"
-  content = jsonencode({ name = "S3" })
+  key     = "batteries.csv"
+  source =  "${path.module}/batteries.csv"
+  # content = jsonencode({ name = "S3" })
 }
 
 output "openadr-device_s3_bucket" {
-  value = random_pet.openadr-device_bucket_name.id
+  value = random_pet.batteries_bucket_name.id
 }
+

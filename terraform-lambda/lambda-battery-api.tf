@@ -22,6 +22,13 @@ resource "aws_iam_role_policy_attachment" "battery_api_lambda_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+
+
+resource "aws_iam_role_policy_attachment" "battery_api_lamda_access_s3" {
+  role       = aws_iam_role.battery_api_lambda_exec.name
+  policy_arn = aws_iam_policy.test_s3_bucket_access.arn
+}
+
 resource "aws_lambda_function" "battery_api" {
   function_name = "battery_api"
 

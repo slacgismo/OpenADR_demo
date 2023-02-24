@@ -35,7 +35,6 @@ exports.handler = async (event) => {
 
   if (event.httpMethod === "POST") {
     const jsonData = JSON.parse(event.body);
-    const bucket = "test-adjusted-elk";
 
     const timestamp = new Date().toISOString().replace(/:/g, "-");
     const filename = `data-${timestamp}.csv`;

@@ -193,6 +193,9 @@ https://towardsdatascience.com/amazon-timestream-is-finally-released-is-it-worth
 #### terraform lambda
 
 https://www.litiverse.com/posts/deploying-docker-image-lambda
+https://hands-on.cloud/terraform-docker-lambda-example/
+https://www.bogotobogo.com/DevOps/AWS/aws-API-Gateway-Lambda-Terraform-with-ECR-Container.php
+https://www.youtube.com/watch?v=50rBFasH3OE&t=1051s
 
 #### Check aws cloud init log
 

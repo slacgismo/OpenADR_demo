@@ -2,7 +2,7 @@ import asyncio
 from datetime import datetime, timezone, timedelta
 from openleadr import OpenADRClient, enable_default_logging
 from api.sonnen_api import SonnenInterface, SonnenBatteryAttributeKey
-
+from api.mock_sonnen_api import MockSonnenInterface
 
 from enum import Enum
 import os
@@ -13,15 +13,20 @@ class DEVICE_TYPES(Enum):
     E_GUAGE = 'E_GUAGE'
 
 
+DEV = bool(os.getenv('DEV'))
 VEN_NAME = os.getenv('VEN_NAME')
 VTN_URL = os.getenv('VTN_URL')
 BATTERY_TOKEN = os.getenv('BATTERY_TOKEN')
 BATTERY_SN = os.getenv('BATTERY_SN')
 DEVICE_ID = os.getenv('DEVICE_ID')
 DEVICE_TYPE = os.getenv('DEVICE_TYPE')
-TIMEZONE = os.environ['TIMEZONE']
-PRICE_THRESHOLD = os.environ['PRICE_THRESHOLD']
-print(f"DEVICE_TYPE: {DEVICE_TYPE}")
+TIMEZONE = os.getenv('TIMEZONE')
+PRICE_THRESHOLD = os.getenv('PRICE_THRESHOLD')
+MOCK_BATTERY_API_URL = os.getenv('MOCK_BATTERY_API_URL')
+BATTERY_SN = os.getenv('BATTERY_SN')
+
+print(
+    f"DEVICE_TYPE: {DEVICE_TYPE}, DEV :{DEV} MOCK_BATTERY_API_URL: {MOCK_BATTERY_API_URL}")
 
 enable_default_logging()
 
@@ -31,9 +36,16 @@ async def collect_report_value(date_from, date_to, sampling_interval):
     if DEVICE_TYPE == DEVICE_TYPES.SONNEN_BATTERY.value:
         # print(f"BATTERY_SN: {BATTERY_SN}, BATTERY_TOKEN:{BATTERY_TOKEN}, TIMEZONE:{TIMEZONE}")
         try:
-            battery_interface = SonnenInterface(
-                serial=BATTERY_SN, auth_token=BATTERY_TOKEN)
-            report_data = battery_interface.get_status_and_convert_to_openleadr_report()
+            if DEV is not True:
+                battery_interface = SonnenInterface(
+                    serial=BATTERY_SN, auth_token=BATTERY_TOKEN)
+                report_data = battery_interface.get_status_and_convert_to_openleadr_report()
+            else:
+                print(
+                    f"Use mock battery api :{MOCK_BATTERY_API_URL}, auth_token:{BATTERY_TOKEN},serial: {BATTERY_SN}")
+                mock_battery_interface = MockSonnenInterface(
+                    serial=BATTERY_SN, auth_token=BATTERY_TOKEN, url_ini=MOCK_BATTERY_API_URL)
+                report_data = mock_battery_interface.get_status_and_convert_to_openleadr_report()
             # print(f"report_data {report_data}")
         except Exception as e:
             raise Exception(f"something wrong: {e}")
@@ -98,7 +110,7 @@ client.add_report(callback=collect_report_value,
                   data_collection_mode='full',
                   measurement=DEVICE_TYPES.SONNEN_BATTERY.value,
                   report_duration=timedelta(seconds=3600),
-                  sampling_rate=timedelta(seconds=300))
+                  sampling_rate=timedelta(seconds=10))
 
 
 # Add event handling capability to the client

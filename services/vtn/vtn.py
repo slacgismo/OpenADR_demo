@@ -69,11 +69,11 @@ tz_local = pytz.timezone(TIMEZONE)
 if __name__ == "__main__":
     pass
 
-enable_default_logging(level=logging.DEBUG)
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger('openleadr')
+# enable_default_logging(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
+# logger = logging.getLogger('openleadr')
 
-logger.info("vtn at top")
+# logger.info("vtn at top")
 
 # Future db
 VENS = {
@@ -102,8 +102,9 @@ def send_report_data_to_url(url: str, data: dict) -> bool:
 
 def check_if_ven_exist_in_tess_db(ven_url: str, ven_name: str) -> bool:
     try:
+        print(f"ven_url :{ven_url}, ven_name:{ven_name}")
         params = {"NAME": ven_name}
-        url = GET_VENS_URL
+        url = ven_url
         response = requests.get(
             url,
             params=params
@@ -145,7 +146,7 @@ def find_ven(form_data):
 
 
 def ven_lookup(ven_id):
-    logger.info(f"ven_lookup {ven_id}")
+    # logger.info(f"ven_lookup {ven_id}")
     for v in VENS.values():
         # logger.debug(v['ven_id'])
         if v.get('ven_id') == ven_id:
@@ -159,8 +160,8 @@ async def on_create_party_registration(registration_info):
     """
     Inspect the registration info and return a ven_id and registration_id.
     """
-    logger.debug(
-        f"TRYING TO LOOK UP VEN FOR REGISTRATION: {registration_info['ven_name']}")
+    # logger.debug(
+    #     f"TRYING TO LOOK UP VEN FOR REGISTRATION: {registration_info['ven_name']}")
 
     ven_name = registration_info['ven_name']
     for v in VENS.values():
@@ -244,9 +245,9 @@ async def event_response_callback(ven_id, event_id, opt_type):
     """
     Callback that receives the response from a VEN to an Event.
     """
-
-    logger.info(
-        f"VEN {ven_id} responded to Event {event_id} with: {opt_type}")
+    print(f"event :{ven_id} opt_type: {opt_type}")
+    # logger.info(
+    #     f"VEN {ven_id} responded to Event {event_id} with: {opt_type}")
 
 
 async def handle_cancel_event(request):
@@ -316,25 +317,25 @@ async def all_ven_info(request):
         # return failed with a status code of 500 i.e. 'Server Error'
         return web.json_response(response_obj, status=500)
 
-logger.debug("vtn before OpenADRServer")
+# logger.debug("vtn before OpenADRServer")
 
 # Create the server object
 server = OpenADRServer(vtn_id='myvtn',
                        http_host='0.0.0.0')
 # ven_lookup=ven_lookup)
 
-logger.debug(f"vtn created server {server}")
+# logger.debug(f"vtn created server {server}")
 
 # Add the handler for client (VEN) registrations
 server.add_handler('on_create_party_registration',
                    on_create_party_registration)
 
-logger.debug(f"vtn add_handler on_create_party_registration")
+# logger.debug(f"vtn add_handler on_create_party_registration")
 
 # Add the handler for report registrations from the VEN
 server.add_handler('on_register_report', on_register_report)
 
-logger.debug(f"vtn add_handler on_register_report")
+# logger.debug(f"vtn add_handler on_register_report")
 
 
 server.app.add_routes([
@@ -345,7 +346,7 @@ server.app.add_routes([
 ])
 
 
-logger.debug(f"Configured server {server}")
+# logger.debug(f"Configured server {server}")
 
 loop = asyncio.new_event_loop()
 # loop.set_debug(True)

@@ -2,68 +2,83 @@ const aws = require("aws-sdk");
 
 const s3 = new aws.S3({ apiVersion: "2006-03-01" });
 
-// Function to convert JSON to CSV
-function convertToCsv(data) {
-  const headers = Object.keys(data);
-  const values = Object.values(data);
-  const rows = [headers.join(",")];
-  rows.push(values.join(","));
-  return rows.join("\n");
-}
+const batteries = [
+  { index: 0, serial: "66354", battery_token: "12321321qsd" },
+  { index: 1, serial: "23313", battery_token: "2323121fab" },
+  { index: 2, serial: "12333", battery_token: "adsb12312" },
+];
 
 exports.handler = async (event) => {
-  console.log("Event: ", event);
-  let responseMessage = "Hello, World!";
-  const bucket = "openadr-device-boss-civet";
-  const key = "openadr_devices.json";
-  const params = {
-    Bucket: bucket,
-    Key: key,
-  };
+  const token = event.headers.authorization;
 
-  if (event.queryStringParameters && event.queryStringParameters["NAME"]) {
-    var ven_name = event.queryStringParameters["NAME"];
-
-    responseMessage = {
-      [ven_name]: {
-        ven_name: ven_name,
-        ven_id: "ven_id_ven123",
-        registration_id: "reg_id_ven123",
-      },
+  let match = false;
+  if (event.httpMethod !== "GET") {
+    return {
+      statusCode: 401,
+      body: JSON.stringify({ message: "Invalid or missing token" }),
     };
   }
 
-  if (event.httpMethod === "POST") {
-    const jsonData = JSON.parse(event.body);
-    const bucket = "test-adjusted-elk";
-
-    const timestamp = new Date().toISOString().replace(/:/g, "-");
-    const filename = `data-${timestamp}.csv`;
-    const csvData = convertToCsv(jsonData);
-    // Save CSV file to S3 bucket
-    const s3Params = {
-      Bucket: bucket,
-      Key: filename,
-      Body: csvData,
-      ContentType: "text/csv",
+  if (!token || !token.startsWith("Bearer ")) {
+    return {
+      statusCode: 401,
+      body: JSON.stringify({ message: "Invalid or missing token" }),
     };
-    try {
-      await s3.putObject(s3Params).promise();
-      responseMessage = "save to s3 success";
-    } catch (err) {
-      responseMessage = err;
+  }
+
+  const serial = event.queryStringParameters["serial"];
+
+  for (let i = 0; i < batteries.length; i++) {
+    const battery = batteries[i];
+
+    if (
+      serial === battery.serial &&
+      token.slice(7) === battery.battery_token
+      // battery.battery_token === payload.battery_token
+    ) {
+      match = true;
+      break;
     }
   }
 
-  const response = {
-    statusCode: 200,
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      message: responseMessage,
-    }),
-  };
+  const bucket = "openadr-batteries-definite-puma";
+  const key = "batteries.csv";
 
-  return response;
+  if (match) {
+    var data = {
+      BackupBuffer: "10",
+      BatteryCharging: true,
+      BatteryDischarging: false,
+      Consumption_Avg: 0,
+      Consumption_W: 0,
+      Fac: 60,
+      FlowConsumptionBattery: false,
+      FlowConsumptionGrid: false,
+      FlowConsumptionProduction: false,
+      FlowGridBattery: true,
+      FlowProductionBattery: true,
+      FlowProductionGrid: true,
+      GridFeedIn_W: 196,
+      IsSystemInstalled: 1,
+      OperatingMode: "2",
+      Pac_total_W: -1800,
+      Production_W: 1792,
+      RSOC: 52,
+      RemainingCapacity_W: 5432,
+      SystemStatus: "OnGrid",
+      Timestamp: "2023-02-09 14:50:32",
+      USOC: 49,
+      Uac: 237,
+      Ubat: 54,
+    };
+    return {
+      statusCode: 200,
+      body: JSON.stringify(data),
+    };
+  } else {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ message: "failed" }),
+    };
+  }
 };

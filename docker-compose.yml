@@ -9,8 +9,10 @@ services:
         - DEV=true
     environment:
       - TIMEZONE=America/Los_Angeles
-      - SAVE_DATA_URL=https://lv55k5wqj2.execute-api.us-east-2.amazonaws.com/dev/openadr_devices
-      - GET_VENS_URL=https://lv55k5wqj2.execute-api.us-east-2.amazonaws.com/dev/openadr_devices
+      - SAVE_DATA_URL=https://arv97znzt6.execute-api.us-east-2.amazonaws.com/dev/openadr_devices
+      - GET_VENS_URL=https://arv97znzt6.execute-api.us-east-2.amazonaws.com/dev/openadr_devices
+      - MARKET_PRICES_URL=https://arv97znzt6.execute-api.us-east-2.amazonaws.com/dev/market_prices
+      - PARTICIPATED_VENS_URL=https://arv97znzt6.execute-api.us-east-2.amazonaws.com/dev/participated_vens
     networks:
       - adrnet
     ports:
@@ -31,10 +33,12 @@ services:
     volumes:
       - ./services/ven:/app
     environment:
+      - DEV=True
       - VEN_NAME=ven123
       - VTN_URL=http://vtn:8080/OpenADR2/Simple/2.0b
+      - MOCK_BATTERY_API_URL=https://arv97znzt6.execute-api.us-east-2.amazonaws.com/dev/battery_api
       - BATTERY_TOKEN=${BATTERY_TOKEN}
-      - BATTERY_SN=66352
+      - BATTERY_SN=${BATTERY_SN}
       - DEVICE_ID=device_01
       - DEVICE_TYPE=SONNEN_BATTERY
       - TIMEZONE=America/Los_Angeles
