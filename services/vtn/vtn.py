@@ -13,6 +13,7 @@ from openleadr import objects, enums, utils
 from enum import Enum
 import json
 import requests
+import aiohttp
 
 
 class SonnenBatteryOperatingMode(Enum):
@@ -62,8 +63,8 @@ class DEVICE_TYPES(Enum):
 TIMEZONE = os.environ['TIMEZONE']
 GET_VENS_URL = os.environ['GET_VENS_URL']
 SAVE_DATA_URL = os.environ['SAVE_DATA_URL']
-
-
+MARKET_PRICES_URL = os.environ['MARKET_PRICES_URL']
+PARTICIPATED_VENS_URL = os.environ['PARTICIPATED_VENS_URL']
 tz_local = pytz.timezone(TIMEZONE)
 
 if __name__ == "__main__":
@@ -156,6 +157,27 @@ def ven_lookup(ven_id):
     return {}
 
 
+def post_participated_vens_to_api(api_url: str, ven_id: str):
+    """
+    Periodically fetch data from a REST API URL using requests package.
+    """
+    try:
+        payload = {"ven_id": ven_id}
+        response = requests.post(api_url, json=payload)
+        # resp = response.json()
+        if response.status_code == 200:
+            print("-----------")
+
+            print(f'API call successful {response}')
+        else:
+            print(f'API call failed with error code {response.status_code}')
+        # print("--------*****")
+        # print(f"post participated ven : {resp}")
+        # print("--------******")
+    except Exception as e:
+        print(f"error: {e}")
+
+
 async def on_create_party_registration(registration_info):
     """
     Inspect the registration info and return a ven_id and registration_id.
@@ -239,13 +261,20 @@ async def on_update_sonnen_battery_report(data, ven_id, resource_id, measurement
     print("---------------")
     print("get report and send to the post url")
     send_report_data_to_url(url=SAVE_DATA_URL, data=josn_report)
+    print("***************")
 
 
 async def event_response_callback(ven_id, event_id, opt_type):
     """
     Callback that receives the response from a VEN to an Event.
     """
-    print(f"event :{ven_id} opt_type: {opt_type}")
+    if opt_type == 'optIn':
+        print("**** join market *********")
+        print(f"event :{ven_id} opt_type: {opt_type} join the market")
+        print("----------------")
+        post_participated_vens_to_api(
+            api_url=PARTICIPATED_VENS_URL, ven_id=ven_id)
+
     # logger.info(
     #     f"VEN {ven_id} responded to Event {event_id} with: {opt_type}")
 
@@ -274,35 +303,6 @@ async def handle_cancel_event(request):
 
         # return failed with a status code of 500 i.e. 'Server Error'
         return web.json_response(response_obj, status=500)
-
-
-async def handle_trigger_event(request):
-
-    try:
-        data = await request.json()
-        # Check if the body exists and is in the correct format
-        if not data or not isinstance(data, dict):
-            return web.json_response({'status': 'error', 'message': 'Invalid request body'}, status=400)
-
-        # Pase data
-        price = data['price']
-        ven_ids = data['ven_ids']
-        minutes_duration = data['minutes_duration']
-
-        for ven_id in ven_ids:
-            server.add_event(ven_id=ven_id,
-                             signal_name=enums.SIGNAL_NAME.simple,
-                             signal_type=enums.SIGNAL_TYPE.LEVEL,
-                             intervals=[{'dtstart': datetime.now(timezone.utc),
-                                        'duration': timedelta(minutes=int(minutes_duration)),
-                                         'signal_payload': price}],
-                             callback=event_response_callback,
-                             event_id="our-event-id",
-                             )
-
-        return web.json_response({'status': 'success'})
-    except json.JSONDecodeError:
-        return web.json_response({'status': 'error', 'message': 'Invalid JSON format'}, status=400)
 
 
 async def all_ven_info(request):
@@ -340,18 +340,59 @@ server.add_handler('on_register_report', on_register_report)
 
 server.app.add_routes([
     # web.get('/trigger/{minutes_duration}', handle_trigger_event),
-    web.post('/api/v1.0/trigger_events', handle_trigger_event),
+    # web.post('/api/v1.0/trigger_events', handle_trigger_event),
     web.get('/cancel', handle_cancel_event),
     web.get('/vens', all_ven_info)
 ])
 
+
+async def get_data_from_api():
+    """
+    Asynchronous function that sends an HTTP GET request to an API and returns the response.
+    """
+    market_prices_url = MARKET_PRICES_URL
+    async with aiohttp.ClientSession() as session:
+        async with session.post(market_prices_url) as response:
+            data = await response.json()
+            return data
+
+
+async def periodic_function():
+    """
+    Periodically fetch data from a REST API URL using requests package.
+    """
+    while True:
+
+        payload = await get_data_from_api()
+        message = json.loads(payload['message'])
+        market_prices = message['market_prices']
+        # market_prices = message['market_prices']
+        # market_prices = data['market_prices']
+        print("**************")
+        print(f"Fetched data from API: {message} ")
+        print(f"Fetched market_prices from API: {market_prices} ")
+        print("***********")
+        minutes_duration = 1
+        for v in VENS.values():
+            server.add_event(ven_id=v['ven_id'],
+                             signal_name=enums.SIGNAL_NAME.simple,
+                             signal_type=enums.SIGNAL_TYPE.LEVEL,
+                             intervals=[{'dtstart': datetime.now(timezone.utc),
+                                        'duration': timedelta(minutes=int(minutes_duration)),
+                                         'signal_payload': market_prices}],
+                             callback=event_response_callback,
+                             event_id="our-event-id",
+                             )
+        await asyncio.sleep(20)  # Wait for 5 minutes
 
 # logger.debug(f"Configured server {server}")
 
 loop = asyncio.new_event_loop()
 # loop.set_debug(True)
 asyncio.set_event_loop(loop)
+# loop.create_task(server.run())
 loop.create_task(server.run())
+loop.create_task(periodic_function())
 # Using this line causes failure
 # asyncio.run(server.run(), debug=True)
 loop.run_forever()
