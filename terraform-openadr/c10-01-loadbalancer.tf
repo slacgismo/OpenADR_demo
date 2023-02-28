@@ -33,24 +33,3 @@ resource "aws_lb_listener" "vtn" {
   }
 }
 
-# resource "aws_security_group" "lb" {
-#   description = "Allow access to Application Load Balancer"
-#   name        = "${local.prefix}-lb"
-#   vpc_id      = aws_vpc.main.id
-
-#   ingress {
-#     protocol    = "tcp"
-#     from_port   = 8080
-#     to_port     = 8080
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-
-#   egress {
-#     protocol    = "tcp"
-#     from_port   = 8080
-#     to_port     = 8080
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-
-#   tags = local.common_tags
-# }

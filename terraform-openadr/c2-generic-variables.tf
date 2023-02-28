@@ -32,3 +32,4 @@ variable "managedBy" {
   type        = string
   default     = "Terraform"
 }
+

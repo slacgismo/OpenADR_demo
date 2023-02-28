@@ -22,10 +22,25 @@ variable "private_instance_count" {
   default     = 1
 }
 
+
+# VEN variables
+
+variable "dev" {
+  description = "VEN dev"
+  default = true
+}
+
 variable "ven_name" {
   description = "VEN Name"
   default = "ven123"
 }
+
+variable "mock_battery_api_url" {
+  description = "mock battery api url"
+  # replace with generated mock battery api url
+  default = "https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/battery_api"
+}
+
 variable "battery_token" {
   description = "Battery token"
 }
