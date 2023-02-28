@@ -45,15 +45,18 @@ resource "aws_ecs_service" "vtn" {
 
 
   network_configuration {
-    subnets = module.vpc.public_subnets
+    # subnets = module.vpc.public_subnets
+    subnets = [
+        module.vpc.private_subnets[0],
+        module.vpc.private_subnets[1]
+    ]
     security_groups  = [module.public_vtn_sg.this_security_group_id]
-    # security_groups  = [aws_security_group.ecs_vtn_service.id]
-    assign_public_ip = true
+    # assign_public_ip = true
   }
-#   load_balancer {
-#     target_group_arn = aws_lb_target_group.vtn.arn
-#     container_name   = "vtn"
-#     container_port   = 8080
-#   }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.vtn.arn
+    container_name   = "vtn"
+    container_port   = 8080
+  }
 
 }
