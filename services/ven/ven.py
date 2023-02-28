@@ -67,7 +67,29 @@ def decide_participate_market_by_price(market_price: float, price_threshold: flo
         print(
             f"Participate market: market_price: {market_price} price_threshold:{price_threshold}")
         print("-----------")
-        # call the battery api to control the battery
+        # requset battery api to control the battery
+        if DEVICE_TYPE == DEVICE_TYPES.SONNEN_BATTERY.value:
+
+            try:
+                if DEV is not True:
+                    battery_interface = SonnenInterface(
+                        serial=BATTERY_SN, auth_token=BATTERY_TOKEN)
+                    print("Send post requst to contorl the real battery")
+                    print("Not implement yet!!")
+                    # report_data = battery_interface.get_status_and_convert_to_openleadr_report()
+                else:
+                    mock_battery_interface = MockSonnenInterface(
+                        serial=BATTERY_SN, auth_token=BATTERY_TOKEN, url_ini=MOCK_BATTERY_API_URL)
+                    # if we need to implement the mode, change this parameters
+                    mode = 2
+                    mock_battery_interface.mock_control_battery(mode=mode)
+                # print(f"report_data {report_data}")
+            except Exception as e:
+                raise Exception(f"something wrong: {e}")
+        elif DEVICE_TYPE == DEVICE_TYPES.E_GUAGE.value:
+            print("Send post requst to contorl the e-guage")
+        else:
+            raise ValueError('DEVICE_TYPE not found')
     else:
         print(
             f"Not participate  market_price: {market_price} price_threshold:{price_threshold}")

@@ -40,7 +40,7 @@ const get_battery_data = () => {
 };
 
 const check_serial_and_token_exist = (serial, token, batteries_info) => {
-  for (i = 0; i < batteries.length; i++) {
+  for (let i = 0; i < batteries.length; i++) {
     if (
       serial === batteries_info[i].serial &&
       token.slice(7) === batteries_info[i].battery_token

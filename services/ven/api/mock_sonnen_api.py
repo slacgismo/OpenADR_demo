@@ -62,19 +62,20 @@ class MockSonnenInterface():
         self.headers = {'Accept': 'application/vnd.sonnenbatterie.api.core.v1+json',
                         'Authorization': 'Bearer ' + self.token, }
 
-    def get_status(self):
-
+    def mock_control_battery(self, mode):
+        print(f"Mock control battery to {mode}")
         params = {"serial": self.serial}
 
         try:
-            resp = requests.get(self.url_ini, params=params,
-                                headers=self.headers)
-            resp.raise_for_status()
-
+            resp = requests.post(self.url_ini, params=params,
+                                 headers=self.headers)
+            print("************************************")
+            print("response of control battery: ", resp)
         except requests.exceptions.HTTPError as err:
             print(err)
+            return requests.exceptions.HTTPError
 
-        return resp.json()
+        return True
 
     def get_status_and_convert_to_openleadr_report(self):
         """ 
