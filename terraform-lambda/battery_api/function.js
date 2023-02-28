@@ -8,16 +8,65 @@ const batteries = [
   { index: 2, serial: "12333", battery_token: "adsb12312" },
 ];
 
-exports.handler = async (event) => {
-  const token = event.headers.authorization;
+// return data from batteries array
+const get_battery_data = () => {
+  var data = {
+    BackupBuffer: "10",
+    BatteryCharging: true,
+    BatteryDischarging: false,
+    Consumption_Avg: 0,
+    Consumption_W: 0,
+    Fac: 60,
+    FlowConsumptionBattery: false,
+    FlowConsumptionGrid: false,
+    FlowConsumptionProduction: false,
+    FlowGridBattery: true,
+    FlowProductionBattery: true,
+    FlowProductionGrid: true,
+    GridFeedIn_W: 196,
+    IsSystemInstalled: 1,
+    OperatingMode: "2",
+    Pac_total_W: -1800,
+    Production_W: 1792,
+    RSOC: 52,
+    RemainingCapacity_W: 5432,
+    SystemStatus: "OnGrid",
+    Timestamp: "2023-02-09 14:50:32",
+    USOC: 49,
+    Uac: 237,
+    Ubat: 54,
+  };
+  return data;
+};
 
-  let match = false;
-  if (event.httpMethod !== "GET") {
+const check_serial_and_token_exist = (serial, token, batteries_info) => {
+  for (i = 0; i < batteries.length; i++) {
+    if (
+      serial === batteries_info[i].serial &&
+      token.slice(7) === batteries_info[i].battery_token
+    ) {
+      return true;
+    }
+  }
+  return false;
+};
+
+exports.handler = async (event) => {
+  // check header has an authorization token and check if queryStringParameters exusts
+  if (
+    !event.headers.authorization ||
+    !event.queryStringParameters ||
+    !event.queryStringParameters["serial"]
+  ) {
+    // return status code 401 if not exist
     return {
       statusCode: 401,
       body: JSON.stringify({ message: "Invalid or missing token" }),
     };
   }
+  const token = event.headers.authorization;
+  const serial = event.queryStringParameters["serial"];
+  // check serial number and token exist in batteries array
 
   if (!token || !token.startsWith("Bearer ")) {
     return {
@@ -26,59 +75,29 @@ exports.handler = async (event) => {
     };
   }
 
-  const serial = event.queryStringParameters["serial"];
-
-  for (let i = 0; i < batteries.length; i++) {
-    const battery = batteries[i];
-
-    if (
-      serial === battery.serial &&
-      token.slice(7) === battery.battery_token
-      // battery.battery_token === payload.battery_token
-    ) {
-      match = true;
-      break;
-    }
-  }
-
-  const bucket = "openadr-batteries-definite-puma";
-  const key = "batteries.csv";
+  let match = check_serial_and_token_exist(serial, token, batteries);
 
   if (match) {
-    var data = {
-      BackupBuffer: "10",
-      BatteryCharging: true,
-      BatteryDischarging: false,
-      Consumption_Avg: 0,
-      Consumption_W: 0,
-      Fac: 60,
-      FlowConsumptionBattery: false,
-      FlowConsumptionGrid: false,
-      FlowConsumptionProduction: false,
-      FlowGridBattery: true,
-      FlowProductionBattery: true,
-      FlowProductionGrid: true,
-      GridFeedIn_W: 196,
-      IsSystemInstalled: 1,
-      OperatingMode: "2",
-      Pac_total_W: -1800,
-      Production_W: 1792,
-      RSOC: 52,
-      RemainingCapacity_W: 5432,
-      SystemStatus: "OnGrid",
-      Timestamp: "2023-02-09 14:50:32",
-      USOC: 49,
-      Uac: 237,
-      Ubat: 54,
-    };
-    return {
-      statusCode: 200,
-      body: JSON.stringify(data),
-    };
-  } else {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ message: "failed" }),
-    };
+    // if method is GET, return data
+    if (event.httpMethod === "GET") {
+      const data = get_battery_data();
+      return {
+        statusCode: 200,
+        body: JSON.stringify(data),
+      };
+    }
+    // if method is POST, return success
+    if (event.httpMethod === "POST") {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ message: "success" }),
+      };
+    }
   }
+  // return status code 400 if not exist
+
+  return {
+    statusCode: 400,
+    body: JSON.stringify({ message: "failed" }),
+  };
 };

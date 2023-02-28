@@ -67,6 +67,7 @@ def decide_participate_market_by_price(market_price: float, price_threshold: flo
         print(
             f"Participate market: market_price: {market_price} price_threshold:{price_threshold}")
         print("-----------")
+        # call the battery api to control the battery
     else:
         print(
             f"Not participate  market_price: {market_price} price_threshold:{price_threshold}")

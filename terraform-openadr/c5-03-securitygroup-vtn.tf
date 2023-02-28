@@ -14,3 +14,4 @@ module "public_bastion_sg" {
   egress_rules = ["all-all"]
   tags         = local.common_tags
 }
+
