@@ -1,6 +1,6 @@
 # Create a Null Resource and Provisioners
 resource "null_resource" "name" {
-  depends_on = [module.ec2_public]
+  depends_on = [module.ec2_vtn]
   # Connection Block for Provisioners to connect to EC2 Instance
   connection {
     type        = "ssh"

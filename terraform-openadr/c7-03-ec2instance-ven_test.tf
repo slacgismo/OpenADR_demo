@@ -5,14 +5,14 @@
 #   csv_data = csvdecode(file("${path.module}/templates/batteries.csv"))
 # }
 
-# module "ec2_public_ven_csv" {
+# module "ec2_vtn_ven_csv" {
 #   source  = "terraform-aws-modules/ec2-instance/aws"
 #   count = length(local.csv_data)
 #   # for_each = { for battery in local.csv_data : battery.battery_token => battery }
 #   # battery_token = each.value.battery_token
 #   # battery_sn =  each.value.battery_sn
 #   version = "2.17.0"
-#   depends_on = [module.ec2_public]
+#   depends_on = [module.ec2_vtn]
 #   # insert the 10 required variables here
 #   name = "${var.prefix}-${var.environment}-ven-${count.index}"
 #   #instance_count         = 5
@@ -30,7 +30,7 @@
 #       {
 #         TIMEZONE            ="America/Los_Angeles"
         
-#         VTN_URL             = "http://${module.ec2_public.private_ip[0]}:8080/OpenADR2/Simple/2.0b"
+#         VTN_URL             = "http://${module.ec2_vtn.private_ip[0]}:8080/OpenADR2/Simple/2.0b"
 #         VEN_NAME            = var.ven_name
 #         BATTERY_TOKEN       = local.csv_data[count.index].battery_token
 #         BATTERY_SN          = local.csv_data[count.index].battery_sn

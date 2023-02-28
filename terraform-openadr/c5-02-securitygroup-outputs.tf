@@ -2,21 +2,21 @@
 
 # Public Bastion Host Security Group Outputs
 ## public_bastion_sg_group_id
-output "public_bastion_sg_group_id" {
+output "public_vtn_sg_group_id" {
   description = "The ID of the security group"
-  value       = module.public_bastion_sg.this_security_group_id
+  value       = module.public_vtn_sg.this_security_group_id
 }
 
 ## public_bastion_sg_group_vpc_id
-output "public_bastion_sg_group_vpc_id" {
+output "public_vtn_sg_group_vpc_id" {
   description = "The VPC ID"
-  value       = module.public_bastion_sg.this_security_group_vpc_id
+  value       = module.public_vtn_sg.this_security_group_vpc_id
 }
 
 ## public_bastion_sg_group_name
-output "public_bastion_sg_group_name" {
+output "public_vtn_sg_group_name" {
   description = "The name of the security group"
-  value       = module.public_bastion_sg.this_security_group_name
+  value       = module.public_vtn_sg.this_security_group_name
 }
 
 # Private EC2 Instances Security Group Outputs
