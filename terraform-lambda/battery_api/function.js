@@ -1,12 +1,6 @@
 const aws = require("aws-sdk");
 
-const s3 = new aws.S3({ apiVersion: "2006-03-01" });
-
-const batteries = [
-  { index: 0, serial: "66354", battery_token: "12321321qsd" },
-  { index: 1, serial: "23313", battery_token: "2323121fab" },
-  { index: 2, serial: "12333", battery_token: "adsb12312" },
-];
+const dynamodb = new aws.DynamoDB();
 
 // return data from batteries array
 const get_battery_data = () => {
@@ -39,16 +33,33 @@ const get_battery_data = () => {
   return data;
 };
 
-const check_serial_and_token_exist = (serial, token, batteries_info) => {
-  for (let i = 0; i < batteries.length; i++) {
+const check_serial_and_token_exist = async (serial, token) => {
+  const params = {
+    TableName: "battery",
+    Key: {
+      serial: { S: serial },
+      token: { S: token },
+    },
+  };
+  try {
+    const result = await dynamodb.getItem(params).promise();
+
     if (
-      serial === batteries_info[i].serial &&
-      token.slice(7) === batteries_info[i].battery_token
+      result.Item &&
+      result.Item.serial.S === serial &&
+      result.Item.token.S === token
     ) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ message: "Success" }),
+      };
+    } else {
       return true;
     }
+  } catch (error) {
+    console.log(error);
+    return false;
   }
-  return false;
 };
 
 exports.handler = async (event) => {
@@ -75,7 +86,7 @@ exports.handler = async (event) => {
     };
   }
 
-  let match = check_serial_and_token_exist(serial, token, batteries);
+  let match = check_serial_and_token_exist(serial, token);
 
   if (match) {
     // if method is GET, return data

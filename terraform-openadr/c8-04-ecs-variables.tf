@@ -1,7 +1,37 @@
 # ECS  Variables
+## VEN variables
 
+
+variable "ecr_image_ven" {
+  description = "ecr_image_ven"
+  type        = string
+  default    = "041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest"
+}
+
+variable "mock_battery_api_url" {
+  description = "mock_battery_api_url"
+  type        = string
+  default    = "https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/battery_api"
+}
+
+# variable "dev" {
+#   description = "dev"
+#   type        = string
+#   default    = true
+# }
+
+    # mock_battery_api_url = var.mock_battery_api_url
+    # battery_token    = var.battery_token
+    # battery_sn       = var.battery_sn
+    # device_id        = var.device_id
+    # device_type      = var.device_type
+    # timezone         = var.timezone
+    # price_threshold  = var.price_threshold
+    # log_group_name   = aws_cloudwatch_log_group.ven_task_logs.name
+    # log_group_region = var.aws_region
 
 ## VTN variables
+
 # ecr image vtn name
 
 variable "ecr_image_vtn" {

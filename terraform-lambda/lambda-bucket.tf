@@ -7,6 +7,7 @@ resource "random_pet" "lambda_bucket_name" {
 resource "aws_s3_bucket" "lambda_bucket" {
   bucket        = "openadr-device-data-test"
   force_destroy = true
+  tags = local.common_tags
 }
 
 resource "aws_s3_bucket_public_access_block" "lambda_bucket" {

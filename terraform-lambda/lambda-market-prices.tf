@@ -36,6 +36,7 @@ resource "aws_lambda_function" "market_prices" {
   source_code_hash = data.archive_file.lambda_market_prices.output_base64sha256
 
   role = aws_iam_role.market_prices_lambda_exec.arn
+  tags = local.common_tags
 }
 
 resource "aws_cloudwatch_log_group" "market_prices" {

@@ -1,4 +1,11 @@
-index,battery_sn,battery_token
-0,66354,12321321qsd
-1,23313,2323121fab
-3,12333,adsb12312
+index,battery_sn,battery_token,ven_name,ven_id,device_id,price_threshold
+0,66354,12321321qsd,ven0,ven0,device_00,0.15
+1,66355,dasdsacc123,ven1,ven1,device_01,0.17
+2,66356,asds2333s,ven2,ven2,device_02,0.11
+3,66357,a23ffsadv,ven3,ven3,device_03,0.22
+4,66358,a23ffsadv,ven4,ven4,device_04,0.24
+5,66359,asxxxazz,ven5,ven5,device_05,0.23
+6,66360,asdzasd,ven6,ven6,ven-6,0.16
+7,66361,sasd23ssd,ven7,ven7,device_07,0.11
+8,66362,sdaczsdd,ven8,ven8,device_08,0.13
+9,66363,123dd2343,ven9,ven9,device_09,0.22

@@ -41,6 +41,7 @@ resource "aws_lambda_function" "participated_vens" {
   source_code_hash = data.archive_file.lambda_participated_vens.output_base64sha256
 
   role = aws_iam_role.participated_vens_lambda_exec.arn
+  tags = local.common_tags
 }
 
 resource "aws_cloudwatch_log_group" "participated_vens" {

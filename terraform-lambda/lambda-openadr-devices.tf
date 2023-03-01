@@ -38,6 +38,7 @@ resource "aws_iam_policy" "test_s3_bucket_access" {
       },
     ]
   })
+  
 }
 
 resource "aws_iam_role_policy_attachment" "s3_lambda_test_s3_bucket_access" {
@@ -58,6 +59,7 @@ resource "aws_lambda_function" "openadr_devices" {
   source_code_hash = data.archive_file.lambda_openadr_devices.output_base64sha256
 
   role = aws_iam_role.openadr_devices_lambda_exec.arn
+  tags = local.common_tags
 }
 
 resource "aws_cloudwatch_log_group" "openadr_devices" {

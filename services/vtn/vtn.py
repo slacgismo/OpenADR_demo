@@ -14,6 +14,7 @@ from enum import Enum
 import json
 import requests
 import aiohttp
+import uuid
 
 
 class SonnenBatteryOperatingMode(Enum):
@@ -78,10 +79,10 @@ if __name__ == "__main__":
 
 # Future db
 VENS = {
-    "ven234": {
-        "ven_name": "ven234",
-        "ven_id": "ven_id_ven234",
-        "registration_id": "reg_id_ven234"
+    "ven789": {
+        "ven_name": "ven789",
+        "ven_id": "ven789",
+        "registration_id": "reg_id_ven789"
     }
 }
 # VENS = {}
@@ -168,7 +169,7 @@ def post_participated_vens_to_api(api_url: str, ven_id: str):
         if response.status_code == 200:
             print("-----------")
 
-            print(f'API call successful {response}')
+            print(f'{ven_id} API call successful {response}')
         else:
             print(f'API call failed with error code {response.status_code}')
         # print("--------*****")
@@ -259,7 +260,7 @@ async def on_update_sonnen_battery_report(data, ven_id, resource_id, measurement
         index += 1
 
     print("---------------")
-    print("get report and send to the post url")
+    print(f" {ven_id} get report and send to the post url")
     send_report_data_to_url(url=SAVE_DATA_URL, data=josn_report)
     print("***************")
 
@@ -269,9 +270,10 @@ async def event_response_callback(ven_id, event_id, opt_type):
     Callback that receives the response from a VEN to an Event.
     """
     if opt_type == 'optIn':
-        print("**** join market *********")
-        print(f"event :{ven_id} opt_type: {opt_type} join the market")
-        print("----------------")
+
+        print(
+            f"***** ven_id  :{ven_id} opt_type: {opt_type} join the market *******")
+
         post_participated_vens_to_api(
             api_url=PARTICIPATED_VENS_URL, ven_id=ven_id)
 
@@ -361,6 +363,7 @@ async def periodic_function():
     """
     Periodically fetch data from a REST API URL using requests package.
     """
+
     while True:
 
         payload = await get_data_from_api()
@@ -372,8 +375,10 @@ async def periodic_function():
         print(f"Fetched data from API: {message} ")
         print(f"Fetched market_prices from API: {market_prices} ")
         print("***********")
+
         minutes_duration = 1
         for v in VENS.values():
+            event_id = str(uuid.uuid4())
             server.add_event(ven_id=v['ven_id'],
                              signal_name=enums.SIGNAL_NAME.simple,
                              signal_type=enums.SIGNAL_TYPE.LEVEL,
@@ -381,7 +386,7 @@ async def periodic_function():
                                         'duration': timedelta(minutes=int(minutes_duration)),
                                          'signal_payload': market_prices}],
                              callback=event_response_callback,
-                             event_id="our-event-id",
+                             event_id=event_id,
                              )
         await asyncio.sleep(20)  # Wait for 5 minutes
 
