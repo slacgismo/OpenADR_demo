@@ -1,4 +1,6 @@
 
+
+
 data "template_file" "vtn_container_definitions" {
   template = file("templates/ecs/container-definitions-vtn.json.tpl")
 

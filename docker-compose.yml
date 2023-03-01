@@ -22,7 +22,7 @@ services:
     command: >
       sh -c "python vtn.py"
 
-  ven-1:
+  ven:
     platform: linux/amd64
     build:
       context: ./services/ven
@@ -49,30 +49,30 @@ services:
 
     depends_on:
       - vtn
-  ven-2:
-    platform: linux/amd64
-    build:
-      context: ./services/ven
-      args:
-        - DEV=true
-    networks:
-      - adrnet
-    volumes:
-      - ./services/ven:/app
-    environment:
-      - DEV=True
-      - VEN_NAME=ven1
-      - VTN_URL=http://vtn:8080/OpenADR2/Simple/2.0b
-      - MOCK_BATTERY_API_URL=https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/battery_api
-      - BATTERY_TOKEN=${BATTERY_TOKEN}
-      - BATTERY_SN=${BATTERY_SN}
-      - DEVICE_ID=device_02
-      - DEVICE_TYPE=SONNEN_BATTERY
-      - TIMEZONE=America/Los_Angeles
-      - PRICE_THRESHOLD=0.17
+  # ven-2:
+  #   platform: linux/amd64
+  #   build:
+  #     context: ./services/ven
+  #     args:
+  #       - DEV=true
+  #   networks:
+  #     - adrnet
+  #   volumes:
+  #     - ./services/ven:/app
+  #   environment:
+  #     - DEV=True
+  #     - VEN_NAME=ven1
+  #     - VTN_URL=http://vtn:8080/OpenADR2/Simple/2.0b
+  #     - MOCK_BATTERY_API_URL=https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/battery_api
+  #     - BATTERY_TOKEN=${BATTERY_TOKEN}
+  #     - BATTERY_SN=${BATTERY_SN}
+  #     - DEVICE_ID=device_02
+  #     - DEVICE_TYPE=SONNEN_BATTERY
+  #     - TIMEZONE=America/Los_Angeles
+  #     - PRICE_THRESHOLD=0.17
 
-    command: >
-      sh -c "python ven.py"
+  #   command: >
+  #     sh -c "python ven.py"
 
     depends_on:
       - vtn

@@ -69,8 +69,8 @@ class MockSonnenInterface():
         try:
             resp = requests.post(self.url_ini, params=params,
                                  headers=self.headers)
-            print("************************************")
-            print("response of control battery: ", resp)
+
+            print("*********** response of control battery: ", resp)
         except requests.exceptions.HTTPError as err:
             print(err)
             return requests.exceptions.HTTPError

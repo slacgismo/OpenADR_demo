@@ -169,7 +169,8 @@ def post_participated_vens_to_api(api_url: str, ven_id: str):
         if response.status_code == 200:
             print("-----------")
 
-            print(f'{ven_id} API call successful {response}')
+            print(
+                f'****** {ven_id} call TESS API join market success ****')
         else:
             print(f'API call failed with error code {response.status_code}')
         # print("--------*****")
@@ -258,11 +259,8 @@ async def on_update_sonnen_battery_report(data, ven_id, resource_id, measurement
             "%Y-%m-%d %H:%M:%S")
 
         index += 1
-
-    print("---------------")
-    print(f" {ven_id} get report and send to the post url")
+    print(f"*******  {ven_id} get report and send to the post url*******")
     send_report_data_to_url(url=SAVE_DATA_URL, data=josn_report)
-    print("***************")
 
 
 async def event_response_callback(ven_id, event_id, opt_type):
