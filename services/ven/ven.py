@@ -14,7 +14,7 @@ class DEVICE_TYPES(Enum):
 
 
 DEV = bool(os.getenv('DEV'))
-VEN_NAME = os.getenv('VEN_NAME')
+VEN_ID = os.getenv('VEN_ID')
 VTN_URL = os.getenv('VTN_URL')
 BATTERY_TOKEN = os.getenv('BATTERY_TOKEN')
 BATTERY_SN = os.getenv('BATTERY_SN')
@@ -24,7 +24,8 @@ TIMEZONE = os.getenv('TIMEZONE')
 PRICE_THRESHOLD = os.getenv('PRICE_THRESHOLD')
 MOCK_BATTERY_API_URL = os.getenv('MOCK_BATTERY_API_URL')
 BATTERY_SN = os.getenv('BATTERY_SN')
-
+INTERVAL_OF_FETCHING_DEVICE_DATA_INSECOND = int(
+    os.environ['INTERVAL_OF_FETCHING_DEVICE_DATA_INSECOND'])
 print(
     f"DEVICE_TYPE: {DEVICE_TYPE}, DEV :{DEV} MOCK_BATTERY_API_URL: {MOCK_BATTERY_API_URL}")
 
@@ -124,7 +125,7 @@ async def handle_event(event):
 # Create the client object
 # client = OpenADRClient(ven_name='ven123',
 #                        vtn_url='http://vtn:8080/OpenADR2/Simple/2.0b')
-client = OpenADRClient(ven_name=VEN_NAME,
+client = OpenADRClient(ven_name=VEN_ID,
                        vtn_url=VTN_URL)
 # Add the report capability to the client
 client.add_report(callback=collect_report_value,
@@ -133,7 +134,7 @@ client.add_report(callback=collect_report_value,
                   data_collection_mode='full',
                   measurement=DEVICE_TYPES.SONNEN_BATTERY.value,
                   report_duration=timedelta(seconds=3600),
-                  sampling_rate=timedelta(seconds=20))
+                  sampling_rate=timedelta(seconds=INTERVAL_OF_FETCHING_DEVICE_DATA_INSECOND))
 
 
 # Add event handling capability to the client

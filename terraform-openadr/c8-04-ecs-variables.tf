@@ -1,6 +1,11 @@
 # ECS  Variables
 ## VEN variables
 
+# define if this ven to use mock battery api
+variable "dev" {
+  description = "VEN dev"
+  default = "True"
+}
 
 variable "ecr_image_ven" {
   description = "ecr_image_ven"
@@ -12,6 +17,11 @@ variable "mock_battery_api_url" {
   description = "mock_battery_api_url"
   type        = string
   default    = "https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/battery_api"
+}
+
+variable "device_type" {
+  description = "Device type"
+  default = "SONNEN_BATTERY"
 }
 
 # variable "dev" {

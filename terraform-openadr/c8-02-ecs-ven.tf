@@ -39,7 +39,7 @@ resource "aws_ecs_task_definition" "ven" {
             { "name": "BATTERY_TOKEN", "value": "${local.batteries_data[count.index].battery_token}" },
             { "name": "TIMEZONE", "value": "${var.timezone}" },
             { "name": "PRICE_THRESHOLD", "value": "${local.batteries_data[count.index].price_threshold}" },
-            { "name": "DEV", "value": "True" }
+            { "name": "DEV", "value": "${var.dev}" }
           ],
           "runtimePlatform": {
               "operatingSystemFamily": "LINUX",
@@ -50,7 +50,7 @@ resource "aws_ecs_task_definition" "ven" {
           "logConfiguration": {
               "logDriver": "awslogs",
               "options": {
-                  "awslogs-group": "${aws_cloudwatch_log_group.ecs_task_logs.name}",
+                  "awslogs-group": "${aws_cloudwatch_log_group.ven_task_logs.name}",
                   "awslogs-region": "${var.aws_region}",
                   "awslogs-stream-prefix": "ven"
               }

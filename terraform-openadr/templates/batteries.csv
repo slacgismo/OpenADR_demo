@@ -1,2 +1,4 @@
 index,battery_sn,battery_token,ven_name,ven_id,device_id,price_threshold
 0,66354,12321321qsd,ven0,ven0,device_00,0.15
+1,66355,dasdsacc123,ven1,ven1,device_01,0.17
+2,66356,asds2333s,ven2,ven2,device_02,0.11

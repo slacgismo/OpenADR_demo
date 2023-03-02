@@ -66,6 +66,8 @@ GET_VENS_URL = os.environ['GET_VENS_URL']
 SAVE_DATA_URL = os.environ['SAVE_DATA_URL']
 MARKET_PRICES_URL = os.environ['MARKET_PRICES_URL']
 PARTICIPATED_VENS_URL = os.environ['PARTICIPATED_VENS_URL']
+INTERVAL_OF_FETCHING_MARKET_PRICE_INSECOND = int(
+    os.environ['INTERVAL_OF_FETCHING_MARKET_PRICE_INSECOND'])
 tz_local = pytz.timezone(TIMEZONE)
 
 if __name__ == "__main__":
@@ -386,7 +388,8 @@ async def periodic_function():
                              callback=event_response_callback,
                              event_id=event_id,
                              )
-        await asyncio.sleep(20)  # Wait for 5 minutes
+        # Wait for 5 minutes
+        await asyncio.sleep(INTERVAL_OF_FETCHING_MARKET_PRICE_INSECOND)
 
 # logger.debug(f"Configured server {server}")
 

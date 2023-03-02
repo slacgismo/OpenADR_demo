@@ -25,38 +25,35 @@ variable "private_instance_count" {
 
 # VEN variables
 
-variable "dev" {
-  description = "VEN dev"
-  default = true
-}
 
-variable "ven_name" {
-  description = "VEN Name"
-  default = "ven123"
-}
 
-# variable "mock_battery_api_url" {
-#   description = "mock battery api url"
-#   # replace with generated mock battery api url
-#   default = "https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/battery_api"
+# variable "ven_name" {
+#   description = "VEN Name"
+#   default = "ven123"
 # }
 
-variable "battery_token" {
-  description = "Battery token"
-}
-variable "battery_sn" {
-  description = "Battery sn"
-}
-variable "device_id" {
-  description = "Device ID"
-  default = "device_01"
-}
-variable "device_type" {
-  description = "Device type"
-  default = "SONNEN_BATTERY"
-}
-variable "price_threshold" {
-  description = "Price threshold "
-  default = "0.15"
-}
+# # variable "mock_battery_api_url" {
+# #   description = "mock battery api url"
+# #   # replace with generated mock battery api url
+# #   default = "https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/battery_api"
+# # }
+
+# variable "battery_token" {
+#   description = "Battery token"
+# }
+# variable "battery_sn" {
+#   description = "Battery sn"
+# }
+# variable "device_id" {
+#   description = "Device ID"
+#   default = "device_01"
+# }
+# variable "device_type" {
+#   description = "Device type"
+#   default = "SONNEN_BATTERY"
+# }
+# variable "price_threshold" {
+#   description = "Price threshold "
+#   default = "0.15"
+# }
 
