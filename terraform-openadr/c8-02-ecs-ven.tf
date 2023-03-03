@@ -13,7 +13,7 @@ data "template_file" "ven_container_definitions" {
     mock_battery_api_url = var.mock_battery_api_url,
     ven_log_group_name = aws_cloudwatch_log_group.ven_task_logs.name
     log_group_region = var.aws_region
-    dev = var.dev,
+    env = var.env,
    })
 }
 

@@ -74,7 +74,6 @@ class MockSonnenInterface():
             # convert to openADR report format
             battery_data = convert_sonnen_data_to_openadr_report_format(
                 batt_staus)
-            print("-------- battery_data", battery_data)
             return battery_data
         except ValueError as e:
             raise (f"convert to openADR report error:{e} ")

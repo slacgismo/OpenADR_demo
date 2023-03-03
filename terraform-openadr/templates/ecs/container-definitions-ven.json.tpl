@@ -5,7 +5,7 @@ ${jsonencode([
         "essential": true,
         "memoryReservation": 256,
         "environment": [
-            {"name" = "DEV", "value" = dev},
+            {"name" = "ENV", "value" = env},
             {"name" = "VEN_ID", "value" = ven_info.ven_id},
             {"name" =  "VTN_URL", "value" = vtn_url},
             {"name" = "MOCK_BATTERY_API_URL", "value" = mock_battery_api_url},

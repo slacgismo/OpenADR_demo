@@ -2,9 +2,9 @@
 ## VEN variables
 
 # define if this ven to use mock battery api
-variable "dev" {
-  description = "VEN dev"
-  default = "True"
+variable "env" {
+  description = "ENV dev"
+  default = "DEV" # DEV or PROD
 }
 
 variable "ecr_image_ven" {

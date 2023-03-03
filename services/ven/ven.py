@@ -1,5 +1,5 @@
 import asyncio
-from datetime import timedelta
+from datetime import datetime, timedelta
 from openleadr import OpenADRClient, enable_default_logging
 from api.sonnen_battery.sonnen_api import SonnenInterface
 from api.sonnen_battery.mock_sonnen_api import MockSonnenInterface
@@ -8,12 +8,9 @@ import os
 from device_type_enum import DEVICE_TYPES
 
 # get environment variables
-MOCK = os.getenv('MOCK')
-if MOCK == 'True':
-    MOCK = True
-else:
-    MOCK = False
+ENV = os.getenv('ENV')
 
+print("ENV: ", ENV)
 VEN_ID = os.getenv('VEN_ID')
 VTN_URL = os.getenv('VTN_URL')
 BATTERY_TOKEN = os.getenv('BATTERY_TOKEN')
@@ -34,64 +31,101 @@ REPORT_DURATION_INSECOND = int(os.environ['REPORT_DURATION_INSECOND'])
 enable_default_logging()
 
 
-# start to implement Sonnen API
+# async def collect_report_value(date_from, date_to, sampling_interval):
+#     fetch_devices_data(device_type=DEVICE_TYPE)
+
+
 async def collect_report_value(date_from, date_to, sampling_interval):
-    if DEVICE_TYPE == DEVICE_TYPES.SONNEN_BATTERY.value:
-        try:
-            if MOCK is not True:
+
+    try:
+        if DEVICE_TYPE == DEVICE_TYPES.SONNEN_BATTERY.value:
+
+            if ENV == 'PROD':
                 battery_interface = SonnenInterface(
                     serial=BATTERY_SN, auth_token=BATTERY_TOKEN)
                 report_data = battery_interface.get_status_and_convert_to_openleadr_report()
-                print(f"report_data :{report_data}")
-            else:
+
+                return report_data
+            elif ENV == 'DEV':
 
                 print(
                     f"Use mock battery api :{MOCK_BATTERY_API_URL}, auth_token:{BATTERY_TOKEN},serial: {BATTERY_SN}")
                 mock_battery_interface = MockSonnenInterface(
                     serial=BATTERY_SN, auth_token=BATTERY_TOKEN, url_ini=MOCK_BATTERY_API_URL)
                 report_data = mock_battery_interface.get_status_and_convert_to_openleadr_report()
-                print(f"report_data :{report_data}")
-            # print(f"report_data {report_data}")
-        except Exception as e:
-            raise Exception(f"something wrong: {e}")
-        return report_data
 
-    elif DEVICE_TYPE == DEVICE_TYPES.E_GUAGE.value:
-        # get data from e gauate api
-        return 1.23
-    else:
-        raise ValueError('DEVICE_TYPE not found')
-
-
-def decide_participate_market_by_price(market_price: float, price_threshold: float = 0.15):
-    if market_price >= price_threshold:
-
-        print(
-            f"{VEN_ID} participates market: market_price: {market_price} price_threshold:{price_threshold}")
-
-        # requset battery api to control the battery
-        if DEVICE_TYPE == DEVICE_TYPES.SONNEN_BATTERY.value:
-
-            try:
-                if MOCK is not True:
-                    battery_interface = SonnenInterface(
-                        serial=BATTERY_SN, auth_token=BATTERY_TOKEN)
-                    print("Send post requst to contorl the real battery")
-                    print("Not implement yet!!")
-                    # report_data = battery_interface.get_status_and_convert_to_openleadr_report()
-                else:
-                    mock_battery_interface = MockSonnenInterface(
-                        serial=BATTERY_SN, auth_token=BATTERY_TOKEN, url_ini=MOCK_BATTERY_API_URL)
-                    # if we need to implement the mode, change this parameters
-                    mode = 2
-                    mock_battery_interface.mock_control_battery(mode=mode)
+                return report_data
                 # print(f"report_data {report_data}")
-            except Exception as e:
-                raise Exception(f"something wrong: {e}")
+            else:
+                raise ValueError('ENV not found: ', ENV)
+
+        elif DEVICE_TYPE == DEVICE_TYPES.E_GUAGE.value:
+            # get data from e gauate api
+            return 1.23
+        else:
+            raise ValueError('DEVICE_TYPE not found')
+    except Exception as e:
+        raise Exception(f"something wrong: {e}")
+
+
+def control_real_device(device_type: DEVICE_TYPES, device_id: str, value: float):
+    """
+    Control the device by the value
+    param: device_type: DEVICE_TYPES
+    param: device_id: str
+    param: value: float
+    """
+    print(" ---- control device ----")
+    # requset battery api to control the battery
+    try:
+        if device_type == DEVICE_TYPES.SONNEN_BATTERY.value:
+
+            battery_interface = SonnenInterface(
+                serial=BATTERY_SN, auth_token=BATTERY_TOKEN)
+            print("Send post requst to contorl the real battery")
+            print("********* Not implement yet!! **************")
+
         elif DEVICE_TYPE == DEVICE_TYPES.E_GUAGE.value:
             print("Send post requst to contorl the e-guage")
         else:
             raise ValueError('DEVICE_TYPE not found')
+    except Exception as e:
+        raise Exception(f"something wrong: {e}")
+
+
+def emulate_control_device(device_type: DEVICE_TYPES, device_id: str, value: float):
+
+    try:
+        if device_type == DEVICE_TYPES.SONNEN_BATTERY.value:
+
+            print("Send post requst to contorl the mock battery")
+            mock_battery_interface = MockSonnenInterface(
+                serial=BATTERY_SN, auth_token=BATTERY_TOKEN, url_ini=MOCK_BATTERY_API_URL)
+            # if we need to implement the mode, change this parameters
+            mode = 2
+            mock_battery_interface.mock_control_battery(mode=mode)
+
+        elif DEVICE_TYPE == DEVICE_TYPES.E_GUAGE.value:
+            print("Send post requst to contorl the e-guage")
+        else:
+            raise ValueError('DEVICE_TYPE not found')
+    except Exception as e:
+        raise Exception(f"something wrong: {e}")
+
+
+def decide_participate_market_by_price(market_price: float, price_threshold: float = 0.15):
+    if market_price >= price_threshold:
+        print(
+            f"{VEN_ID} participates market: market_price: {market_price} price_threshold:{price_threshold}")
+        if ENV == "PROD":
+            control_real_device(device_type=DEVICE_TYPE,
+                                device_id=DEVICE_ID, value=market_price)
+        elif ENV == "DEV":
+            emulate_control_device(
+                device_type=DEVICE_TYPE, device_id=DEVICE_ID, value=market_price)
+        else:
+            raise ValueError('DEV or PROD not found: ', ENV)
+
     else:
         print(
             f"Not participate  market_price: {market_price} price_threshold:{price_threshold}")
