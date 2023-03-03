@@ -1,19 +1,19 @@
 import asyncio
-from datetime import datetime, timezone, timedelta
+from datetime import timedelta
 from openleadr import OpenADRClient, enable_default_logging
-from api.sonnen_api import SonnenInterface, SonnenBatteryAttributeKey
-from api.mock_sonnen_api import MockSonnenInterface
+from api.sonnen_battery.sonnen_api import SonnenInterface
+from api.sonnen_battery.mock_sonnen_api import MockSonnenInterface
 
-from enum import Enum
 import os
+from device_type_enum import DEVICE_TYPES
 
+# get environment variables
+MOCK = os.getenv('MOCK')
+if MOCK == 'True':
+    MOCK = True
+else:
+    MOCK = False
 
-class DEVICE_TYPES(Enum):
-    SONNEN_BATTERY = 'SONNEN_BATTERY'
-    E_GUAGE = 'E_GUAGE'
-
-
-DEV = bool(os.getenv('DEV'))
 VEN_ID = os.getenv('VEN_ID')
 VTN_URL = os.getenv('VTN_URL')
 BATTERY_TOKEN = os.getenv('BATTERY_TOKEN')
@@ -29,8 +29,7 @@ INTERVAL_OF_FETCHING_DEVICE_DATA_INSECOND = int(
 
 REPORT_SPECIFIER_ID = os.getenv('REPORT_SPECIFIER_ID')
 REPORT_DURATION_INSECOND = int(os.environ['REPORT_DURATION_INSECOND'])
-print(
-    f"DEVICE_TYPE: {DEVICE_TYPE}, DEV :{DEV} MOCK_BATTERY_API_URL: {MOCK_BATTERY_API_URL}")
+
 
 enable_default_logging()
 
@@ -38,25 +37,24 @@ enable_default_logging()
 # start to implement Sonnen API
 async def collect_report_value(date_from, date_to, sampling_interval):
     if DEVICE_TYPE == DEVICE_TYPES.SONNEN_BATTERY.value:
-        # print(f"BATTERY_SN: {BATTERY_SN}, BATTERY_TOKEN:{BATTERY_TOKEN}, TIMEZONE:{TIMEZONE}")
         try:
-            if DEV is not True:
+            if MOCK is not True:
                 battery_interface = SonnenInterface(
                     serial=BATTERY_SN, auth_token=BATTERY_TOKEN)
                 report_data = battery_interface.get_status_and_convert_to_openleadr_report()
+                print(f"report_data :{report_data}")
             else:
+
                 print(
                     f"Use mock battery api :{MOCK_BATTERY_API_URL}, auth_token:{BATTERY_TOKEN},serial: {BATTERY_SN}")
                 mock_battery_interface = MockSonnenInterface(
                     serial=BATTERY_SN, auth_token=BATTERY_TOKEN, url_ini=MOCK_BATTERY_API_URL)
                 report_data = mock_battery_interface.get_status_and_convert_to_openleadr_report()
+                print(f"report_data :{report_data}")
             # print(f"report_data {report_data}")
         except Exception as e:
             raise Exception(f"something wrong: {e}")
         return report_data
-        # datetime_str = '2023-02-09 14:50:32'
-        # datetime_object = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
-        # return [(datetime_object, 10.0),(datetime_object, 11.0)]
 
     elif DEVICE_TYPE == DEVICE_TYPES.E_GUAGE.value:
         # get data from e gauate api
@@ -67,15 +65,15 @@ async def collect_report_value(date_from, date_to, sampling_interval):
 
 def decide_participate_market_by_price(market_price: float, price_threshold: float = 0.15):
     if market_price >= price_threshold:
-        print("-----------")
+
         print(
-            f"Participate market: market_price: {market_price} price_threshold:{price_threshold}")
-        print("-----------")
+            f"{VEN_ID} participates market: market_price: {market_price} price_threshold:{price_threshold}")
+
         # requset battery api to control the battery
         if DEVICE_TYPE == DEVICE_TYPES.SONNEN_BATTERY.value:
 
             try:
-                if DEV is not True:
+                if MOCK is not True:
                     battery_interface = SonnenInterface(
                         serial=BATTERY_SN, auth_token=BATTERY_TOKEN)
                     print("Send post requst to contorl the real battery")
@@ -103,8 +101,6 @@ async def handle_event(event):
     """
     Get event from VTN 
     The raw data:
-
-
     """
     try:
         print(f"event :{event}")
@@ -126,8 +122,7 @@ async def handle_event(event):
     return 'optIn'
 
 # Create the client object
-# client = OpenADRClient(ven_name='ven123',
-#                        vtn_url='http://vtn:8080/OpenADR2/Simple/2.0b')
+
 client = OpenADRClient(ven_name=VEN_ID,
                        vtn_url=VTN_URL)
 # Add the report capability to the client
@@ -136,7 +131,7 @@ client.add_report(callback=collect_report_value,
                   report_specifier_id=REPORT_SPECIFIER_ID,
                   data_collection_mode='full',
                   measurement=DEVICE_TYPES.SONNEN_BATTERY.value,
-                  # report_duration: The time span that can be provided in this report.
+                  # report_duration: The time span that can be provided in this report default=3600.
                   report_duration=timedelta(seconds=REPORT_DURATION_INSECOND),
                   sampling_rate=timedelta(seconds=INTERVAL_OF_FETCHING_DEVICE_DATA_INSECOND))
 

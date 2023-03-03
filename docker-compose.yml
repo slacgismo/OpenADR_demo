@@ -35,7 +35,7 @@ services:
     volumes:
       - ./services/ven:/app
     environment:
-      - DEV=${DEV:-True}
+      - MOCK=${MOCK:-"False"}
       - VEN_ID=${VEN_ID:-ven0}
       - VTN_URL=${VTN_URL:-http://vtn:8080/OpenADR2/Simple/2.0b}
       - MOCK_BATTERY_API_URL=${MOCK_BATTERY_API_URL:-https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/battery_api}
