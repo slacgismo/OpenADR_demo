@@ -8,6 +8,7 @@ services:
       args:
         - DEV=true
     environment:
+      - VTN_ID=${VTN_ID:-vtn0}
       - TIMEZONE=${DETIMEZONEV:-America/Los_Angeles}
       - SAVE_DATA_URL=${SAVE_DATA_URL:-https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/openadr_devices}
       - GET_VENS_URL=${GET_VENS_URL:-https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/openadr_devices}
@@ -45,7 +46,8 @@ services:
       - TIMEZONE=${TIMEZONE:-America/Los_Angeles}
       - PRICE_THRESHOLD=${PRICE_THRESHOLD:-0.15}
       - INTERVAL_OF_FETCHING_DEVICE_DATA_INSECOND=${INTERVAL_OF_FETCHING_DEVICE_DATA_INSECOND:-10}
-
+      - REPORT_DURATION_INSECOND=${REPORT_DURATION_INSECOND:-3600} # report_duration: The time span that can be provided in this report.
+      - REPORT_SPECIFIER_ID=${REPORT_SPECIFIER_ID:-SONNEN_BATTERY}
     command: >
       sh -c "python ven.py"
 

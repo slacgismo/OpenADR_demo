@@ -26,6 +26,9 @@ MOCK_BATTERY_API_URL = os.getenv('MOCK_BATTERY_API_URL')
 BATTERY_SN = os.getenv('BATTERY_SN')
 INTERVAL_OF_FETCHING_DEVICE_DATA_INSECOND = int(
     os.environ['INTERVAL_OF_FETCHING_DEVICE_DATA_INSECOND'])
+
+REPORT_SPECIFIER_ID = os.getenv('REPORT_SPECIFIER_ID')
+REPORT_DURATION_INSECOND = int(os.environ['REPORT_DURATION_INSECOND'])
 print(
     f"DEVICE_TYPE: {DEVICE_TYPE}, DEV :{DEV} MOCK_BATTERY_API_URL: {MOCK_BATTERY_API_URL}")
 
@@ -130,10 +133,11 @@ client = OpenADRClient(ven_name=VEN_ID,
 # Add the report capability to the client
 client.add_report(callback=collect_report_value,
                   resource_id=DEVICE_ID,
-                  report_specifier_id='BatteryReport',
+                  report_specifier_id=REPORT_SPECIFIER_ID,
                   data_collection_mode='full',
                   measurement=DEVICE_TYPES.SONNEN_BATTERY.value,
-                  report_duration=timedelta(seconds=3600),
+                  # report_duration: The time span that can be provided in this report.
+                  report_duration=timedelta(seconds=REPORT_DURATION_INSECOND),
                   sampling_rate=timedelta(seconds=INTERVAL_OF_FETCHING_DEVICE_DATA_INSECOND))
 
 

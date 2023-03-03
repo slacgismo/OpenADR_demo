@@ -19,31 +19,26 @@ variable "mock_battery_api_url" {
   default    = "https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/battery_api"
 }
 
-variable "device_type" {
-  description = "Device type"
-  default = "SONNEN_BATTERY"
+
+variable "ven_log_group_name" {
+  description = "ven_log_group_name"
+  type        = string
+  default    = "ven"
 }
 
-# variable "dev" {
-#   description = "dev"
-#   type        = string
-#   default    = true
-# }
-
-    # mock_battery_api_url = var.mock_battery_api_url
-    # battery_token    = var.battery_token
-    # battery_sn       = var.battery_sn
-    # device_id        = var.device_id
-    # device_type      = var.device_type
-    # timezone         = var.timezone
-    # price_threshold  = var.price_threshold
-    # log_group_name   = aws_cloudwatch_log_group.ven_task_logs.name
-    # log_group_region = var.aws_region
 
 ## VTN variables
-
+variable "vtn_id" {
+  description = "vtn_id"
+  type        = string
+  default    = "vtn0"
+}
 # ecr image vtn name
-
+variable "interval_of_fetching_market_price_insecond" {
+  description = "interval_of_fetching_market_price_insecond"
+  type        = string
+  default    = "60"
+}
 variable "ecr_image_vtn" {
   description = "ecr_image_vtn"
   type        = string

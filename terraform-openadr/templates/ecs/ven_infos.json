@@ -1,0 +1,26 @@
+[
+    {
+        "ven_id": "ven1",
+        "battery_token": "12321321qsd",
+        "battery_sn": "66354",
+        "device_id": "device_0",
+        "device_type": "SONNEN_BATTERY",
+        "price_threshold": "0.15",
+        "timezone": "America/Loas_Angeles",
+        "interval_of_fetching_device_data_insecond": "10",
+        "report_duration_insecond": "3600",
+        "report_specifier_id": "SONNEN_BATTERY"
+    },
+    {
+        "ven_id": "ven2",
+        "battery_token": "dasdsacc123",
+        "battery_sn": "66355",
+        "device_id": "device_2",
+        "device_type": "SONNEN_BATTERY",
+        "price_threshold": "0.15",
+        "timezone": "America/Loas_Angeles",
+        "interval_of_fetching_device_data_insecond": "10",
+        "report_duration_insecond": "3600",
+        "report_specifier_id": "SONNEN_BATTERY"
+    }
+]

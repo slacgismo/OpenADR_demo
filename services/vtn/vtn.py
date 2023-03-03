@@ -63,6 +63,7 @@ class DEVICE_TYPES(Enum):
 
 TIMEZONE = os.environ['TIMEZONE']
 GET_VENS_URL = os.environ['GET_VENS_URL']
+VTN_ID = os.environ['VTN_ID']
 SAVE_DATA_URL = os.environ['SAVE_DATA_URL']
 MARKET_PRICES_URL = os.environ['MARKET_PRICES_URL']
 PARTICIPATED_VENS_URL = os.environ['PARTICIPATED_VENS_URL']
@@ -98,7 +99,7 @@ def send_report_data_to_url(url: str, data: dict) -> bool:
             raise ValueError(
                 f'Request failed with status {response.status_code}')
         response_json = response.json()
-        print(f"response_json: {response_json}")
+        # print(f"response_json: {response_json}")
         return True
     except Exception as e:
         raise e
@@ -172,7 +173,7 @@ def post_participated_vens_to_api(api_url: str, ven_id: str):
             print("-----------")
 
             print(
-                f'****** {ven_id} call TESS API join market success ****')
+                f'****** vtn:{VTN_ID} call TESS and notify ven_id: {ven_id} join market ****')
         else:
             print(f'API call failed with error code {response.status_code}')
         # print("--------*****")
@@ -196,8 +197,8 @@ async def on_create_party_registration(registration_info):
             # logger.debug(
             #     f"REGISTRATION SUCCESS WITH NAME:  {v.get('ven_name')} FROM PAYLOAD, MATCH FOUND {ven_name}")
             return v['ven_id'], v['registration_id']
-    print("****************")
-    print("Cannot find ven_name, try to fetch from url")
+
+    print(f"vtn:{VTN_ID} cannot find ven_name, try to fetch from url")
     return check_if_ven_exist_in_tess_db(ven_url=GET_VENS_URL, ven_name=ven_name)
 
 
@@ -261,7 +262,12 @@ async def on_update_sonnen_battery_report(data, ven_id, resource_id, measurement
             "%Y-%m-%d %H:%M:%S")
 
         index += 1
-    print(f"*******  {ven_id} get report and send to the post url*******")
+    # add ven_id to the report
+    josn_report['ven_id'] = ven_id
+    # add vtn_id to the report
+    josn_report['vtn_id'] = VTN_ID
+    print(
+        f"******* vtn:{VTN_ID} get report from  {ven_id} send to the TESS *******")
     send_report_data_to_url(url=SAVE_DATA_URL, data=josn_report)
 
 
@@ -272,39 +278,36 @@ async def event_response_callback(ven_id, event_id, opt_type):
     if opt_type == 'optIn':
 
         print(
-            f"***** ven_id  :{ven_id} opt_type: {opt_type} join the market *******")
+            f"***** vtn:{VTN_ID}  ven_id  :{ven_id} opt_type: {opt_type} join the market *******")
 
         post_participated_vens_to_api(
             api_url=PARTICIPATED_VENS_URL, ven_id=ven_id)
 
-    # logger.info(
-    #     f"VEN {ven_id} responded to Event {event_id} with: {opt_type}")
 
+# async def handle_cancel_event(request):
+#     """
+#     Handle a cancel event request.
+#     """
+#     try:
+#         server = request.app["server"]
+#         server.cancel_event(ven_id='ven_id_ven123',
+#                             event_id="our-event-id",
+#                             )
 
-async def handle_cancel_event(request):
-    """
-    Handle a cancel event request.
-    """
-    try:
-        server = request.app["server"]
-        server.cancel_event(ven_id='ven_id_ven123',
-                            event_id="our-event-id",
-                            )
+#         datetime_local = datetime.now(tz_local)
+#         datetime_local_formated = datetime_local.strftime("%H:%M:%S")
+#         info = f"Event canceled now, local time: {datetime_local_formated}"
+#         response_obj = {'status': 'success', 'info': info}
 
-        datetime_local = datetime.now(tz_local)
-        datetime_local_formated = datetime_local.strftime("%H:%M:%S")
-        info = f"Event canceled now, local time: {datetime_local_formated}"
-        response_obj = {'status': 'success', 'info': info}
+#         # return sucess
+#         return web.json_response(response_obj)
 
-        # return sucess
-        return web.json_response(response_obj)
+#     except Exception as e:
 
-    except Exception as e:
+#         response_obj = {'status': 'failed', 'info': str(e)}
 
-        response_obj = {'status': 'failed', 'info': str(e)}
-
-        # return failed with a status code of 500 i.e. 'Server Error'
-        return web.json_response(response_obj, status=500)
+#         # return failed with a status code of 500 i.e. 'Server Error'
+#         return web.json_response(response_obj, status=500)
 
 
 async def all_ven_info(request):
@@ -322,7 +325,7 @@ async def all_ven_info(request):
 # logger.debug("vtn before OpenADRServer")
 
 # Create the server object
-server = OpenADRServer(vtn_id='myvtn',
+server = OpenADRServer(vtn_id=VTN_ID,
                        http_host='0.0.0.0')
 # ven_lookup=ven_lookup)
 
@@ -343,7 +346,7 @@ server.add_handler('on_register_report', on_register_report)
 server.app.add_routes([
     # web.get('/trigger/{minutes_duration}', handle_trigger_event),
     # web.post('/api/v1.0/trigger_events', handle_trigger_event),
-    web.get('/cancel', handle_cancel_event),
+    # web.get('/cancel', handle_cancel_event),
     web.get('/vens', all_ven_info)
 ])
 
@@ -369,12 +372,8 @@ async def periodic_function():
         payload = await get_data_from_api()
         message = json.loads(payload['message'])
         market_prices = message['market_prices']
-        # market_prices = message['market_prices']
-        # market_prices = data['market_prices']
-        print("**************")
-        print(f"Fetched data from API: {message} ")
-        print(f"Fetched market_prices from API: {market_prices} ")
-        print("***********")
+        print(
+            f"***** Fetched market_prices from API: {market_prices} ******* ")
 
         minutes_duration = 1
         for v in VENS.values():
@@ -388,7 +387,7 @@ async def periodic_function():
                              callback=event_response_callback,
                              event_id=event_id,
                              )
-        # Wait for 5 minutes
+        # Wait for x seconds before fetching the next market price
         await asyncio.sleep(INTERVAL_OF_FETCHING_MARKET_PRICE_INSECOND)
 
 # logger.debug(f"Configured server {server}")

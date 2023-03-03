@@ -8,9 +8,11 @@ data "template_file" "vtn_container_definitions" {
     app_image        = var.ecr_image_vtn
     timezone         = var.timezone
     save_data_url    = var.save_data_url
+    vtn_id          = var.vtn_id
     get_vens_url     = var.get_vens_url
     market_prices_url = var.market_prices_url
     participated_vens_url = var.participated_vens_url
+    interval_of_fetching_market_price_insecond = var.interval_of_fetching_market_price_insecond
     log_group_name   = aws_cloudwatch_log_group.ecs_task_logs.name
     log_group_region = var.aws_region
   }
@@ -26,8 +28,8 @@ resource "aws_ecs_task_definition" "vtn" {
   execution_role_arn       = aws_iam_role.task_execution_role.arn
   task_role_arn            = aws_iam_role.app_iam_role.arn
   volume {
-    name = "static"
-  }
+    name = "vtn-volume"
+  } 
 
   tags = local.common_tags
 }
