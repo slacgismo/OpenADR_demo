@@ -2,6 +2,11 @@ const aws = require("aws-sdk");
 
 const dynamodb = new aws.DynamoDB();
 
+const random_value = (min, max, decimal) => {
+  const randomFloat = (Math.random() * (max - min) + min).toFixed(decimal);
+  return randomFloat;
+};
+
 // return data from batteries array
 const get_battery_data = () => {
   var data = {
@@ -22,44 +27,15 @@ const get_battery_data = () => {
     OperatingMode: "2",
     Pac_total_W: -1800,
     Production_W: 1792,
-    RSOC: 52,
+    RSOC: random_value(20, 98, 0),
     RemainingCapacity_W: 5432,
     SystemStatus: "OnGrid",
     Timestamp: "2023-02-09 14:50:32",
-    USOC: 49,
+    USOC: random_value(10, 95, 0),
     Uac: 237,
     Ubat: 54,
   };
   return data;
-};
-
-const check_serial_and_token_exist = async (serial, token) => {
-  const params = {
-    TableName: "battery",
-    Key: {
-      serial: { S: serial },
-      token: { S: token },
-    },
-  };
-  try {
-    const result = await dynamodb.getItem(params).promise();
-
-    if (
-      result.Item &&
-      result.Item.serial.S === serial &&
-      result.Item.token.S === token
-    ) {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ message: "Success" }),
-      };
-    } else {
-      return true;
-    }
-  } catch (error) {
-    console.log(error);
-    return false;
-  }
 };
 
 exports.handler = async (event) => {
@@ -75,37 +51,30 @@ exports.handler = async (event) => {
       body: JSON.stringify({ message: "Invalid or missing token" }),
     };
   }
-  const token = event.headers.authorization;
+  const authHeader = event.headers.Authorization || event.headers.authorization;
   const serial = event.queryStringParameters["serial"];
-  // check serial number and token exist in batteries array
-
-  if (!token || !token.startsWith("Bearer ")) {
+  const match = authHeader.match(/^Bearer (.+)$/);
+  if (!match) {
     return {
       statusCode: 401,
-      body: JSON.stringify({ message: "Invalid or missing token" }),
+      body: 'Invalid authorization header format. Format should be "Bearer <token>".',
     };
   }
-
-  let match = check_serial_and_token_exist(serial, token);
-
-  if (match) {
-    // if method is GET, return data
-    if (event.httpMethod === "GET") {
-      const data = get_battery_data();
-      return {
-        statusCode: 200,
-        body: JSON.stringify(data),
-      };
-    }
-    // if method is POST, return success
-    if (event.httpMethod === "POST") {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ message: "success" }),
-      };
-    }
+  const token = match[1];
+  const params = {
+    TableName: "battery-table",
+    Key: {
+      serial: { S: serial },
+    },
+  };
+  const result = await dynamodb.getItem(params).promise();
+  if (result.Item && result.Item.token && result.Item.token.S === token) {
+    const data = get_battery_data();
+    return {
+      statusCode: 200,
+      body: JSON.stringify(data),
+    };
   }
-  // return status code 400 if not exist
 
   return {
     statusCode: 400,

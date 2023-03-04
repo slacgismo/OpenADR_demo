@@ -48,7 +48,7 @@ resource "aws_iam_policy" "dyanmodb_lambda_access" {
 }
 
 resource "aws_iam_role_policy_attachment" "dyanmodb_lambda_access_attach" {
-  role       = aws_iam_role.openadr_devices_lambda_exec.name
+  role       = aws_iam_role.battery_api_lambda_exec.name
   policy_arn = aws_iam_policy.dyanmodb_lambda_access.arn
 }
 
