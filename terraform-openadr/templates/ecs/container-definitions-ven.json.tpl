@@ -8,7 +8,7 @@ ${jsonencode([
             {"name" = "ENV", "value" = env},
             {"name" = "VEN_ID", "value" = ven_info.ven_id},
             {"name" =  "VTN_URL", "value" = vtn_url},
-            {"name" = "MOCK_BATTERY_API_URL", "value" = mock_battery_api_url},
+            {"name" = "MOCK_DEVICES_API_URL", "value" = mock_battery_api_url},
             {"name" = "BATTERY_TOKEN", "value" = ven_info.battery_token},
             {"name" =  "BATTERY_SN", "value" = ven_info.battery_sn},
             {"name" = "DEVICE_ID", "value" = ven_info.device_id},

@@ -60,8 +60,10 @@ class DEVICE_TYPES(Enum):
     SONNEN_BATTERY = 'SONNEN_BATTERY'
     E_GUAGE = 'E_GUAGE'
 
+# Define the Environment Variables
 
-TIMEZONE = os.environ['TIMEZONE']
+
+ENV = os.environ['ENV']
 GET_VENS_URL = os.environ['GET_VENS_URL']
 VTN_ID = os.environ['VTN_ID']
 SAVE_DATA_URL = os.environ['SAVE_DATA_URL']
@@ -69,10 +71,7 @@ MARKET_PRICES_URL = os.environ['MARKET_PRICES_URL']
 PARTICIPATED_VENS_URL = os.environ['PARTICIPATED_VENS_URL']
 INTERVAL_OF_FETCHING_MARKET_PRICE_INSECOND = int(
     os.environ['INTERVAL_OF_FETCHING_MARKET_PRICE_INSECOND'])
-tz_local = pytz.timezone(TIMEZONE)
 
-if __name__ == "__main__":
-    pass
 
 # enable_default_logging(level=logging.DEBUG)
 # logging.basicConfig(level=logging.DEBUG)
@@ -81,14 +80,8 @@ if __name__ == "__main__":
 # logger.info("vtn at top")
 
 # Future db
-VENS = {
-    "ven789": {
-        "ven_name": "ven789",
-        "ven_id": "ven789",
-        "registration_id": "reg_id_ven789"
-    }
-}
-# VENS = {}
+
+VENS = {}
 # form data lookup for creating an event with the html page
 
 
@@ -284,30 +277,17 @@ async def event_response_callback(ven_id, event_id, opt_type):
             api_url=PARTICIPATED_VENS_URL, ven_id=ven_id)
 
 
-# async def handle_cancel_event(request):
-#     """
-#     Handle a cancel event request.
-#     """
-#     try:
-#         server = request.app["server"]
-#         server.cancel_event(ven_id='ven_id_ven123',
-#                             event_id="our-event-id",
-#                             )
-
-#         datetime_local = datetime.now(tz_local)
-#         datetime_local_formated = datetime_local.strftime("%H:%M:%S")
-#         info = f"Event canceled now, local time: {datetime_local_formated}"
-#         response_obj = {'status': 'success', 'info': info}
-
-#         # return sucess
-#         return web.json_response(response_obj)
-
-#     except Exception as e:
-
-#         response_obj = {'status': 'failed', 'info': str(e)}
-
-#         # return failed with a status code of 500 i.e. 'Server Error'
-#         return web.json_response(response_obj, status=500)
+async def health_check(request):
+    """
+    Handle a trigger event request.
+    """
+    try:
+        return web.json_response("ok", status=200)
+    except Exception as e:
+        # Bad path where name is not set
+        response_obj = {'status': 'failed', 'info': str(e)}
+        # return failed with a status code of 500 i.e. 'Server Error'
+        return web.json_response(response_obj, status=500)
 
 
 async def all_ven_info(request):
@@ -326,8 +306,8 @@ async def all_ven_info(request):
 
 # Create the server object
 server = OpenADRServer(vtn_id=VTN_ID,
-                       http_host='0.0.0.0')
-# ven_lookup=ven_lookup)
+                       http_host='0.0.0.0',
+                       ven_lookup=ven_lookup)
 
 # logger.debug(f"vtn created server {server}")
 
@@ -347,7 +327,8 @@ server.app.add_routes([
     # web.get('/trigger/{minutes_duration}', handle_trigger_event),
     # web.post('/api/v1.0/trigger_events', handle_trigger_event),
     # web.get('/cancel', handle_cancel_event),
-    web.get('/vens', all_ven_info)
+    web.get('/vens', all_ven_info),
+    web.get('/health', health_check)
 ])
 
 
@@ -364,7 +345,7 @@ async def get_data_from_api():
 
 async def periodic_function():
     """
-    Periodically fetch data from a REST API URL using requests package.
+    Periodically fetch data from a REST API URL using aiohttp package.
     """
 
     while True:
@@ -391,13 +372,14 @@ async def periodic_function():
         await asyncio.sleep(INTERVAL_OF_FETCHING_MARKET_PRICE_INSECOND)
 
 # logger.debug(f"Configured server {server}")
+if __name__ == "__main__":
 
-loop = asyncio.new_event_loop()
-# loop.set_debug(True)
-asyncio.set_event_loop(loop)
-# loop.create_task(server.run())
-loop.create_task(server.run())
-loop.create_task(periodic_function())
-# Using this line causes failure
-# asyncio.run(server.run(), debug=True)
-loop.run_forever()
+    loop = asyncio.new_event_loop()
+    # loop.set_debug(True)
+    asyncio.set_event_loop(loop)
+    # loop.create_task(server.run())
+    loop.create_task(server.run())
+    loop.create_task(periodic_function())
+    # Using this line causes failure
+    # asyncio.run(server.run(), debug=True)
+    loop.run_forever()

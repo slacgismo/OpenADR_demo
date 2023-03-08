@@ -8,7 +8,7 @@
             {"name": "ENV", "value": "${env}"},
             {"name": "VEN_NAME", "value": "${ven_name}"},
             {"name": "VTN_URL", "value": "${vtn_url}"},
-            {"name": "MOCK_BATTERY_API_URL", "value": "${mock_battery_api_url}"},
+            {"name": "MOCK_DEVICES_API_URL", "value": "${mock_battery_api_url}"},
             {"name": "BATTERY_TOKEN", "value": "${battery_token}"},
             {"name": "BATTERY_SN", "value": "${battery_sn}"},
             {"name": "DEVICE_ID", "value": "${device_id}"},

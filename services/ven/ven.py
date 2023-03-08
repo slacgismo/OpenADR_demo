@@ -1,9 +1,13 @@
+import requests
+import subprocess  # For executing a shell command
+import platform    # For getting the operating system name
 import asyncio
 from datetime import datetime, timedelta
 from openleadr import OpenADRClient, enable_default_logging
 from api.sonnen_battery.sonnen_api import SonnenInterface
 from api.sonnen_battery.mock_sonnen_api import MockSonnenInterface
-
+import time
+import socket
 import os
 from device_type_enum import DEVICE_TYPES
 
@@ -12,20 +16,18 @@ ENV = os.getenv('ENV')
 
 print("ENV: ", ENV)
 VEN_ID = os.getenv('VEN_ID')
-VTN_URL = os.getenv('VTN_URL')
+# VTN_URL = os.getenv('VTN_URL')
+VTN_ADDRESS = os.getenv('VTN_ADDRESS')
+VTN_PORT = os.getenv('VTN_PORT')
 BATTERY_TOKEN = os.getenv('BATTERY_TOKEN')
 BATTERY_SN = os.getenv('BATTERY_SN')
 DEVICE_ID = os.getenv('DEVICE_ID')
 DEVICE_TYPE = os.getenv('DEVICE_TYPE')
-TIMEZONE = os.getenv('TIMEZONE')
 PRICE_THRESHOLD = os.getenv('PRICE_THRESHOLD')
-MOCK_BATTERY_API_URL = os.getenv('MOCK_BATTERY_API_URL')
+MOCK_DEVICES_API_URL = os.getenv('MOCK_DEVICES_API_URL')
 BATTERY_SN = os.getenv('BATTERY_SN')
 INTERVAL_OF_FETCHING_DEVICE_DATA_INSECOND = int(
     os.environ['INTERVAL_OF_FETCHING_DEVICE_DATA_INSECOND'])
-
-REPORT_SPECIFIER_ID = os.getenv('REPORT_SPECIFIER_ID')
-REPORT_DURATION_INSECOND = int(os.environ['REPORT_DURATION_INSECOND'])
 
 
 enable_default_logging()
@@ -49,9 +51,9 @@ async def collect_report_value(date_from, date_to, sampling_interval):
             elif ENV == 'DEV':
 
                 print(
-                    f"Use mock battery api :{MOCK_BATTERY_API_URL}, auth_token:{BATTERY_TOKEN},serial: {BATTERY_SN}")
+                    f"Use mock battery api :{MOCK_DEVICES_API_URL}, auth_token:{BATTERY_TOKEN},serial: {BATTERY_SN}")
                 mock_battery_interface = MockSonnenInterface(
-                    serial=BATTERY_SN, auth_token=BATTERY_TOKEN, url_ini=MOCK_BATTERY_API_URL)
+                    serial=BATTERY_SN, auth_token=BATTERY_TOKEN, url_ini=MOCK_DEVICES_API_URL)
                 report_data = mock_battery_interface.get_status_and_convert_to_openleadr_report()
 
                 return report_data
@@ -100,7 +102,7 @@ def emulate_control_device(device_type: DEVICE_TYPES, device_id: str, value: flo
 
             print("Send post requst to contorl the mock battery")
             mock_battery_interface = MockSonnenInterface(
-                serial=BATTERY_SN, auth_token=BATTERY_TOKEN, url_ini=MOCK_BATTERY_API_URL)
+                serial=BATTERY_SN, auth_token=BATTERY_TOKEN, url_ini=MOCK_DEVICES_API_URL)
             # if we need to implement the mode, change this parameters
             mode = 2
             mock_battery_interface.mock_control_battery(mode=mode)
@@ -157,23 +159,53 @@ async def handle_event(event):
 
 # Create the client object
 
-client = OpenADRClient(ven_name=VEN_ID,
-                       vtn_url=VTN_URL)
-# Add the report capability to the client
-client.add_report(callback=collect_report_value,
-                  resource_id=DEVICE_ID,
-                  report_specifier_id=REPORT_SPECIFIER_ID,
-                  data_collection_mode='full',
-                  measurement=DEVICE_TYPES.SONNEN_BATTERY.value,
-                  # report_duration: The time span that can be provided in this report default=3600.
-                  report_duration=timedelta(seconds=REPORT_DURATION_INSECOND),
-                  sampling_rate=timedelta(seconds=INTERVAL_OF_FETCHING_DEVICE_DATA_INSECOND))
+
+def check_server_health(api_link):
+    try:
+        response = requests.get(api_link)
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+    except:
+        return False
 
 
-# Add event handling capability to the client
-client.add_handler('on_event', handle_event)
+if __name__ == "__main__":
+    # check if the server is up
+    is_server_up = False
+    retry_count = 0
+    # retry 3 times
+    while retry_count < 3:
+        is_server_up = check_server_health(
+            api_link=f"http://{VTN_ADDRESS}:{VTN_PORT}/health")
+        if is_server_up:
+            print("server is up")
+            break
+        else:
+            time.sleep(2)
+            print("Server is not up, wait 2 seconds")
+        retry_count += 1
 
-# Run the client in the Python AsyncIO Event Loop
-loop = asyncio.get_event_loop()
-loop.create_task(client.run())
-loop.run_forever()
+    if not is_server_up:
+        raise Exception("Server is not up, exit the program")
+
+    client = OpenADRClient(ven_name=VEN_ID,
+                           vtn_url=f"http://{VTN_ADDRESS}:{VTN_PORT}/OpenADR2/Simple/2.0b")
+    # Add the report capability to the client
+    client.add_report(callback=collect_report_value,
+                      resource_id=DEVICE_ID,
+                      report_specifier_id=DEVICE_TYPES.SONNEN_BATTERY.value,
+                      data_collection_mode='full',
+                      measurement=DEVICE_TYPES.SONNEN_BATTERY.value,
+                      # report_duration: The time span that can be provided in this report default=3600.
+                      report_duration=timedelta(seconds=3600),
+                      sampling_rate=timedelta(seconds=INTERVAL_OF_FETCHING_DEVICE_DATA_INSECOND))
+
+    # Add event handling capability to the client
+    client.add_handler('on_event', handle_event)
+
+    # Run the client in the Python AsyncIO Event Loop
+    loop = asyncio.get_event_loop()
+    loop.create_task(client.run())
+    loop.run_forever()

@@ -6,7 +6,6 @@
         "memoryReservation": 256,
         "environment": [
             {"name": "VTN_ID", "value": "${vtn_id}"},
-            {"name": "TIMEZONE", "value": "${timezone}"},
             {"name": "SAVE_DATA_URL", "value": "${save_data_url}"},
             {"name": "GET_VENS_URL", "value": "${get_vens_url}"},
             {"name": "MARKET_PRICES_URL", "value": "${market_prices_url}"},

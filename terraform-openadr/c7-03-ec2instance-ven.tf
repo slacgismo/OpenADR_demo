@@ -25,7 +25,7 @@
 #         VEN_NAME            = var.ven_name
         
 #         VTN_URL             = "http://${aws_lb.vtn.dns_name}:8080/OpenADR2/Simple/2.0b"
-#         MOCK_BATTERY_API_URL = var.mock_battery_api_url
+#         MOCK_DEVICES_API_URL = var.mock_battery_api_url
 #         BATTERY_TOKEN       = var.battery_token
 #         BATTERY_SN          = var.battery_sn
 #         DEVICE_ID           = var.device_id
