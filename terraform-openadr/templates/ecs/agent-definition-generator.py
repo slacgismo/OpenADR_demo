@@ -101,12 +101,13 @@ def generate_ven_container_definitions_from_template(ven_template: dict, ven: di
 
 
 if __name__ == "__main__":
-    with open('agents-list.json', 'r') as json_file:
+    with open('input-agents-list.json', 'r') as json_file:
         # Load the contents of the file into a dictionary
         data = json.load(json_file)
 
     agents = data['agents']
     agent_definition = []
+    agent_definition_list = []
     for agent in agents:
 
         agent_id = agent['agent_id']
@@ -125,6 +126,17 @@ if __name__ == "__main__":
                 ven_template=ven_template, ven=ven)
 
             agent_definition.append(ven_difinition)
+        definition_file_name = f'./task_definitions/container-definition-{agent_id}.json.tpl'
+        agent_definition_list.append({
+            "agent_id": agent_id,
+            "definition_file_name": definition_file_name
+        })
+
         # export each agent definition to a json file
         export_to_json_tpl(
-            agent_definition, f'container-definition-{agent_id}.json.tpl')
+            agent_definition, definition_file_name)
+
+    # export agent_definition_list to a json file
+    list_file_name = "./task_definitions/agent-definition-list.json"
+    export_to_json_tpl(
+        agent_definition_list, list_file_name)

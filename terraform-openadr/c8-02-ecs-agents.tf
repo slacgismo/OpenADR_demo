@@ -1,9 +1,21 @@
 
+# locals {
+#   agent_container_definitions = [
+#     "${file("templates/ecs/container-definition-agent0.json.tpl")}",
+#     "${file("templates/ecs/container-definition-agent1.json.tpl")}",
+#   ]
+# }
+
+locals {
+  agent_container_definitions = jsondecode(file(var.agent_definition_list_file))
+}
 
 
 data "template_file" "agent_container_definitions" {
-  template = file("templates/ecs/container-definition-agent0.json.tpl")
-
+  count    = length(local.agent_container_definitions)
+#   template = element(local.agent_container_definitions, count.index)
+#   template = file("templates/ecs/container-definition-agent0.json.tpl")
+  template = file("./templates/ecs/${local.agent_container_definitions[count.index].definition_file_name}")
   vars = {
     log_group_name   = aws_cloudwatch_log_group.agent_task_logs.name
     log_group_region = var.aws_region
@@ -40,9 +52,10 @@ data "template_file" "agent_container_definitions" {
 # }
 
 resource "aws_ecs_task_definition" "agent" {
-  family                   = "${var.prefix}-agent"
-  container_definitions    = data.template_file.agent_container_definitions.rendered
-
+  count                    = length(local.agent_container_definitions)
+  family                   = "${var.prefix}-agent-${count.index}"
+#   container_definitions    = data.template_file.agent_container_definitions.rendered
+  container_definitions    = data.template_file.agent_container_definitions[count.index].rendered
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 256
@@ -58,9 +71,11 @@ resource "aws_ecs_task_definition" "agent" {
 
 
 resource "aws_ecs_service" "agent" {
-  name             = "${var.prefix}-agent"
+  count            = length(local.agent_container_definitions)
+  name             = "${var.prefix}-agent-${local.agent_container_definitions[count.index].agent_id}"
   cluster          = aws_ecs_cluster.main.name
-  task_definition  = aws_ecs_task_definition.agent.family
+  task_definition  = aws_ecs_task_definition.agent[count.index].arn
+#   task_definition  = aws_ecs_task_definition.agent.family
   desired_count    = 1
   launch_type      = "FARGATE"
   platform_version = "1.4.0"
