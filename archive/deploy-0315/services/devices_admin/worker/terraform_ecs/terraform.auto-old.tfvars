@@ -1,0 +1,16 @@
+aws_region="us-east-2"
+environment="DEV"
+project="openadr"
+prefix="openadr-dev-agents"
+creator="Jimmy"
+managedBy="Terraform"
+task_definition_file="./templates/task-definition-00ccff430c4bcfa1f1186f488b88fc.json.tpl"
+agent_id="00ccff430c4bcfa1f1186f488b88fc"
+cloudwatch_name="openadr-ecs-agent"
+ecs_cluster_name="openadr-dev-agents-cluster"
+ecs_task_execution_role_name="openadr-task-exec-role"
+ecs_task_role_name="openadr-vtn-task"
+private_sg_name="public-bastion-sg-20230311232022989900000002"
+private_vpc_id="vpc-012a219f9778e1158"
+
+

@@ -1,0 +1,4 @@
+boto3 >=1.26.87
+awscli 
+flask
+asgiref

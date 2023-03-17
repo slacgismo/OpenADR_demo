@@ -90,3 +90,7 @@ coverage.xml
 docs/_build/
 
 *.pem
+
+.DS_Store
+
+backend.hcl

@@ -5,7 +5,7 @@
 
 .PHONY: tf-init
 tf-init:
-	docker-compose -f deploy/docker-compose.yml run --rm terraform init
+	docker-compose -f deploy/docker-compose.yml run --rm terraform init -backend-config=backend.hcl
 
 .PHONY: tf-fmt
 tf-fmt:

@@ -4,30 +4,32 @@ services:
   vtn:
     platform: linux/amd64
     build:
-      context: ./services/vtn
+      context: ./deploy/services/vtn
       args:
         - DEV=true
     environment:
       - ENV=${ENV:-DEV} # PROD or DEV (PROD: real device, DEV: mock device)
+      - AGENT_ID=${AGENT_ID:-agent_0}
+      - RESOURCE_ID=${RESOURCE_ID:-resource0}
       - VTN_ID=${VTN_ID:-vtn0}
       - SAVE_DATA_URL=${SAVE_DATA_URL:-https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/openadr_devices}
       - GET_VENS_URL=${GET_VENS_URL:-https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/openadr_devices}
       - MARKET_PRICES_URL=${GET_VENS_URL:-https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/market_prices}
       - PARTICIPATED_VENS_URL=${GET_VENS_URL:-https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/participated_vens}
-      - INTERVAL_OF_FETCHING_MARKET_PRICE_INSECOND=${INTERVAL_OF_FETCHING_MARKET_PRICE_INSECOND:-20}
+      - MARKET_INTERVAL_IN_SECOND=${MARKET_INTERVAL_IN_SECOND:-20}
     networks:
       - adrnet
     ports:
       - "8080:8080"
     volumes:
-      - ./services/vtn:/app
+      - ./vtn:/app
     command: >
       sh -c "python vtn.py"
 
   ven:
     platform: linux/amd64
     build:
-      context: ./services/ven
+      context: ./deploy/services/ven
       args:
         - DEV=true
     networks:
@@ -37,15 +39,18 @@ services:
     environment:
       - ENV=${ENV:-DEV} # PROD or DEV (PROD: real device, DEV: mock device)
       - VEN_ID=${VEN_ID:-ven0}
+      - RESOURCE_ID=${RESOURCE_ID:-resource0}
+      - METER_ID=${METER_ID:-meter0}
+      - DEVICE_ID=${DEVICE_ID:-device0}
+      - AGENT_ID=${AGENT_ID:-agent_0}
+      - DEVICE_NAME=${DEVICE_NAME:-battery0}
       - VTN_ADDRESS=${VTN_ADDRESS:-vtn}
       - VTN_PORT=${VTN_PORT:-8080}
+      - DEVICE_TYPE=${DEVICE_TYPE:-HS}
       - MOCK_DEVICES_API_URL=${MOCK_DEVICES_API_URL:-https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/battery_api}
-      - BATTERY_TOKEN=${BATTERY_TOKEN:-12321321qsd}
-      - BATTERY_SN=${BATTERY_SN:-66354}
-      - DEVICE_ID=${DEVICE_ID:-device_0}
-      - DEVICE_TYPE=${DEVICE_TYPE:-SONNEN_BATTERY}
-      - PRICE_THRESHOLD=${PRICE_THRESHOLD:-0.15}
-      - INTERVAL_OF_FETCHING_DEVICE_DATA_INSECOND=${INTERVAL_OF_FETCHING_DEVICE_DATA_INSECOND:-10}
+      - 'DEVICE_PARAMS={"device_brand": "SONNEN_BATTERY", "battery_token": "12321321qsd", "battery_sn": "66354"}'
+      - MARKET_INTERVAL_IN_SECOND=${MARKET_INTERVAL_IN_SECOND:-20}
+      - BIDING_PRICE_THRESHOLD=${PRICE_THRESHOLD:-0.15}
     command: >
       sh -c "python ven.py"
 
