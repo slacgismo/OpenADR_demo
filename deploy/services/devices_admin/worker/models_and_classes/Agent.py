@@ -9,9 +9,16 @@ from .TerraformExecution import TerraformExecution
 
 
 class AgentState(Enum):
-    # CREATE = 'create'
+
     ACTIVE = 'active'
     DELETED = 'deleted'
+    DELETING = 'deleting'  # TODO: not implemented yet
+    CREATING = 'creating'  # TODO: not implemented yet
+    UPDATING = 'updating'  # TODO: not implemented yet
+
+    FAILED_UPDATE = 'failed_update'  # TODO: not implemented yet
+    FAILED_CREATE = 'failed_create'  # TODO: not implemented yet
+    FAILED_DELETE = 'failed_delete'  # TODO: not implemented yet
 
 
 class Agent:
@@ -58,18 +65,21 @@ class Agent:
         if is_file_exist:
             raise Exception(
                 f"File {backend_s3_state_key} does exist, this use update instead of create")
-        # 1. create ecs service
-        # agents_dynanmodb_service = DynamoDBService(
-        #     table_name=self.dynamodb_agents_table_name)
-        # if agents_dynanmodb_service.check_if_agent_id_exist(agent_id=self.agent_id):
-        #     raise Exception(
-        #         f"Agent {self.agent_id} exist, please use another agent id")
+        agents_dynanmodb_service = DynamoDBService(
+            table_name=self.dynamodb_agents_table_name)
         # check if the agenet id is already in the dynamodb table
-        # result = agents_dynanmodb_service.get_item(agent_id=self.agent_id)
-        # if len(result) > 0:
-        #     raise Exception(f"Agent {self.agent_id} already exists")
-        # # if yes, raise an error
-        # # if no, create a new record in the dynamodb table
+        item = agents_dynanmodb_service.get_item(agent_id=self.agent_id)
+        if item is not None and DynamoDB_Key.CURRENT_STATUS.value in item:
+            # already exist echeck the satate
+            if item[DynamoDB_Key.CURRENT_STATUS.value] != AgentState.DELETED.value:
+                raise Exception(
+                    f"Agent {self.agent_id} is already active, please use another agent id")
+        # update the status of the agent
+
+        # 1. create ecs service
+
+        # if yes, raise an error
+        # if no, create a new record in the dynamodb table
         # return
         created_task_definiton_name_file_path, vtn_id, vens_info = create_and_export_task_definition(
             agent_id=self.agent_id,
@@ -108,7 +118,7 @@ class Agent:
         )
         # 2. create ecs service
         ecs_terraform.terraform_init()
-        ecs_terraform.terraform_plan()
+        # ecs_terraform.terraform_plan()
         ecs_terraform.terraform_apply()
         # ecs_terraform.create()
         # 3. save s3 bucket
@@ -124,22 +134,30 @@ class Agent:
         )
         # 4. save dynamodb table
 
-        # item = {
-        #     DynamoDB_Key.AGENT_ID.value: self.agent_id,
-        #     DynamoDB_Key.RESOURCE_ID.value: self.resource_id,
-        #     DynamoDB_Key.VTN_ID.value: vtn_id,
-        #     DynamoDB_Key.VENS.value: vens_info,
-        #     DynamoDB_Key.VALID_AT.value: str(int(time.time())),
+        item = {
+            DynamoDB_Key.AGENT_ID.value: self.agent_id,
+            DynamoDB_Key.RESOURCE_ID.value: self.resource_id,
+            DynamoDB_Key.VTN_ID.value: vtn_id,
+            DynamoDB_Key.VENS.value: vens_info,
+            DynamoDB_Key.VALID_AT.value: str(int(time.time())),
+            DynamoDB_Key.BACKEND_S3_STATE_KEY.value: backend_s3_state_key,
+            DynamoDB_Key.BACKEND_DYNAMODB_LOCK_NAME.value: backend_dynamodb_lock_name,
+            DynamoDB_Key.TASK_DEFINITION_FILE_NAME.value: task_definition_file_name,
+            DynamoDB_Key.CURRENT_STATUS.value: AgentState.ACTIVE.value
 
-        #     DynamoDB_Key.BACKEND_S3_STATE_KEY.value: backend_s3_state_key,
-        #     DynamoDB_Key.BACKEND_DYNAMODB_LOCK_NAME.value: backend_dynamodb_lock_name,
-        #     DynamoDB_Key.TASK_DEFINITION_FILE_NAME.value: task_definition_file_name,
-        #     DynamoDB_Key.STATE.value: AgentState.ACTIVE.value
+        }
 
-        # }
-        # agents_dynanmodb_service.create_item(
-        #     item=item
-        # )
+        if item[DynamoDB_Key.CURRENT_STATUS.value] == AgentState.DELETED.value:
+            # update the agent record in the dynamodb table
+            print("update the deleted agent record in the dynamodb table")
+            agents_dynanmodb_service.upate_items(agent_id=self.agent_id,
+                                                 update_keys_values=item,
+                                                 remove_keys=None)
+        else:
+            # create the agent record in the dynamodb table
+            agents_dynanmodb_service.create_item(
+                item=item
+            )
         # remove local task definition file
         os.remove(created_task_definiton_name_file_path)
         return
@@ -166,6 +184,8 @@ class Agent:
             raise Exception(
                 f"File {backend_s3_state_key} does not exist")
 
+        # check if the agenet id is already in the dynamodb table
+
         created_task_definiton_name_file_path, vtn_id, vens_info = create_and_export_task_definition(
             agent_id=self.agent_id,
             resource_id=self.resource_id,
@@ -187,6 +207,15 @@ class Agent:
             path="./terraform/ecs/templates"
 
         )
+        agents_dynanmodb_service = DynamoDBService(
+            table_name=self.dynamodb_agents_table_name)
+        agent_record = agents_dynanmodb_service.get_item(
+            agent_id=self.agent_id)
+
+        if agent_record is None:
+            # raise exception if the agent id exist in the dynamodb table, please use another agent id
+            raise Exception(
+                f"Agent {self.agent_id} does not exist, please use create method")
 
         # task_definition_file_name, backend_s3_state_key, backend_dynamodb_lock_name, destination = self._get_agent_info_from_dynamodb_and_s3()
         ecs_terraform = TerraformExecution(
@@ -202,7 +231,7 @@ class Agent:
             backend_region=self.backend_region
         )
         ecs_terraform.terraform_init()
-        ecs_terraform.terraform_plan()
+        # ecs_terraform.terraform_plan()
         ecs_terraform.terraform_apply()
         s3_service = S3Service(
             bucket_name=self.s3_bucket_name_of_task_definition_file,
@@ -214,6 +243,28 @@ class Agent:
             source=created_task_definiton_name_file_path,
             destination=f"task_definitions/{self.agent_id}/{task_definition_file_name}"
         )
+        # update the agent record in the dynamodb table
+        item = {
+            DynamoDB_Key.RESOURCE_ID.value: self.resource_id,
+            DynamoDB_Key.VTN_ID.value: vtn_id,
+            DynamoDB_Key.VENS.value: vens_info,
+            DynamoDB_Key.BACKEND_S3_STATE_KEY.value: backend_s3_state_key,
+            DynamoDB_Key.BACKEND_DYNAMODB_LOCK_NAME.value: backend_dynamodb_lock_name,
+            DynamoDB_Key.TASK_DEFINITION_FILE_NAME.value: task_definition_file_name,
+            DynamoDB_Key.CURRENT_STATUS.value: AgentState.ACTIVE.value
+
+        }
+        print(f"item: {item}")
+        # check if the agenet id is already in the dynamodb table
+
+        if len(agent_record) > 0:
+            print("update the deleted agent record in the dynamodb table")
+            agents_dynanmodb_service.upate_items(agent_id=self.agent_id,
+                                                 update_keys_values=item
+                                                 )
+        else:
+            raise Exception(
+                f"Agent {self.agent_id} does not exist in the dynamodb table {self.dynamodb_agents_table_name}")
         os.remove(created_task_definiton_name_file_path)
         return
 
@@ -239,8 +290,18 @@ class Agent:
             raise Exception(
                 f"File {backend_s3_state_key} does not exist")
             # download task definition file
+        agents_dynanmodb_service = DynamoDBService(
+            table_name=self.dynamodb_agents_table_name)
+        agent_record = agents_dynanmodb_service.get_item(
+            agent_id=self.agent_id)
+        print("agent_record = ", agent_record)
+        if agent_record is None:
+            # raise exception if the agent id exist in the dynamodb table, please use another agent id
+            raise Exception(
+                f"Agent {self.agent_id} does not exist, please use create method")
 
         source = f"task_definitions/{self.agent_id}/{task_definition_file_name}"
+
         destination = f"./terraform/ecs/templates/{task_definition_file_name}"
         is_file_exist = backend_s3_service.check_file_exists(
             file_name=source)
@@ -253,7 +314,6 @@ class Agent:
             destination=destination
         )
 
-        # task_definition_file_name, backend_s3_state_key, backend_dynamodb_lock_name, destination = self._get_agent_info_from_dynamodb_and_s3()
         ecs_terraform = TerraformExecution(
             working_dir="./terraform/ecs",
             name_of_creation=f"ecs_service_{self.agent_id}",
@@ -270,41 +330,28 @@ class Agent:
         ecs_terraform.terraform_destroy()
         os.remove(destination)
         backend_s3_service.remove_file(file_name=backend_s3_state_key)
+
+        # update the agent record in the dynamodb table
+
+        item = {
+
+            DynamoDB_Key.CURRENT_STATUS.value: AgentState.DELETED.value,
+
+        }
+        # update the agent record in the dynamodb table
+        agents_dynanmodb_service.upate_items(agent_id=self.agent_id,
+                                             update_keys_values=item)
+        # remvoe the keys from the dynamodb table to indicate that the agent is deleted
+        keys_to_remove = [DynamoDB_Key.RESOURCE_ID.value,
+                          DynamoDB_Key.VTN_ID.value,
+                          DynamoDB_Key.VENS.value,
+                          DynamoDB_Key.BACKEND_S3_STATE_KEY.value,
+                          DynamoDB_Key.BACKEND_DYNAMODB_LOCK_NAME.value,
+                          DynamoDB_Key.TASK_DEFINITION_FILE_NAME.value,
+                          ]
+        agents_dynanmodb_service.remove_keys_from_item(
+            agent_id=self.agent_id,
+            keys_to_remove=keys_to_remove
+        )
+
         return
-
-    def destroy_all_agents(self, backend_s3_state_key_path: str):
-        # implementation of destroy method goes here
-
-        backend_s3_service = S3Service(bucket_name=self.backend_s3_bucket_name)
-        tfstate_files = backend_s3_service.list_objects(
-            path=backend_s3_state_key_path)
-        for tf_file in tfstate_files:
-            print(tf_file)
-
-        return
-    # def _get_agent_info_from_dynamodb_and_s3(self):
-    #     # implementation of download method goes here
-    #     agents_dynanmodb_service = DynamoDBService(
-    #         table_name=self.dynamodb_agents_table_name)
-    #     item = agents_dynanmodb_service.get_item(agent_id=self.agent_id)
-    #     if len(item) == 0:
-    #         raise Exception(f"Agent {self.agent_id} does not exist")
-    #     # if yes, download the task definition file from s3
-        # s3_service = S3Service(
-        #     bucket_name=self.s3_bucket_name_of_task_definition_file,
-        # )
-    #     task_definition_file_name = item[DynamoDB_Key.TASK_DEFINITION_FILE_NAME.value]
-        # source = f"task_definitions/{self.agent_id}/{task_definition_file_name}"
-        # destination = f"./terraform/ecs/templates/{task_definition_file_name}"
-        # s3_service.download_file(
-        #     source=source,
-        #     destination=destination
-        # )
-    #     # if no, raise an error
-    #     if not os.path.exists(destination):
-    #         raise Exception(
-    #             f"Task definition file {task_definition_file_name} does not exist")
-    #     # 1. delete ecs service
-    #     backend_s3_state_key = item[DynamoDB_Key.BACKEND_S3_STATE_KEY.value]
-    #     backend_dynamodb_lock_name = item[DynamoDB_Key.BACKEND_DYNAMODB_LOCK_NAME.value]
-    #     return backend_s3_state_key, backend_dynamodb_lock_name, task_definition_file_name, destination

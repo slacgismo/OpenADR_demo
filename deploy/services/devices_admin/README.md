@@ -7,3 +7,9 @@ Each ECS service possesses its own Terraform remote state and lock, consisting o
 Another advantage is that the individual Terraform state and lock ensures the security of device actions. Each agent's devices are separated in its own state, which reduces the risk of accidentally deleting or updating unrelated agents' devices.
 
 #### System diagram
+
+### process time
+
+update: 54 sec
+delete: 200 sec
+create: 137 sec

@@ -13,7 +13,7 @@ class DynamoDB_Key(Enum):
     BACKEND_S3_STATE_KEY = "backend_s3_state_key"
     BACKEND_DYNAMODB_LOCK_NAME = "backend_dynamodb_lock_name"
     TASK_DEFINITION_FILE_NAME = "task_definition_file_name"
-    STATE = "state"
+    CURRENT_STATUS = "current_status"
 
 
 class DynamoDBService:
@@ -55,24 +55,56 @@ class DynamoDBService:
                 f"Error checking if agent_id exist: {e.response['Error']['Message']}")
 
     def get_item(self, agent_id):
-        response = self.table.get_item(
-            Key={
-                'agent_id': agent_id
-            }
-        )
-        return response['Item']
-
-    def update_item(self, agent_id, updates):
         try:
+            response = self.table.get_item(
+                Key={
+                    'agent_id': agent_id
+                }
+            )
+            if 'Item' in response:
+                return response['Item']
+            else:
+                return None
+
+        except ClientError as e:
+            raise f"Error getting item: {e.response['Error']['Message']}"
+
+    def upate_items(self, agent_id: str, update_keys_values: dict):
+        update_expression = 'SET '
+        expression_attribute_values = {}
+        for key, value in update_keys_values.items():
+            update_expression += '{} = :{},'.format(key, key)
+            expression_attribute_values[':{}'.format(key)] = value
+        update_expression = update_expression.rstrip(',')
+        # remove key from dynamodb
+        try:
+            # Update the item with the given primary key and update expression
             self.table.update_item(
-                Key={'agent_id': agent_id},
-                UpdateExpression='SET ' +
-                ', '.join([f"{k} = :{k}" for k in updates.keys()]),
-                ExpressionAttributeValues={
-                    f":{k}": v for k, v in updates.items()}
+                Key={
+                    'agent_id': agent_id
+                },
+                UpdateExpression=update_expression,
+                ExpressionAttributeValues=expression_attribute_values
             )
         except ClientError as e:
-            print(f"Error updating item: {e.response['Error']['Message']}")
+            raise f"Error updating item: {e.response['Error']['Message']}"
+
+    def remove_keys_from_item(self, agent_id: str, keys_to_remove: list):
+        update_expression = 'REMOVE '
+        for key in keys_to_remove:
+            update_expression += '{},'.format(key)
+        update_expression = update_expression.rstrip(',')
+        # remove key from dynamodb
+        try:
+            # Update the item with the given primary key and update expression
+            self.table.update_item(
+                Key={
+                    'agent_id': agent_id
+                },
+                UpdateExpression=update_expression
+            )
+        except ClientError as e:
+            raise f"Error updating item: {e.response['Error']['Message']}"
 
     def qurey_item(self, agent_id):
         response = self.table.query(
@@ -80,7 +112,7 @@ class DynamoDBService:
         )
         return response['Items']
 
-    def list_all_items_primary_id(self):
+    def list_all_items_primary_id(self, primary_id: str):
         response = self.client.scan(
             TableName=self.table_name,
             ProjectionExpression='agent_id'
@@ -101,51 +133,3 @@ class DynamoDBService:
         except ClientError as e:
             print(
                 f"Error listing number of items: {e.response['Error']['Message']}")
-
-
-# import boto3
-# from botocore.exceptions import ClientError
-
-# class DynamoDBService:
-#     def __init__(self, table_name):
-#         self.table_name = table_name
-#         self.dynamodb = boto3.resource('dynamodb')
-#         self.table = self.dynamodb.Table(table_name)
-
-#     def create_item(self, item):
-    # try:
-    #     self.table.put_item(Item=item)
-    # except ClientError as e:
-    #     print(f"Error creating item: {e.response['Error']['Message']}")
-
-    # def delete_item(self, agent_id):
-    #     try:
-    #         self.table.delete_item(Key={'agent_id': agent_id})
-    #     except ClientError as e:
-    #         print(f"Error deleting item: {e.response['Error']['Message']}")
-
-#     def delete_all_items(self):
-#         try:
-#             scan = self.table.scan()
-#             with self.table.batch_writer() as batch:
-#                 for item in scan['Items']:
-#                     batch.delete_item(Key={'agent_id': item['agent_id']})
-#         except ClientError as e:
-#             print(f"Error deleting all items: {e.response['Error']['Message']}")
-
-    # def list_number_of_items(self):
-    #     try:
-    #         count = self.table.item_count
-    #         print(f"Number of items in table {self.table_name}: {count}")
-    #     except ClientError as e:
-    #         print(f"Error listing number of items: {e.response['Error']['Message']}")
-
-    # def update_item(self, agent_id, updates):
-    #     try:
-    #         self.table.update_item(
-    #             Key={'agent_id': agent_id},
-    #             UpdateExpression='SET ' + ', '.join([f"{k} = :{k}" for k in updates.keys()]),
-    #             ExpressionAttributeValues={f":{k}": v for k, v in updates.items()}
-    #         )
-    #     except ClientError as e:
-    #         print(f"Error updating item: {e.response['Error']['Message']}")

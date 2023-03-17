@@ -117,7 +117,7 @@ def send_message_to_sqs(sqs_url: str, message: str, messageGroupId: str) -> dict
         },
         'Action': {
             'DataType': 'String',
-            'StringValue': ECA_ACTIONS.CREATE.value
+            'StringValue': ECA_ACTIONS.DELETE.value
         }
     }
     MessageDeduplicationId = guid()
@@ -142,86 +142,10 @@ def send_message_to_sqs(sqs_url: str, message: str, messageGroupId: str) -> dict
 # API endpoints for CRUD operations
 
 
-@app.route('/agents', methods=['GET'])
-def get_all_agents():
-
-    return jsonify(agents)
-
-
-@app.route('/agents/<int:id>', methods=['GET'])
-def get_agent_by_id(id):
-    for book in agents:
-        if book['id'] == id:
-            return jsonify(book)
-    return jsonify({"error": "Agent not found"}), 404
-
-
-@app.route('/creat_agent', methods=['POST'])
-async def create_agent():
-    # 1. get data from request
-    data = request.get_json()
-    # 2. check agent_id exist or not in the db(dynamodb or rds) table (openadr-agents-table)
-    if "agent_id" not in data:
-        return jsonify("agent_id not in data"), 400
-    agent_id = data['agent_id']
-
-    # 3. if exist, return agent_id exist and return status code 400
-    is_exist_in_db = await check_agent_id_exist(agent_id, table_name=DYNAMODB_TABLE_NAME)
-    if is_exist_in_db:
-        return jsonify("agent_id exist, duplicate id"), 400
-
-    # 4. if not exist, start to generate the information for ECS service
-
-    # 4.1 generate vtn id, ven ids, terraform s3 key , terraform state lock with agent_id
-    # check if device_ids in the dat
-    ecs_service_params = dict()
-    if "device_ids" not in data:
-        # generate empty ECS services
-        print("device_ids not in data, generate empty ECS services")
-        ecs_service_params = generate_empty_ecs_services_params(agent_id)
-
-    else:
-        device_ids = data['device_ids']
-        if len(device_ids) == 0:
-            print("device_ids not in data, generate empty ECS services")
-        # start to generate ECS services
-        ecs_service_params = generate_ecs_services_param_with_devices(
-            agent_id=agent_id, device_ids=device_ids)
-    # send the params to SQS queue
-    sqs_response = send_message_to_sqs(
-        sqs_url=SQS_URL, message=json.dumps(ecs_service_params))
-    print(f"sqs_response :{sqs_response}")
-    # 7. async wait for the worker to finish the task
-    return jsonify("create a new agent"), 201
-
-
-@ app.route('/agents/<int:id>', methods=['PUT'])
-def update_agent(id):
-    data = request.json
-    # 1. get data from request
-    # 2. check agent_id exist or not in the dynamodb table (openadr-agents-table)
-    # 3. if not exist, return agent_id not exist and return status code 400
-    # 4. if exist, update the agent_id, vtn_id, ven_ids, task definition file location
-    # 5. send a message to SQS queue to invoke the worker
-    # 6. async wait for the worker to finish the task
-    return jsonify({"error": "Book not found"}), 404
-
-
-@ app.route('/agents/<int:id>', methods=['DELETE'])
-def delete_agent(id):
-    # 1. get data from request
-    # 2. check agent_id exist or not in the dynamodb table (openadr-agents-table)
-    # 3. if not exist, return agent_id not exist and return status code 400
-    # 4. send a message to SQS queue to invoke the worker
-    # 5. async wait for the worker to finish the task
-    # 6. if task completed, delete the agent_id, vtn_id, ven_ids, task definition file location
-    return jsonify({"error": "Book not found"}), 404
-
-
 if __name__ == '__main__':
     # app.run(debug=True)
     # curl -i -H "Content-Type: application/json" -X POST -d '{"agent_id":"12131212"}' http://localhost:5000/creat_agent
-    agent_id = guid()
+    agent_id = "00ccff430c4bcfa1f1186f488b88fc"
     resource_id = guid()
     message_body = dict()
     # must have a agent_id
@@ -229,6 +153,7 @@ if __name__ == '__main__':
     message_body['resource_id'] = resource_id
     message_body['market_interval_in_second'] = "300"
     # create a device and its params
+
     message_body['devices'] = [
         {
             "device_id": guid(),

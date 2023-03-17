@@ -1,58 +1,7 @@
 """
 This file parse the json data as input and convert to
 a task definition of a ECS task.
-    from sqs body
-    message body:
-    "agent_id":"1232",
-    "resource_id":"aads",
-    "devices":[{
-                "device_id": "dsadsa",
-                "device_name": "battery_1",
-                "device_type": "HS",
-                "battery_token": "12321321qsd",
-                "battery_sn": "66354",
-                "prices_threshod": "0.15",
-                "meter_id": "asdas",
-                "market_interval_in_second": "300"
-            }]
-    convet to
-        {
-            "agent_id": "agent0",
-            "vtn": {
-                "ENV": "DEV",
-                "AGENT_ID: "agent_01"
-                "VTN_ID": "vtn0",
-                "RESOURCE_ID"   : "aads",
-                "APP_IMAGE_VTN": "041414866712.dkr.ecr.us-east-2.amazonaws.com/vtn:latest",
-                "SAVE_DATA_URL": "https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/openadr_devices",
-                "GET_VENS_URL": "https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/openadr_devices",
-                "MARKET_PRICES_URL": "https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/market_prices",
-                "PARTICIPATED_VENS_URL": "https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/participated_vens",
-                "MARKET_INTERVAL_IN_SECOND": "20"
-            },
-            "vens": [
-                {
-                    "VEN_ID": "ven0",
-                    "RESOURCE_ID": "resource_0",
-                    "METER_ID": "meter_0",
-                    "AGENT_ID":"agent_0"
-                    "DEVICE_ID": "device_0",
-                    "DEVICE_NAME": "battery_0",
-                    "DEVICE_TYPE": "HS",
-                    "APP_IMAGE_VEN": "041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest",
-                    "ENV": "DEV",
-                    "VTN_ADDRESS": "127.0.0.1",
-                    "VTN_PORT": "8080",
-                    "MOCK_DEVICES_API_URL": "https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/battery_api",
-                    "'DEVICE_PARAMS={"device_brand": "SONNEN_BATTERY", "battery_token": "12321321qsd", "battery_sn": "66354" }'
-                    "PRICE_THRESHOLD": "0.15",
-                    "MARKET_INTERVAL_IN_SECOND": "20"
-                }
-            ]
-        }
-    Then convet to task definition
-
-
+Then convet to task definition
 """
 
 
@@ -400,7 +349,6 @@ def create_and_export_task_definition(
     """
     parse message body and create task definition
     params: message_body: dict
-    {"agent_id": "3d4bafa6c245aa8f0a73f12e9b1046", "resource_id": "1c90ba71634ed5a3f4d9be9e7d6c35", "market_interval_in_second": "300", "devices": [{"device_id": "862812d46c4d82afe2ac47c1f4f843", "device_name": "battery_0", "device_type": "HS", "battery_token": "12321321qsd", "battery_sn": "66354", "prices_threshod": "0.15", "meter_id": "f32240b7e0433883ee30f34d257d18"}]}
     params: file_name:
     params: path:
     """
@@ -436,32 +384,36 @@ def create_and_export_task_definition(
     vens_info = list()
     for device in devices:
         ven_id = guid()
+        device_id = device['device_id']
+        meter_id = device['meter_id']
+        device_name = device['device_name']
+        device_type = device['device_type']
         ven_environment_variables = dict()
         for key, value in enumerate(VEN_TASK_VARIANTS_ENUM):
-            ven_id = guid()
+
             # have convet json format to string to pass to ven
             device_params_str = json.dumps(device["device_params"])
             ven_environment_variables = create_ven_params(
                 ven_id=guid(),
                 env=env,
                 resource_id=resource_id,
-                meter_id=device['meter_id'],
-                device_id=device['device_id'],
+                meter_id=meter_id,
+                device_id=device_id,
                 agent_id=agent_id,
                 mock_device_api_url=mock_devices_api_url,
-                device_name=device["device_name"],
+                device_name=device_name,
                 vtn_address=vtn_address,
                 vtn_port=vtn_port,
-                device_type=device["device_type"],
+                device_type=device_type,
                 device_params=device_params_str,
                 market_interval_in_second=market_interval_in_second,
                 biding_price_threshold=device['biding_price_threshold'],
             )
-            vens_info.append({
-                "ven_id": ven_id,
-                "device_id": device["device_id"],
-                "meter_id": device["meter_id"],
-            })
+        vens_info.append({
+            "ven_id": ven_id,
+            "device_id": device_id,
+            "meter_id": meter_id
+        })
         ven_container_definition = generate_ven_task_definition(
             ven_template=CONTAINER_DEFINITION_TEMPLATE.copy(),
             ven_id=ven_id,
@@ -480,6 +432,5 @@ def create_and_export_task_definition(
     # print("task_definition: ", task_definition)
     # export to file
     path_file_name = os.path.join(path, file_name)
-
     export_to_json_tpl(task_definition, path_file_name)
     return path_file_name, vtn_id, vens_info

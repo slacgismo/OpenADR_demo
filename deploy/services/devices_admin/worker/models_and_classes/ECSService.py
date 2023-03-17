@@ -24,9 +24,7 @@ class ECSService:
                                  backend_s3_key: str,
                                  backend_region: str,
                                  backend_dynamodb_table: str) -> bool:
-        # backend_file_path = os.path.join(path, backend_hcl_filename)
-        # if not os.path.exists(backend_file_path):
-        # crete backend hcl file
+
         # alawys overwrite the backend hcl file
         create_backend_hcl_file(
             path=path,
