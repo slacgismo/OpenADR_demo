@@ -5,65 +5,74 @@ import boto3
 import os
 import json
 import uuid
-
+from typing import List, Dict, Tuple
 from enum import Enum
-from helper.task_definition_generator import create_and_export_task_definition, VTN_TASK_VARIANTS_ENUM, VEN_TASK_VARIANTS_ENUM
+# from helper.task_definition_generator import create_and_export_task_definition, VTN_TASK_VARIANTS_ENUM, VEN_TASK_VARIANTS_ENUM
 # from models_and_classes.TerraformDynamodbLockTable import TerraformDynamodbLockTable
 import time
-# from ecs.ECSService import ECSService
-# from ecs.ECSTaskDefinitions import ECSTaskDefinitions
-# from ecs.S3Service import S3Service
 import configparser
 from models_and_classes.TerraformExecution import TerraformExecution
 from models_and_classes.ECS_ACTIONS_ENUM import ECS_ACTIONS_ENUM
+# from models_and_classes.S3Service import S3Service
+from models_and_classes.Agent import Agent, AgentState
+from models_and_classes.DynamoDBService import DynamoDBService, DynamoDB_Key
 from models_and_classes.S3Service import S3Service
-
-
 FIFO_SQS_URL = os.getenv('worker_fifo_sqs_url')
 if FIFO_SQS_URL is None:
     raise Exception("FIFO_SQS_URL is not set")
 BACKEND_S3_BUCKET_NAME = os.getenv('backend_s3_bucket_devices_admin')
 if BACKEND_S3_BUCKET_NAME is None:
     raise Exception("BACKEND_S3_BUCKET_NAME is not set")
+
+DYNAMODB_AGENTS_TABLE_NAME = os.getenv('dynamodb_agents_table_name')
+if DYNAMODB_AGENTS_TABLE_NAME is None:
+    raise Exception("DYNAMODB_AGENTS_TABLE_NAME is not set")
+
+
+AWS_REGION = os.getenv('aws_region')
+if AWS_REGION is None:
+    raise Exception("AWS_REGION is not set")
+
 # Select the table
 dynamodb = boto3.resource('dynamodb')
 # table = dynamodb.Table(DYNAMODB_TABLE_NAME)
 
 
-def create_terraform_ecs(task_definition_file_name: str, agent_id: str):
-    ecs_terraform = TerraformExecution(
-        working_dir="./terraform/ecs",
-        name_of_creation=f"ecs-service-{agent_id}",
-
-        environment_variables={
-            "task_definition_file": task_definition_file_name,
-            "agent_id": agent_id
-        }
+def get_agent_info_from_dynamodb_and_s3(
+    agent_id: str,
+    dynamodb_agents_table_name: str,
+    backend_s3_bucket_name: str,
+    s3_bucket_name_of_task_definition_file
+):
+    # implementation of download method goes here
+    agents_dynanmodb_service = DynamoDBService(
+        table_name=dynamodb_agents_table_name)
+    item = agents_dynanmodb_service.get_item(agent_id=agent_id)
+    if len(item) == 0:
+        raise Exception(f"Agent {agent_id} does not exist")
+    # if yes, download the task definition file from s3
+    s3_service = S3Service(
+        bucket_name=s3_bucket_name_of_task_definition_file,
     )
-
-    try:
-        # init terraform
-        ecs_terraform.terraform_init()
-        # optional validate
-        ecs_terraform.terraform_validate()
-        # optional plan
-        ecs_terraform.terraform_plan()
-    except Exception as e:
-        raise Exception(f"Error validate ecs service from terraform: {e}")
-        # apply --auto-approve
-
-    try:
-        print("apply ecs service")
-        ecs_terraform.terraform_apply()
-    except Exception as e:
-        # apply --auto-approve
-        print("Error creating ecs service from terraform")
-        print("Destroying the esc service")
-        ecs_terraform.terraform_destroy()
-        raise Exception(f"Error creating ecs service from terraform: {e}")
+    task_definition_file_name = item[DynamoDB_Key.TASK_DEFINITION_FILE_NAME.value]
+    source = f"task_definitions/{self.agent_id}/{task_definition_file_name}"
+    destination = f"./terraform/ecs/templates/{task_definition_file_name}"
+    s3_service.download_file(
+        source=source,
+        destination=destination
+    )
+    # if no, raise an error
+    if not os.path.exists(destination):
+        raise Exception(
+            f"Task definition file {task_definition_file_name} does not exist")
+    # 1. delete ecs service
+    backend_s3_state_key = item[DynamoDB_Key.BACKEND_S3_STATE_KEY.value]
+    backend_dynamodb_lock_name = item[DynamoDB_Key.BACKEND_DYNAMODB_LOCK_NAME.value]
+    return backend_s3_state_key, backend_dynamodb_lock_name, task_definition_file_name, destination
 
 
 def create_terraform_dynamondb_lock_table(dyanmodb_table_name: str):
+
     terrafrom_execution = TerraformExecution(
         working_dir="./terraform",
         name_of_creation="dynamodb",
@@ -89,6 +98,22 @@ def create_terraform_dynamondb_lock_table(dyanmodb_table_name: str):
         print("Destroying the table")
         terrafrom_execution.terraform_destroy()
         raise Exception(f"Error creating dynamodb table from terraform: {e}")
+
+
+def destroy_terraform_dynamondb_lock_table(dyanmodb_table_name: str):
+    terrafrom_execution = TerraformExecution(
+        working_dir="./terraform",
+        name_of_creation="dynamodb",
+        environment_variables=(
+            {"backend_dyanmodb_table_teraform_state_lock_devices_admin": dyanmodb_table_name})
+    )
+    try:
+        # init terraform
+        terrafrom_execution.terraform_init()
+        terrafrom_execution.terraform_destroy()
+    except Exception as e:
+        raise Exception(f"Error validate dynamodb table from terraform: {e}")
+        # apply --auto-approve
 
 
 def validate_backend_hcl(file: str, path: str):
@@ -129,164 +154,108 @@ def handle_action(action: ECS_ACTIONS_ENUM, message_body: dict):
     agent_id, resource_id, market_interval_in_second, devices = parse_message_body(
         message_body)
 
-    task_definition_name_file_name = f"task-definition-{agent_id}.json.tpl"
-    print("Create task definition file name: ", task_definition_name_file_name)
-    backend_dyanmodb_table_teraform_state_lock_devices_admin = f"{agent_id}-state-lock-tfstate"
+    task_definition_file_name = f"task-definition-{agent_id}.json.tpl"
+    print("Create task definition file name: ", task_definition_file_name)
+    backend_dyanmodb_agent_lock_state = f"{agent_id}-state-lock-tfstate"
+    backend_s3_state_key_prefix = f"agent.backend.tfstate"
+    backend_s3_state_key = backend_s3_state_key_prefix + f"/{agent_id}-tfstate"
     print("Create dynamodb table lock name: ",
-          backend_dyanmodb_table_teraform_state_lock_devices_admin)
+          backend_dyanmodb_agent_lock_state)
 
     if action == ECS_ACTIONS_ENUM.CREATE.value:
         if len(devices) == 0:
             # ecs_service.create(is_creating_empty_ecs_service=True)
             print("create empty ecs service")
         else:
-            # step 1 check  if backend.hcl is exist
-            # try:
-            #     validate_backend_hcl(file="backend.hcl", path="./terraform")
-            #     validate_terraform_tfvars(
-            #         file="terraform.tfvars", path="./terraform")
-            # except Exception as e:
-            #     raise Exception(f"Error validate necessary files : {e}")
-            # # check the if backend.hcl is correct
 
-            # # create the dynamodb table lock for terraform
-            # create_terraform_dynamondb_lock_table(
-            #     dyanmodb_table_name=backend_dyanmodb_table_teraform_state_lock_devices_admin)
+            try:
+                validate_backend_hcl(file="backend.hcl",
+                                     path="./terraform")
+                validate_terraform_tfvars(
+                    file="terraform.tfvars", path="./terraform")
+                # check if the agent_id is already in the dynamodb table
+
+            except Exception as e:
+                raise Exception(f"Error validate necessary files : {e}")
+            # check the if backend.hcl is correct
+
+            # create the dynamodb table lock for terraform
+            create_terraform_dynamondb_lock_table(
+                dyanmodb_table_name=backend_dyanmodb_agent_lock_state)
             print("=============================")
             print("End of create dynamodb table lock")
             # end of create dynamodb table lock
 
-    if action == ECS_ACTIONS_ENUM.CREATE.value or action == ECS_ACTIONS_ENUM.UPDATE.value:
-
-        print("Create ecs task definition")
-        # create the task definition from message body,
-        # some of the data are imported from terraform program
-        created_task_definiton_name_file_path = create_and_export_task_definition(
+            print("Create ecs task definition")
+            agent = Agent(
+                agent_id=agent_id,
+                resource_id=resource_id,
+                market_interval_in_second=market_interval_in_second,
+                devices=devices,
+                backend_s3_bucket_name=BACKEND_S3_BUCKET_NAME,
+                s3_bucket_name_of_task_definition_file=BACKEND_S3_BUCKET_NAME,
+                dynamodb_agents_table_name=DYNAMODB_AGENTS_TABLE_NAME,
+                backend_region=AWS_REGION
+            )
+            agent.create_ecs_service(
+                task_definition_file_name=task_definition_file_name,
+                backend_s3_state_key=backend_s3_state_key,
+                backend_dynamodb_lock_name=backend_dyanmodb_agent_lock_state
+            )
+        return
+    if action == ECS_ACTIONS_ENUM.UPDATE.value:
+        print("Update")
+        agent = Agent(
             agent_id=agent_id,
             resource_id=resource_id,
             market_interval_in_second=market_interval_in_second,
             devices=devices,
-            env="${environment}",
-            save_data_url="${SAVE_DATA_URL}",
-            get_vens_url="${GET_VENS_URL}",
-            participated_vens_url="${PARTICIPATED_VENS_URL}",
-            app_image_vtn="${app_image_vtn}",
-            app_image_ven="${app_image_ven}",
-            log_group_name="${cloudwatch_name}",
-            aws_region="${aws_region}",
-            mock_devices_api_url="${MOCK_DEVICES_API_URL}",
-            vtn_address="${vtn_address}",
-            vtn_port="${vtn_port}",
-            market_prices_url="${MARKET_PRICES_URL}",
-            file_name=task_definition_name_file_name,
-            path="./terraform/ecs/templates"
-
+            backend_s3_bucket_name=BACKEND_S3_BUCKET_NAME,
+            s3_bucket_name_of_task_definition_file=BACKEND_S3_BUCKET_NAME,
+            dynamodb_agents_table_name=DYNAMODB_AGENTS_TABLE_NAME,
+            backend_region=AWS_REGION
         )
-        # save task definition file to S3
-        s3_service = S3Service(
-            bucket_name=BACKEND_S3_BUCKET_NAME,
+        agent.update_ecs_service(
+            task_definition_file_name=task_definition_file_name,
+            backend_s3_state_key=backend_s3_state_key,
+            backend_dynamodb_lock_name=backend_dyanmodb_agent_lock_state
         )
-
-        s3_service.upload_file(
-            source=created_task_definiton_name_file_path,
-            destination=f"task_definitions/{agent_id}/{task_definition_name_file_name}"
-        )
-        print("End of create ecs task definition")
-        print("Create ecs service")
-
-        create_terraform_ecs(
-            task_definition_file_name=task_definition_name_file_name,
-            agent_id=agent_id,
-        )
-
-    elif action == ECS_ACTIONS_ENUM.UPDATE.value:
-        print("Update")
-        # task_definition_name_file_name = f"task-definition-{agent_id}.json.tpl"
-        # created_task_definiton_name_file_path = create_and_export_task_definition(
-        #     agent_id=agent_id,
-        #     resource_id=resource_id,
-        #     market_interval_in_second=market_interval_in_second,
-        #     devices=devices,
-        #     env=ENV,
-        #     save_data_url=SAVE_DATA_URL,
-        #     get_vens_url=GET_VENS_URL,
-        #     participated_vens_url=PARTICIPATED_VENS_URL,
-        #     app_image_vtn=APP_IMAGE_VTN,
-        #     app_image_ven=APP_IMAGE_VEN,
-        #     log_group_name=CLOUDWATCH_NAME,
-        #     aws_region=AWS_REGION,
-        #     mock_devices_api_url=MOCK_DEVICES_API_URL,
-        #     vtn_address=VTN_ADDRESS,
-        #     vtn_port=VTN_PORT,
-        #     market_prices_url=MARKET_PRICES_URL,
-        #     file_name=task_definition_name_file_name,
-        #     path="./terraform_ecs/templates"
-
-        # )
-        # # save task definition file to S3
-        # s3_service = S3Service(
-        #     bucket_name=BACKEND_S3_BUCKET_NAME,
-
-        # )
-
-        # s3_service.upload_file(
-        #     source=created_task_definiton_name_file_path,
-        #     destination=f"task_definitions/{agent_id}/{task_definition_name_file_name}"
-        # )
-        # # print("task_defition_file ", task_defition_file)
-        # # create backend.hcl
-        # ecs_service.creagte_backend_hcl_file(
-        #     path="./terraform_ecs",
-        #     backend_hcl_filename="backend.hcl",
-        #     backend_s3_bucket=BACKEND_S3_BUCKET_NAME,
-        #     backend_s3_key=f"{PREFIX}-{agent_id}-{ENV}.tfstate",
-        #     backend_region=BACKEND_REGION,
-        #     backend_dynamodb_table=ECSBackendDynamoDBLockName
-        # )
-        # # create terraform.auto.tfvars
-        # ecs_terraform_auto_tfvars_params = create_ecs_auto_tfvars_params(
-        #     task_definition_name_file_name=task_definition_name_file_name,
-        #     agent_id=agent_id,
-        # )
-
-        # ecs_service.create_terraform_auto_tfvars_file(
-        #     path="./terraform_ecs",
-        #     terraform_auto_tfvars_file_name="terraform.auto.tfvars",
-        #     params=ecs_terraform_auto_tfvars_params
-        # )
-        # ecs_service.create(is_creating_empty_ecs_service=False)
-    if action == ECS_ACTIONS_ENUM.DELETE.value:
-        print("DELETE ECS SERVICE")
-        s3_service = S3Service(
-            bucket_name=BACKEND_S3_BUCKET_NAME,
-        )
-        # download task definition file
-        task_definition_file = s3_service.downlo_file(
-        )
-
-        # # create backend.hcl
-        # ecs_service.creagte_backend_hcl_file(
-        #     path="./terraform_ecs",
-        #     backend_hcl_filename="backend.hcl",
-        #     backend_s3_bucket=BACKEND_S3_BUCKET_NAME,
-        #     backend_s3_key=f"{PREFIX}-{agent_id}-{ENV}.tfstate",
-        #     backend_region=BACKEND_REGION,
-        #     backend_dynamodb_table=ECSBackendDynamoDBLockName
-        # )
-        # # create terraform.auto.tfvars
-        # ecs_terraform_auto_tfvars_params = create_ecs_auto_tfvars_params(
-        #     task_definition_name_file_name=task_definition_name_file_name,
-        #     agent_id=agent_id,
-        # )
-
-        # task_definition_name_file_path = s3_service.downlo_file(
-        #     source=f"task_definitions/{agent_id}/{task_definition_name_file_name}",
-        #     destination=f"./terraform_ecs/templates/{task_definition_name_file_name}"
-        # )
-        # ecs_service.delete()
         return
-    else:
-        print("Action not supported")
+    if action == ECS_ACTIONS_ENUM.DELETE.value:
+
+        agent = Agent(
+            agent_id=agent_id,
+            resource_id=resource_id,
+            market_interval_in_second=market_interval_in_second,
+            devices=devices,
+            backend_s3_bucket_name=BACKEND_S3_BUCKET_NAME,
+            s3_bucket_name_of_task_definition_file=BACKEND_S3_BUCKET_NAME,
+            dynamodb_agents_table_name=DYNAMODB_AGENTS_TABLE_NAME,
+            backend_region=AWS_REGION
+        )
+        agent.delete_ecs_service(
+            task_definition_file_name=task_definition_file_name,
+            backend_s3_state_key=backend_s3_state_key,
+            backend_dynamodb_lock_name=backend_dyanmodb_agent_lock_state
+        )
+        destroy_terraform_dynamondb_lock_table(
+            dyanmodb_table_name=backend_dyanmodb_agent_lock_state
+        )
+        return
+
+    if action == ECS_ACTIONS_ENUM.DESTROY_ALL.value:
+        agent = Agent(
+            agent_id=agent_id,
+            resource_id=resource_id,
+            market_interval_in_second=market_interval_in_second,
+            devices=devices,
+            backend_s3_bucket_name=BACKEND_S3_BUCKET_NAME,
+            s3_bucket_name_of_task_definition_file=BACKEND_S3_BUCKET_NAME,
+            dynamodb_agents_table_name=DYNAMODB_AGENTS_TABLE_NAME,
+            backend_region=AWS_REGION
+        )
+        agent.destroy_all_agents(
+            backend_s3_state_key_path=backend_s3_state_key_prefix)
 
 
 def process_task_from_fifo_sqs(queue_url, MaxNumberOfMessages: int = 1, WaitTimeSeconds: int = 5, VisibilityTimeout: int = 5):
@@ -320,14 +289,10 @@ def process_task_from_fifo_sqs(queue_url, MaxNumberOfMessages: int = 1, WaitTime
             message_attributes = message['MessageAttributes']
             action = message_attributes['Action']['StringValue']
             message_body = json.loads(message['Body'])
-            handle_action(action, message_body)
-            handle_action(action=ECS_ACTIONS_ENUM.DELETE.value,
+            # handle_action(action, message_body)
+            handle_action(action=ECS_ACTIONS_ENUM.DESTROY_ALL.value,
                           message_body=message_body)
-            # Delete the message from the queue
-            # sqs.delete_message(
-            #     QueueUrl=queue_url,
-            #     ReceiptHandle=message['ReceiptHandle']
-            # )
+
             print("end to receive message at %s" % str(time.time()))
             break
             time.sleep(1)

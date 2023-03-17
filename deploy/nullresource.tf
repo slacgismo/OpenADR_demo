@@ -112,6 +112,8 @@ resource "null_resource" "create_env_file_for_devices_admin_worker" {
    command = <<-EOT
       echo 'worker_fifo_sqs_url="${aws_sqs_queue.opneadr_workers_sqs.url}"' > .env
       echo 'backend_s3_bucket_devices_admin="${aws_s3_bucket.agents.bucket}"' >> .env
+      echo 'dynamodb_agents_table_name="${aws_dynamodb_table.agents-table.name}"' >> .env
+      echo 'aws_region="${var.aws_region}"' >> .env
     EOT
     # save to devices admin worker terraform folder
     working_dir = "${path.module}/services/devices_admin/worker"

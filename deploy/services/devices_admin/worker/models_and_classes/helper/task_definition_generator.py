@@ -114,6 +114,7 @@ CONTAINER_DEFINITION_TEMPLATE = ({
 def create_ven_params(
     ven_id: str,
     env: str,
+    device_id: str,
     resource_id: str,
     meter_id: str,
     agent_id: str,
@@ -132,7 +133,7 @@ def create_ven_params(
         if key == VEN_TASK_VARIANTS_ENUM.ENV.value:
             ven_params[key] = env
         elif key == VEN_TASK_VARIANTS_ENUM.DEVICE_ID.value:
-            ven_params[key] = ven_id
+            ven_params[key] = device_id
         elif key == VEN_TASK_VARIANTS_ENUM.VEN_ID.value:
             ven_params[key] = ven_id
         elif key == VEN_TASK_VARIANTS_ENUM.RESOURCE_ID.value:
@@ -297,7 +298,7 @@ def generate_ven_task_definition(
         "ven_id": "str"
         "meter_id": "str"
         "agent_id": "str",
-        "agent_id": "str",
+        "device_id": "str",
         "device_name":"str",
         "device_type": str,
         "vtn_address": str,
@@ -432,6 +433,7 @@ def create_and_export_task_definition(
     #     raise Exception("devices not found in message body")
     # devices = message_body['devices']
     ven_container_definition_list = list()
+    vens_info = list()
     for device in devices:
         ven_id = guid()
         ven_environment_variables = dict()
@@ -444,6 +446,7 @@ def create_and_export_task_definition(
                 env=env,
                 resource_id=resource_id,
                 meter_id=device['meter_id'],
+                device_id=device['device_id'],
                 agent_id=agent_id,
                 mock_device_api_url=mock_devices_api_url,
                 device_name=device["device_name"],
@@ -454,7 +457,11 @@ def create_and_export_task_definition(
                 market_interval_in_second=market_interval_in_second,
                 biding_price_threshold=device['biding_price_threshold'],
             )
-
+            vens_info.append({
+                "ven_id": ven_id,
+                "device_id": device["device_id"],
+                "meter_id": device["meter_id"],
+            })
         ven_container_definition = generate_ven_task_definition(
             ven_template=CONTAINER_DEFINITION_TEMPLATE.copy(),
             ven_id=ven_id,
@@ -475,4 +482,4 @@ def create_and_export_task_definition(
     path_file_name = os.path.join(path, file_name)
 
     export_to_json_tpl(task_definition, path_file_name)
-    return path_file_name
+    return path_file_name, vtn_id, vens_info
