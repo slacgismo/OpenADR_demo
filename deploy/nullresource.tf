@@ -122,3 +122,22 @@ resource "null_resource" "create_env_file_for_devices_admin_worker" {
     #on_failure = continue
   }
 }
+
+# create dockerimage for devices_admin worker , vtn and ven
+resource "null_resource" "devices_admin_docker_image" {
+  depends_on =  [aws_sqs_queue.opneadr_workers_sqs]
+  # triggers = {
+  #   python_file = md5(file("${path.module}/lambdas/git_client/index.py"))
+  #   docker_file = md5(file("${path.module}/lambdas/git_client/Dockerfile"))
+  # }
+
+  provisioner "local-exec" {
+    command = <<EOF
+           #!/bin/bash
+           aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${local.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com
+           cd ${path.module}/services/devices_admin
+           docker build -t ${aws_ecr_repository.devices_admin.repository_url}:${local.ecr_image_tag} .
+           docker push ${aws_ecr_repository.devices_admin.repository_url}:${local.ecr_image_tag}
+       EOF
+  }
+}
