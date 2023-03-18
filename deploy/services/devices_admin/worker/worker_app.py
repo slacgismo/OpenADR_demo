@@ -15,7 +15,6 @@ def worker_app(
         FIFO_DLQ_URL: str,
         BACKEND_S3_BUCKET_NAME: str,
         DYNAMODB_AGENTS_TABLE_NAME: str,
-        FIFO_DLQ: str,
         AWS_REGION: str
 ):
     # poll message from a fifo sqs
@@ -62,7 +61,7 @@ def process_task_from_fifo_sqs(
         except Exception as e:
             print(f"Error in receive_message: {e}")
             # send to dlq
-
+            time.sleep(5)
             continue
 
         # If no messages, exit loop
@@ -119,4 +118,4 @@ def process_task_from_fifo_sqs(
                 f"===action:{action} process time: {str(process_time)}  ====")
             # Delete the message from the queue
 
-            time.sleep(1)
+            time.sleep(5)

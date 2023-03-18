@@ -66,7 +66,7 @@ class Agent:
             raise Exception(
                 f"File {backend_s3_state_key} does exist, this use update instead of create")
         agents_dynanmodb_service = DynamoDBService(
-            table_name=self.dynamodb_agents_table_name)
+            table_name=self.dynamodb_agents_table_name, aws_region=self.backend_region)
         # check if the agenet id is already in the dynamodb table
         item = agents_dynanmodb_service.get_item(agent_id=self.agent_id)
         if item is not None and DynamoDB_Key.CURRENT_STATUS.value in item:

@@ -4,6 +4,7 @@ import os
 
 class S3Service:
     def __init__(self, bucket_name: str):
+
         self.client = boto3.client('s3')
         self.bucket_name = bucket_name
         self.s3 = boto3.client('s3')

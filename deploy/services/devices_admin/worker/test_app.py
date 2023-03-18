@@ -1,4 +1,11 @@
 
+# test the worker process
+# CREATE a new agent
+# UPDATE an agent
+# TEST failure cases
+# DELETE an agent
+
+
 def test_app():
-    # poll message from a fifo sqs
+
     return

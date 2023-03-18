@@ -47,7 +47,7 @@ if WORKER_TYPE not in [WORKER_TYPES.WORKER.value, WORKER_TYPES.DESTROYER.value]:
     raise Exception("WORKER_TYPE is not valid")
 
 # Select the table
-dynamodb = boto3.resource('dynamodb')
+
 # table = dynamodb.Table(DYNAMODB_TABLE_NAME)
 
 

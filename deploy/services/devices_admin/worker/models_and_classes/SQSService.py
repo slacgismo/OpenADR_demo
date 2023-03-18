@@ -5,8 +5,9 @@ import time
 
 
 class SQSService:
-    def __init__(self, queue_url):
+    def __init__(self, queue_url, ):
         self.queue_url = queue_url
+
         self.sqs = boto3.client('sqs')
 
     def receive_message(self, MaxNumberOfMessages: int = 1, WaitTimeSeconds: int = 20, VisibilityTimeout: int = 30):

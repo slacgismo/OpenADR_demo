@@ -18,6 +18,7 @@ class DynamoDB_Key(Enum):
 
 class DynamoDBService:
     def __init__(self, table_name):
+
         self.dynamodb = boto3.resource('dynamodb')
         self.table_name = table_name
         self.table = self.dynamodb.Table(table_name)
