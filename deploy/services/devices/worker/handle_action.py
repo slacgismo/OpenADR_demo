@@ -1,7 +1,7 @@
 from models_and_classes.TerraformExecution import TerraformExecution
 from models_and_classes.ECS_ACTIONS_ENUM import ECS_ACTIONS_ENUM
 from models_and_classes.DynamoDBService import DynamoDBService, DynamoDB_Key
-from models_and_classes.Agent import Agent, AgentState
+from models_and_classes.Agent import Agent
 from models_and_classes.S3Service import S3Service
 import json
 import os
@@ -73,6 +73,21 @@ def handle_action(action: ECS_ACTIONS_ENUM,
     print("Create task definition file name: ", task_definition_file_name)
     backend_s3_state_key_prefix = f"agent_backend_tfstate"
     backend_s3_state_key = backend_s3_state_key_prefix + f"/{agent_id}-tfstate"
+
+    # create terraofrm execution object
+    ecs_terraform = TerraformExecution(
+        working_dir="./terraform",
+        name_of_creation=f"ecs_service_{agent_id}",
+        environment_variables={
+            "task_definition_file": task_definition_file_name,
+            "agent_id": agent_id
+        },
+        backend_s3_bucket_name=BACKEND_S3_BUCKET_NAME,
+        backend_s3_state_key=backend_s3_state_key,
+        DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
+        backend_region=AWS_REGION
+    )
+    # create agent object
     agent = Agent(
         agent_id=agent_id,
         resource_id=resource_id,
@@ -81,7 +96,10 @@ def handle_action(action: ECS_ACTIONS_ENUM,
         backend_s3_bucket_name=BACKEND_S3_BUCKET_NAME,
         s3_bucket_name_of_task_definition_file=BACKEND_S3_BUCKET_NAME,
         DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
-        backend_region=AWS_REGION
+        backend_region=AWS_REGION,
+        terraformExecutionObject=ecs_terraform,
+        task_definition_file_name=task_definition_file_name,
+        backend_s3_state_key=backend_s3_state_key
     )
     if action == ECS_ACTIONS_ENUM.CREATE.value:
         print("=============================================")
@@ -97,8 +115,6 @@ def handle_action(action: ECS_ACTIONS_ENUM,
             print("Create ecs task definition")
             try:
                 agent.create_ecs_service(
-                    task_definition_file_name=task_definition_file_name,
-                    backend_s3_state_key=backend_s3_state_key
                 )
             except Exception as e:
                 # destroy  the dynamodb table just create
@@ -111,8 +127,6 @@ def handle_action(action: ECS_ACTIONS_ENUM,
         print("=============================================")
 
         agent.update_ecs_service(
-            task_definition_file_name=task_definition_file_name,
-            backend_s3_state_key=backend_s3_state_key,
         )
         return
     if action == ECS_ACTIONS_ENUM.DELETE.value:
@@ -122,7 +136,5 @@ def handle_action(action: ECS_ACTIONS_ENUM,
 
         print("Satet to delete ecs service")
         agent.delete_ecs_service(
-            task_definition_file_name=task_definition_file_name,
-            backend_s3_state_key=backend_s3_state_key
         )
         return

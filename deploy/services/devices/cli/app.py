@@ -14,7 +14,8 @@ import random
 import click
 from models_and_classes.create_agents import generate_first_number_agents_from_simulation_csv_file, Market_Interval, Device_Type, generate_emulated_battery_csv_file_with_device_id, BATTERY_BRANDS, ECS_ACTIONS_ENUM
 from models_and_classes.destroy_agents import destroy_all
-
+from dotenv import load_dotenv
+load_dotenv()
 """"
 This controller app is used to control the worker app for developement and testing purpose.
 It will generate following sqs:

@@ -8,19 +8,6 @@ from typing import List
 from .TerraformExecution import TerraformExecution
 
 
-class AgentState(Enum):
-
-    ACTIVE = 'active'
-    DELETED = 'deleted'
-    DELETING = 'deleting'  # TODO: not implemented yet
-    CREATING = 'creating'  # TODO: not implemented yet
-    UPDATING = 'updating'  # TODO: not implemented yet
-
-    FAILED_UPDATE = 'failed_update'  # TODO: not implemented yet
-    FAILED_CREATE = 'failed_create'  # TODO: not implemented yet
-    FAILED_DELETE = 'failed_delete'  # TODO: not implemented yet
-
-
 class Agent:
     def __init__(self,
                  agent_id: str,
@@ -30,7 +17,11 @@ class Agent:
                  backend_s3_bucket_name: str,
                  s3_bucket_name_of_task_definition_file: str,
                  DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME: str,
-                 backend_region: str
+                 backend_region: str,
+                 terraformExecutionObject: TerraformExecution = None,
+                 task_definition_file_name: str = None,
+                 backend_s3_state_key: str = None
+
                  ):
 
         self.agent_id = agent_id
@@ -42,12 +33,16 @@ class Agent:
         self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME = DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME
         self.backend_s3_bucket_name = backend_s3_bucket_name
         self.backend_region = backend_region
-
+        self.terraformExecutionObject = terraformExecutionObject
+        self.ecs_terraform_execution = terraformExecutionObject
+        self.task_definition_file_name = task_definition_file_name
+        self.backend_s3_state_key = backend_s3_state_key
         print("create backend hcl file")
 
     def create_ecs_service(self,
-                           backend_s3_state_key,
-                           task_definition_file_name: str):
+                           #    backend_s3_state_key,
+                           #    task_definition_file_name: str
+                           ):
 
         created_task_definiton_name_file_path, vtn_id, vens_info = create_and_export_task_definition(
             agent_id=self.agent_id,
@@ -66,30 +61,30 @@ class Agent:
             vtn_address="${vtn_address}",
             vtn_port="${vtn_port}",
             market_prices_url="${MARKET_PRICES_URL}",
-            file_name=task_definition_file_name,
+            file_name=self.task_definition_file_name,
             path="./terraform/templates"
 
         )
         # create backend_hcl
         print("DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME",
               self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME)
-        ecs_terraform = TerraformExecution(
-            working_dir="./terraform",
-            name_of_creation=f"ecs_service_{self.agent_id}",
-            environment_variables={
-                "task_definition_file": task_definition_file_name,
-                "agent_id": self.agent_id
-            },
-            backend_s3_bucket_name=self.backend_s3_bucket_name,
-            backend_s3_state_key=backend_s3_state_key,
-            DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
-            backend_region=self.backend_region
-        )
+        # ecs_terraform = TerraformExecution(
+        #     working_dir="./terraform",
+        #     name_of_creation=f"ecs_service_{self.agent_id}",
+        #     environment_variables={
+        #         "task_definition_file": task_definition_file_name,
+        #         "agent_id": self.agent_id
+        #     },
+        #     backend_s3_bucket_name=self.backend_s3_bucket_name,
+        #     backend_s3_state_key=backend_s3_state_key,
+        #     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
+        #     backend_region=self.backend_region
+        # )
 
         # 2. create ecs service
-        ecs_terraform.terraform_init()
+        self.ecs_terraform_execution.terraform_init()
         # ecs_terraform.terraform_plan()
-        ecs_terraform.terraform_apply()
+        self.ecs_terraform_execution.terraform_apply()
         print("========================================")
         print("ECS service created successfully:", self.agent_id)
         print("========================================")
@@ -99,11 +94,11 @@ class Agent:
             bucket_name=self.s3_bucket_name_of_task_definition_file,
         )
         created_task_definiton_name_file_path = os.path.join(
-            "./terraform/templates", task_definition_file_name
+            "./terraform/templates", self.task_definition_file_name
         )
         s3_service.upload_file(
             source=created_task_definiton_name_file_path,
-            destination=f"task_definitions/{self.agent_id}/{task_definition_file_name}"
+            destination=f"task_definitions/{self.agent_id}/{self.task_definition_file_name}"
         )
 
         # remove local task definition file
@@ -111,8 +106,8 @@ class Agent:
         return
 
     def update_ecs_service(self,
-                           task_definition_file_name: str,
-                           backend_s3_state_key: str,
+                           #    task_definition_file_name: str,
+                           #    backend_s3_state_key: str,
                            ):
         print("update ecs service")
         # implementation of update method goes here
@@ -121,10 +116,10 @@ class Agent:
         )
 
         is_file_exist = backend_s3_service.check_file_exists(
-            file_name=backend_s3_state_key)
+            file_name=self.backend_s3_state_key)
         if not is_file_exist:
             raise Exception(
-                f"File {backend_s3_state_key} does not exist")
+                f"File {self.backend_s3_state_key} does not exist")
 
         # check if the agenet id is already in the dynamodb table
 
@@ -145,27 +140,27 @@ class Agent:
             vtn_address="${vtn_address}",
             vtn_port="${vtn_port}",
             market_prices_url="${MARKET_PRICES_URL}",
-            file_name=task_definition_file_name,
+            file_name=self.task_definition_file_name,
             path="./terraform/templates"
 
         )
 
         # task_definition_file_name, backend_s3_state_key, backend_dynamodb_lock_name, destination = self._get_agent_info_from_dynamodb_and_s3()
-        ecs_terraform = TerraformExecution(
-            working_dir="./terraform",
-            name_of_creation=f"ecs_service_{self.agent_id}",
-            environment_variables={
-                "task_definition_file": task_definition_file_name,
-                "agent_id": self.agent_id
-            },
-            backend_s3_bucket_name=self.backend_s3_bucket_name,
-            backend_s3_state_key=backend_s3_state_key,
-            backend_dynamodb_lock_name=self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
-            backend_region=self.backend_region
-        )
-        ecs_terraform.terraform_init()
+        # ecs_terraform = TerraformExecution(
+        #     working_dir="./terraform",
+        #     name_of_creation=f"ecs_service_{self.agent_id}",
+        #     environment_variables={
+        #         "task_definition_file": task_definition_file_name,
+        #         "agent_id": self.agent_id
+        #     },
+        #     backend_s3_bucket_name=self.backend_s3_bucket_name,
+        #     backend_s3_state_key=backend_s3_state_key,
+        #     backend_dynamodb_lock_name=self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
+        #     backend_region=self.backend_region
+        # )
+        self.ecs_terraform_execution.terraform_init()
         # ecs_terraform.terraform_plan()
-        ecs_terraform.terraform_apply()
+        self.ecs_terraform_execution.terraform_apply()
         print("========================================")
         print("ECS service updated successfully:", self.agent_id)
         print("========================================")
@@ -173,12 +168,12 @@ class Agent:
             bucket_name=self.s3_bucket_name_of_task_definition_file,
         )
         created_task_definiton_name_file_path = os.path.join(
-            "./terraform/templates", task_definition_file_name
+            "./terraform/templates", self.task_definition_file_name
         )
         # update task definition file in s3
         s3_service.upload_file(
             source=created_task_definiton_name_file_path,
-            destination=f"task_definitions/{self.agent_id}/{task_definition_file_name}"
+            destination=f"task_definitions/{self.agent_id}/{self.task_definition_file_name}"
         )
         # remove local task definition file
         os.remove(created_task_definiton_name_file_path)
@@ -186,8 +181,8 @@ class Agent:
 
     def delete_ecs_service(
         self,
-        backend_s3_state_key,
-        task_definition_file_name,
+        # backend_s3_state_key,
+        # task_definition_file_name,
     ) -> str:
         # check if s3 state lock file exist
         backend_s3_service = S3Service(
@@ -195,15 +190,15 @@ class Agent:
         )
 
         is_file_exist = backend_s3_service.check_file_exists(
-            file_name=backend_s3_state_key)
+            file_name=self.backend_s3_state_key)
         if not is_file_exist:
             raise Exception(
-                f"File {backend_s3_state_key} does not exist")
+                f"File {self.backend_s3_state_key} does not exist")
         # download task definition file
 
-        source = f"task_definitions/{self.agent_id}/{task_definition_file_name}"
+        source = f"task_definitions/{self.agent_id}/{self.task_definition_file_name}"
 
-        destination = f"./terraform/templates/{task_definition_file_name}"
+        destination = f"./terraform/templates/{self.task_definition_file_name}"
         is_file_exist = backend_s3_service.check_file_exists(
             file_name=source)
         s3_service = S3Service(
@@ -215,20 +210,20 @@ class Agent:
             destination=destination
         )
 
-        ecs_terraform = TerraformExecution(
-            working_dir="./terraform",
-            name_of_creation=f"ecs_service_{self.agent_id}",
-            environment_variables={
-                "task_definition_file": task_definition_file_name,
-                "agent_id": self.agent_id
-            },
-            backend_s3_bucket_name=self.backend_s3_bucket_name,
-            backend_s3_state_key=backend_s3_state_key,
-            DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
-            backend_region=self.backend_region
-        )
-        ecs_terraform.terraform_init()
-        ecs_terraform.terraform_destroy()
+        # ecs_terraform = TerraformExecution(
+        #     working_dir="./terraform",
+        #     name_of_creation=f"ecs_service_{self.agent_id}",
+        #     environment_variables={
+        #         "task_definition_file": task_definition_file_name,
+        #         "agent_id": self.agent_id
+        #     },
+        #     backend_s3_bucket_name=self.backend_s3_bucket_name,
+        #     backend_s3_state_key=backend_s3_state_key,
+        #     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
+        #     backend_region=self.backend_region
+        # )
+        self.ecs_terraform_execution.terraform_init()
+        self.ecs_terraform_execution.terraform_destroy()
         print("========================================")
         print("ECS service deleted successfully:", self.agent_id)
         print("========================================")

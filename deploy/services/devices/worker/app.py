@@ -58,7 +58,7 @@ def validate_message(message: dict) -> bool:
     return True
 
 
-async def process_task_from_fifo_sqs(
+def process_task_from_fifo_sqs(
     queue_url: str,
     BACKEND_S3_BUCKET_NAME: str,
     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME: str,
@@ -81,9 +81,6 @@ async def process_task_from_fifo_sqs(
     while True:
         try:
             # TODO: add dlq if we need it
-            # dlq_service = SQSService(
-            #     queue_url=fifo_dlq_url
-            # )
 
             sqs_service = SQSService(
                 queue_url=queue_url
@@ -130,10 +127,7 @@ async def process_task_from_fifo_sqs(
                 # Delete the message from the queue
         except Exception as e:
             print(f"Error : {e}")
-            # send to dlq
-            # dlq_service.send_message(
-            #     message_body=json.loads(message['Body'])
-            # )
+
         time.sleep(5)
 
 
@@ -145,7 +139,6 @@ if __name__ == '__main__':
 
     process_task_from_fifo_sqs(
         queue_url=FIFO_SQS_URL,
-        # fifo_dlq_url=FIFO_DLQ_URL,
         BACKEND_S3_BUCKET_NAME=BACKEND_S3_BUCKET_NAME,
         DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
         AWS_REGION=AWS_REGION
