@@ -6,15 +6,16 @@ This worker app execute the terraform scripts to create the ECS services.
 The action is triggered by the sqs queue to avoid race condition.
 """
 
-
+import asyncio
 import os
 import json
 import time
 from models_and_classes.ECS_ACTIONS_ENUM import ECS_ACTIONS_ENUM
 from handle_action import handle_action
 from models_and_classes.SQSService import SQSService
+from models_and_classes.HealthCheckHandler import HealthCheckHandler
 from dotenv import load_dotenv
-
+import socketserver
 import time
 from handle_action import handle_action
 load_dotenv()
@@ -57,7 +58,7 @@ def validate_message(message: dict) -> bool:
     return True
 
 
-def process_task_from_fifo_sqs(
+async def process_task_from_fifo_sqs(
     queue_url: str,
     BACKEND_S3_BUCKET_NAME: str,
     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME: str,
@@ -76,6 +77,7 @@ def process_task_from_fifo_sqs(
     params: VisibilityTimeout: int = 20
     return: None
     """
+    print("Start the worker app")
     while True:
         try:
             # TODO: add dlq if we need it
@@ -135,8 +137,12 @@ def process_task_from_fifo_sqs(
         time.sleep(5)
 
 
+# wait for the client task to comp
+
 if __name__ == '__main__':
-    # poll message from a fifo sqs
+
+    # Run the client in the Python AsyncIO Event Loop
+
     process_task_from_fifo_sqs(
         queue_url=FIFO_SQS_URL,
         # fifo_dlq_url=FIFO_DLQ_URL,
