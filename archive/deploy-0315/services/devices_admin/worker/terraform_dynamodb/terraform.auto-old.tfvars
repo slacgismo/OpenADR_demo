@@ -1,7 +1,0 @@
-aws_region="us-east-2"
-environment="DEV"
-project="openadr"
-prefix="openadr-dev-agents"
-creator="Jimmy"
-managedBy="Terraform"
-ECSBackendDynamoDBLockName="00ccff430c4bcfa1f1186f488b88fc-state-lock-tfstate"

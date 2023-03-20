@@ -1,2 +1,0 @@
-openleadr>=0.5.28
-requests>=2.28.2
