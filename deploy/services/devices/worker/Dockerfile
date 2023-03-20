@@ -29,6 +29,7 @@ RUN apk add --no-cache --virtual .build-deps \
         openadr-user \
     && apk del .build-deps
 
+
 COPY . /app
 WORKDIR /app
 

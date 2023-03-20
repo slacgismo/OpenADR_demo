@@ -71,7 +71,8 @@ class Agent:
 
         )
         # create backend_hcl
-
+        print("DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME",
+              self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME)
         ecs_terraform = TerraformExecution(
             working_dir="./terraform",
             name_of_creation=f"ecs_service_{self.agent_id}",
@@ -81,7 +82,7 @@ class Agent:
             },
             backend_s3_bucket_name=self.backend_s3_bucket_name,
             backend_s3_state_key=backend_s3_state_key,
-            backend_dynamodb_lock_name=self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
+            DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
             backend_region=self.backend_region
         )
 
@@ -223,7 +224,7 @@ class Agent:
             },
             backend_s3_bucket_name=self.backend_s3_bucket_name,
             backend_s3_state_key=backend_s3_state_key,
-            backend_dynamodb_lock_name=self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
+            DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
             backend_region=self.backend_region
         )
         ecs_terraform.terraform_init()

@@ -20,6 +20,3 @@ output "dynamodb_agents_state_lock_table" {
     value = aws_dynamodb_table.agenets_shared_state_lock.name
 }
 
-# output "dynamodb_agent_table" {
-#     value = aws_dynamodb_table.agents-table.name
-# }

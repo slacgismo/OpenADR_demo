@@ -1,28 +1,35 @@
+"""
+This worker is responsible for handling the actions to create the ECS(agent) services 
+on ECS cluster. Each ECS service is responsible an agent. 
+A agent always has a VTN and mulitple vens(a ven is a device).
+This worker app execute the terraform scripts to create the ECS services.
+The action is triggered by the sqs queue to avoid race condition.
+"""
 
 
 import os
 import json
-# {"agent_id": "195728adee3af42120c157833a391249", "resource_id": "3b4a58e3cd70cd9c6f781d9267c6c5c0", "market_interval_in_second": "60", "market_id": "e64453a9304b51b1c66ce462e2c80c", "devices": [{"device_id": "3bd3c653deee0956613cb09229e5e52a", "device_name": "battery_0", "device_type": "ES", "device_params": {"battery_token": "322302bd7841beac7c407961cdec37", "battery_sn": "76097", "device_brand": "SONNEN_BATTERY"}, "biding_price_threshold":" 8.090370001385232", "meter_id": "2d8f00e2be4e4ca7a94ba3b88da76b"}]}
-
 import time
 from models_and_classes.ECS_ACTIONS_ENUM import ECS_ACTIONS_ENUM
 from handle_action import handle_action
 from models_and_classes.SQSService import SQSService
-
+from dotenv import load_dotenv
 
 import time
 from handle_action import handle_action
-
+load_dotenv()
 
 FIFO_SQS_URL = os.getenv('worker_fifo_sqs_url')
 if FIFO_SQS_URL is None:
     raise Exception("FIFO_SQS_URL is not set")
+
+
 BACKEND_S3_BUCKET_NAME = os.getenv('backend_s3_bucket_devices_admin')
 if BACKEND_S3_BUCKET_NAME is None:
     raise Exception("BACKEND_S3_BUCKET_NAME is not set")
 
 
-FIFO_DLQ_URL = os.getenv('openadr_workers_dlq_url')
+FIFO_DLQ_URL = os.getenv('worker_dlq_url')
 if FIFO_DLQ_URL is None:
     raise Exception("FIFO_DLQ_URL is not set")
 
@@ -52,18 +59,30 @@ def validate_message(message: dict) -> bool:
 
 def process_task_from_fifo_sqs(
     queue_url: str,
-    fifo_dlq_url: str,
     BACKEND_S3_BUCKET_NAME: str,
     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME: str,
     AWS_REGION: str,
     MaxNumberOfMessages: int = 1,
-        WaitTimeSeconds: int = 5,
-        VisibilityTimeout: int = 5):
+        WaitTimeSeconds: int = 10,
+        VisibilityTimeout: int = 20):
+    """
+    Process the task from the fifo sqs queue
+    params: queue_url: str
+    params: BACKEND_S3_BUCKET_NAME: str
+    params: DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME: str
+    params: AWS_REGION: str
+    params: MaxNumberOfMessages: int = 1
+    params: WaitTimeSeconds: int = 10
+    params: VisibilityTimeout: int = 20
+    return: None
+    """
     while True:
         try:
-            dlq_service = SQSService(
-                queue_url=fifo_dlq_url
-            )
+            # TODO: add dlq if we need it
+            # dlq_service = SQSService(
+            #     queue_url=fifo_dlq_url
+            # )
+
             sqs_service = SQSService(
                 queue_url=queue_url
             )
@@ -107,24 +126,20 @@ def process_task_from_fifo_sqs(
                 print(
                     f"===action:{action} process time: {str(process_time)}  ====")
                 # Delete the message from the queue
-                time.sleep(5)
         except Exception as e:
             print(f"Error : {e}")
             # send to dlq
             # dlq_service.send_message(
             #     message_body=json.loads(message['Body'])
             # )
-
-            continue
         time.sleep(5)
-        # If no messages, exit loop
 
 
 if __name__ == '__main__':
     # poll message from a fifo sqs
     process_task_from_fifo_sqs(
         queue_url=FIFO_SQS_URL,
-        fifo_dlq_url=FIFO_DLQ_URL,
+        # fifo_dlq_url=FIFO_DLQ_URL,
         BACKEND_S3_BUCKET_NAME=BACKEND_S3_BUCKET_NAME,
         DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
         AWS_REGION=AWS_REGION

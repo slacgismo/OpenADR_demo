@@ -11,7 +11,7 @@ class TerraformExecution:
                  backend_s3_bucket_name: str = None,
                  backend_s3_state_key: str = None,
                  backend_region: str = None,
-                 backend_dynamodb_lock_name: str = None,
+                 DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME: str = None,
 
                  ) -> None:
         self.working_dir = working_dir
@@ -20,9 +20,11 @@ class TerraformExecution:
         self.backend_s3_bucket_name = backend_s3_bucket_name
         self.backend_s3_state_key = backend_s3_state_key
         self.backend_region = backend_region
-        self.backend_dynamodb_lock_name = backend_dynamodb_lock_name
+        self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME = DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME
 
-        if self.backend_s3_state_key is not None and backend_dynamodb_lock_name is not None:
+        # self.lock = True  # always lock the backend state file, in case of multiple agents running at the same time
+        self.lock = True
+        if self.backend_s3_state_key is not None and DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME is not None:
             # create backend.hcl file
             self._create_backend_hcl_file()
 
@@ -39,10 +41,17 @@ class TerraformExecution:
                 f.write(f'bucket         = "{self.backend_s3_bucket_name}"\n')
                 f.write(f'key            = "{self.backend_s3_state_key}"\n')
                 f.write(f'region         = "{self.backend_region}"\n')
-                f.write(f'encrypt        = true\n')
+                f.write(f'encrypt        = false\n')
                 f.write(
-                    f'dynamodb_table = "{self.backend_dynamodb_lock_name}"\n')
+                    f'dynamodb_table = "{self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME}"\n')
             print("--backend.hcl file created--")
+            print("--bucket = ", self.backend_s3_bucket_name)
+            print("--key = ", self.backend_s3_state_key)
+            print("--region = ", self.backend_region)
+            print("--encrypt = false")
+            print("--dynamodb_table = ",
+                  self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME)
+
         except Exception as e:
             raise Exception(f"Error creating backend.hcl file: {e}")
 
@@ -82,10 +91,13 @@ class TerraformExecution:
         """
         terraform plan
         """
+
         print("terraform plan")
+
         try:
             command = ['docker-compose', 'run', '--rm',
-                       'terraform', 'plan', "-lock=false"]
+                       'terraform', 'plan']
+
             new_command = self._append_var(command)
             result = subprocess.run(new_command, cwd=self.working_dir)
             if result.returncode == 1:
@@ -99,9 +111,10 @@ class TerraformExecution:
         """
         terraform apply
         """
+
         try:
             command = ['docker-compose', 'run', '--rm',
-                       'terraform', 'apply', '-auto-approve', "-lock=false"]
+                       'terraform', 'apply', '-auto-approve']
 
             new_command = self._append_var(command)
             result = subprocess.run(new_command, cwd=self.working_dir)
@@ -120,7 +133,8 @@ class TerraformExecution:
 
         try:
             command = ['docker-compose', 'run', '--rm',
-                       'terraform', 'destroy', '-auto-approve', "-lock=false"]
+                       'terraform', 'destroy', '-auto-approve']
+
             new_command = self._append_var(command)
             result = subprocess.run(new_command, cwd=self.working_dir)
             if result.returncode == 1:
@@ -135,6 +149,11 @@ class TerraformExecution:
         Append the environment variables to the command
         :param command: the command to append the variables to
         """
+
+        # if lock is false, append the lock flag to the command
+        if self.lock == False:
+            command.append("-lock=false")
+
         if len(self.environment_variables) > 0:
 
             # loop the environment variables and append them to the command

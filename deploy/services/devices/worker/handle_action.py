@@ -30,7 +30,7 @@ def validate_terraform_tfvars(file: str, path: str):
     """
     file_path = os.path.join(path, file)
     # check if the file exists
-    # Todo: check the data
+    # TODO: check the data
     if not os.path.exists(file_path):
         raise Exception(f"{file_path} does not exist")
     # check the data

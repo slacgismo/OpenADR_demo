@@ -1,5 +1,11 @@
 
-import boto3
+"""
+This CLI app is responsible for handling the actions to control the worker app.
+It create/update/delete sqs message command to control the worker app.
+Once worker app receive the sqs message, it will handle the action.
+"""
+
+
 import os
 import uuid
 from enum import Enum
