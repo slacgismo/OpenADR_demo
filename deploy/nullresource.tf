@@ -1,73 +1,15 @@
 # # Create a Null Resource and Provisioners
-# # Create a Null Resource and Provisioners
-# Create the backend.hcl file of the devices_admin worker terraform_dyanmodb folder
-# bucket         = "xxxx"
-# key            = "xxxxx"
-# region         = "xxxx"
-# encrypt        = true
-# dynamodb_table = "xxxx"
 
-
-resource "null_resource" "exports_s3_state_bucket_to_backend_hcl" {
-  depends_on=[aws_s3_bucket.agents,aws_dynamodb_table.agenets_state_lock]
-
-  provisioner "local-exec" {
-   command = <<-EOT
-      echo 'bucket = "${aws_s3_bucket.agents.bucket}"' > backend.hcl
-      echo 'key = "${var.prefix}-${var.environment}-devices_admin.tfstate"' >> backend.hcl
-      echo 'region = "${var.aws_region}"' >> backend.hcl
-      echo 'encrypt = true' >> backend.hcl
-      echo 'dynamodb_table = "${aws_dynamodb_table.agenets_state_lock.name}"' >> backend.hcl
-    EOT
-    # save to devices admin worker terraform folder
-    working_dir = "${path.module}/services/devices_admin/worker/terraform"
-    #on_failure = continue
-  }
-}
-
-
-
-# Create the terraform.auto.tfvars file of the devices_admin worker terraform_dyanmodb folder
-# aws_region="xxxx"
-# environment="xx"
-# project="xxx"
-# prefix="xxxxx"
-# creator="xxxx"
-# managedBy="xxxx"
-#ECSBackendDynamoDBLockName="xxxx" dynamic setting
-
-resource "null_resource" "exports_terrafrom_tfvars_to_devices_admin_worker_terraform" {
-   depends_on=[aws_s3_bucket.agents]
-
-  provisioner "local-exec" {
-   command = <<-EOT
-      echo 'project="${var.project}"' > terraform.tfvars
-      echo 'environment="${var.environment}"' >> terraform.tfvars
-      echo 'aws_region="${var.aws_region}"' >> terraform.tfvars
-      echo 'prefix="${var.prefix}"' >> terraform.tfvars
-      echo 'creator="${var.creator}"' >> terraform.tfvars
-      echo 'managedBy="${var.managedBy}"' >> terraform.tfvars
-      echo 'backend_s3_bucket_devices_admin="${aws_s3_bucket.agents.bucket}"' >> terraform.tfvars
-      
-    EOT
-    # save to devices admin worker terraform folder
-    working_dir = "${path.module}/services/devices_admin/worker/terraform"
-    #on_failure = continue
-  }
-}
-
-
-resource "null_resource" "exports_terrafrom_tfvars_to_devices_admin_worker_terraform_ecs" {
+resource "null_resource" "export_terrafrom_tfvars_to_devices_admin_worker_terraform" {
   depends_on =[
     aws_s3_bucket.agents,
-    aws_dynamodb_table.agenets_state_lock,
+    aws_dynamodb_table.agenets_shared_state_lock,
     aws_cloudwatch_log_group.agent_task_logs,
     aws_ecs_cluster.main,
     aws_iam_role.task_execution_role,
     aws_iam_role.app_iam_role,
     module.private_ven_sg,
     module.vpc.vpc_id,
-    null_resource.exports_terrafrom_tfvars_to_devices_admin_worker_terraform
   ]
 
   provisioner "local-exec" {
@@ -98,13 +40,13 @@ resource "null_resource" "exports_terrafrom_tfvars_to_devices_admin_worker_terra
       echo '# dynamic setting task_definition_file' >> terraform.tfvars
     EOT
     # save to devices admin worker terraform folder
-    working_dir = "${path.module}/services/devices_admin/worker/terraform/ecs"
+    working_dir = "${path.module}/services/devices_admin/worker/terraform"
     #on_failure = continue
   }
 }
 
 # create .env file for devices_admin worker folder
-resource "null_resource" "create_env_file_for_devices_admin_worker" {
+resource "null_resource" "export_env_file_for_devices_admin_worker" {
   depends_on =  [aws_sqs_queue.opneadr_workers_sqs]
     
 
@@ -112,10 +54,11 @@ resource "null_resource" "create_env_file_for_devices_admin_worker" {
    command = <<-EOT
       echo 'worker_fifo_sqs_url="${aws_sqs_queue.opneadr_workers_sqs.url}"' > .env
       echo 'backend_s3_bucket_devices_admin="${aws_s3_bucket.agents.bucket}"' >> .env
-      echo 'dynamodb_agents_table_name="${aws_dynamodb_table.agents-table.name}"' >> .env
       echo 'worker_type="WORKER"' >> .env
       echo 'aws_region="${var.aws_region}"' >> .env
       echo 'worker_dlq_url="${aws_sqs_queue.worker_dlq.url}"' >> .env
+      echo 'ecs_cluster_name="${aws_ecs_cluster.main.name}"' >> .env
+      echo 'dynamodb_agents_shared_remote_state_lock_table_name="${aws_dynamodb_table.agenets_shared_state_lock.name}"' >> .env
     EOT
     # save to devices admin worker terraform folder
     working_dir = "${path.module}/services/devices_admin/worker"
@@ -123,21 +66,21 @@ resource "null_resource" "create_env_file_for_devices_admin_worker" {
   }
 }
 
-# create dockerimage for devices_admin worker , vtn and ven
-resource "null_resource" "devices_admin_docker_image" {
+# create .env file for devices_admin worker folder
+resource "null_resource" "export_env_file_for_devices_admin_cli" {
   depends_on =  [aws_sqs_queue.opneadr_workers_sqs]
-  # triggers = {
-  #   python_file = md5(file("${path.module}/lambdas/git_client/index.py"))
-  #   docker_file = md5(file("${path.module}/lambdas/git_client/Dockerfile"))
-  # }
+    
 
   provisioner "local-exec" {
-    command = <<EOF
-           #!/bin/bash
-           aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${local.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com
-           cd ${path.module}/services/devices_admin
-           docker build -t ${aws_ecr_repository.devices_admin.repository_url}:${local.ecr_image_tag} .
-           docker push ${aws_ecr_repository.devices_admin.repository_url}:${local.ecr_image_tag}
-       EOF
+   command = <<-EOT
+      echo 'worker_fifo_sqs_url="${aws_sqs_queue.opneadr_workers_sqs.url}"' > .env
+      echo 'ecs_cluster_name=${aws_ecs_cluster.main.name}"'>> .env
+
+    EOT
+    # save to devices admin worker terraform folder
+    working_dir = "${path.module}/services/devices_admin/cli"
+    #on_failure = continue
   }
 }
+
+

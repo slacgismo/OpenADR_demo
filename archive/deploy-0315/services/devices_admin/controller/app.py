@@ -73,11 +73,6 @@ devices = [
 next_id = 4
 
 
-def guid():
-    """Return a globally unique id"""
-    return uuid.uuid4().hex[2:]
-
-
 def generate_empty_ecs_services_params(agent_id: str) -> dict:
     params = dict()
     params['agent_id'] = agent_id

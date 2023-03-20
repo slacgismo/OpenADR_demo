@@ -1,62 +1,10 @@
 from models_and_classes.TerraformExecution import TerraformExecution
 from models_and_classes.ECS_ACTIONS_ENUM import ECS_ACTIONS_ENUM
-from models_and_classes.Agent import Agent
+from models_and_classes.DynamoDBService import DynamoDBService, DynamoDB_Key
+from models_and_classes.Agent import Agent, AgentState
+from models_and_classes.S3Service import S3Service
+import json
 import os
-
-
-def create_terraform_dynamondb_lock_table(dyanmodb_table_name: str):
-    """
-    create dynamodb table for terraform state lock
-    params: dyanmodb_table_name: str
-    return: None
-    """
-    terrafrom_execution = TerraformExecution(
-        working_dir="./terraform",
-        name_of_creation="dynamodb",
-        environment_variables=(
-            {"backend_dyanmodb_table_teraform_state_lock_devices_admin": dyanmodb_table_name})
-    )
-    try:
-        # init terraform
-        terrafrom_execution.terraform_init()
-        # optional validate
-        terrafrom_execution.terraform_validate()
-        # optional plan
-        terrafrom_execution.terraform_plan()
-    except Exception as e:
-        raise Exception(f"Error validate dynamodb table from terraform: {e}")
-        # apply --auto-approve
-
-    try:
-        terrafrom_execution.terraform_apply()
-    except Exception as e:
-        # apply --auto-approve
-        print("Error creating dynamodb table from terraform, destroying the table")
-        print("Destroying the table")
-        terrafrom_execution.terraform_destroy()
-        raise Exception(f"Error creating dynamodb table from terraform: {e}")
-
-
-def destroy_terraform_dynamondb_lock_table(dyanmodb_table_name: str):
-    """
-    destroy dynamodb table for terraform state lock
-    params: dyanmodb_table_name: str
-    return: None
-
-    """
-    terrafrom_execution = TerraformExecution(
-        working_dir="./terraform",
-        name_of_creation="dynamodb",
-        environment_variables=(
-            {"backend_dyanmodb_table_teraform_state_lock_devices_admin": dyanmodb_table_name})
-    )
-    try:
-        # init terraform
-        terrafrom_execution.terraform_init()
-        terrafrom_execution.terraform_destroy()
-    except Exception as e:
-        raise Exception(f"Error validate dynamodb table from terraform: {e}")
-        # apply --auto-approve
 
 
 def validate_backend_hcl(file: str, path: str):
@@ -94,9 +42,7 @@ def parse_message_body(message_body: dict):
         "market_interval_in_second" not in message_body or \
             "devices" not in message_body:
         raise Exception(
-            f"agent_id is not in the message, or resource_id is not in the message, \
-                    or market_interval_in_second is not in the message, devices is \
-                        not in the message")
+            f"agent_id is not in the message, or resource_id is not in the message, or market_interval_in_second is not in the message, devices is  not in the message")
     agent_id = message_body["agent_id"]
     resource_id = message_body["resource_id"]
     market_interval_in_second = message_body["market_interval_in_second"]
@@ -107,8 +53,9 @@ def parse_message_body(message_body: dict):
 def handle_action(action: ECS_ACTIONS_ENUM,
                   message_body: dict,
                   BACKEND_S3_BUCKET_NAME: str,
-                  DYNAMODB_AGENTS_TABLE_NAME: str,
-                  AWS_REGION: str
+                  DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME: str,
+                  AWS_REGION: str,
+
                   ):
     """
     Handle the action from the message body
@@ -124,90 +71,58 @@ def handle_action(action: ECS_ACTIONS_ENUM,
 
     task_definition_file_name = f"task-definition-{agent_id}.json.tpl"
     print("Create task definition file name: ", task_definition_file_name)
-    backend_dyanmodb_agent_lock_state = f"{agent_id}-state-lock-tfstate"
-    backend_s3_state_key_prefix = f"agent.backend.tfstate"
+    backend_s3_state_key_prefix = f"agent_backend_tfstate"
     backend_s3_state_key = backend_s3_state_key_prefix + f"/{agent_id}-tfstate"
-    print("Create dynamodb table lock name: ",
-          backend_dyanmodb_agent_lock_state)
-
+    agent = Agent(
+        agent_id=agent_id,
+        resource_id=resource_id,
+        market_interval_in_second=market_interval_in_second,
+        devices=devices,
+        backend_s3_bucket_name=BACKEND_S3_BUCKET_NAME,
+        s3_bucket_name_of_task_definition_file=BACKEND_S3_BUCKET_NAME,
+        DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
+        backend_region=AWS_REGION
+    )
     if action == ECS_ACTIONS_ENUM.CREATE.value:
+        print("=============================================")
+        print("Create ecs service", agent_id)
+        print("=============================================")
         if len(devices) == 0:
             # ecs_service.create(is_creating_empty_ecs_service=True)
-            print("create empty ecs service")
+            # TODO: create empty ecs service
+            raise Exception(
+                "Not support create empty ecs service, if we need to create empty ecs service. Implement it")
         else:
 
-            try:
-                validate_backend_hcl(file="backend.hcl",
-                                     path="./terraform")
-                validate_terraform_tfvars(
-                    file="terraform.tfvars", path="./terraform")
-                # check if the agent_id is already in the dynamodb table
-
-            except Exception as e:
-                raise Exception(f"Error validate necessary files : {e}")
-            # check the if backend.hcl is correct
-
-            # create the dynamodb table lock for terraform
-            create_terraform_dynamondb_lock_table(
-                dyanmodb_table_name=backend_dyanmodb_agent_lock_state)
-            print("End of create dynamodb table lock")
-            # end of create dynamodb table lock
-
-            agent = Agent(
-                agent_id=agent_id,
-                resource_id=resource_id,
-                market_interval_in_second=market_interval_in_second,
-                devices=devices,
-                backend_s3_bucket_name=BACKEND_S3_BUCKET_NAME,
-                s3_bucket_name_of_task_definition_file=BACKEND_S3_BUCKET_NAME,
-                dynamodb_agents_table_name=DYNAMODB_AGENTS_TABLE_NAME,
-                backend_region=AWS_REGION
-            )
             print("Create ecs task definition")
-            agent.create_ecs_service(
-                task_definition_file_name=task_definition_file_name,
-                backend_s3_state_key=backend_s3_state_key,
-                backend_dynamodb_lock_name=backend_dyanmodb_agent_lock_state
-            )
+            try:
+                agent.create_ecs_service(
+                    task_definition_file_name=task_definition_file_name,
+                    backend_s3_state_key=backend_s3_state_key
+                )
+            except Exception as e:
+                # destroy  the dynamodb table just create
+
+                raise Exception(f"Error create ecs task definition: {e}")
         return
     if action == ECS_ACTIONS_ENUM.UPDATE.value:
-        print("Update")
-        agent = Agent(
-            agent_id=agent_id,
-            resource_id=resource_id,
-            market_interval_in_second=market_interval_in_second,
-            devices=devices,
-            backend_s3_bucket_name=BACKEND_S3_BUCKET_NAME,
-            s3_bucket_name_of_task_definition_file=BACKEND_S3_BUCKET_NAME,
-            dynamodb_agents_table_name=DYNAMODB_AGENTS_TABLE_NAME,
-            backend_region=AWS_REGION
-        )
+        print("=============================================")
+        print("Update ecs service", agent_id)
+        print("=============================================")
+
         agent.update_ecs_service(
             task_definition_file_name=task_definition_file_name,
             backend_s3_state_key=backend_s3_state_key,
-            backend_dynamodb_lock_name=backend_dyanmodb_agent_lock_state
         )
         return
     if action == ECS_ACTIONS_ENUM.DELETE.value:
+        print("=============================================")
+        print("Delete ecs service", agent_id)
+        print("=============================================")
 
-        agent = Agent(
-            agent_id=agent_id,
-            resource_id=resource_id,
-            market_interval_in_second=market_interval_in_second,
-            devices=devices,
-            backend_s3_bucket_name=BACKEND_S3_BUCKET_NAME,
-            s3_bucket_name_of_task_definition_file=BACKEND_S3_BUCKET_NAME,
-            dynamodb_agents_table_name=DYNAMODB_AGENTS_TABLE_NAME,
-            backend_region=AWS_REGION
-        )
         print("Satet to delete ecs service")
         agent.delete_ecs_service(
             task_definition_file_name=task_definition_file_name,
-            backend_s3_state_key=backend_s3_state_key,
-            backend_dynamodb_lock_name=backend_dyanmodb_agent_lock_state
-        )
-        print("Delete the backend dynamodb table lock")
-        destroy_terraform_dynamondb_lock_table(
-            dyanmodb_table_name=backend_dyanmodb_agent_lock_state
+            backend_s3_state_key=backend_s3_state_key
         )
         return

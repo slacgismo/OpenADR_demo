@@ -1,6 +1,0 @@
-[
-    {
-        "agent_id": "agent0",
-        "definition_file_name": "./task_definitions/container-definition-agent0.json.tpl"
-    }
-]

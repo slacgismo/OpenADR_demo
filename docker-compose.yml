@@ -22,7 +22,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./vtn:/app
+      - ./deploy/services/vtn:/app
     command: >
       sh -c "python vtn.py"
 
@@ -35,7 +35,7 @@ services:
     networks:
       - adrnet
     volumes:
-      - ./services/ven:/app
+      - ./deploy/services/ven:/app
     environment:
       - ENV=${ENV:-DEV} # PROD or DEV (PROD: real device, DEV: mock device)
       - VEN_ID=${VEN_ID:-ven0}

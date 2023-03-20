@@ -12,6 +12,7 @@ class TerraformExecution:
                  backend_s3_state_key: str = None,
                  backend_region: str = None,
                  backend_dynamodb_lock_name: str = None,
+
                  ) -> None:
         self.working_dir = working_dir
         self.name_of_creation = name_of_creation
@@ -20,6 +21,7 @@ class TerraformExecution:
         self.backend_s3_state_key = backend_s3_state_key
         self.backend_region = backend_region
         self.backend_dynamodb_lock_name = backend_dynamodb_lock_name
+
         if self.backend_s3_state_key is not None and backend_dynamodb_lock_name is not None:
             # create backend.hcl file
             self._create_backend_hcl_file()
@@ -48,8 +50,10 @@ class TerraformExecution:
 
     def terraform_init(self) -> None:
         try:
+            # Alywas run terraform init with -reconfigure, since the backend config file is created after the first init
+            # The local /.terraform/terraform.tfstate file need to be changed after we change the backend config file
             result = subprocess.run(
-                ['docker-compose', 'run', '--rm', 'terraform', 'init', '-backend-config=backend.hcl'], cwd=self.working_dir)
+                ['docker-compose', 'run', '--rm', 'terraform', 'init', '-backend-config=backend.hcl', "-reconfigure"], cwd=self.working_dir)
             if result.returncode == 1:
                 raise Exception(
                     f"{self.name_of_creation}: Subprocess returned error code 1, program stopped.")
@@ -57,22 +61,6 @@ class TerraformExecution:
             raise Exception(
                 f"{self.name_of_creation} Error when terrafrom init : {e}")
     # create terrafrom validate execution
-
-    # def terraform_validate_and_plan(self) -> None:
-    #     """
-    #     terraform validate
-    #     """
-    #     try:
-    #         command = ['docker-compose', 'run', '--rm',
-    #                    'terraform', 'validate']
-    #         result = subprocess.run(command, cwd=self.working_dir)
-    #         command = ['docker-compose', 'run', '--rm',
-    #                    'terraform', 'plan', "-lock=false"]
-    #         new_command = self._append_var(command)
-    #         result = subprocess.run(command, cwd=self.working_dir)
-    #     except subprocess.CalledProcessError as e:
-    #         raise Exception(
-    #             f" {self.name_of_creation} Error terrafrom validate dynamodb : {e}")
 
     def terraform_validate(self) -> None:
         """
@@ -97,7 +85,7 @@ class TerraformExecution:
         print("terraform plan")
         try:
             command = ['docker-compose', 'run', '--rm',
-                       'terraform', 'plan']
+                       'terraform', 'plan', "-lock=false"]
             new_command = self._append_var(command)
             result = subprocess.run(new_command, cwd=self.working_dir)
             if result.returncode == 1:
@@ -113,7 +101,8 @@ class TerraformExecution:
         """
         try:
             command = ['docker-compose', 'run', '--rm',
-                       'terraform', 'apply', '-auto-approve']
+                       'terraform', 'apply', '-auto-approve', "-lock=false"]
+
             new_command = self._append_var(command)
             result = subprocess.run(new_command, cwd=self.working_dir)
             if result.returncode == 1:
@@ -131,7 +120,7 @@ class TerraformExecution:
 
         try:
             command = ['docker-compose', 'run', '--rm',
-                       'terraform', 'destroy', '-auto-approve']
+                       'terraform', 'destroy', '-auto-approve', "-lock=false"]
             new_command = self._append_var(command)
             result = subprocess.run(new_command, cwd=self.working_dir)
             if result.returncode == 1:

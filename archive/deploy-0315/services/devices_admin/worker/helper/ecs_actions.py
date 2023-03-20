@@ -6,10 +6,6 @@ from .task_definition_generator import create_and_export_task_definition
 #     print("No devices in the message, create empty ecs services")
 #     return
 
-def create_ecs_service_with_no_task():
-    print("Create empty ecs services")
-    return
-
 
 def create_ecs_service(message_body,
                        vtn_env_params: dict,
@@ -60,27 +56,6 @@ def create_ecs_service(message_body,
         path="./task_definition"
     )
 
-    # each agent has its own task definition and Terraform reemote backend state
-    # invoke terraform to create a backend to store the state of this ecs_service(agent)
-    # the backend state is stored in S3 bucket and DynamoDB table
-    # the S3 key is the agent_id, the DynamoDB table is the agent_id
-    # backend_state_key = f"{agent_id}_state.tfstate"
-    # dynamodb_table_name = f"{agent_id}_state_lock"
-    # # The backend to create this dynamodb state lock table is the default backend
-    # # Since it's dynamoic, we cannot hard core the backend state key and dynamodb table name
-    # # So we need to create a file backend.hcl tot store backend state key and dynamodb table
-    # invoke_terraform_dynamodb(
-    #     dynamodb_table_name=dynamodb_table_name,
-    #     backend_s3_bucket=BACKEND_S3_BUCKET_NAME,
-    #     backend_s3_key=BACKEND_S3_KEY,
-    #     backend_region=AWS_REGION,
-    #     backend_dynamodb_table=BACKEND_DYNAMODB_TABLE_NAME,
-    #     env=ENV,
-    #     project=PROJECT,
-    #     prefix=PREFIX,
-    #     creator=CREATOR,
-    #     managedBy=MANAGED_BY,
-    # )
     return None
 
 
