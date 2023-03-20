@@ -1,10 +1,8 @@
 from models_and_classes.TerraformExecution import TerraformExecution
 from models_and_classes.ECS_ACTIONS_ENUM import ECS_ACTIONS_ENUM
-from models_and_classes.DynamoDBService import DynamoDBService, DynamoDB_Key
 from models_and_classes.Agent import Agent
-from models_and_classes.S3Service import S3Service
-import json
 import os
+import logging
 
 
 def validate_backend_hcl(file: str, path: str):
@@ -70,7 +68,8 @@ def handle_action(action: ECS_ACTIONS_ENUM,
         message_body)
 
     task_definition_file_name = f"task-definition-{agent_id}.json.tpl"
-    print("Create task definition file name: ", task_definition_file_name)
+    logging.info(
+        f"Create task definition file name: {task_definition_file_name}")
     backend_s3_state_key_prefix = f"agent_backend_tfstate"
     backend_s3_state_key = backend_s3_state_key_prefix + f"/{agent_id}-tfstate"
 
@@ -102,9 +101,9 @@ def handle_action(action: ECS_ACTIONS_ENUM,
         backend_s3_state_key=backend_s3_state_key
     )
     if action == ECS_ACTIONS_ENUM.CREATE.value:
-        print("=============================================")
-        print("Create ecs service", agent_id)
-        print("=============================================")
+        logging.info("=============================================")
+        logging.info(f"Create ecs service {agent_id}")
+        logging.info("=============================================")
         if len(devices) == 0:
             # ecs_service.create(is_creating_empty_ecs_service=True)
             # TODO: create empty ecs service
@@ -112,7 +111,7 @@ def handle_action(action: ECS_ACTIONS_ENUM,
                 "Not support create empty ecs service, if we need to create empty ecs service. Implement it")
         else:
 
-            print("Create ecs task definition")
+            logging.info("Create ecs task definition")
             try:
                 agent.create_ecs_service(
                 )
@@ -122,19 +121,18 @@ def handle_action(action: ECS_ACTIONS_ENUM,
                 raise Exception(f"Error create ecs task definition: {e}")
         return
     if action == ECS_ACTIONS_ENUM.UPDATE.value:
-        print("=============================================")
-        print("Update ecs service", agent_id)
-        print("=============================================")
+        logging.info("=============================================")
+        logging.info(f"Update ecs service {agent_id}")
+        logging.info("=============================================")
 
         agent.update_ecs_service(
         )
         return
     if action == ECS_ACTIONS_ENUM.DELETE.value:
-        print("=============================================")
-        print("Delete ecs service", agent_id)
-        print("=============================================")
+        logging.info("=============================================")
+        logging.info(f"Delete ecs service {agent_id}")
+        logging.info("=============================================")
 
-        print("Satet to delete ecs service")
         agent.delete_ecs_service(
         )
         return

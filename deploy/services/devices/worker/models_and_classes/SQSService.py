@@ -40,7 +40,7 @@ class SQSService:
                 ReceiptHandle=receipt_handle
             )
         except ClientError as e:
-            print(
+            raise (
                 f"Failed to delete message from SQS queue {self.queue_url}. Error: {e}")
 
     def send_message(self,
@@ -58,7 +58,7 @@ class SQSService:
             )
 
         except ClientError as e:
-            print(
+            raise (
                 f"Failed to send message to SQS queue {self.queue_url}. Error: {e}")
 
     def purge_message(self):
@@ -67,7 +67,7 @@ class SQSService:
                 QueueUrl=self.queue_url
             )
         except ClientError as e:
-            print(
+            raise (
                 f"Failed to purge message from SQS queue {self.queue_url}. Error: {e}")
 
     def send_message_batch(self, sqs_messages):
@@ -75,7 +75,7 @@ class SQSService:
             # for batch in [sqs_messages[i:i+10] for i in range(0, len(sqs_messages), 10)]:
             response = self.sqs.send_message_batch(
                 QueueUrl=self.queue_url, Entries=sqs_messages)
-            print(response)
+            return response
         except ClientError as e:
-            print(
+            raise (
                 f"Failed to send message to SQS queue {self.queue_url}. Error: {e}")

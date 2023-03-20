@@ -1,6 +1,7 @@
 import subprocess
 from typing import List, Dict
 import os
+import logging
 
 
 class TerraformExecution:
@@ -44,13 +45,13 @@ class TerraformExecution:
                 f.write(f'encrypt        = false\n')
                 f.write(
                     f'dynamodb_table = "{self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME}"\n')
-            print("--backend.hcl file created--")
-            print("--bucket = ", self.backend_s3_bucket_name)
-            print("--key = ", self.backend_s3_state_key)
-            print("--region = ", self.backend_region)
-            print("--encrypt = false")
-            print("--dynamodb_table = ",
-                  self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME)
+            logging.info("--backend.hcl file created--")
+            logging.info(f"--bucket =  {self.backend_s3_bucket_name}")
+            logging.info(f"--key =  {self.backend_s3_state_key}")
+            logging.info(f"--region = {self.backend_region}")
+            logging.info("--encrypt = false")
+            logging.info(
+                f"--dynamodb_table = {self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME}")
 
         except Exception as e:
             raise Exception(f"Error creating backend.hcl file: {e}")
@@ -92,7 +93,7 @@ class TerraformExecution:
         terraform plan
         """
 
-        print("terraform plan")
+        logging.info("*** terraform plan ****")
 
         try:
             command = ['docker-compose', 'run', '--rm',
@@ -152,6 +153,7 @@ class TerraformExecution:
 
         # if lock is false, append the lock flag to the command
         if self.lock == False:
+            logging.warning("*** terraform -lock=false ****")
             command.append("-lock=false")
 
         if len(self.environment_variables) > 0:
