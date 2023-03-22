@@ -2,4 +2,3 @@ boto3 >=1.26.87
 awscli >=1.18.87
 pandas>=1.5.3
 click>=7.1.2
-load_dotenv>=0.17.0

@@ -1,5 +1,8 @@
 import boto3
 import os
+from . import STSService
+import time
+import json
 
 
 class S3Service:
@@ -48,3 +51,20 @@ class S3Service:
         except Exception as e:
             raise Exception(f"Error when remove file from s3: {e}")
     # list all the objects in s3 bucket on a given path
+
+    def validate_s3_bucket(self, sts_service: STSService) -> None:
+        try:
+            account_id = sts_service.get_account_id()
+            current_time = str(int(time.time()))
+            data = {'account_id': account_id, "time": current_time}
+            # save data to s3
+            response = self.s3.put_object(
+                Bucket=self.bucket_name,
+                Key=f"access/{account_id}.json",
+                Body=json.dumps(data))
+
+            print("Validate s3 bucket write access success")
+
+            return None
+        except Exception as e:
+            raise Exception(f"Error when validate s3 bucket: {e}")

@@ -63,6 +63,7 @@ resource "null_resource" "exports_env_file_for_devices_admin_worker" {
       echo 'FIFO_DLQ_URL="${aws_sqs_queue.worker_dlq.url}"' >> .env
       echo 'HEALTH_CHEKC_PORT="${var.devices_worker_health_check_port}"' >> .env
       echo 'DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME="${aws_dynamodb_table.agenets_shared_state_lock.name}"' >> .env
+      echo 'ECS_CLUSTER_NAME="${aws_ecs_cluster.main.name}"' >> .env
     EOT
     # save to devices admin worker terraform folder
     working_dir = "${path.module}/services/devices/worker"

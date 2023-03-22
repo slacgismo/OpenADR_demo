@@ -15,7 +15,10 @@ from models_and_classes.ECS_ACTIONS_ENUM import ECS_ACTIONS_ENUM
 from handle_action import handle_action
 from models_and_classes.SQSService import SQSService
 from models_and_classes.S3Service import S3Service
+from models_and_classes.DynamoDBService import DynamoDBService
+from models_and_classes.STSService import STSService
 from models_and_classes.HTTPServer import HTTPServer
+from models_and_classes.ECSService import ECSService
 # from dotenv import load_dotenv
 import socketserver
 import time
@@ -55,6 +58,10 @@ if DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME is None:
     raise Exception(
         "DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME is not set")
 
+ECS_CLUSTER_NAME = os.environ['ECS_CLUSTER_NAME']
+if ECS_CLUSTER_NAME is None:
+    raise Exception("ECS_CLUSTER_NAME is not set")
+
 
 def validate_message(message: dict) -> bool:
     """
@@ -67,22 +74,6 @@ def validate_message(message: dict) -> bool:
         return False
 
     return True
-
-
-def check_aws_permission(
-
-) -> bool:
-    """
-    Check the aws permission
-    """
-    # check s3 read and write permission
-    s3_service = S3Service(
-        bucket_name=BACKEND_S3_BUCKET_NAME
-    )
-
-    # check sqs read and write permission
-    # check dynamodb read and write permission
-    # check ecs read and write permission
 
 
 def process_task_from_fifo_sqs(
@@ -153,6 +144,7 @@ def process_task_from_fifo_sqs(
                 )
                 end_process_time = time.time()
                 process_time = int(end_process_time - start_time_process_time)
+                time.sleep(5)
                 logging.info(
                     f"===action:{action} process time: {str(process_time)}  ====")
                 # Delete the message from the queue
@@ -162,45 +154,55 @@ def process_task_from_fifo_sqs(
         time.sleep(2)
 
 
-# wait for the client task to comp
+def main():
+    """
+    Main function
+    """
+    # validate the permissions
+    # valudate s3 bucket
+    try:
+        sts_service = STSService()
+        s3_service = S3Service(
+            bucket_name=BACKEND_S3_BUCKET_NAME
+        )
+        s3_service.validate_s3_bucket(
+            sts_service=sts_service
+        )
+        # validate the dynamodb table
+        dynamodb_service = DynamoDBService(
+            table_name=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME
+        )
+        dynamodb_service.list_number_of_items()
 
-async def health_check():
-    server = HTTPServer()
-    await server.start()
+        # validate the sqs queue
+        sqs_service = SQSService(
+            queue_url=FIFO_SQS_URL
+        )
+        sqs_message = sqs_service.receive_message(
+            MaxNumberOfMessages=1,
+            WaitTimeSeconds=2,
+            VisibilityTimeout=2
+        )
+        logging.info("Validate the sqs queue")
+        # validate the dlq
+        dlq_service = SQSService(
+            queue_url=FIFO_DLQ_URL
+        )
+        dlq_message = dlq_service.receive_message(
+            MaxNumberOfMessages=1,
+            WaitTimeSeconds=2,
+            VisibilityTimeout=2
+        )
+        logging.info("Validate the dlq queue")
+        # validate ecs
+        ecs_service = ECSService(
+            ecs_cluster_name=ECS_CLUSTER_NAME
+        )
+        active_services = ecs_service.list_ecs_services()
+        logging.info("Validate the ecs cluster")
+    except Exception as e:
+        raise logging.error(f"Validate permission error : {e}")
 
-
-async def short_running_task():
-    await asyncio.sleep(2)
-    print(f"Short running {time.time()}")
-
-    # task1 = asyncio.create_task(health_check())
-    # task2 = asyncio.create_task(short_running_task())
-
-    # # wait for both tasks to complete
-    # await asyncio.gather(task1, task2)
-
-
-# async def main():
-#     server = HTTPServer(
-#         port=HEALTH_CHEKC_PORT,
-#         host="127.0.0.1"
-#     )
-
-#     # returns immediately, the task is created
-#     task1 = asyncio.create_task(server.start())
-#     await asyncio.sleep(3)
-#     task2 = asyncio.create_task(process_task_from_fifo_sqs(
-#         queue_url=FIFO_SQS_URL,
-#         BACKEND_S3_BUCKET_NAME=BACKEND_S3_BUCKET_NAME,
-#         DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
-#         AWS_REGION=AWS_REGION
-#     ))
-#     await task1
-#     await task2
-
-
-if __name__ == '__main__':
-    value = "TEST"
     process_task_from_fifo_sqs(
         queue_url=FIFO_SQS_URL,
         BACKEND_S3_BUCKET_NAME=BACKEND_S3_BUCKET_NAME,
@@ -208,6 +210,11 @@ if __name__ == '__main__':
         AWS_REGION=AWS_REGION
     )
 
-    # Run the client in the Python AsyncIO Event Loop
 
-    # asyncio.run(main())  # main loop
+if __name__ == '__main__':
+    main()
+
+
+# Run the client in the Python AsyncIO Event Loop
+
+# asyncio.run(main())  # main loop

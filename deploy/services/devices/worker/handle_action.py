@@ -113,6 +113,7 @@ def handle_action(action: ECS_ACTIONS_ENUM,
         else:
 
             logging.info("Create ecs task definition")
+
             try:
                 agent.create_ecs_service(
                 )

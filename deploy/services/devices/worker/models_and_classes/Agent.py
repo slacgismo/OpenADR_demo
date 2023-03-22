@@ -182,9 +182,11 @@ class Agent:
             source=source,
             destination=destination
         )
-
+        print("1----------------------------------------")
         self.ecs_terraform_execution.terraform_init()
+        print("2----------------------------------------")
         self.ecs_terraform_execution.terraform_destroy()
+        print("3----------------------------------------")
         logging.info("========================================")
         logging.info(f"ECS service deleted successfully:{self.agent_id}")
         logging.info("========================================")

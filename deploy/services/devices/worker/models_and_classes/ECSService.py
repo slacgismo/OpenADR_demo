@@ -2,6 +2,7 @@ import boto3
 import subprocess
 from .invoke_terraform import create_backend_hcl_file, create_terraform_auto_tfvars_file
 import os
+from typing import List
 
 
 class ECSService:
@@ -50,14 +51,13 @@ class ECSService:
         print("create terraform auto tfvars file")
         return True
 
-    def list_ecs_service(self):
+    def list_ecs_services(self) -> List[str]:
         try:
-            response = self.client.list_services(cluster=self.ecs
-                                                 )
+            response = self.client.list_services(cluster=self.ecs_cluster_name)
             service_names = []
             for service_arn in response['serviceArns']:
                 service_names.append(service_arn.split('/')[-1])
 
-            print(service_names)
+            return service_names
         except Exception as e:
             print(e)

@@ -102,7 +102,7 @@ resource "aws_iam_policy" "s3_policy" {
         Action = [
           "s3:PutObject",
           "s3:GetObject",
-          "s3:DeleteObject",
+          "s3:DeleteObject"
         ]
         Effect   = "Allow"
         Resource: "${aws_s3_bucket.agents.arn}/*}"
@@ -129,10 +129,10 @@ resource "aws_iam_policy" "dynamodb_policy" {
         Action = [
           "dynamodb:GetItem",
           "dynamodb:DeleteItem",
-          "dynamodb:UpdateItem"
+          "dynamodb:UpdateItem",
           "dynamodb:Query",
           "dynamodb:Scan",
-          "dynamodb:ConditionCheckItem",
+          "dynamodb:ConditionCheckItem"
         ]
         Effect   = "Allow"
        Resource: ["${aws_dynamodb_table.agenets_shared_state_lock.arn}"]

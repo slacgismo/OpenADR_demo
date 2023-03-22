@@ -14,8 +14,12 @@ import random
 import click
 from models_and_classes.create_agents import generate_first_number_agents_from_simulation_csv_file, Market_Interval, Device_Type, generate_emulated_battery_csv_file_with_device_id, BATTERY_BRANDS, ECS_ACTIONS_ENUM
 from models_and_classes.destroy_agents import destroy_all
-from dotenv import load_dotenv
-load_dotenv()
+import logging
+logging.basicConfig(format='%(asctime)s %(message)s',
+                    datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+
+logging.info(f"Start the worker app")
+
 """"
 This controller app is used to control the worker app for developement and testing purpose.
 It will generate following sqs:
@@ -24,17 +28,20 @@ It will generate following sqs:
 
 """
 
-FIFO_SQS_URL = os.getenv('worker_fifo_sqs_url')
+FIFO_SQS_URL = os.environ['FIFO_SQS_URL']
 if FIFO_SQS_URL is None:
     raise Exception("FIFO_SQS_URL is not set")
 
-ECS_CLUSTER_NAME = os.getenv('ecs_cluster_name')
+ECS_CLUSTER_NAME = os.environ['ECS_CLUSTER_NAME']
 if ECS_CLUSTER_NAME is None:
     raise Exception("ECS_CLUSTER_NAME is not set")
 # create funtion to read csv file and convert to json forma
-
-
+BACKEND_S3_BUCKET_NAME = os.environ['BACKEND_S3_BUCKET_NAME']
+if BACKEND_S3_BUCKET_NAME is None:
+    raise Exception("BACKEND_S3_BUCKET_NAME is not set")
 # Parent Command
+
+
 @click.group()
 def cli():
     pass
@@ -66,7 +73,7 @@ def create_agents():
         market_interval=Market_Interval.One_Minute.value,
         number_of_market=1,
         number_of_resouce_per_market=1,
-        number_of_agent_per_resource=1,
+        number_of_agent_per_resource=10,
         device_type=Device_Type.ES.value,
         fifo_sqs=FIFO_SQS_URL,
         ecs_action=ECS_ACTIONS_ENUM.CREATE.value
@@ -93,15 +100,20 @@ def update_agents():
 @click.command()
 def destroy_all_agents(
 ):
-    generate_first_number_agents_from_simulation_csv_file(
-        market_interval=Market_Interval.One_Minute.value,
-        number_of_market=1,
-        number_of_resouce_per_market=1,
-        number_of_agent_per_resource=1,
-        device_type=Device_Type.ES.value,
+    destroy_all(
         fifo_sqs=FIFO_SQS_URL,
-        ecs_action=ECS_ACTIONS_ENUM.DELETE.value
+        ecs_cluster_name=ECS_CLUSTER_NAME,
+        backend_bucket_name=BACKEND_S3_BUCKET_NAME
     )
+    # generate_first_number_agents_from_simulation_csv_file(
+    #     market_interval=Market_Interval.One_Minute.value,
+    #     number_of_market=1,
+    #     number_of_resouce_per_market=1,
+    #     number_of_agent_per_resource=10,
+    #     device_type=Device_Type.ES.value,
+    #     fifo_sqs=FIFO_SQS_URL,
+    #     ecs_action=ECS_ACTIONS_ENUM.DELETE.value
+    # )
 
 
 # add the command to the cli

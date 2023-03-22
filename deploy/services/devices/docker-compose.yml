@@ -20,6 +20,7 @@ services:
       - FIFO_DLQ_URL=${FIFO_DLQ_URL:-https://sqs.us-east-2.amazonaws.com/041414866712/openadr_workers_dlq.fifo}
       - AWS_REGION=${AWS_REGION:-us-east-2}
       - DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME:${DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME:-openadr-agent-shared-tf-state-lock}
+      - ECS_CLUSTER_NAME=${ECS_CLUSTER_NAME:-"openadr-dev-agents-cluster}
     volumes:
       - ./worker:/app
     # command: >
