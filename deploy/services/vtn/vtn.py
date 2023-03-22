@@ -68,10 +68,10 @@ ENV = os.getenv('ENV')
 RESOURCE_ID = os.getenv('RESOURCE_ID')
 AGENT_ID = os.getenv('AGENT_ID')
 VTN_ID = os.getenv('VTN_ID')
-GET_VENS_URL = os.getenv('GET_VENS_URL')
-SAVE_DATA_URL = os.getenv('SAVE_DATA_URL')
-MARKET_PRICES_URL = os.getenv('MARKET_PRICES_URL')
-PARTICIPATED_VENS_URL = os.getenv('PARTICIPATED_VENS_URL')
+DEVICE_API_URL = os.getenv('DEVICE_API_URL')
+METER_API_URL = os.getenv('METER_API_URL')
+ORDER_PAI_URL = os.getenv('ORDER_PAI_URL')
+DISPATCH_API_URL = os.getenv('DISPATCH_API_URL')
 MARKET_INTERVAL_IN_SECOND = int(
     os.getenv('MARKET_INTERVAL_IN_SECOND'))
 
@@ -195,7 +195,7 @@ async def on_create_party_registration(registration_info):
             return v['ven_id'], v['registration_id']
 
     print(f"vtn:{VTN_ID} cannot find ven_name, try to fetch from url")
-    return check_if_ven_exist_in_tess_db(ven_url=GET_VENS_URL, ven_name=ven_name)
+    return check_if_ven_exist_in_tess_db(ven_url=DEVICE_API_URL, ven_name=ven_name)
 
 
 async def on_register_report(ven_id, resource_id, measurement, unit, scale,
@@ -264,7 +264,7 @@ async def on_update_sonnen_battery_report(data, ven_id, resource_id, measurement
     josn_report['vtn_id'] = VTN_ID
     print(
         f"******* vtn:{VTN_ID} get report from  {ven_id} send to the TESS *******")
-    send_report_data_to_url(url=SAVE_DATA_URL, data=josn_report)
+    send_report_data_to_url(url=METER_API_URL, data=josn_report)
 
 
 async def event_response_callback(ven_id, event_id, opt_type):
@@ -277,7 +277,7 @@ async def event_response_callback(ven_id, event_id, opt_type):
             f"***** vtn:{VTN_ID}  ven_id  :{ven_id} opt_type: {opt_type} join the market *******")
 
         post_participated_vens_to_api(
-            api_url=PARTICIPATED_VENS_URL, ven_id=ven_id)
+            api_url=DISPATCH_API_URL, ven_id=ven_id)
 
 
 async def health_check(request):
@@ -339,7 +339,7 @@ async def get_data_from_api():
     """
     Asynchronous function that sends an HTTP GET request to an API and returns the response.
     """
-    market_prices_url = MARKET_PRICES_URL
+    market_prices_url = ORDER_PAI_URL
     async with aiohttp.ClientSession() as session:
         async with session.post(market_prices_url) as response:
             data = await response.json()

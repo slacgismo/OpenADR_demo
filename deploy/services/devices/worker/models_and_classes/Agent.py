@@ -3,7 +3,7 @@ from .S3Service import S3Service
 from .DynamoDBService import DynamoDBService, DynamoDB_Key
 import os
 import time
-from .helper.task_definition_generator import create_and_export_task_definition
+from .helper.task_definition_generator import create_and_export_task_definition, VTN_TASK_VARIANTS_ENUM, VEN_TASK_VARIANTS_ENUM
 from typing import List
 from .TerraformExecution import TerraformExecution
 import logging
@@ -44,24 +44,23 @@ class Agent:
                            #    backend_s3_state_key,
                            #    task_definition_file_name: str
                            ):
-
         created_task_definiton_name_file_path, vtn_id, vens_info = create_and_export_task_definition(
             agent_id=self.agent_id,
             resource_id=self.resource_id,
             market_interval_in_second=self.market_interval_in_second,
             devices=self.devices,
             env="${environment}",
-            save_data_url="${SAVE_DATA_URL}",
-            get_vens_url="${GET_VENS_URL}",
-            participated_vens_url="${PARTICIPATED_VENS_URL}",
+            METER_API_URL=f"{{${VTN_TASK_VARIANTS_ENUM.METER_API_URL.value}}}",
+            DEVICE_API_URL=f"{{${VTN_TASK_VARIANTS_ENUM.DEVICE_API_URL.value}}}",
+            DISPATCH_API_URL=f"{{${VTN_TASK_VARIANTS_ENUM.DISPATCH_API_URL.value}}}",
             app_image_vtn="${app_image_vtn}",
             app_image_ven="${app_image_ven}",
             log_group_name="${cloudwatch_name}",
             aws_region="${aws_region}",
-            mock_devices_api_url="${MOCK_DEVICES_API_URL}",
+            EMULATED_DEVICE_API_URL=f"{{${VEN_TASK_VARIANTS_ENUM.EMULATED_DEVICE_API_URL.value}}}",
             vtn_address="${vtn_address}",
             vtn_port="${vtn_port}",
-            market_prices_url="${MARKET_PRICES_URL}",
+            ORDER_PAI_URL=f"{{${VTN_TASK_VARIANTS_ENUM.ORDER_PAI_URL.value}}}",
             file_name=self.task_definition_file_name,
             path="./terraform/templates"
 
@@ -115,17 +114,17 @@ class Agent:
             market_interval_in_second=self.market_interval_in_second,
             devices=self.devices,
             env="${environment}",
-            save_data_url="${SAVE_DATA_URL}",
-            get_vens_url="${GET_VENS_URL}",
-            participated_vens_url="${PARTICIPATED_VENS_URL}",
+            METER_API_URL=f"{{${VTN_TASK_VARIANTS_ENUM.METER_API_URL.value}}}",
+            DEVICE_API_URL=f"{{${VTN_TASK_VARIANTS_ENUM.DEVICE_API_URL.value}}}",
+            DISPATCH_API_URL=f"{{${VTN_TASK_VARIANTS_ENUM.DISPATCH_API_URL.value}}}",
             app_image_vtn="${app_image_vtn}",
             app_image_ven="${app_image_ven}",
             log_group_name="${cloudwatch_name}",
             aws_region="${aws_region}",
-            mock_devices_api_url="${MOCK_DEVICES_API_URL}",
+            EMULATED_DEVICE_API_URL=f"{{${VEN_TASK_VARIANTS_ENUM.EMULATED_DEVICE_API_URL.value}}}",
             vtn_address="${vtn_address}",
             vtn_port="${vtn_port}",
-            market_prices_url="${MARKET_PRICES_URL}",
+            ORDER_PAI_URL=f"{{${VTN_TASK_VARIANTS_ENUM.ORDER_PAI_URL.value}}}",
             file_name=self.task_definition_file_name,
             path="./terraform/templates"
 
@@ -186,7 +185,7 @@ class Agent:
         self.ecs_terraform_execution.terraform_init()
         self.ecs_terraform_execution.terraform_destroy()
         logging.info("========================================")
-        logging.info("ECS service deleted successfully:", self.agent_id)
+        logging.info(f"ECS service deleted successfully:{self.agent_id}")
         logging.info("========================================")
         os.remove(destination)
 

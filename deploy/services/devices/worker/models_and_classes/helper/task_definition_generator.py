@@ -20,10 +20,10 @@ class VTN_TASK_VARIANTS_ENUM(Enum):
     VTN_ID = "VTN_ID"
     MARKET_INTERVAL_IN_SECOND = "MARKET_INTERVAL_IN_SECOND"
     # from device admin environment variables
-    SAVE_DATA_URL = "SAVE_DATA_URL"
-    GET_VENS_URL = "GET_VENS_URL"
-    MARKET_PRICES_URL = "MARKET_PRICES_URL"
-    PARTICIPATED_VENS_URL = "PARTICIPATED_VENS_URL"
+    METER_API_URL = "METER_API_URL"
+    DEVICE_API_URL = "DEVICE_API_URL"
+    ORDER_PAI_URL = "ORDER_PAI_URL"
+    DISPATCH_API_URL = "DISPATCH_API_URL"
 
 
 class VEN_TASK_VARIANTS_ENUM(Enum):
@@ -38,11 +38,11 @@ class VEN_TASK_VARIANTS_ENUM(Enum):
     VTN_ADDRESS = "VTN_ADDRESS"
     VTN_PORT = "VTN_PORT"
     DEVICE_TYPE = "DEVICE_TYPE"
-    DEVICE_PARAMS = "DEVICE_PARAMS"
+    DEVICE_SETTINGS = "DEVICE_SETTINGS"
     MARKET_INTERVAL_IN_SECOND = "MARKET_INTERVAL_IN_SECOND"
     BIDING_PRICE_THRESHOLD = "BIDING_PRICE_THRESHOLD"
     # from device admin environment variables
-    MOCK_DEVICES_API_URL = "MOCK_DEVICES_API_URL"
+    EMULATED_DEVICE_API_URL = "EMULATED_DEVICE_API_URL"
 
 
 CONTAINER_DEFINITION_TEMPLATE = ({
@@ -72,7 +72,7 @@ def create_ven_params(
     resource_id: str,
     meter_id: str,
     agent_id: str,
-    mock_device_api_url: str,
+    EMULATED_DEVICE_API_URL: str,
     device_name: str,
     vtn_address: str,
     vtn_port: str,
@@ -104,9 +104,9 @@ def create_ven_params(
             ven_params[key] = vtn_port
         elif key == VEN_TASK_VARIANTS_ENUM.DEVICE_TYPE.value:
             ven_params[key] = device_type
-        elif key == VEN_TASK_VARIANTS_ENUM.MOCK_DEVICES_API_URL.value:
-            ven_params[key] = mock_device_api_url
-        elif key == VEN_TASK_VARIANTS_ENUM.DEVICE_PARAMS.value:
+        elif key == VEN_TASK_VARIANTS_ENUM.EMULATED_DEVICE_API_URL.value:
+            ven_params[key] = EMULATED_DEVICE_API_URL
+        elif key == VEN_TASK_VARIANTS_ENUM.DEVICE_SETTINGS.value:
             ven_params[key] = device_params
         elif key == VEN_TASK_VARIANTS_ENUM.MARKET_INTERVAL_IN_SECOND.value:
             ven_params[key] = market_interval_in_second
@@ -126,23 +126,23 @@ def create_vtn_params(
     agent_id: str,
     resource_id: str,
     env: str,
-    save_data_url: str,
-    get_vens_url: str,
-    market_prices_url: str,
-    participated_vens_url: str,
+    METER_API_URL: str,
+    DEVICE_API_URL: str,
+    ORDER_PAI_URL: str,
+    DISPATCH_API_URL: str,
 ) -> dict:
     vtn_params = dict()
     # for key, value in enumerate(VTN_TASK_VARIANTS_ENUM):
     for vtn_task in VTN_TASK_VARIANTS_ENUM:
         key = vtn_task.value
-        if key == VTN_TASK_VARIANTS_ENUM.SAVE_DATA_URL.value:
-            vtn_params[key] = save_data_url
-        elif key == VTN_TASK_VARIANTS_ENUM.GET_VENS_URL.value:
-            vtn_params[key] = get_vens_url
-        elif key == VTN_TASK_VARIANTS_ENUM.MARKET_PRICES_URL.value:
-            vtn_params[key] = market_prices_url
-        elif key == VTN_TASK_VARIANTS_ENUM.PARTICIPATED_VENS_URL.value:
-            vtn_params[key] = participated_vens_url
+        if key == VTN_TASK_VARIANTS_ENUM.METER_API_URL.value:
+            vtn_params[key] = METER_API_URL
+        elif key == VTN_TASK_VARIANTS_ENUM.DEVICE_API_URL.value:
+            vtn_params[key] = DEVICE_API_URL
+        elif key == VTN_TASK_VARIANTS_ENUM.ORDER_PAI_URL.value:
+            vtn_params[key] = ORDER_PAI_URL
+        elif key == VTN_TASK_VARIANTS_ENUM.DISPATCH_API_URL.value:
+            vtn_params[key] = DISPATCH_API_URL
         elif key == VTN_TASK_VARIANTS_ENUM.MARKET_INTERVAL_IN_SECOND.value:
             vtn_params[key] = market_interval_in_second
         elif key == VTN_TASK_VARIANTS_ENUM.VTN_ID.value:
@@ -331,10 +331,10 @@ def create_and_export_task_definition(
     market_interval_in_second: str,
     resource_id: str,
     env: str,
-    save_data_url: str,
-    get_vens_url: str,
-    market_prices_url: str,
-    participated_vens_url: str,
+    METER_API_URL: str,
+    DEVICE_API_URL: str,
+    ORDER_PAI_URL: str,
+    DISPATCH_API_URL: str,
     devices: list,
     app_image_vtn: str,
     log_group_name: str,
@@ -342,7 +342,7 @@ def create_and_export_task_definition(
     vtn_address: str,
     vtn_port: str,
     app_image_ven: str,
-    mock_devices_api_url: str,
+    EMULATED_DEVICE_API_URL: str,
     file_name: str,
     path: str,
 ) -> bool:
@@ -361,10 +361,10 @@ def create_and_export_task_definition(
         resource_id=resource_id,
         vtn_id=vtn_id,
         env=env,
-        save_data_url=save_data_url,
-        get_vens_url=get_vens_url,
-        market_prices_url=market_prices_url,
-        participated_vens_url=participated_vens_url,
+        METER_API_URL=METER_API_URL,
+        DEVICE_API_URL=DEVICE_API_URL,
+        ORDER_PAI_URL=ORDER_PAI_URL,
+        DISPATCH_API_URL=DISPATCH_API_URL,
     )
     vtn_container_definition = generate_vtn_task_definition(
         vtn_template=CONTAINER_DEFINITION_TEMPLATE.copy(),
@@ -400,7 +400,7 @@ def create_and_export_task_definition(
                 meter_id=meter_id,
                 device_id=device_id,
                 agent_id=agent_id,
-                mock_device_api_url=mock_devices_api_url,
+                EMULATED_DEVICE_API_URL=EMULATED_DEVICE_API_URL,
                 device_name=device_name,
                 vtn_address=vtn_address,
                 vtn_port=vtn_port,
@@ -423,6 +423,7 @@ def create_and_export_task_definition(
             log_group_region=aws_region,
             environment_variables=ven_environment_variables,
         )
+
         ven_container_definition_list.append(ven_container_definition)
     # combine vtn and ven definition
     task_definition = combine_vtn_and_vens_as_task_definition(

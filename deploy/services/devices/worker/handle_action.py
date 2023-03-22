@@ -3,6 +3,7 @@ from models_and_classes.ECS_ACTIONS_ENUM import ECS_ACTIONS_ENUM
 from models_and_classes.Agent import Agent
 import os
 import logging
+import asyncio
 
 
 def validate_backend_hcl(file: str, path: str):

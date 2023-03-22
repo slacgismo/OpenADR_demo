@@ -73,3 +73,9 @@ variable "app_image_ven" {
   description = "app_image_vtn"
   type        = string
 }
+
+variable "devices_worker_health_check_port" {
+  type        = string
+  description = "The name of the file containing the devices worker task definition"
+  default     = 8070
+}

@@ -1,7 +1,7 @@
 [
     {
         "name": "${devices_worker_name}",
-        "image": "041414866712.dkr.ecr.us-east-2.amazonaws.com/devices_worker:latest",
+        "image":"041414866712.dkr.ecr.us-east-2.amazonaws.com/devices_worker:latest",
         "essential": true,
         "memoryReservation": 256,
         "runtimePlatform": {
@@ -17,28 +17,28 @@
         ],
         "environment": [
             {
-                "name": "worker_fifo_sqs_url",
-                "value": "${worker_fifo_sqs_url}"
+                "name": "FIFO_SQS_URL",
+                "value": "${FIFO_SQS_URL}"
             },
             {
-                "name": "backend_s3_bucket_devices_admin",
-                "value": "${backend_s3_bucket_devices_admin}"
+                "name": "BACKEND_S3_BUCKET_NAME",
+                "value": "${BACKEND_S3_BUCKET_NAME}"
             },
             {
-                "name": "aws_region",
-                "value": "${aws_region}"
+                "name": "AWS_REGION",
+                "value": "${AWS_REGION}"
             },
             {
-                "name": "worker_dlq_url",
-                "value": "${worker_dlq_url}"
+                "name": "FIFO_DLQ_URL",
+                "value": "${FIFO_DLQ_URL}"
             },
             {
-                "name": "ecs_cluster_name",
-                "value": "${ecs_cluster_name}"
+                "name": "HEALTH_CHEKC_PORT",
+                "value": "${HEALTH_CHEKC_PORT}"
             },
             {
-                "name": "dynamodb_agents_shared_remote_state_lock_table_name",
-                "value": "${dynamodb_agents_shared_remote_state_lock_table_name}"
+                "name": "DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME",
+                "value": "${DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME}"
             }
         ],
         "logConfiguration": {
@@ -48,6 +48,21 @@
                 "awslogs-region": "${log_group_region}",
                 "awslogs-stream-prefix": "devices_worker"
             }
+        },
+         "portMappings": [
+            {
+                "containerPort": 8070,
+                "hostPort": 8070
+            }
+        ],
+         "healthCheck": {
+            "retries": 3,
+            "command": [
+                "CMD-SHELL",
+                "curl -f http://127.0.0.1:${HEALTH_CHEKC_PORT}/health || exit 1"
+            ],
+            "timeout": 5,
+            "interval": 30
         }
     }
 ]

@@ -58,3 +58,94 @@ resource "aws_iam_role_policy_attachment" "device_worker_execution_role" {
   role       = aws_iam_role.device_worker_execution_role.name
   policy_arn = aws_iam_policy.device_worker_execution_role_policy.arn
 }
+
+
+
+
+ # SQS policy
+resource "aws_iam_policy" "sqs_policy" {
+  name        = "sqs_policy"
+  policy      = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "sqs:SendMessage",
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes"
+        ]
+        Effect    = "Allow"
+        Resource  = [
+          "${aws_sqs_queue.opneadr_workers_sqs.arn}",
+          "${aws_sqs_queue.worker_dlq.arn}"
+        ]
+      },
+      {
+            Effect: "Allow",
+            Action: [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+            ],
+            Resource: "${aws_s3_bucket.agents.arn}/*}"
+      },
+      {
+            Effect: "Allow",
+            Action: [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+            ],
+            Resource:["${aws_s3_bucket.agents.arn}/*}"]
+      },
+      {
+            Effect: "Allow",
+            Action: [
+                "dynamodb:GetItem",
+                "dynamodb:DeleteItem"
+            ],
+            Resource: ["${aws_dynamodb_table.agenets_shared_state_lock.arn}"]
+      }, 
+      {
+            Effect: "Allow",
+            Action: [
+                "ecs:CreateService",
+                "ecs:DeleteService",
+                "ecs:ListServices"
+            ],
+            Resource: "*"
+      }
+    ]
+  })
+}
+
+
+# device worker iam role
+
+resource "aws_iam_role" "device_worker_iam_role" {
+  name = "device_worker_iam_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+
+
+
+
+resource "aws_iam_role_policy_attachment" "device_worker_iam_role" {
+  policy_arn = aws_iam_policy.sqs_policy.arn
+  role       = aws_iam_role.device_worker_iam_role.name
+}
+

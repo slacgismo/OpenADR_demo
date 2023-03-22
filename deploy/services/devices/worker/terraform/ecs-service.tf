@@ -5,17 +5,17 @@ data "template_file" "agent_container_definitions" {
   template = file("./templates/${var.task_definition_file}")
   vars = {
     environment   = var.environment
-    SAVE_DATA_URL = var.SAVE_DATA_URL
-    GET_VENS_URL = var.GET_VENS_URL
-    PARTICIPATED_VENS_URL = var.PARTICIPATED_VENS_URL
+    METER_API_URL = var.METER_API_URL
+    DEVICE_API_URL = var.DEVICE_API_URL
+    DISPATCH_API_URL = var.DISPATCH_API_URL
     app_image_vtn = var.app_image_vtn
     app_image_ven = var.app_image_ven
     cloudwatch_name = data.aws_cloudwatch_log_group.openadr_logs.name
     aws_region = var.aws_region
-    MOCK_DEVICES_API_URL = var.MOCK_DEVICES_API_URL
+    EMULATED_DEVICE_API_URL = var.EMULATED_DEVICE_API_URL
     vtn_address = var.vtn_address
     vtn_port = var.vtn_port
-    MARKET_PRICES_URL = var.MARKET_PRICES_URL
+    ORDER_PAI_URL = var.ORDER_PAI_URL
   }
 }
 

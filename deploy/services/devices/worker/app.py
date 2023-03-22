@@ -14,36 +14,42 @@ import time
 from models_and_classes.ECS_ACTIONS_ENUM import ECS_ACTIONS_ENUM
 from handle_action import handle_action
 from models_and_classes.SQSService import SQSService
-from models_and_classes.HealthCheckHandler import HealthCheckHandler
-from dotenv import load_dotenv
+from models_and_classes.HTTPServer import HTTPServer
+# from dotenv import load_dotenv
 import socketserver
 import time
 from handle_action import handle_action
-load_dotenv()
+# load_dotenv()
 logging.basicConfig(format='%(asctime)s %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 
 logging.info(f"Start the worker app")
-FIFO_SQS_URL = os.getenv('worker_fifo_sqs_url')
+
+HEALTH_CHEKC_PORT = os.environ['HEALTH_CHEKC_PORT']
+if HEALTH_CHEKC_PORT is None:
+    raise Exception("health_check_port not set")
+
+
+FIFO_SQS_URL = os.environ['FIFO_SQS_URL']
 if FIFO_SQS_URL is None:
     raise Exception("FIFO_SQS_URL is not set")
 
 
-BACKEND_S3_BUCKET_NAME = os.getenv('backend_s3_bucket_devices_admin')
+BACKEND_S3_BUCKET_NAME = os.environ['BACKEND_S3_BUCKET_NAME']
 if BACKEND_S3_BUCKET_NAME is None:
     raise Exception("BACKEND_S3_BUCKET_NAME is not set")
 
 
-FIFO_DLQ_URL = os.getenv('worker_dlq_url')
+FIFO_DLQ_URL = os.environ['FIFO_DLQ_URL']
 if FIFO_DLQ_URL is None:
     raise Exception("FIFO_DLQ_URL is not set")
 
-AWS_REGION = os.getenv('aws_region')
+AWS_REGION = os.environ['AWS_REGION']
 if AWS_REGION is None:
     raise Exception("AWS_REGION is not set")
 
-DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME = os.getenv(
-    'dynamodb_agents_shared_remote_state_lock_table_name')
+DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME = os.environ[
+    'DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME']
 if DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME is None:
     raise Exception(
         "DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME is not set")
@@ -89,16 +95,19 @@ def process_task_from_fifo_sqs(
             sqs_service = SQSService(
                 queue_url=queue_url
             )
-            message = sqs_service.receive_message(
-                MaxNumberOfMessages=MaxNumberOfMessages,
-                WaitTimeSeconds=WaitTimeSeconds,
-                VisibilityTimeout=VisibilityTimeout
-            )
+            try:
+                message = sqs_service.receive_message(
+                    MaxNumberOfMessages=MaxNumberOfMessages,
+                    WaitTimeSeconds=WaitTimeSeconds,
+                    VisibilityTimeout=VisibilityTimeout
+                )
+            except Exception as e:
+                raise logging.error(f"Error : {e}")
 
             if message is None:
                 logging.info("Waiting.... %s" %
                              str(int(time.time())))
-                time.sleep(5)
+                time.sleep(2)
                 continue
 
             sqs_service.delete_message(
@@ -133,14 +142,47 @@ def process_task_from_fifo_sqs(
         except Exception as e:
             logging.error(f"Error : {e}")
 
-        time.sleep(5)
+        time.sleep(2)
 
 
 # wait for the client task to comp
 
-if __name__ == '__main__':
+async def health_check():
+    server = HTTPServer()
+    await server.start()
 
-    # Run the client in the Python AsyncIO Event Loop
+
+async def short_running_task():
+    await asyncio.sleep(2)
+    print(f"Short running {time.time()}")
+
+    # task1 = asyncio.create_task(health_check())
+    # task2 = asyncio.create_task(short_running_task())
+
+    # # wait for both tasks to complete
+    # await asyncio.gather(task1, task2)
+
+
+# async def main():
+#     server = HTTPServer(
+#         port=HEALTH_CHEKC_PORT,
+#         host="127.0.0.1"
+#     )
+
+#     # returns immediately, the task is created
+#     task1 = asyncio.create_task(server.start())
+#     await asyncio.sleep(3)
+#     task2 = asyncio.create_task(process_task_from_fifo_sqs(
+#         queue_url=FIFO_SQS_URL,
+#         BACKEND_S3_BUCKET_NAME=BACKEND_S3_BUCKET_NAME,
+#         DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
+#         AWS_REGION=AWS_REGION
+#     ))
+#     await task1
+#     await task2
+
+
+if __name__ == '__main__':
 
     process_task_from_fifo_sqs(
         queue_url=FIFO_SQS_URL,
@@ -148,3 +190,7 @@ if __name__ == '__main__':
         DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
         AWS_REGION=AWS_REGION
     )
+
+    # Run the client in the Python AsyncIO Event Loop
+
+    # asyncio.run(main())  # main loop

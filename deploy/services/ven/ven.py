@@ -27,10 +27,10 @@ VTN_ADDRESS = os.getenv('VTN_ADDRESS')
 VTN_PORT = os.getenv('VTN_PORT')
 
 
-MOCK_DEVICES_API_URL = os.getenv('MOCK_DEVICES_API_URL')
+EMULATED_DEVICE_API_URL = os.getenv('EMULATED_DEVICE_API_URL')
 
-DEVICE_PARAMS = os.getenv('DEVICE_PARAMS')
-print("DEVICE_PARAMS: ", DEVICE_PARAMS)
+DEVICE_SETTINGS = os.getenv('DEVICE_SETTINGS')
+print("DEVICE_SETTINGS: ", DEVICE_SETTINGS)
 
 PRICE_THRESHOLD = os.getenv('PRICE_THRESHOLD')
 
@@ -39,7 +39,7 @@ MARKET_INTERVAL_IN_SECOND = int(os.environ['MARKET_INTERVAL_IN_SECOND'])
 
 
 # parameters check
-device_params = json.loads(DEVICE_PARAMS)
+device_params = json.loads(DEVICE_SETTINGS)
 
 # check if device type exist, , device id exist,
 
@@ -70,9 +70,9 @@ async def collect_report_value(date_from, date_to, sampling_interval):
                 elif ENV == 'DEV':
 
                     print(
-                        f"Use mock battery api :{MOCK_DEVICES_API_URL}, auth_token:{BATTERY_TOKEN},serial: {BATTERY_SN}")
+                        f"Use mock battery api :{EMULATED_DEVICE_API_URLURL}, auth_token:{BATTERY_TOKEN},serial: {BATTERY_SN}")
                     mock_battery_interface = MockSonnenInterface(
-                        serial=BATTERY_SN, auth_token=BATTERY_TOKEN, url_ini=MOCK_DEVICES_API_URL)
+                        serial=BATTERY_SN, auth_token=BATTERY_TOKEN, url_ini=EMULATED_DEVICE_API_URLURL)
                     report_data = mock_battery_interface.get_status_and_convert_to_openleadr_report()
 
                     return report_data
@@ -123,7 +123,7 @@ def emulate_control_device(device_type: DEVICE_TYPES, device_id: str, value: flo
                 BATTERY_SN = device_params['device_sn']
                 print("Send post requst to contorl the mock battery")
                 mock_battery_interface = MockSonnenInterface(
-                    serial=BATTERY_SN, auth_token=BATTERY_TOKEN, url_ini=MOCK_DEVICES_API_URL)
+                    serial=BATTERY_SN, auth_token=BATTERY_TOKEN, url_ini=EMULATED_DEVICE_API_URL)
                 # if we need to implement the mode, change this parameters
                 mode = 2
                 mock_battery_interface.mock_control_battery(mode=mode)

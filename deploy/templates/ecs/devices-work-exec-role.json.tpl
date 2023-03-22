@@ -9,19 +9,11 @@
                 "ecr:GetDownloadUrlForLayer",
                 "ecr:BatchGetImage",
                 "logs:CreateLogStream",
-                "logs:PutLogEvents",
-                "s3:GetObject",
-                "s3:PutObject",
-                "sqs:SendMessage",
-                "sqs:ReceiveMessage",
-                "ecs:CreateService",
-                "ecs:DeleteService",
-                "dynamodb:GetItem",
-                "dynamodb:PutItem"
+                "logs:PutLogEvents"
             ],
-            "Resource": [
-                "*"
-            ]
+            "Resource": "*"
         }
+       
+
     ]
 }

@@ -46,19 +46,19 @@ variable "agent_id" {
 }
 
 # variable from terraform.tfvars
-variable "SAVE_DATA_URL"  {
+variable "METER_API_URL"  {
   description = "Save data url"
   type        = string
 
 }
 
-variable "PARTICIPATED_VENS_URL"  {
+variable "DISPATCH_API_URL"  {
   description = "participated vens url"
   type        = string
 
 }
 
-variable "GET_VENS_URL"  {
+variable "DEVICE_API_URL"  {
   description = "get vens url"
   type        = string
 }
@@ -74,11 +74,11 @@ variable "app_image_ven"  {
 }
 
 
-variable "MOCK_DEVICES_API_URL"  {
+variable "EMULATED_DEVICE_API_URL"  {
   description = "mock devices api url"
   type        = string
 }
-variable "MARKET_PRICES_URL"  {
+variable "ORDER_PAI_URL"  {
   description = "market prices url"
   type        = string
 }

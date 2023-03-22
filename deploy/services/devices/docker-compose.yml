@@ -14,7 +14,17 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
       - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+      - HEALTH_CHEKC_PORT=${HEALTH_CHEKC_PORT:-8070}
+      - FIFO_SQS_URL=${FIFO_SQS_URL:-https://sqs.us-east-2.amazonaws.com/041414866712/openadr_workers_sqs.fifo}
+      - ACKEND_S3_BUCKET_NAME=${ACKEND_S3_BUCKET_NAME:-openadr-agents-state}
+      - FIFO_DLQ_URL=${FIFO_DLQ_URL:-https://sqs.us-east-2.amazonaws.com/041414866712/openadr_workers_dlq.fifo}
+      - AWS_REGION=${AWS_REGION:-us-east-2}
+      - DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME:${DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME:-openadr-agent-shared-tf-state-lock}
     volumes:
       - ./worker:/app
-    command: >
-      sh -c "python app.py"
+    # command: >
+    #   sh -c "docker-compose run --rm terraform init -backend-config=backend.hcl"
+    # command: >
+    #   sh -c "python app.py"
+    ports:
+      - "8070:8070"

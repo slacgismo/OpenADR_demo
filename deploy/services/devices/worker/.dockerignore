@@ -24,13 +24,13 @@ coverage.xml
 .editorconfig
 
 # Compiled files
-**/.terraform/*
-**/.terragrunt-cache/*
-*.tfstate
-*.tfstate.*
+# **/.terraform/*
+# **/.terragrunt-cache/*
+# *.tfstate
+# *.tfstate.*
 
 # Module directory
-.terraform
+# .terraform
 **/.idea
 **/*.iml
 
