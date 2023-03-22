@@ -62,9 +62,10 @@ resource "aws_iam_role_policy_attachment" "device_worker_execution_role" {
 
 
 
- # SQS policy
-resource "aws_iam_policy" "sqs_policy" {
-  name        = "sqs_policy"
+ # SQS policy and attachment
+
+ resource "aws_iam_policy" "sqs_policy" {
+  name        = "sqs-access-policy"
   policy      = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -75,50 +76,105 @@ resource "aws_iam_policy" "sqs_policy" {
           "sqs:DeleteMessage",
           "sqs:GetQueueAttributes"
         ]
-        Effect    = "Allow"
+        Effect   = "Allow"
         Resource  = [
           "${aws_sqs_queue.opneadr_workers_sqs.arn}",
           "${aws_sqs_queue.worker_dlq.arn}"
         ]
-      },
-      {
-            Effect: "Allow",
-            Action: [
-                "s3:GetObject",
-                "s3:PutObject",
-                "s3:DeleteObject"
-            ],
-            Resource: "${aws_s3_bucket.agents.arn}/*}"
-      },
-      {
-            Effect: "Allow",
-            Action: [
-                "s3:GetObject",
-                "s3:PutObject",
-                "s3:DeleteObject"
-            ],
-            Resource:["${aws_s3_bucket.agents.arn}/*}"]
-      },
-      {
-            Effect: "Allow",
-            Action: [
-                "dynamodb:GetItem",
-                "dynamodb:DeleteItem"
-            ],
-            Resource: ["${aws_dynamodb_table.agenets_shared_state_lock.arn}"]
-      }, 
-      {
-            Effect: "Allow",
-            Action: [
-                "ecs:CreateService",
-                "ecs:DeleteService",
-                "ecs:ListServices"
-            ],
-            Resource: "*"
       }
     ]
   })
 }
+
+resource "aws_iam_role_policy_attachment" "sqs_attachment" {
+  policy_arn = aws_iam_policy.sqs_policy.arn
+  role       = aws_iam_role.device_worker_iam_role.name
+}
+
+# S3 policy and attachement
+
+resource "aws_iam_policy" "s3_policy" {
+  name        = "s3-access-policy"
+  policy      = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:DeleteObject",
+        ]
+        Effect   = "Allow"
+        Resource: "${aws_s3_bucket.agents.arn}/*}"
+      }
+    ]
+  })
+}
+
+
+# dynamodb policy and attachement
+
+
+resource "aws_iam_role_policy_attachment" "s3_attachment" {
+  policy_arn = aws_iam_policy.s3_policy.arn
+  role       = aws_iam_role.device_worker_iam_role.name
+}
+
+resource "aws_iam_policy" "dynamodb_policy" {
+  name        = "dynamodb-access-policy"
+  policy      = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:UpdateItem"
+          "dynamodb:Query",
+          "dynamodb:Scan",
+          "dynamodb:ConditionCheckItem",
+        ]
+        Effect   = "Allow"
+       Resource: ["${aws_dynamodb_table.agenets_shared_state_lock.arn}"]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "dynamodb_attachment" {
+  policy_arn = aws_iam_policy.dynamodb_policy.arn
+  role       = aws_iam_role.device_worker_iam_role.name
+}
+
+
+
+
+# ecs service policy and attachement
+resource "aws_iam_policy" "ecs_policy" {
+  name        = "ecs-access-policy"
+  policy      = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {        Action = [
+                "ecs:CreateService",
+                "ecs:DeleteService",
+                "ecs:ListServices"
+        ]
+        Effect   = "Allow"
+       Resource: "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_attachment" {
+  policy_arn = aws_iam_policy.ecs_policy.arn
+  role       = aws_iam_role.device_worker_iam_role.name
+}
+
+
+
+
 
 
 # device worker iam role
@@ -143,9 +199,4 @@ resource "aws_iam_role" "device_worker_iam_role" {
 
 
 
-
-resource "aws_iam_role_policy_attachment" "device_worker_iam_role" {
-  policy_arn = aws_iam_policy.sqs_policy.arn
-  role       = aws_iam_role.device_worker_iam_role.name
-}
 

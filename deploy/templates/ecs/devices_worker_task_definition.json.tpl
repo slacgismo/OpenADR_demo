@@ -48,21 +48,6 @@
                 "awslogs-region": "${log_group_region}",
                 "awslogs-stream-prefix": "devices_worker"
             }
-        },
-         "portMappings": [
-            {
-                "containerPort": 8070,
-                "hostPort": 8070
-            }
-        ],
-         "healthCheck": {
-            "retries": 3,
-            "command": [
-                "CMD-SHELL",
-                "curl -f http://127.0.0.1:${HEALTH_CHEKC_PORT}/health || exit 1"
-            ],
-            "timeout": 5,
-            "interval": 30
         }
     }
 ]

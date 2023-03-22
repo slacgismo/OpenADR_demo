@@ -14,6 +14,7 @@ import time
 from models_and_classes.ECS_ACTIONS_ENUM import ECS_ACTIONS_ENUM
 from handle_action import handle_action
 from models_and_classes.SQSService import SQSService
+from models_and_classes.S3Service import S3Service
 from models_and_classes.HTTPServer import HTTPServer
 # from dotenv import load_dotenv
 import socketserver
@@ -66,6 +67,22 @@ def validate_message(message: dict) -> bool:
         return False
 
     return True
+
+
+def check_aws_permission(
+
+) -> bool:
+    """
+    Check the aws permission
+    """
+    # check s3 read and write permission
+    s3_service = S3Service(
+        bucket_name=BACKEND_S3_BUCKET_NAME
+    )
+
+    # check sqs read and write permission
+    # check dynamodb read and write permission
+    # check ecs read and write permission
 
 
 def process_task_from_fifo_sqs(

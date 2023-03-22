@@ -78,6 +78,7 @@ def generate_first_number_agents_from_simulation_csv_file(
     # read csv file
     meters_table_df = convert_csv_to_pandas(
         file="dump_meters.csv", path="./simulation_data_files")
+
     devices_table_df = convert_csv_to_pandas(
         file="dump_devices.csv", path="./simulation_data_files")
     settings_table_df = convert_csv_to_pandas(
@@ -110,6 +111,11 @@ def generate_first_number_agents_from_simulation_csv_file(
         devices_table_df=devices_table_df,
         agent_id_list=agent_id_list,
         device_type=device_type
+    )
+
+    meter_device_dict_list, meter_id_list = get_meter_device_relation(
+        meters_table_df=meters_table_df,
+        device_id_list=device_id_list,
     )
 
     # print(agent_device_dict_list, device_id_list)
@@ -313,14 +319,28 @@ def make_command_list(
         command_list.append(command)
     return command_list
 
-
 # create function to
+
+
+def get_meter_device_relation(
+    meters_table_df: pd.DataFrame,
+    device_id_list=List[str],
+):
+    meter_device_dict_list = []
+    meter_id_list = []
+
+    filter_meter_df = meters_table_df[meters_table_df['device_id'].isin(
+        device_id_list)].reset_index(drop=True)
+    print(filter_meter_df.head(5))
+    return meter_device_dict_list, meter_id_list
 
 
 def get_agent_device_relation(
     devices_table_df: pd.DataFrame,
     agent_id_list: List[str],
     device_type: str,
+
+
 ) -> Tuple[List[Dict], List[str]]:
 
     filter_devices_df = devices_table_df[devices_table_df['agent_id'].isin(

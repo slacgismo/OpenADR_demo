@@ -30,11 +30,11 @@ resource "null_resource" "exports_terrafrom_tfvars_to_devices_admin_worker_terra
       echo 'ecs_task_role_name="${aws_iam_role.app_iam_role.name}"' >> terraform.tfvars
       echo 'ecs_agent_sg="${aws_security_group.ecs_agent_sg.name}"' >> terraform.tfvars
       echo 'private_vpc_id="${module.vpc.vpc_id}"' >> terraform.tfvars
-      echo 'METER_API_URL="${var.save_data_url}"' >> terraform.tfvars
-      echo 'DEVICE_API_URL="${var.get_vens_url}"' >> terraform.tfvars
-      echo 'ORDER_PAI_URL="${var.market_prices_url}"' >> terraform.tfvars
-      echo 'DISPATCH_API_URL="${var.participated_vens_url}"' >> terraform.tfvars
-      echo 'EMULATED_DEVICE_API_URL="${var.mock_devices_api_url}"' >> terraform.tfvars
+      echo 'METER_API_URL="${var.meter_api_url}"' >> terraform.tfvars
+      echo 'DEVICE_API_URL="${var.device_api_url}"' >> terraform.tfvars
+      echo 'ORDER_PAI_URL="${var.order_api_url}"' >> terraform.tfvars
+      echo 'DISPATCH_API_URL="${var.dispatch_api_url}"' >> terraform.tfvars
+      echo 'EMULATED_DEVICE_API_URL="${var.emulated_device_api_url}"' >> terraform.tfvars
       echo 'vtn_address="${var.vtn_address}"' >> terraform.tfvars
       echo 'vtn_port="${var.vtn_port}"' >> terraform.tfvars
       echo 'app_image_vtn="${var.app_image_vtn}"' >> terraform.tfvars

@@ -35,23 +35,23 @@ variable "managedBy" {
 
 
 # from terraform.tfvars
-variable "save_data_url" {
+variable "meter_api_url" {
   description = "save data url"
   type        = string
 }
-variable "get_vens_url" {
+variable "device_api_url" {
   description = "get vens url"
   type        = string
 }
-variable "market_prices_url" {
+variable "order_api_url" {
   description = "market prices url"
   type        = string
 }
-variable "participated_vens_url" {
+variable "dispatch_api_url" {
   description = "participated vens url"
   type        = string
 }
-variable "mock_devices_api_url" {
+variable "emulated_device_api_url" {
   description = "mock devices api url"
   type        = string
 }
