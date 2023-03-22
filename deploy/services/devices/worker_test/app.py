@@ -24,7 +24,7 @@ logging.basicConfig(format='%(asctime)s %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 
 logging.info(f"Start the worker app")
-
+# os.environ['TF_PLUGIN_CACHE_DIR'] = '/app'
 HEALTH_CHEKC_PORT = os.environ['HEALTH_CHEKC_PORT']
 if HEALTH_CHEKC_PORT is None:
     raise Exception("health_check_port not set")
@@ -183,7 +183,8 @@ async def short_running_task():
 
 
 if __name__ == '__main__':
-    value = "TEST"
+    # value = "TEST"
+    # print(f"{{${value}}}")
     process_task_from_fifo_sqs(
         queue_url=FIFO_SQS_URL,
         BACKEND_S3_BUCKET_NAME=BACKEND_S3_BUCKET_NAME,

@@ -44,7 +44,7 @@ class Agent:
                            #    backend_s3_state_key,
                            #    task_definition_file_name: str
                            ):
-
+        print("$$$$$$$$$$$$")
         created_task_definiton_name_file_path, vtn_id, vens_info = create_and_export_task_definition(
             agent_id=self.agent_id,
             resource_id=self.resource_id,
@@ -63,13 +63,13 @@ class Agent:
             vtn_port="${vtn_port}",
             ORDER_PAI_URL=f"{{${VTN_TASK_VARIANTS_ENUM.ORDER_PAI_URL.value}}}",
             file_name=self.task_definition_file_name,
-            path="./terraform/templates"
+            path="./templates"
 
         )
+        # create backend_hcl
 
         # 2. create ecs service
         self.ecs_terraform_execution.terraform_init()
-
         # ecs_terraform.terraform_plan()
         self.ecs_terraform_execution.terraform_apply()
         logging.info("========================================")
@@ -81,7 +81,7 @@ class Agent:
             bucket_name=self.s3_bucket_name_of_task_definition_file,
         )
         created_task_definiton_name_file_path = os.path.join(
-            "./terraform/templates", self.task_definition_file_name
+            "./templates", self.task_definition_file_name
         )
         s3_service.upload_file(
             source=created_task_definiton_name_file_path,
@@ -127,7 +127,7 @@ class Agent:
             vtn_port="${vtn_port}",
             ORDER_PAI_URL=f"{{${VTN_TASK_VARIANTS_ENUM.ORDER_PAI_URL.value}}}",
             file_name=self.task_definition_file_name,
-            path="./terraform/templates"
+            path="./templates"
 
         )
 
@@ -171,7 +171,7 @@ class Agent:
 
         source = f"task_definitions/{self.agent_id}/{self.task_definition_file_name}"
 
-        destination = f"./terraform/templates/{self.task_definition_file_name}"
+        destination = f"./templates/{self.task_definition_file_name}"
         is_file_exist = backend_s3_service.check_file_exists(
             file_name=source)
         s3_service = S3Service(

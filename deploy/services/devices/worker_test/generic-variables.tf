@@ -93,4 +93,3 @@ variable "vtn_port"  {
   type        = string
 }
 
-

@@ -25,7 +25,7 @@ class TerraformExecution:
 
         # self.lock = True  # always lock the backend state file, in case of multiple agents running at the same time
         self.use_docker_compose = False
-        self.docker_compose_command = ["docker-compose", "run", "--rm"]
+        self.docker_compose_command = ["docekr-compose", "run", "--rm"]
         self.lock = True
         if self.backend_s3_state_key is not None and DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME is not None:
             # create backend.hcl file
@@ -68,13 +68,11 @@ class TerraformExecution:
                 command = self.docker_compose_command + command
             # Alywas run terraform init with -reconfigure, since the backend config file is created after the first init
             # The local /.terraform/terraform.tfstate file need to be changed after we change the backend config file
-
             result = subprocess.run(
-                command, cwd=self.working_dir)
+                command, cwd=self.working_dir, user='root')
             if result.returncode == 1:
                 raise Exception(
                     f"{self.name_of_creation}: Subprocess returned error code 1, program stopped.")
-
         except subprocess.CalledProcessError as e:
             raise Exception(
                 f"{self.name_of_creation} Error when terrafrom init : {e}")

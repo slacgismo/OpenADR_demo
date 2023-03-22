@@ -50,7 +50,7 @@ resource "aws_ecs_service" "agent" {
   network_configuration {
     # subnets = module.vpc.public_subnets
     subnets          = data.aws_subnet_ids.private.ids
-    security_groups  = [data.aws_security_group.ecs_agent_sg.id]
+    security_groups  = [data.aws_security_group.private_sg.id]
     assign_public_ip = false
   }
   tags = local.common_tags

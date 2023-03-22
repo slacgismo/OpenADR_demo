@@ -24,7 +24,7 @@ services:
       - ./worker:/app
     # command: >
     #   sh -c "docker-compose run --rm terraform init -backend-config=backend.hcl"
-    # command: >
-    #   sh -c "python app.py"
-    ports:
-      - "8070:8070"
+    command: >
+      sh -c "python app.py"
+    # ports:
+    #   - "8070:8070"

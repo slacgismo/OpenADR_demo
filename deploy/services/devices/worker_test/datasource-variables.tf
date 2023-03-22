@@ -27,11 +27,11 @@ variable "ecs_task_role_name"{
 
 }
 # Security Group
-variable "ecs_agent_sg"  {
-  description = "ecs agent security group"
-  type        = string
-}
+variable "private_sg_name"{
+    description =""
+    type = string
 
+}
 
 
 # VPC 

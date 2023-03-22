@@ -23,8 +23,8 @@ data "aws_iam_role" "ecs_task_role" {
 }
 
 # Security Group
-data "aws_security_group" "ecs_agent_sg" {
-  name = var.ecs_agent_sg
+data "aws_security_group" "private_sg" {
+  name = var.private_sg_name
 }
 
 # VPC 

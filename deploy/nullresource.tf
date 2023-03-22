@@ -28,7 +28,7 @@ resource "null_resource" "exports_terrafrom_tfvars_to_devices_admin_worker_terra
       echo 'ecs_cluster_name="${aws_ecs_cluster.main.name}"' >> terraform.tfvars
       echo 'ecs_task_execution_role_name="${aws_iam_role.task_execution_role.name}"' >> terraform.tfvars
       echo 'ecs_task_role_name="${aws_iam_role.app_iam_role.name}"' >> terraform.tfvars
-      echo 'private_sg_name="${aws_security_group.ecs_agent_sg.name}"' >> terraform.tfvars
+      echo 'ecs_agent_sg="${aws_security_group.ecs_agent_sg.name}"' >> terraform.tfvars
       echo 'private_vpc_id="${module.vpc.vpc_id}"' >> terraform.tfvars
       echo 'METER_API_URL="${var.save_data_url}"' >> terraform.tfvars
       echo 'DEVICE_API_URL="${var.get_vens_url}"' >> terraform.tfvars
