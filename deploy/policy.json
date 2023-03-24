@@ -1,0 +1,196 @@
+{
+    "Statement": [
+        {
+            "Action": [
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:PutItem",
+                "dynamodb:DescribeTable",
+                "dynamodb:DeleteItem",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:Query",
+                "dynamodb:UpdateItem"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:dynamodb:us-east-2:041414866712:table/openadr-agent-shared-tf-state-lock"
+            ],
+            "Sid": "VisualEditor0"
+        }
+    ],
+    "Version": "2012-10-17"
+}
+{
+    "Statement": [
+        {
+            "Action": [
+                "ec2:DescribeSubnets"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        }
+    ],
+    "Version": "2012-10-17"
+}
+
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "ecs:ListServicesByNamespace",
+                "ecs:DescribeTaskDefinition",
+                "ecs:ListServices",
+                "ecs:DeregisterTaskDefinition",
+                "ecs:RegisterTaskDefinition",
+                "ecs:ListTaskDefinitions",
+                "ecs:CreateTaskSet",
+                "ecs:ListClusters",
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": "ecs:*",
+            "Resource": [
+                "arn:aws:ecs:*:041414866712:service/*/*",
+                "arn:aws:ecs:*:041414866712:container-instance/*/*",
+                "arn:aws:ecs:*:041414866712:task-definition/*:*",
+                "arn:aws:ecs:*:041414866712:task-set/*/*/*",
+                "arn:aws:ecs:us-east-2:041414866712:cluster/openadr-dev-agents-cluster",
+                "arn:aws:ecs:*:041414866712:task/*/*",
+                "arn:aws:ecs:*:041414866712:capacity-provider/*"
+            ]
+        }
+    ]
+}
+
+{
+    "Statement": [
+        {
+            "Action": [
+                "iam:GetRole",
+                "iam:PassRole"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        }
+    ],
+    "Version": "2012-10-17"
+}
+
+
+{
+    "Statement": [
+        {
+            "Action": [
+                "logs:ListTagsLogGroup",
+                "logs:CreateLogStream",
+                "logs:DescribeLogGroups",
+                "logs:PutLogEvents"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:logs:*:041414866712:log-group:*:log-stream:*",
+                "arn:aws:logs:us-east-2:041414866712:log-group:openadr-ecs-agent"
+            ],
+            "Sid": "VisualEditor0"
+        }
+    ],
+    "Version": "2012-10-17"
+}
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": "arn:aws:s3:::openadr-agents-state/*"
+        }
+    ]
+}
+
+
+{
+    "Statement": [
+        {
+            "Action": [
+                "sqs:ReceiveMessage",
+                "sqs:SendMessage",
+                "sqs:DeleteMessage"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:sqs:us-east-2:041414866712:openadr_workers_dlq.fifo",
+                "arn:aws:sqs:us-east-2:041414866712:openadr_workers_sqs.fifo"
+            ],
+            "Sid": "AllowSQSActions"
+        }
+    ],
+    "Version": "2012-10-17"
+}
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "ecs:ListServicesByNamespace",
+                "servicediscovery:ListServices",
+                "ecs:DiscoverPollEndpoint",
+                "ecs:PutAccountSettingDefault",
+                "servicediscovery:GetOperation",
+                "ecs:CreateCluster",
+                "servicediscovery:ListNamespaces",
+                "servicediscovery:CreateService",
+                "ecs:DescribeTaskDefinition",
+                "servicediscovery:UpdateService",
+                "ecs:PutAccountSetting",
+                "ecs:ListServices",
+                "ecs:CreateCapacityProvider",
+                "ecs:DeregisterTaskDefinition",
+                "ecs:ListAccountSettings",
+                "servicediscovery:DeleteService",
+                "ecs:DeleteAccountSetting",
+                "ecs:ListTaskDefinitionFamilies",
+                "ecs:RegisterTaskDefinition",
+                "servicediscovery:GetNamespace",
+                "servicediscovery:GetService",
+                "ecs:ListTaskDefinitions",
+                "ecs:CreateTaskSet",
+                "ecs:ListClusters"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": "ecs:*",
+            "Resource": [
+                "arn:aws:ecs:*:041414866712:service/*/*",
+                "arn:aws:ecs:*:041414866712:container-instance/*/*",
+                "arn:aws:ecs:*:041414866712:task-definition/*:*",
+                "arn:aws:ecs:*:041414866712:task-set/*/*/*",
+                "arn:aws:ecs:us-east-2:041414866712:cluster/openadr-dev-agents-cluster",
+                "arn:aws:ecs:*:041414866712:task/*/*",
+                "arn:aws:ecs:*:041414866712:capacity-provider/*"
+            ]
+        }
+    ]
+}

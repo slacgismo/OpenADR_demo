@@ -1,11 +1,13 @@
 """
-This worker is responsible for handling the actions to create the ECS(agent) services 
-on ECS cluster. Each ECS service is responsible an agent. 
+This worker is responsible for handling the actions to create the ECS(agent) services
+on ECS cluster. Each ECS service is responsible an agent.
 A agent always has a VTN and mulitple vens(a ven is a device).
 This worker app execute the terraform scripts to create the ECS services.
 The action is triggered by the sqs queue to avoid race condition.
 """
-
+from multiprocessing import Process
+import datetime
+import multiprocessing
 import logging
 import asyncio
 import os
@@ -17,8 +19,12 @@ from models_and_classes.SQSService import SQSService
 from models_and_classes.S3Service import S3Service
 from models_and_classes.DynamoDBService import DynamoDBService
 from models_and_classes.STSService import STSService
-from models_and_classes.HTTPServer import HTTPServer
+from models_and_classes.HTTPService import HTTPService
 from models_and_classes.ECSService import ECSService
+from models_and_classes.helper.task_definition_generator import guid
+from models_and_classes.ProcessThread import ProcessThread
+from typing import Dict
+import threading
 # from dotenv import load_dotenv
 import socketserver
 import time
@@ -97,6 +103,7 @@ def process_task_from_fifo_sqs(
     """
     logging.info("Start the worker app")
     while True:
+        time.sleep(2)
         try:
             # TODO: add dlq if we need it
 
@@ -151,70 +158,83 @@ def process_task_from_fifo_sqs(
         except Exception as e:
             logging.error(f"Error : {e}")
 
-        time.sleep(2)
+
+def simulated_message() -> Dict:
+    message_body = {
+        "agent_id": guid(),
+        "resource_id": guid(),
+        "market_interval_in_second": "300",
+        "market_id": guid(),
+        "devices": [
+            {
+                "device_id": guid(),
+                "device_name": "battery_0",
+                "device_type": "ES",
+                "device_params": {
+                    "battery_token": "12321321qsd",
+                    "battery_sn": "66354",
+                    "device_brand": "SONNEN_BATTERY"
+                },
+                "biding_price_threshold": "0.15",
+                "meter_id": "6436a67e184d3694a15886215ae464"
+            }
+        ]}
+    return message_body
+
+
+def validate_agent_actions(message_body: dict) -> bool:
+    """
+    Validate the message
+    """
+    try:
+        # create a emulate sqs message
+
+        logging.info("Start to create a validate agent")
+        handle_action(
+            action=ECS_ACTIONS_ENUM.CREATE.value,
+            message_body=message_body,
+            BACKEND_S3_BUCKET_NAME=BACKEND_S3_BUCKET_NAME,
+            DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
+            AWS_REGION=AWS_REGION,
+        )
+        logging.info("Start to update a validate agent")
+        handle_action(
+            action=ECS_ACTIONS_ENUM.UPDATE.value,
+            message_body=message_body,
+            BACKEND_S3_BUCKET_NAME=BACKEND_S3_BUCKET_NAME,
+            DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
+            AWS_REGION=AWS_REGION,
+        )
+        logging.info("Start to delete a validate agent")
+        handle_action(
+            action=ECS_ACTIONS_ENUM.DELETE.value,
+            message_body=message_body,
+            BACKEND_S3_BUCKET_NAME=BACKEND_S3_BUCKET_NAME,
+            DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
+            AWS_REGION=AWS_REGION,
+        )
+        logging.info("End to validate create/update/delete agent")
+    except Exception as e:
+        raise logging.error(f"Validate create/delete/update error : {e}")
+
+    # Create two threads
 
 
 def main():
     """
     Main function
     """
-    # validate the permissions
-    # valudate s3 bucket
-    try:
-        sts_service = STSService()
-        s3_service = S3Service(
-            bucket_name=BACKEND_S3_BUCKET_NAME
-        )
-        s3_service.validate_s3_bucket(
-            sts_service=sts_service
-        )
-        # validate the dynamodb table
-        dynamodb_service = DynamoDBService(
-            table_name=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME
-        )
-        dynamodb_service.list_number_of_items()
-
-        # validate the sqs queue
-        sqs_service = SQSService(
-            queue_url=FIFO_SQS_URL
-        )
-        sqs_message = sqs_service.receive_message(
-            MaxNumberOfMessages=1,
-            WaitTimeSeconds=2,
-            VisibilityTimeout=2
-        )
-        logging.info("Validate the sqs queue")
-        # validate the dlq
-        dlq_service = SQSService(
-            queue_url=FIFO_DLQ_URL
-        )
-        dlq_message = dlq_service.receive_message(
-            MaxNumberOfMessages=1,
-            WaitTimeSeconds=2,
-            VisibilityTimeout=2
-        )
-        logging.info("Validate the dlq queue")
-        # validate ecs
-        ecs_service = ECSService(
-            ecs_cluster_name=ECS_CLUSTER_NAME
-        )
-        active_services = ecs_service.list_ecs_services()
-        logging.info("Validate the ecs cluster")
-    except Exception as e:
-        raise logging.error(f"Validate permission error : {e}")
-
     process_task_from_fifo_sqs(
         queue_url=FIFO_SQS_URL,
         BACKEND_S3_BUCKET_NAME=BACKEND_S3_BUCKET_NAME,
         DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
         AWS_REGION=AWS_REGION
     )
+    # TODO: add health check in parallel, the process_task_from_fifo_sqs function will block the main thread
+
+    # service = HTTPService("localhost", 8080, "/health")
+    # p1 = multiprocessing.Process(target=service.run)
 
 
 if __name__ == '__main__':
     main()
-
-
-# Run the client in the Python AsyncIO Event Loop
-
-# asyncio.run(main())  # main loop

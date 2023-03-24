@@ -40,7 +40,7 @@ resource "aws_ecs_task_definition" "agent" {
 
 
 resource "aws_ecs_service" "agent" {
-  name             = "${var.prefix}-${var.agent_id}"
+  name             = "${var.prefix}-agent-${var.agent_id}"
   cluster          = data.aws_ecs_cluster.main.cluster_name
   task_definition  = aws_ecs_task_definition.agent.arn
 #   task_definition  = aws_ecs_task_definition.agent.family

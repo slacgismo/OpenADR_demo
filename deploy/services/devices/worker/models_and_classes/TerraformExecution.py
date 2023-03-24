@@ -2,6 +2,7 @@ import subprocess
 from typing import List, Dict
 import os
 import logging
+import shutil
 
 
 class TerraformExecution:
@@ -31,11 +32,33 @@ class TerraformExecution:
             # create backend.hcl file
             self._create_backend_hcl_file()
 
+    def _remove_terraform_tmp_file(self):
+        # chk if .terraform folder exists
+        # remove .terraform folder
+
+        _terraform_folder = os.path.join(self.working_dir, ".terraform")
+        if os.path.exists(_terraform_folder):
+            remove_directory_contents(
+                directory=_terraform_folder
+            )
+            logging.info("removed .terraform folder")
+        logging.info("no .terraform path found")
+        # chk if .terraform.lock.hcl file exists
+        terraform_lock_hcl_file = os.path.join(
+            self.working_dir, ".terraform.lock.hcl")
+        # remove .terraform.lock.hcl
+        if os.path.exists(terraform_lock_hcl_file):
+            os.remove(terraform_lock_hcl_file)
+            logging.info("removed .terraform.lock.hcl file")
+        logging.info("no .terraform.lock.hcl file found")
+
     def _create_backend_hcl_file(self):
         """
         Create backend.hcl file to store the backend state key and dynamodb table name
         """
         try:
+            # remove .terraform folder and .terraform.lock.hcl file
+
             os.makedirs(self.working_dir, exist_ok=True)
 
             backend_hcl_file_path = os.path.join(
@@ -62,7 +85,8 @@ class TerraformExecution:
 
     def terraform_init(self) -> None:
         try:
-            print("4----------------------------------------")
+            self._remove_terraform_tmp_file()
+            print("4---------_remove_terraform_tmp_file----------------")
             command = ['terraform', 'init',
                        '-backend-config=backend.hcl', "-reconfigure"]
             if self.use_docker_compose:
@@ -123,7 +147,7 @@ class TerraformExecution:
         """
         terraform apply
         """
-
+        print("6---------apply terraform ----------------")
         try:
             command = ['terraform', 'apply', '-auto-approve']
             if self.use_docker_compose:
@@ -133,6 +157,7 @@ class TerraformExecution:
             if result.returncode == 1:
                 raise Exception(
                     f"{self.name_of_creation}: Subprocess returned error code 1, program)")
+            print("7--------- end apply terraform ----------------")
         except subprocess.CalledProcessError as e:
             raise Exception(
                 f" {self.name_of_creation}  Error when terrafrom apply: {e}")
@@ -175,3 +200,12 @@ class TerraformExecution:
                 command.append('-var')
                 command.append(tf_var)
         return command
+
+
+def remove_directory_contents(directory):
+    for item in os.listdir(directory):
+        item_path = os.path.join(directory, item)
+        if os.path.isfile(item_path) or os.path.islink(item_path):
+            os.unlink(item_path)
+        elif os.path.isdir(item_path):
+            shutil.rmtree(item_path)

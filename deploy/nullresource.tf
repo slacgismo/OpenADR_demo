@@ -81,7 +81,7 @@ resource "null_resource" "exports_env_file_for_devices_admin_cli" {
   provisioner "local-exec" {
    command = <<-EOT
       echo 'worker_fifo_sqs_url="${aws_sqs_queue.opneadr_workers_sqs.url}"' > .env
-      echo 'ecs_cluster_name=${aws_ecs_cluster.main.name}"'>> .env
+      echo 'ecs_cluster_name="${aws_ecs_cluster.main.name}"'>> .env
 
     EOT
     # save to devices admin worker terraform folder
@@ -91,3 +91,42 @@ resource "null_resource" "exports_env_file_for_devices_admin_cli" {
 }
 
 
+#================================================================================================
+# build and push docker images for device admin worker, ven and vtn
+#================================================================================================
+
+# resource "null_resource" "build_and_push_docker_images_for_devices_admin_worker" {
+#   depends_on =[
+#     aws_ecr_repository.devices_worker
+#   ]
+
+#   provisioner "local-exec" {
+#     command = <<EOF
+#            #!/bin/bash
+#            aws ecr get-login-password --region ${var.aws_region} | docker login --username AWS --password-stdin ${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com
+#            docker-compose -f ./services/devices/docker-compose.yml build
+#            docker tag -t devices_worker ${aws_ecr_repository.devices_worker.repository_url}:latest .
+#            docker push ${aws_ecr_repository.devices_worker.repository_url}:latest
+#        EOF
+#   }
+# }
+
+
+# resource "null_resource" "build_and_push_docker_images_for_vtn_and_ven" {
+#   depends_on =[
+#     aws_ecr_repository.ven,
+#     aws_ecr_repository.vtn
+#   ]
+
+#   provisioner "local-exec" {
+#     command = <<EOF
+#            #!/bin/bash
+#            aws ecr get-login-password --region ${var.aws_region} | docker login --username AWS --password-stdin ${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com
+#            docker-compose -f ./services/docker-compose.yml build .
+#            docker tag -t services_ven ${aws_ecr_repository.ven.repository_url}:latest .
+#            docker tag -t services_vtn ${aws_ecr_repository.vtn.repository_url}:latest .
+#            docker push ${aws_ecr_repository.vtn.repository_url}:latest
+#            docker push ${aws_ecr_repository.ven.repository_url}:latest
+#        EOF
+#   }
+# }

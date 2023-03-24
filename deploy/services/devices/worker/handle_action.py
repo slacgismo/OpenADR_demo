@@ -1,6 +1,7 @@
 from models_and_classes.TerraformExecution import TerraformExecution
 from models_and_classes.ECS_ACTIONS_ENUM import ECS_ACTIONS_ENUM
 from models_and_classes.Agent import Agent
+from models_and_classes.S3Service import S3Service
 import os
 import logging
 import asyncio
@@ -87,6 +88,9 @@ def handle_action(action: ECS_ACTIONS_ENUM,
         DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
         backend_region=AWS_REGION
     )
+    s3_service = S3Service(
+        bucket_name=BACKEND_S3_BUCKET_NAME,
+    )
     # create agent object
     agent = Agent(
         agent_id=agent_id,
@@ -99,12 +103,19 @@ def handle_action(action: ECS_ACTIONS_ENUM,
         backend_region=AWS_REGION,
         terraformExecutionObject=ecs_terraform,
         task_definition_file_name=task_definition_file_name,
-        backend_s3_state_key=backend_s3_state_key
+        backend_s3_state_key=backend_s3_state_key,
+        s3_service=s3_service
     )
+
     if action == ECS_ACTIONS_ENUM.CREATE.value:
         logging.info("=============================================")
         logging.info(f"Create ecs service {agent_id}")
         logging.info("=============================================")
+
+        # check if this agent_id is already exist
+
+        # if exist, raise exception
+
         if len(devices) == 0:
             # ecs_service.create(is_creating_empty_ecs_service=True)
             # TODO: create empty ecs service

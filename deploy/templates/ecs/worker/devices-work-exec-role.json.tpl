@@ -9,11 +9,10 @@
                 "ecr:GetDownloadUrlForLayer",
                 "ecr:BatchGetImage",
                 "logs:CreateLogStream",
-                "logs:PutLogEvents"
+                "logs:PutLogEvents",
+                "logs:DescribeLogGroups"
             ],
-            "Resource": "*"
+            "Resource":  "*"
         }
-       
-
     ]
 }

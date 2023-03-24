@@ -39,6 +39,10 @@
             {
                 "name": "DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME",
                 "value": "${DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME}"
+            },
+            {
+                "name": "ECS_CLUSTER_NAME",
+                "value": "${ECS_CLUSTER_NAME}"
             }
         ],
         "logConfiguration": {

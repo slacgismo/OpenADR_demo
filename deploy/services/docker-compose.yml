@@ -4,7 +4,7 @@ services:
   vtn:
     platform: linux/amd64
     build:
-      context: ./deploy/services/vtn
+      context: ./vtn
       args:
         - DEV=true
     environment:
@@ -22,20 +22,20 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./deploy/services/vtn:/app
+      - ./vtn:/app
     command: >
       sh -c "python vtn.py"
 
   ven:
     platform: linux/amd64
     build:
-      context: ./deploy/services/ven
+      context: ./ven
       args:
         - DEV=true
     networks:
       - adrnet
     volumes:
-      - ./deploy/services/ven:/app
+      - ./ven:/app
     environment:
       - ENV=${ENV:-DEV} # PROD or DEV (PROD: real device, DEV: mock device)
       - VEN_ID=${VEN_ID:-ven0}

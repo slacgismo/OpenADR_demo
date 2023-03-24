@@ -21,10 +21,11 @@ class Agent:
                  backend_region: str,
                  terraformExecutionObject: TerraformExecution = None,
                  task_definition_file_name: str = None,
-                 backend_s3_state_key: str = None
+                 backend_s3_state_key: str = None,
+                 s3_service: S3Service = None
 
                  ):
-
+        self.s3_service = s3_service
         self.agent_id = agent_id
         self.resource_id = resource_id
         self.market_interval_in_second = market_interval_in_second
@@ -38,13 +39,13 @@ class Agent:
         self.ecs_terraform_execution = terraformExecutionObject
         self.task_definition_file_name = task_definition_file_name
         self.backend_s3_state_key = backend_s3_state_key
-        logging.info("create backend hcl file")
+        logging.info("create backend hcl file=====================")
 
     def create_ecs_service(self,
                            #    backend_s3_state_key,
                            #    task_definition_file_name: str
                            ):
-
+        print("start to create take definition file=====================")
         created_task_definiton_name_file_path, vtn_id, vens_info = create_and_export_task_definition(
             agent_id=self.agent_id,
             resource_id=self.resource_id,
@@ -66,7 +67,8 @@ class Agent:
             path="./terraform/templates"
 
         )
-
+        print("created_task_definiton_name_file_path",
+              created_task_definiton_name_file_path)
         # 2. create ecs service
         self.ecs_terraform_execution.terraform_init()
 
@@ -77,13 +79,13 @@ class Agent:
         logging.info("========================================")
         # ecs_terraform.create()
         # 3. save s3 bucket
-        s3_service = S3Service(
-            bucket_name=self.s3_bucket_name_of_task_definition_file,
-        )
+        # s3_service = S3Service(
+        #     bucket_name=self.s3_bucket_name_of_task_definition_file,
+        # )
         created_task_definiton_name_file_path = os.path.join(
             "./terraform/templates", self.task_definition_file_name
         )
-        s3_service.upload_file(
+        self.s3_service.upload_file(
             source=created_task_definiton_name_file_path,
             destination=f"task_definitions/{self.agent_id}/{self.task_definition_file_name}"
         )
@@ -92,10 +94,7 @@ class Agent:
         os.remove(created_task_definiton_name_file_path)
         return
 
-    def update_ecs_service(self,
-                           #    task_definition_file_name: str,
-                           #    backend_s3_state_key: str,
-                           ):
+    def update_ecs_service(self):
         # implementation of update method goes here
         backend_s3_service = S3Service(
             bucket_name=self.backend_s3_bucket_name,
@@ -137,14 +136,14 @@ class Agent:
         logging.info("========================================")
         logging.info("ECS service updated successfully:", self.agent_id)
         logging.info("========================================")
-        s3_service = S3Service(
-            bucket_name=self.s3_bucket_name_of_task_definition_file,
-        )
+        # s3_service = S3Service(
+        #     bucket_name=self.s3_bucket_name_of_task_definition_file,
+        # )
         created_task_definiton_name_file_path = os.path.join(
             "./terraform/templates", self.task_definition_file_name
         )
         # update task definition file in s3
-        s3_service.upload_file(
+        self.s3_service.upload_file(
             source=created_task_definiton_name_file_path,
             destination=f"task_definitions/{self.agent_id}/{self.task_definition_file_name}"
         )
@@ -153,16 +152,8 @@ class Agent:
         return
 
     def delete_ecs_service(
-        self,
-        # backend_s3_state_key,
-        # task_definition_file_name,
-    ) -> str:
-        # check if s3 state lock file exist
-        backend_s3_service = S3Service(
-            bucket_name=self.backend_s3_bucket_name,
-        )
-
-        is_file_exist = backend_s3_service.check_file_exists(
+            self) -> str:
+        is_file_exist = self.s3_service.check_file_exists(
             file_name=self.backend_s3_state_key)
         if not is_file_exist:
             raise Exception(
@@ -172,7 +163,8 @@ class Agent:
         source = f"task_definitions/{self.agent_id}/{self.task_definition_file_name}"
 
         destination = f"./terraform/templates/{self.task_definition_file_name}"
-        is_file_exist = backend_s3_service.check_file_exists(
+
+        is_file_exist = self.s3_service.check_file_exists(
             file_name=source)
         s3_service = S3Service(
             bucket_name=self.s3_bucket_name_of_task_definition_file,
@@ -182,11 +174,10 @@ class Agent:
             source=source,
             destination=destination
         )
-        print("1----------------------------------------")
+
         self.ecs_terraform_execution.terraform_init()
-        print("2----------------------------------------")
         self.ecs_terraform_execution.terraform_destroy()
-        print("3----------------------------------------")
+
         logging.info("========================================")
         logging.info(f"ECS service deleted successfully:{self.agent_id}")
         logging.info("========================================")

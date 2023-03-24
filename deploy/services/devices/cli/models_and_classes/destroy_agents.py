@@ -8,6 +8,16 @@ import time
 import os
 import logging
 import json
+from typing import Tuple
+
+
+def extract_first_and_second_word(text):
+    pattern = r'^[^-]+-([^-\s]+)-([^-\s]+)'
+    match = re.search(pattern, text)
+    if match:
+        first_word = match.group(1)
+        second_word = match.group(2)
+        return first_word, second_word
 
 
 def destroy_all(
@@ -26,30 +36,13 @@ def destroy_all(
         return
     agent_ids = []
     for agent in active_agents_list:
-        pattern = r'-(.*)'
-        match = re.search(pattern, agent)
-        if match:
-            agent_id = match.group(1)
-            agent_ids.append(agent_id)
-    # print(agent_ids)
-    # TODO: download task definition from s3
-    s3_service = S3Service(
-        bucket_name=backend_bucket_name,
-    )
-    downlod_pah = os.path.join(os.getcwd(), "temp_task_definitions")
-    if not os.path.exists(downlod_pah):
-        os.mkdir(downlod_pah)
-        logging.info(f"Create download path {downlod_pah}")
+        app, id = extract_first_and_second_word(agent)
+        if app == "agent":
+            agent_ids.append(id)
 
     command_list = list()
     for agent_id in agent_ids:
-        file_name = f"task-definition-{agent_id}.json.tpl"
-        s3_source = os.path.join(f"task_definitions/{agent_id}", file_name)
-        destination = os.path.join(downlod_pah, file_name)
-        s3_service.download_file(
-            source=s3_source,
-            destination=destination
-        )
+        logging.info(f"Find agent id:  {agent_id}")
         body = {
 
             "agent_id": agent_id,
@@ -71,18 +64,17 @@ def destroy_all(
                 }
             ]
         }
-        os.remove(destination)
+        # os.remove(destination)
         command_list.append(body)
     messages = create_messages_list(
         command_list=command_list,
         MessageGroupId="TEST",
         ecs_action=ECS_ACTIONS_ENUM.DELETE.value,
     )
-
+    logging.info(f"number of agents:  {len(command_list)}")
     sqs_service = SQSService(
         queue_url=fifo_sqs
     )
-
     for message in messages:
         sqs_service.send_message(
             message_body=message['MessageBody'],

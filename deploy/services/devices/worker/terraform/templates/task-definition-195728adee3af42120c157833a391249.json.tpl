@@ -1,6 +1,6 @@
 [
     {
-        "name": "vtn-e23d1be1984c60b7dafa62ebd7cd76",
+        "name": "vtn-cc754edde14e96b90f389abe7d0419",
         "image": "${app_image_vtn}",
         "essential": true,
         "memoryReservation": 256,
@@ -22,7 +22,7 @@
             },
             {
                 "name": "AGENT_ID",
-                "value": "37e675944fd7bffd61d761a55ab51433"
+                "value": "195728adee3af42120c157833a391249"
             },
             {
                 "name": "RESOURCE_ID",
@@ -30,7 +30,7 @@
             },
             {
                 "name": "VTN_ID",
-                "value": "e23d1be1984c60b7dafa62ebd7cd76"
+                "value": "cc754edde14e96b90f389abe7d0419"
             },
             {
                 "name": "MARKET_INTERVAL_IN_SECOND",
@@ -62,7 +62,7 @@
         "mountPoints": [
             {
                 "readOnly": false,
-                "containerPath": "/vol/e23d1be1984c60b7dafa62ebd7cd76",
+                "containerPath": "/vol/cc754edde14e96b90f389abe7d0419",
                 "sourceVolume": "agent-volume"
             }
         ],
@@ -71,12 +71,12 @@
             "options": {
                 "awslogs-group": "${cloudwatch_name}",
                 "awslogs-region": "${aws_region}",
-                "awslogs-stream-prefix": "37e675944fd7bffd61d761a55ab51433-e23d1be1984c60b7dafa62ebd7cd76"
+                "awslogs-stream-prefix": "195728adee3af42120c157833a391249-cc754edde14e96b90f389abe7d0419"
             }
         }
     },
     {
-        "name": "ven-373100978b4656ac5d7e7d0074e0fa",
+        "name": "ven-ea0c6dbff642d59dfc362d65efb57f",
         "image": "${app_image_ven}",
         "essential": true,
         "memoryReservation": 256,
@@ -98,11 +98,11 @@
             },
             {
                 "name": "VEN_ID",
-                "value": "8ec92a031d4060925e93079c85d921"
+                "value": "b3866ebaba4c24b74c4c1c0e2981e5"
             },
             {
                 "name": "AGENT_ID",
-                "value": "37e675944fd7bffd61d761a55ab51433"
+                "value": "195728adee3af42120c157833a391249"
             },
             {
                 "name": "RESOURCE_ID",
@@ -110,11 +110,11 @@
             },
             {
                 "name": "METER_ID",
-                "value": "eb641ec7a847b295c863da181509dd"
+                "value": "25b41f107f4db1a9716f1fc9c98202"
             },
             {
                 "name": "DEVICE_ID",
-                "value": "320d141048c23741139cc30262369a86"
+                "value": "3bd3c653deee0956613cb09229e5e52a"
             },
             {
                 "name": "DEVICE_NAME",
@@ -134,7 +134,7 @@
             },
             {
                 "name": "DEVICE_SETTINGS",
-                "value": "{\"battery_token\": \"61fde6b59e4f2b9384e14fe98b1fc0\", \"battery_sn\": \"46155\", \"device_brand\": \"SONNEN_BATTERY\"}"
+                "value": "{\"battery_token\": \"322302bd7841beac7c407961cdec37\", \"battery_sn\": \"76097\", \"device_brand\": \"SONNEN_BATTERY\"}"
             },
             {
                 "name": "MARKET_INTERVAL_IN_SECOND",
@@ -142,7 +142,7 @@
             },
             {
                 "name": "BIDING_PRICE_THRESHOLD",
-                "value": "5.295215984902163"
+                "value": "1.5210512617868583"
             },
             {
                 "name": "EMULATED_DEVICE_API_URL",
@@ -152,7 +152,7 @@
         "mountPoints": [
             {
                 "readOnly": false,
-                "containerPath": "/vol/373100978b4656ac5d7e7d0074e0fa",
+                "containerPath": "/vol/ea0c6dbff642d59dfc362d65efb57f",
                 "sourceVolume": "agent-volume"
             }
         ],
@@ -161,7 +161,7 @@
             "options": {
                 "awslogs-group": "${cloudwatch_name}",
                 "awslogs-region": "${aws_region}",
-                "awslogs-stream-prefix": "37e675944fd7bffd61d761a55ab51433-373100978b4656ac5d7e7d0074e0fa"
+                "awslogs-stream-prefix": "195728adee3af42120c157833a391249-ea0c6dbff642d59dfc362d65efb57f"
             }
         }
     }

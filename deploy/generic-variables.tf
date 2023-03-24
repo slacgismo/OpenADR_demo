@@ -77,5 +77,30 @@ variable "app_image_ven" {
 variable "devices_worker_health_check_port" {
   type        = string
   description = "The name of the file containing the devices worker task definition"
-  default     = 8070
+  default     = "8070"
 }
+
+
+
+variable "device_worker_role_name"{
+  default = "devices-workers-roles"
+}
+
+variable "backend_main_s3_bucket"{
+  description = "The name of the S3 bucket where the Terraform state file will be stored"
+}
+
+variable "backend_main_s3_key"{
+  description = "The name of the S3 object where the Terraform state file will be stored"
+}
+
+variable "backend_main_s3_region"{
+  description = "The AWS region where the S3 bucket where the Terraform state file will be stored"
+}
+
+
+variable "backend_dynamodb_table"{
+  description = "The name of the DynamoDB table that will be used to lock the state file when running Terraform"
+}
+
+

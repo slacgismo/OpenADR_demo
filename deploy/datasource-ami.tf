@@ -19,3 +19,4 @@ data "aws_ami" "amzlinux2" {
     values = ["x86_64"]
   }
 }
+data "aws_caller_identity" "current" {}
