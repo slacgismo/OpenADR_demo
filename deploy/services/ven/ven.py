@@ -1,9 +1,11 @@
+import aiohttp
 import asyncio
 from datetime import timedelta
 import pytz
 from openleadr import OpenADRClient, enable_default_logging
 import os
 import logging
+from models_classes.HTTPServer import HTTPServer
 
 VTN_ADDRESS = os.environ['VTN_ADDRESS']
 VTN_PORT = os.environ['VTN_PORT']
@@ -13,6 +15,7 @@ VEN_NAME = "ven123"
 VEN_ID = VEN_NAME + "_id"
 
 tz_local = pytz.timezone('America/Chicago')
+
 
 if __name__ == "__main__":
     # code here
@@ -53,10 +56,18 @@ client.add_handler('on_event', handle_event)
 
 logger.debug("After add_handler on_event")
 
-loop = asyncio.new_event_loop()
-loop.set_debug(True)
-asyncio.set_event_loop(loop)
+# loop = asyncio.new_event_loop()
+# loop.set_debug(True)
+# asyncio.set_event_loop(loop)
+# loop.create_task(client.run())
+# # Using this line causes failure
+# # asyncio.run(client.run(), debug=True)
+# loop.run_forever()
+
+
+health_server = HTTPServer()
+loop = asyncio.get_event_loop()
+loop.create_task(health_server.start())
 loop.create_task(client.run())
-# Using this line causes failure
-# asyncio.run(client.run(), debug=True)
+loop.create_task(health_server.check_thirdparty_api())
 loop.run_forever()

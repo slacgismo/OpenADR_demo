@@ -53,7 +53,8 @@ services:
       - BIDING_PRICE_THRESHOLD=${PRICE_THRESHOLD:-0.15}
     command: >
       sh -c "python ven.py"
-
+    ports:
+      - "8000:8000"
     depends_on:
       - vtn
 networks:
