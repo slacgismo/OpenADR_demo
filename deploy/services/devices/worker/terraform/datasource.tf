@@ -27,11 +27,6 @@ data "aws_security_group" "ecs_agent_sg" {
   name = var.ecs_agent_sg
 }
 
-# VPC 
-# data "aws_subnet_ids" "private" {
-#   vpc_id            = var.private_vpc_id
-# }
-
 
 data "aws_subnets" "private" {
   filter {
