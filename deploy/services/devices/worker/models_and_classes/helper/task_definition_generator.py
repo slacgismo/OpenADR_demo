@@ -210,15 +210,15 @@ def generate_vtn_task_definition(
         }
     ]
 
-    # vtn_template['healthCheck'] = {
-    #     "retries": 3,
-    #     "command": [
-    #         "CMD-SHELL",
-    #         f"curl -f http://{vtn_address}:{vtn_port}/health || exit 1"
-    #     ],
-    #     "timeout": 5,
-    #     "interval": 30
-    # }
+    vtn_template['healthCheck'] = {
+        "retries": 3,
+        "command": [
+            "CMD-SHELL",
+            f"curl -f http://{vtn_address}:{vtn_port}/health || exit 1"
+        ],
+        "timeout": 5,
+        "interval": 30
+    }
 
     vtn_template['logConfiguration'] = {
         "logDriver": "awslogs",
