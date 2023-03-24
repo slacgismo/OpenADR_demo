@@ -65,9 +65,13 @@ logger.debug("After add_handler on_event")
 # loop.run_forever()
 
 
-health_server = HTTPServer()
+health_server = HTTPServer(
+    healthcheck_port=8000, ven_id=VEN_ID
+)
 loop = asyncio.get_event_loop()
 loop.create_task(health_server.start())
 loop.create_task(client.run())
-loop.create_task(health_server.check_thirdparty_api())
+loop.create_task(health_server.check_thirdparty_api(
+    thirdparty_api_url="https://google.com", interval=60
+))
 loop.run_forever()
