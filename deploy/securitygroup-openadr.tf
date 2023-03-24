@@ -17,13 +17,13 @@ resource "aws_security_group" "devices_worker_sg" {
 
 
   ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
     # this should be the [module.vpc.vpc_cidr_block]
     # TODO: change this to the vpc cidr block,
     # If we chnage this to the vpc cidr block, we will not be able to access the ECR service to download the docker images
-     cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
 
@@ -57,9 +57,9 @@ resource "aws_security_group" "ecs_agent_sg" {
   }
 
   ingress {
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
+    from_port = 8080
+    to_port   = 8080
+    protocol  = "tcp"
     # this should be the [module.vpc.vpc_cidr_block]
     # TODO: change this to the vpc cidr block,
     # If we chnage this to the vpc cidr block, we will not be able to access the ECR service to download the docker images
@@ -70,9 +70,9 @@ resource "aws_security_group" "ecs_agent_sg" {
   }
 
   ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
     # this should be the [module.vpc.vpc_cidr_block]
     # TODO: change this to the vpc cidr block,
     # If we chnage this to the vpc cidr block, we will not be able to access the ECR service to download the docker images

@@ -49,7 +49,7 @@ resource "aws_ecs_service" "agent" {
   platform_version = "1.4.0"
   network_configuration {
     # subnets = module.vpc.public_subnets
-    subnets          = data.aws_subnet_ids.private.ids
+    subnets          = data.aws_subnets.private.ids
     security_groups  = [data.aws_security_group.ecs_agent_sg.id]
     assign_public_ip = false
   }

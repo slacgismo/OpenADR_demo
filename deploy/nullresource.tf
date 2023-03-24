@@ -1,7 +1,7 @@
 # # Create a Null Resource and Provisioners
 
 resource "null_resource" "exports_terrafrom_tfvars_to_devices_admin_worker_terraform" {
-  depends_on =[
+  depends_on = [
     aws_s3_bucket.agents,
     aws_dynamodb_table.agenets_shared_state_lock,
     aws_cloudwatch_log_group.agent_task_logs,
@@ -16,7 +16,7 @@ resource "null_resource" "exports_terrafrom_tfvars_to_devices_admin_worker_terra
     always_run = timestamp()
   }
   provisioner "local-exec" {
-   command = <<-EOT
+    command = <<-EOT
       echo '# Create from main deployment' > terraform.tfvars
       echo 'project="${var.project}"' >> terraform.tfvars
       echo 'environment="${var.environment}"' >> terraform.tfvars
@@ -49,14 +49,14 @@ resource "null_resource" "exports_terrafrom_tfvars_to_devices_admin_worker_terra
 
 # create .env file for devices_admin worker folder
 resource "null_resource" "exports_env_file_for_devices_admin_worker" {
-  depends_on =  [aws_sqs_queue.opneadr_workers_sqs]
-    
+  depends_on = [aws_sqs_queue.opneadr_workers_sqs]
+
   # always run this resource
   triggers = {
     always_run = timestamp()
   }
   provisioner "local-exec" {
-   command = <<-EOT
+    command = <<-EOT
       echo 'FIFO_SQS_URL="${aws_sqs_queue.opneadr_workers_sqs.url}"' > .env
       echo 'BACKEND_S3_BUCKET_NAME="${aws_s3_bucket.agents.bucket}"' >> .env
       echo 'AWS_REGION="${var.aws_region}"' >> .env
@@ -72,14 +72,14 @@ resource "null_resource" "exports_env_file_for_devices_admin_worker" {
 
 # create .env file for devices_admin worker folder
 resource "null_resource" "exports_env_file_for_devices_admin_cli" {
-  depends_on =  [aws_sqs_queue.opneadr_workers_sqs]
-    
+  depends_on = [aws_sqs_queue.opneadr_workers_sqs]
+
   # always run this resource
   triggers = {
     always_run = timestamp()
   }
   provisioner "local-exec" {
-   command = <<-EOT
+    command = <<-EOT
       echo 'worker_fifo_sqs_url="${aws_sqs_queue.opneadr_workers_sqs.url}"' > .env
       echo 'ecs_cluster_name="${aws_ecs_cluster.main.name}"'>> .env
 

@@ -86,17 +86,17 @@ class TerraformExecution:
     def terraform_init(self) -> None:
         try:
             self._remove_terraform_tmp_file()
-            print("4---------_remove_terraform_tmp_file----------------")
+
             command = ['terraform', 'init',
                        '-backend-config=backend.hcl', "-reconfigure"]
             if self.use_docker_compose:
                 command = self.docker_compose_command + command
             # Alywas run terraform init with -reconfigure, since the backend config file is created after the first init
             # The local /.terraform/terraform.tfstate file need to be changed after we change the backend config file
-            print("command", command)
+
             result = subprocess.run(
                 command, cwd=self.working_dir)
-            print("5----------------------------------------")
+
             if result.returncode == 1:
                 raise Exception(
                     f"{self.name_of_creation}: Subprocess returned error code 1, program stopped.")
@@ -147,7 +147,7 @@ class TerraformExecution:
         """
         terraform apply
         """
-        print("6---------apply terraform ----------------")
+
         try:
             command = ['terraform', 'apply', '-auto-approve']
             if self.use_docker_compose:
@@ -157,7 +157,7 @@ class TerraformExecution:
             if result.returncode == 1:
                 raise Exception(
                     f"{self.name_of_creation}: Subprocess returned error code 1, program)")
-            print("7--------- end apply terraform ----------------")
+
         except subprocess.CalledProcessError as e:
             raise Exception(
                 f" {self.name_of_creation}  Error when terrafrom apply: {e}")

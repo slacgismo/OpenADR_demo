@@ -58,10 +58,12 @@ variable "emulated_device_api_url" {
 variable "vtn_address" {
   description = "vtn address"
   type        = string
+  default     = "localhost"
 }
 variable "vtn_port" {
   description = "vtn port"
   type        = string
+  default     = "8000"
 }
 
 variable "app_image_vtn" {
@@ -82,25 +84,31 @@ variable "devices_worker_health_check_port" {
 
 
 
-variable "device_worker_role_name"{
+variable "device_worker_role_name" {
   default = "devices-workers-roles"
 }
 
-variable "backend_main_s3_bucket"{
+variable "backend_main_s3_bucket" {
   description = "The name of the S3 bucket where the Terraform state file will be stored"
 }
 
-variable "backend_main_s3_key"{
+variable "backend_main_s3_key" {
   description = "The name of the S3 object where the Terraform state file will be stored"
 }
 
-variable "backend_main_s3_region"{
+variable "backend_main_s3_region" {
   description = "The AWS region where the S3 bucket where the Terraform state file will be stored"
 }
 
 
-variable "backend_dynamodb_table"{
+variable "backend_dynamodb_table" {
   description = "The name of the DynamoDB table that will be used to lock the state file when running Terraform"
 }
 
+variable "app_image_device_worker" {
+  description = "The ecr image of deivce worker"
+}
 
+variable "app_image_device_cli" {
+  description = "The ecr image of deivce cli"
+}

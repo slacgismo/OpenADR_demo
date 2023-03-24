@@ -2,48 +2,81 @@
     "Version": "2012-10-17",
     "Statement": [
         {
-
             "Effect": "Allow",
             "Action": [
-                "ecs:ListServicesByNamespace",
-                "servicediscovery:ListServices",
-                "ecs:DiscoverPollEndpoint",
-                "ecs:PutAccountSettingDefault",
-                "servicediscovery:GetOperation",
-                "ecs:CreateCluster",
-                "servicediscovery:ListNamespaces",
+                "autoscaling:CreateAutoScalingGroup",
+                "autoscaling:CreateLaunchConfiguration",
+                "autoscaling:DeleteAutoScalingGroup",
+                "autoscaling:DeleteLaunchConfiguration",
+                "autoscaling:Describe*",
+                "autoscaling:UpdateAutoScalingGroup",
+                "ecs:*",
+                "iam:ListAttachedRolePolicies",
+                "iam:ListInstanceProfiles",
+                "iam:ListRoles",
                 "servicediscovery:CreateService",
-                "ecs:DescribeTaskDefinition",
-                "servicediscovery:UpdateService",
-                "ecs:PutAccountSetting",
-                "ecs:ListServices",
-                "ecs:CreateCapacityProvider",
-                "ecs:DeregisterTaskDefinition",
-                "ecs:ListAccountSettings",
                 "servicediscovery:DeleteService",
-                "ecs:DeleteAccountSetting",
-                "ecs:ListTaskDefinitionFamilies",
-                "ecs:RegisterTaskDefinition",
                 "servicediscovery:GetNamespace",
+                "servicediscovery:GetOperation",
                 "servicediscovery:GetService",
-                "ecs:ListTaskDefinitions",
-                "ecs:CreateTaskSet",
-                "ecs:ListClusters"
+                "servicediscovery:ListNamespaces",
+                "servicediscovery:ListServices",
+                "servicediscovery:UpdateService"
             ],
-            "Resource": "*"
+            "Resource": [
+                "*"
+            ]
         },
         {
             "Effect": "Allow",
-            "Action": "ecs:*",
+            "Action": [
+                "ssm:GetParameter",
+                "ssm:GetParameters",
+                "ssm:GetParametersByPath"
+            ],
+            "Resource": "arn:aws:ssm:*:*:parameter/aws/service/ecs*"
+        },
+        {
+            "Action": "iam:PassRole",
+            "Effect": "Allow",
             "Resource": [
-                "arn:aws:ecs:*:${account_id}:service/*/*",
-                "arn:aws:ecs:*:${account_id}:container-instance/*/*",
-                "arn:aws:ecs:*:${account_id}:task-definition/*:*",
-                "arn:aws:ecs:*:${account_id}:task-set/*/*/*",
-                "${ecs_cluster_arn}",
-                "arn:aws:ecs:*:${account_id}:task/*/*",
-                "arn:aws:ecs:*:${account_id}:capacity-provider/*"
-            ]
+                "*"
+            ],
+            "Condition": {
+                "StringLike": {
+                    "iam:PassedToService": "ecs-tasks.amazonaws.com"
+                }
+            }
+        },
+        {
+            "Action": "iam:PassRole",
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:iam::*:role/ecsInstanceRole*"
+            ],
+            "Condition": {
+                "StringLike": {
+                    "iam:PassedToService": [
+                        "ec2.amazonaws.com",
+                        "ec2.amazonaws.com.cn"
+                    ]
+                }
+            }
+        },
+        {
+            "Action": "iam:PassRole",
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:iam::*:role/ecsAutoscaleRole*"
+            ],
+            "Condition": {
+                "StringLike": {
+                    "iam:PassedToService": [
+                        "application-autoscaling.amazonaws.com",
+                        "application-autoscaling.amazonaws.com.cn"
+                    ]
+                }
+            }
         }
     ]
 }

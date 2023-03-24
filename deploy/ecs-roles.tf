@@ -80,7 +80,7 @@ data "template_file" "workers_s3_policy_file" {
   template = file("./templates/ecs/worker/s3_policy.json.tpl")
   vars = {
     backend_s3_bucket_agents_name = aws_s3_bucket.agents.bucket
-    backend_s3_bucket_main_name = var.backend_main_s3_bucket
+    backend_s3_bucket_main_name   = var.backend_main_s3_bucket
   }
 }
 
@@ -104,7 +104,7 @@ resource "aws_iam_role_policy_attachment" "s3_attachment" {
 data "template_file" "workers_sqs_policy_file" {
   template = file("./templates/ecs/worker/sqs_policy.json.tpl")
   vars = {
-    fifo_sqs_arn = aws_sqs_queue.worker_dlq.arn
+    fifo_sqs_arn     = aws_sqs_queue.worker_dlq.arn
     fifo_dlq_sqs_arn = aws_sqs_queue.opneadr_workers_sqs.arn
   }
 }
@@ -171,7 +171,7 @@ data "template_file" "workers_log_policy_file" {
   template = file("./templates/ecs/worker/log_policy.json.tpl")
   vars = {
     cloud_watch_agent_log_group_arn = aws_cloudwatch_log_group.agent_task_logs.arn
-    account_id = data.aws_caller_identity.current.account_id
+    account_id                      = data.aws_caller_identity.current.account_id
   }
 }
 
@@ -197,7 +197,7 @@ data "template_file" "workers_ec2_policy_file" {
 }
 
 resource "aws_iam_policy" "device_worker_ec2_policy" {
-  name       = "${var.prefix}-${var.device_worker_role_name}-ec2-policy"
+  name        = "${var.prefix}-${var.device_worker_role_name}-ec2-policy"
   path        = "/"
   description = "Allow retrieving images and adding to logs"
   policy      = data.template_file.workers_ec2_policy_file.rendered
@@ -216,13 +216,13 @@ resource "aws_iam_role_policy_attachment" "ec2_attachment" {
 data "template_file" "workers_ecs_limit_policy_file" {
   template = file("./templates/ecs/worker/ecs_policy.json.tpl")
   vars = {
-    account_id = data.aws_caller_identity.current.account_id
+    account_id      = data.aws_caller_identity.current.account_id
     ecs_cluster_arn = aws_ecs_cluster.main.arn
   }
 }
 
 resource "aws_iam_policy" "device_worker_ecs_limit_policy" {
-  name        =  "${var.prefix}-${var.device_worker_role_name}-ecs-policy"
+  name        = "${var.prefix}-${var.device_worker_role_name}-ecs-policy"
   path        = "/"
   description = "Allow retrieving images and adding to logs"
   policy      = data.template_file.workers_ecs_limit_policy_file.rendered

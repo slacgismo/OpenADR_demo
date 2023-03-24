@@ -17,6 +17,6 @@ resource "aws_dynamodb_table" "agenets_shared_state_lock" {
 }
 
 output "dynamodb_agents_state_lock_table" {
-    value = aws_dynamodb_table.agenets_shared_state_lock.name
+  value = aws_dynamodb_table.agenets_shared_state_lock.name
 }
 

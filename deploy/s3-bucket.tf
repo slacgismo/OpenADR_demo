@@ -1,7 +1,7 @@
 resource "aws_s3_bucket" "agents" {
   bucket        = "${var.prefix}-agents-state"
   force_destroy = true
-  tags = local.common_tags
+  tags          = local.common_tags
 }
 
 resource "aws_s3_bucket_public_access_block" "agents" {

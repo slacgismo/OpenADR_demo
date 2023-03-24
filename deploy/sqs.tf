@@ -1,8 +1,8 @@
 
 
 resource "aws_sqs_queue" "opneadr_workers_sqs" {
-  depends_on = [aws_sqs_queue.worker_dlq]
-  name = "${var.prefix}_workers_sqs.fifo"
+  depends_on                  = [aws_sqs_queue.worker_dlq]
+  name                        = "${var.prefix}_workers_sqs.fifo"
   fifo_queue                  = true
   content_based_deduplication = true
   redrive_policy = jsonencode({
@@ -14,8 +14,8 @@ resource "aws_sqs_queue" "opneadr_workers_sqs" {
 
 
 resource "aws_sqs_queue" "worker_dlq" {
-  name              = "${var.prefix}_workers_dlq.fifo"
-  fifo_queue                  = true
+  name       = "${var.prefix}_workers_dlq.fifo"
+  fifo_queue = true
 }
 
 

@@ -6,8 +6,8 @@ locals {
   managedBy   = var.managedBy
   project     = var.project
 
-  ecr_image_tag       = "latest"
-  account_id          = data.aws_caller_identity.current.account_id
+  ecr_image_tag = "latest"
+  account_id    = data.aws_caller_identity.current.account_id
   #name = "${local.owners}-${local.environment}"
   common_tags = {
     creator     = local.creator
@@ -15,7 +15,7 @@ locals {
     environment = local.environment
     project     = local.project
   }
-} 
+}
 
 
 
