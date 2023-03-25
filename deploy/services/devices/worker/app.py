@@ -19,7 +19,7 @@ from models_and_classes.SQSService import SQSService
 from models_and_classes.S3Service import S3Service
 from models_and_classes.DynamoDBService import DynamoDBService
 from models_and_classes.STSService import STSService
-from models_and_classes.HTTPService import HTTPService
+from models_and_classes.HttpService import HealthCheckService
 from models_and_classes.ECSService import ECSService
 from models_and_classes.helper.task_definition_generator import guid
 from models_and_classes.ProcessThread import ProcessThread
@@ -33,11 +33,13 @@ from handle_action import handle_action
 logging.basicConfig(format='%(asctime)s %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 
-logging.info(f"Start the worker app")
+ENV = os.environ['ENV']
+if ENV is None:
+    raise Exception("ENV is not set")
 
-HEALTH_CHEKC_PORT = os.environ['HEALTH_CHEKC_PORT']
-if HEALTH_CHEKC_PORT is None:
-    raise Exception("health_check_port not set")
+WORKER_PORT = os.environ['WORKER_PORT']
+if WORKER_PORT is None:
+    raise Exception("WORKER_PORT not set")
 
 
 FIFO_SQS_URL = os.environ['FIFO_SQS_URL']
@@ -87,6 +89,7 @@ def process_task_from_fifo_sqs(
     BACKEND_S3_BUCKET_NAME: str,
     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME: str,
     AWS_REGION: str,
+    ENV: str,
     MaxNumberOfMessages: int = 1,
         WaitTimeSeconds: int = 10,
         VisibilityTimeout: int = 20):
@@ -122,7 +125,6 @@ def process_task_from_fifo_sqs(
             if message is None:
                 logging.info("Waiting.... %s" %
                              str(int(time.time())))
-                time.sleep(2)
                 continue
 
             sqs_service.delete_message(
@@ -217,23 +219,29 @@ def validate_agent_actions(message_body: dict) -> bool:
     except Exception as e:
         raise logging.error(f"Validate create/delete/update error : {e}")
 
-    # Create two threads
-
 
 def main():
     """
     Main function
     """
-    process_task_from_fifo_sqs(
-        queue_url=FIFO_SQS_URL,
-        BACKEND_S3_BUCKET_NAME=BACKEND_S3_BUCKET_NAME,
-        DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
-        AWS_REGION=AWS_REGION
+    # process_task_from_fifo_sqs(
+    #     queue_url=FIFO_SQS_URL,
+    #     BACKEND_S3_BUCKET_NAME=BACKEND_S3_BUCKET_NAME,
+    #     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
+    #     AWS_REGION=AWS_REGION,
+    #     ENV=ENV,
+    # )
+    http_server = HealthCheckService(
+        host="localhost", port=8070, path="/health")
+    http_server.run(
+        long_process_fn=process_task_from_fifo_sqs, long_process_args=(
+            FIFO_SQS_URL,
+            BACKEND_S3_BUCKET_NAME,
+            DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
+            AWS_REGION,
+            ENV,
+        )
     )
-    # TODO: add health check in parallel, the process_task_from_fifo_sqs function will block the main thread
-
-    # service = HTTPService("localhost", 8080, "/health")
-    # p1 = multiprocessing.Process(target=service.run)
 
 
 if __name__ == '__main__':

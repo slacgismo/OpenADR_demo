@@ -27,10 +27,12 @@ RUN apk add --no-cache --virtual .build-deps \
         --disabled-password \
         --no-create-home \
         openadr-user \
-    && apk del .build-deps
+    && apk del .build-deps \
+    && apk add --no-cache curl
 
 
 COPY . /app
 WORKDIR /app
 
 ENV PATH="/py/bin:$PATH"
+

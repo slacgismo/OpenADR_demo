@@ -3,6 +3,13 @@ import boto3
 from botocore.exceptions import ClientError
 import time
 from uuid import uuid4
+from enum import Enum
+
+
+class MessageGroupId(Enum):
+    LOCAL_TEST = "local_test"
+    AWS_TEST = "aws_test"
+    AWS_PROD = "aws_prod"
 
 
 class SQSService:
