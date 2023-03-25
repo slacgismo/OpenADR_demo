@@ -215,6 +215,7 @@ def generate_vtn_task_definition(
         "command": [
             "CMD-SHELL",
             f"curl -f http://{vtn_address}:{vtn_port}/health || exit 1"
+
         ],
         "timeout": 5,
         "interval": 30
@@ -274,6 +275,23 @@ def generate_ven_task_definition(
             "sourceVolume": "agent-volume"
         }
     ]
+    ven_template['mountPoints'] = [
+        {
+            "readOnly": False,
+            "containerPath": f"/vol/{ven_id}",
+            "sourceVolume": "agent-volume"
+        }
+    ]
+    ven_template['healthCheck'] = {
+        "retries": 3,
+        "command": [
+            "CMD-SHELL",
+            f"curl -f http://localhost:8000/health || exit 1"
+
+        ],
+        "timeout": 5,
+        "interval": 30
+    }
     ven_template['logConfiguration'] = {
         "logDriver": "awslogs",
         "options": {

@@ -29,7 +29,7 @@ RUN apk add --no-cache --virtual .build-deps \
 
 COPY . /app
 WORKDIR /app
-
+RUN apk add curl
 ENV PATH="/py/bin:$PATH"
 
 

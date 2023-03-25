@@ -13,6 +13,7 @@ RUN apk add --no-cache --virtual .build-deps \
         curl \
         unzip \
         libffi-dev \
+
     && python -m venv /py \
     && /py/bin/pip install --upgrade pip \
     && /py/bin/pip install -r /tmp/requirements.txt \
@@ -28,7 +29,7 @@ RUN apk add --no-cache --virtual .build-deps \
 
 COPY . /app
 WORKDIR /app
-
+RUN apk add curl
 ENV PATH="/py/bin:$PATH"
 
 

@@ -11,6 +11,7 @@ VTN_ADDRESS = os.environ['VTN_ADDRESS']
 VTN_PORT = os.environ['VTN_PORT']
 RESOURCE_NAME = "resource123"
 VEN_NAME = "ven123"
+HTTPSERVER_PORT = 8000
 
 VEN_ID = VEN_NAME + "_id"
 
@@ -56,22 +57,14 @@ client.add_handler('on_event', handle_event)
 
 logger.debug("After add_handler on_event")
 
-# loop = asyncio.new_event_loop()
-# loop.set_debug(True)
-# asyncio.set_event_loop(loop)
-# loop.create_task(client.run())
-# # Using this line causes failure
-# # asyncio.run(client.run(), debug=True)
-# loop.run_forever()
 
-
-health_server = HTTPServer(
-    healthcheck_port=8000, ven_id=VEN_ID
+simple_server = HTTPServer(
+    healthcheck_port=HTTPSERVER_PORT, ven_id=VEN_ID
 )
 loop = asyncio.get_event_loop()
-loop.create_task(health_server.start())
+loop.create_task(simple_server.start())
 loop.create_task(client.run())
-loop.create_task(health_server.check_thirdparty_api(
+loop.create_task(simple_server.check_thirdparty_api(
     thirdparty_api_url="https://google.com", interval=60
 ))
 loop.run_forever()

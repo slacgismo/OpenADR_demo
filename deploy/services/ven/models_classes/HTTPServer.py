@@ -10,7 +10,7 @@ class HTTPServer:
         self.healthcheck_port = healthcheck_port
         self.ven_id = ven_id
         self.app.add_routes(
-            [aiohttp.web.get('/healthcheck', self.handle_healthcheck)])
+            [aiohttp.web.get('/health', self.handle_healthcheck)])
         self.runner = aiohttp.web.AppRunner(self.app)
 
     async def start(self):
