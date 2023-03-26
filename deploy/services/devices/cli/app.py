@@ -12,6 +12,7 @@ from enum import Enum
 import pandas as pd
 import random
 import click
+
 from models_and_classes.create_agents import generate_first_number_agents_from_simulation_csv_file, Market_Interval, Device_Type, generate_emulated_battery_csv_file_with_device_id, BATTERY_BRANDS, ECS_ACTIONS_ENUM
 from models_and_classes.destroy_agents import destroy_all
 import logging
@@ -27,6 +28,12 @@ It will generate following sqs:
 2. destroy number agents
 
 """
+SQS_GROUPID = os.environ['SQS_GROUPID']
+if SQS_GROUPID is None:
+    raise Exception("SQS_GROUPID is not set")
+ENV = os.environ['ENV']
+if ENV is None:
+    raise Exception("ENV is not set")
 
 FIFO_SQS_URL = os.environ['FIFO_SQS_URL']
 if FIFO_SQS_URL is None:
@@ -40,6 +47,12 @@ BACKEND_S3_BUCKET_NAME = os.environ['BACKEND_S3_BUCKET_NAME']
 if BACKEND_S3_BUCKET_NAME is None:
     raise Exception("BACKEND_S3_BUCKET_NAME is not set")
 # Parent Command
+
+
+class Envoriment(Enum):
+    DEV = "DEV"
+    PROD = "PROD"
+    LOCAL = "LOCAL"
 
 
 @click.group()
@@ -76,7 +89,9 @@ def create_agents():
         number_of_agent_per_resource=1,
         device_type=Device_Type.ES.value,
         fifo_sqs=FIFO_SQS_URL,
-        ecs_action=ECS_ACTIONS_ENUM.CREATE.value
+        ecs_action=ECS_ACTIONS_ENUM.CREATE.value,
+        ENV=ENV,
+        SQS_GROUPID=SQS_GROUPID
 
     )
 
@@ -90,7 +105,9 @@ def update_agents():
         number_of_agent_per_resource=1,
         device_type=Device_Type.ES.value,
         fifo_sqs=FIFO_SQS_URL,
-        ecs_action=ECS_ACTIONS_ENUM.UPDATE.value
+        ecs_action=ECS_ACTIONS_ENUM.UPDATE.value,
+        ENV=ENV,
+        SQS_GROUPID=SQS_GROUPID
     )
 # ***************************
 #  Destroy all workers
@@ -103,7 +120,8 @@ def destroy_all_agents(
     destroy_all(
         fifo_sqs=FIFO_SQS_URL,
         ecs_cluster_name=ECS_CLUSTER_NAME,
-        backend_bucket_name=BACKEND_S3_BUCKET_NAME
+        backend_bucket_name=BACKEND_S3_BUCKET_NAME,
+        group_id=SQS_GROUPID
     )
     # generate_first_number_agents_from_simulation_csv_file(
     #     market_interval=Market_Interval.One_Minute.value,

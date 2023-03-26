@@ -49,7 +49,8 @@ def generate_first_number_agents_from_simulation_csv_file(
     device_type: str = Device_Type.ES.value,
     fifo_sqs: str = None,
     ecs_action: str = None,
-
+    ENV: str = None,
+    SQS_GROUPID: str = None,
 
 ) -> List[Dict]:
     """
@@ -136,6 +137,7 @@ def generate_first_number_agents_from_simulation_csv_file(
         command_list=command_list,
         MessageGroupId="TEST",
         ecs_action=ecs_action,
+        SQS_GROUPID=SQS_GROUPID
     )
 
     sqs_service = SQSService(
@@ -165,6 +167,7 @@ def create_messages_list(
     command_list: List[Dict],
     MessageGroupId: str,
     ecs_action: str = None,
+    SQS_GROUPID: str = None,
 ) -> List[Dict]:
 
     message_attributes = {
@@ -180,7 +183,7 @@ def create_messages_list(
         'MessageBody': json.dumps(message),
         'MessageAttributes': message_attributes,
         'MessageDeduplicationId': deduplication_id,
-        'MessageGroupId': group_id
+        'MessageGroupId': SQS_GROUPID
     } for i, message in enumerate(command_list)]
 
     return sqs_messages

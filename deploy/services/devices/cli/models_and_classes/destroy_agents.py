@@ -23,7 +23,8 @@ def extract_first_and_second_word(text):
 def destroy_all(
     ecs_cluster_name: str = None,
     fifo_sqs: str = None,
-    backend_bucket_name: str = None
+    backend_bucket_name: str = None,
+    group_id: str = None
 ):
     # list number of workers
     esc_service = ECSService(
@@ -68,8 +69,9 @@ def destroy_all(
         command_list.append(body)
     messages = create_messages_list(
         command_list=command_list,
-        MessageGroupId="TEST",
+        MessageGroupId=group_id,
         ecs_action=ECS_ACTIONS_ENUM.DELETE.value,
+        SQS_GROUPID=group_id
     )
     logging.info(f"number of agents:  {len(command_list)}")
     sqs_service = SQSService(
