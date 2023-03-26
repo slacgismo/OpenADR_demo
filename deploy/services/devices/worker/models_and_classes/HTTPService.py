@@ -1,6 +1,7 @@
 import threading
 import time
 from http.server import HTTPServer, BaseHTTPRequestHandler
+import logging
 
 
 class HealthCheckServer(BaseHTTPRequestHandler):
@@ -33,5 +34,5 @@ class HealthCheckService:
 
     def start_http_server(self):
         server = HTTPServer((self.host, self.port), HealthCheckServer)
-        print(f"Starting HTTP server on {self.host}:{self.port}")
+        logging.info(f"Starting HTTP server on {self.host}:{self.port}")
         server.serve_forever()

@@ -21,11 +21,12 @@ services:
       - AWS_REGION=${AWS_REGION:-us-east-2}
       - DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME:${DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME:-openadr-agent-shared-tf-state-lock}
       - ECS_CLUSTER_NAME=${ECS_CLUSTER_NAME:-"openadr-dev-agents-cluster}
+      - WORKER_PORT=${WORKER_PORT:-8000}
+      - ENV=${ENV:-DEV}
+      - SQS_GROUPID=${SQS_GROUPID:-LOCAL}
     volumes:
       - ./worker:/app
     # command: >
     #   sh -c "docker-compose run --rm terraform init -backend-config=backend.hcl"
     command: >
       sh -c "python app.py"
-    # ports:
-    #   - "8070:8070"

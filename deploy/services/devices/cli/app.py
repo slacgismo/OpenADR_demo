@@ -28,7 +28,11 @@ It will generate following sqs:
 2. destroy number agents
 
 """
+
 SQS_GROUPID = os.environ['SQS_GROUPID']
+# The SQS_GROUPID is used to separate the sqs queue for different environment.
+# if you want to send message to AWS worker, the SQS_GROUPID should be set to "AWS"
+# if you want to send message to local worker, the SQS_GROUPID should be set to "LOCAL"
 if SQS_GROUPID is None:
     raise Exception("SQS_GROUPID is not set")
 ENV = os.environ['ENV']

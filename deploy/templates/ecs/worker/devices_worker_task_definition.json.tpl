@@ -43,8 +43,30 @@
             {
                 "name": "ECS_CLUSTER_NAME",
                 "value": "${ECS_CLUSTER_NAME}"
+            },
+            {
+                "name": "WORKER_PORT",
+                "value": "${WORKER_PORT}"
+            },
+            {
+                "name": "ENV",
+                "value": "${ENV}"
+            },
+            {
+                "name": "SQS_GROUPID",
+                "value": "${SQS_GROUPID}"
             }
         ],
+        "HealthCheck":{
+            "retries": 3,
+            "command": [
+                "CMD-SHELL",
+                "curl -f http://localhost:${WORKER_PORT}/health || exit 1"
+
+            ],
+            "timeout": 5,
+            "interval": 30
+        },
         "logConfiguration": {
             "logDriver": "awslogs",
             "options": {

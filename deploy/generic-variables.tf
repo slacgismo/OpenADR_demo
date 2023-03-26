@@ -83,6 +83,19 @@ variable "devices_worker_health_check_port" {
 }
 
 
+# worker
+variable "worker_port" {
+  type        = string
+  description = "The name of the file containing the devices worker task definition"
+  default     = "8000"
+}
+
+variable "sqs_group_id" {
+  type        = string
+  description = "The name of the file containing the devices worker task definition"
+  default     = "AWS"
+}
+
 
 variable "device_worker_role_name" {
   default = "devices-workers-roles"

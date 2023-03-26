@@ -236,7 +236,7 @@ def main():
     #     ENV=ENV,
     # )
     http_server = HealthCheckService(
-        host="localhost", port=8070, path="/health")
+        host="localhost", port=int(WORKER_PORT), path="/health")
     http_server.run(
         long_process_fn=process_task_from_fifo_sqs, long_process_args=(
             FIFO_SQS_URL,

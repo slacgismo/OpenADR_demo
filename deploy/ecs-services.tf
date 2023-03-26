@@ -104,6 +104,9 @@ data "template_file" "devices_worker_container_definitions" {
     ECS_CLUSTER_NAME                                    = "${aws_ecs_cluster.main.name}"
     log_group_name                                      = "${aws_cloudwatch_log_group.worker_task_logs.name}"
     log_group_region                                    = "${var.aws_region}"
+    WORKER_PORT                                         = "${var.worker_port}"
+    ENV                                                = "${var.environment}"
+    SQS_GROUPID                                         = "${var.sqs_group_id}"
   }
 }
 
@@ -125,22 +128,22 @@ resource "aws_ecs_task_definition" "devices_worker" {
 # # create ecs service base on number of devices worker
 
 
-# resource "aws_ecs_service" "devices_worker" {
-#   # depends_on = [null_resource.build_and_push_docker_images_for_devices_admin_worker]
-#   for_each = { for i in range(var.number_of_devices_worker) : i => i }
+resource "aws_ecs_service" "devices_worker" {
+  # depends_on = [null_resource.build_and_push_docker_images_for_devices_admin_worker]
+  for_each = { for i in range(var.number_of_devices_worker) : i => i }
 
-#   name            = "${var.prefix}-devicesWorker-12"
-#   cluster         = aws_ecs_cluster.main.id
-#   task_definition = aws_ecs_task_definition.devices_worker.arn
-#   #   task_definition  = aws_ecs_task_definition.agent.family
-#   desired_count    = 1
-#   launch_type      = "FARGATE"
-#   platform_version = "1.4.0"
-#   network_configuration {
-#     subnets          = module.vpc.private_subnets
-#     security_groups  = [aws_security_group.devices_worker_sg.id]
-#     assign_public_ip = false
-#   }
-#   tags = local.common_tags
-# }
+  name            = "${var.prefix}-devicesWorker-12"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.devices_worker.arn
+  #   task_definition  = aws_ecs_task_definition.agent.family
+  desired_count    = 1
+  launch_type      = "FARGATE"
+  platform_version = "1.4.0"
+  network_configuration {
+    subnets          = module.vpc.private_subnets
+    security_groups  = [aws_security_group.devices_worker_sg.id]
+    assign_public_ip = false
+  }
+  tags = local.common_tags
+}
 
