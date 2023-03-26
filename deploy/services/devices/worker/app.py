@@ -32,6 +32,9 @@ from handle_action import handle_action
 # load_dotenv()
 logging.basicConfig(format='%(asctime)s %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+SQS_GROUPID = os.environ['SQS_GROUPID']
+if SQS_GROUPID is None:
+    raise Exception("SQS_GROUPID is not set")
 
 ENV = os.environ['ENV']
 if ENV is None:
@@ -113,14 +116,15 @@ def process_task_from_fifo_sqs(
             sqs_service = SQSService(
                 queue_url=queue_url
             )
-            try:
-                message = sqs_service.receive_message(
-                    MaxNumberOfMessages=MaxNumberOfMessages,
-                    WaitTimeSeconds=WaitTimeSeconds,
-                    VisibilityTimeout=VisibilityTimeout
-                )
-            except Exception as e:
-                raise logging.error(f"Error : {e}")
+            # try:
+            message = sqs_service.receive_message(
+                MaxNumberOfMessages=MaxNumberOfMessages,
+                WaitTimeSeconds=WaitTimeSeconds,
+                VisibilityTimeout=VisibilityTimeout,
+                group_id=SQS_GROUPID
+            )
+            # except Exception as e:
+            #     raise logging.error(f"receive_message error : {e}")
 
             if message is None:
                 logging.info("Waiting.... %s" %
@@ -142,7 +146,7 @@ def process_task_from_fifo_sqs(
                 message_attributes = message['MessageAttributes']
                 action = message_attributes['Action']['StringValue']
                 message_body = json.loads(message['Body'])
-
+                print("======== ")
                 # delete the message from the queue first to avoid duplicate
                 handle_action(
                     action=action,

@@ -6,21 +6,16 @@ from uuid import uuid4
 from enum import Enum
 
 
-class MessageGroupId(Enum):
-    LOCAL_TEST = "local_test"
-    AWS_TEST = "aws_test"
-    AWS_PROD = "aws_prod"
-
-
 class SQSService:
     def __init__(self, queue_url, ):
         self.queue_url = queue_url
 
         self.sqs = boto3.client('sqs')
 
-    def receive_message(self, MaxNumberOfMessages: int = 1, WaitTimeSeconds: int = 20, VisibilityTimeout: int = 30):
+    def receive_message(self, MaxNumberOfMessages: int = 1, WaitTimeSeconds: int = 20, VisibilityTimeout: int = 30, group_id: str = None):
         try:
             response = self.sqs.receive_message(
+
                 QueueUrl=self.queue_url,
                 AttributeNames=['All'],
                 MessageAttributeNames=['All'],
@@ -29,16 +24,20 @@ class SQSService:
                 VisibilityTimeout=VisibilityTimeout,
                 ReceiveRequestAttemptId=str(time.time())
             )
+            # messages = response.get('Messages')
+            messages = response.get('Messages')
+            if messages is None:
+                return None
+
+            for message in messages:
+                Attributes = message.get('Attributes')
+                MessageGroupId = Attributes.get('MessageGroupId')
+                if MessageGroupId == group_id:
+                    return message
 
         except ClientError as e:
-            print(
+            raise (
                 f"Failed to receive message from SQS queue {self.queue_url}. Error: {e}")
-            return None
-
-        messages = response.get('Messages')
-        if messages is not None:
-            message = messages[0]
-            return message
 
     def delete_message(self, receipt_handle):
         try:

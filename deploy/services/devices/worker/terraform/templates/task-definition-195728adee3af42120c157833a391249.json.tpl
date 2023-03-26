@@ -1,6 +1,6 @@
 [
     {
-        "name": "vtn-84efbee2044478964ec60b9338c9ba",
+        "name": "vtn-700c3ec55b40f78587f7739a20147c",
         "image": "${app_image_vtn}",
         "essential": true,
         "memoryReservation": 256,
@@ -30,7 +30,7 @@
             },
             {
                 "name": "VTN_ID",
-                "value": "84efbee2044478964ec60b9338c9ba"
+                "value": "700c3ec55b40f78587f7739a20147c"
             },
             {
                 "name": "MARKET_INTERVAL_IN_SECOND",
@@ -62,7 +62,7 @@
         "mountPoints": [
             {
                 "readOnly": false,
-                "containerPath": "/vol/84efbee2044478964ec60b9338c9ba",
+                "containerPath": "/vol/700c3ec55b40f78587f7739a20147c",
                 "sourceVolume": "agent-volume"
             }
         ],
@@ -80,12 +80,12 @@
             "options": {
                 "awslogs-group": "${cloudwatch_name}",
                 "awslogs-region": "${aws_region}",
-                "awslogs-stream-prefix": "195728adee3af42120c157833a391249-84efbee2044478964ec60b9338c9ba"
+                "awslogs-stream-prefix": "195728adee3af42120c157833a391249-700c3ec55b40f78587f7739a20147c"
             }
         }
     },
     {
-        "name": "ven-d2f23724b04102a27735ce080445c8",
+        "name": "ven-5ccc85bbc94648964cfea7998bea42",
         "image": "${app_image_ven}",
         "essential": true,
         "memoryReservation": 256,
@@ -107,7 +107,7 @@
             },
             {
                 "name": "VEN_ID",
-                "value": "4bb245dfb2406b828114a67511b08b"
+                "value": "514626e7aa4205a49b5f22a16d1c7b"
             },
             {
                 "name": "AGENT_ID",
@@ -119,7 +119,7 @@
             },
             {
                 "name": "METER_ID",
-                "value": "7f93750b0444e39783a8ca174e42d6"
+                "value": "855ca7a2e84ad7952665f2341e295b"
             },
             {
                 "name": "DEVICE_ID",
@@ -151,7 +151,7 @@
             },
             {
                 "name": "BIDING_PRICE_THRESHOLD",
-                "value": "2.0998470089532337"
+                "value": "4.908063815019288"
             },
             {
                 "name": "EMULATED_DEVICE_API_URL",
@@ -161,7 +161,7 @@
         "mountPoints": [
             {
                 "readOnly": false,
-                "containerPath": "/vol/d2f23724b04102a27735ce080445c8",
+                "containerPath": "/vol/5ccc85bbc94648964cfea7998bea42",
                 "sourceVolume": "agent-volume"
             }
         ],
@@ -179,7 +179,7 @@
             "options": {
                 "awslogs-group": "${cloudwatch_name}",
                 "awslogs-region": "${aws_region}",
-                "awslogs-stream-prefix": "195728adee3af42120c157833a391249-d2f23724b04102a27735ce080445c8"
+                "awslogs-stream-prefix": "195728adee3af42120c157833a391249-5ccc85bbc94648964cfea7998bea42"
             }
         }
     }
