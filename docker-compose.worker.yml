@@ -4,11 +4,11 @@ services:
   worker:
     platform: linux/amd64
     build:
-      context: ./worker
+      context: ./services/devices/worker
       args:
         - DEV=true
     env_file:
-      - ./worker/.env
+      - ./services/devices/worker/.env
     environment:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
@@ -25,7 +25,7 @@ services:
       - ENV=${ENV:-DEV}
       - SQS_GROUPID=${SQS_GROUPID:-LOCAL}
     volumes:
-      - ./worker:/app
+      - ./services/devices/worker:/app
     # command: >
     #   sh -c "docker-compose run --rm terraform init -backend-config=backend.hcl"
     command: >

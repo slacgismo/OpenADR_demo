@@ -64,3 +64,12 @@ tagAndPush:
 	docker tag services_ven:latest 041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest
 	docker push 041414866712.dkr.ecr.us-east-2.amazonaws.com/vtn:latest
 	docker push 041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest
+
+
+.PHONY: docker-compose-worker-up
+docker-compose-worker-up:
+	docker-compose -f docker-compose.worker.yml up 
+
+.PHONY: docker-compose-openadr-up
+docker-compose-openadr-up:
+	docker-compose -f docker-compose.openadr.yml up 
