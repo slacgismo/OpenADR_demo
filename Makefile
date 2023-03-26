@@ -58,12 +58,12 @@ test:
 login-ecr:
 	aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 041414866712.dkr.ecr.us-east-2.amazonaws.com
 	
-.PHONY: tagAndPush
-tagAndPush:
-	docker tag services_vtn:latest 041414866712.dkr.ecr.us-east-2.amazonaws.com/vtn:latest
-	docker tag services_ven:latest 041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest
-	docker push 041414866712.dkr.ecr.us-east-2.amazonaws.com/vtn:latest
-	docker push 041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest
+# .PHONY: tagAndPush
+# tagAndPush:
+# 	docker tag openadr_vtn:latest 041414866712.dkr.ecr.us-east-2.amazonaws.com/vtn:latest
+# 	docker tag openadr_ven:latest 041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest
+# 	docker push 041414866712.dkr.ecr.us-east-2.amazonaws.com/vtn:latest
+# 	docker push 041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest
 
 
 .PHONY: docker-compose-worker-up

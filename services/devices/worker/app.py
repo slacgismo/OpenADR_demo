@@ -43,7 +43,7 @@ if ENV is None:
 WORKER_PORT = os.environ['WORKER_PORT']
 if WORKER_PORT is None:
     raise Exception("WORKER_PORT not set")
-
+logging.info(f"worker port is {WORKER_PORT}")
 
 FIFO_SQS_URL = os.environ['FIFO_SQS_URL']
 if FIFO_SQS_URL is None:

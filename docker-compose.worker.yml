@@ -26,7 +26,5 @@ services:
       - SQS_GROUPID=${SQS_GROUPID:-LOCAL}
     volumes:
       - ./services/devices/worker:/app
-    # command: >
-    #   sh -c "docker-compose run --rm terraform init -backend-config=backend.hcl"
     command: >
       sh -c "python app.py"
