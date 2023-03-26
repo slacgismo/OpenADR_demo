@@ -1,6 +1,6 @@
 # # Create a Null Resource and Provisioners
 
-resource "null_resource" "exports_terrafrom_tfvars_to_devices_admin_worker_terraform" {
+resource "null_resource" "export_terrafrom_tfvars_to_devices_admin_worker_terraform" {
   depends_on = [
     aws_s3_bucket.agents,
     aws_dynamodb_table.agenets_shared_state_lock,
@@ -43,12 +43,12 @@ resource "null_resource" "exports_terrafrom_tfvars_to_devices_admin_worker_terra
       echo '# dynamic setting task_definition_file' >> terraform.tfvars
     EOT
     # save to devices admin worker terraform folder
-    working_dir = "${path.module}/services/devices/worker/terraform"
+    working_dir = "../services/devices/worker/terraform"
   }
 }
 
 # create .env file for devices_admin worker folder
-resource "null_resource" "exports_env_file_for_devices_admin_worker" {
+resource "null_resource" "export_env_file_for_devices_admin_worker" {
   depends_on = [aws_sqs_queue.opneadr_workers_sqs]
 
   # always run this resource
@@ -64,9 +64,12 @@ resource "null_resource" "exports_env_file_for_devices_admin_worker" {
       echo 'HEALTH_CHEKC_PORT="${var.devices_worker_health_check_port}"' >> .env
       echo 'DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME="${aws_dynamodb_table.agenets_shared_state_lock.name}"' >> .env
       echo 'ECS_CLUSTER_NAME="${aws_ecs_cluster.main.name}"' >> .env
+      echo 'SQS_GROUPID="${var.sqs_group_id}"'>> .env
+      echo 'ENV="${var.environment}"'>> .env
+      echo 'WORKER_PORT="${var.worker_port}"'>> .env
     EOT
     # save to devices admin worker terraform folder
-    working_dir = "${path.module}/services/devices/worker"
+    working_dir = "../services/devices/worker"
   }
 }
 
@@ -80,12 +83,13 @@ resource "null_resource" "exports_env_file_for_devices_admin_cli" {
   }
   provisioner "local-exec" {
     command = <<-EOT
-      echo 'worker_fifo_sqs_url="${aws_sqs_queue.opneadr_workers_sqs.url}"' > .env
-      echo 'ecs_cluster_name="${aws_ecs_cluster.main.name}"'>> .env
-
+      echo 'FIFO_SQS_URL="${aws_sqs_queue.opneadr_workers_sqs.url}"' > .env
+      echo 'ECS_CLUSTER_NAME="${aws_ecs_cluster.main.name}"'>> .env
+      echo 'SQS_GROUPID="${var.sqs_group_id}"'>> .env
+      echo 'ENV="${var.environment}"'>> .env
     EOT
     # save to devices admin worker terraform folder
-    working_dir = "${path.module}/services/devices/cli"
+    working_dir = "../services/devices/cli"
 
   }
 }
