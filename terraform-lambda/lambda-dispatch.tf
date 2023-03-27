@@ -1,5 +1,5 @@
 resource "aws_iam_role" "participated_vens_lambda_exec" {
-  name = "participated_vens-lambda"
+  name = "${var.prefix}-${var.client}-${var.environment}-dispatch-exec-role"
 
   assume_role_policy = <<POLICY
 {
@@ -30,8 +30,8 @@ resource "aws_iam_role_policy_attachment" "participated_vens_lamda_access_s3" {
 }
 
 resource "aws_lambda_function" "participated_vens" {
-  function_name = "participated_vens"
-
+  # function_name = "participated_vens"
+  function_name ="${var.prefix}-${var.client}-${var.environment}-dispatch-api"
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_participated_vens.key
 

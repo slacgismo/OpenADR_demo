@@ -12,7 +12,7 @@ resource "aws_iam_policy" "task_execution_role_policy" {
 }
 # Agent exec role
 resource "aws_iam_role" "task_execution_role" {
-  name               = "${var.prefix}-task-exec-role"
+  name               = "${var.prefix}-${var.client}-${var.environment}-agent-exec-role"
   assume_role_policy = file("./templates/ecs/assume-role-policy.json")
   tags               = local.common_tags
 }
@@ -23,8 +23,9 @@ resource "aws_iam_role_policy_attachment" "task_execution_role" {
 }
 
 
+
 resource "aws_iam_role" "app_iam_role" {
-  name               = "${var.prefix}-vtn-task"
+  name               = "${var.prefix}-${var.client}-${var.environment}-agent-iam-role"
   assume_role_policy = file("./templates/ecs/assume-role-policy.json")
 
   tags = local.common_tags
@@ -40,7 +41,8 @@ data "template_file" "devices_workers_execution_role_file" {
   template = file("./templates/ecs/worker/devices-work-exec-role.json.tpl")
 }
 resource "aws_iam_policy" "device_workers_execution_role_policy" {
-  name        = "${var.prefix}-device-workers-exec-role-policy"
+  name = "${var.prefix}-${var.client}-${var.environment}-device-worker-exec-role"
+  # name        = "${var.prefix}-device-workers-exec-role-policy"
   path        = "/"
   description = "Allow retrieving images and adding to logs"
   policy      = data.template_file.devices_workers_execution_role_file.rendered
@@ -64,7 +66,8 @@ resource "aws_iam_role_policy_attachment" "device_worker_execution_role" {
 # =================================================================================================
 
 resource "aws_iam_role" "devices_workers_iam_role" {
-  name               = "${var.prefix}-${var.device_worker_role_name}"
+  name = "${var.prefix}-${var.client}-${var.environment}-device-worker-iam-role"
+  # name               = "${var.prefix}-${var.device_worker_role_name}"
   assume_role_policy = file("./templates/ecs/assume-role-policy.json")
 
   tags = local.common_tags
@@ -85,7 +88,7 @@ data "template_file" "workers_s3_policy_file" {
 }
 
 resource "aws_iam_policy" "device_worker_s3_policy" {
-  name        = "${var.prefix}-${var.device_worker_role_name}-s3-policy"
+  name        = "${var.prefix}-${var.client}-${var.environment}-s3-policy"
   path        = "/"
   description = "Allow retrieving images and adding to logs"
   policy      = data.template_file.workers_s3_policy_file.rendered
@@ -110,7 +113,7 @@ data "template_file" "workers_sqs_policy_file" {
 }
 
 resource "aws_iam_policy" "device_worker_sqs_policy" {
-  name        = "${var.prefix}-${var.device_worker_role_name}-sqs-policy"
+  name        = "${var.prefix}-${var.client}-${var.environment}-sqs-policy"
   path        = "/"
   description = "Allow retrieving images and adding to logs"
   policy      = data.template_file.workers_sqs_policy_file.rendered
@@ -133,7 +136,7 @@ data "template_file" "workers_dynamodb_policy_file" {
 }
 
 resource "aws_iam_policy" "device_worker_dynamodb_policy" {
-  name        = "${var.prefix}-${var.device_worker_role_name}-dynamodb-policy"
+  name        = "${var.prefix}-${var.client}-${var.environment}-dynamodb-policy"
   path        = "/"
   description = "Allow retrieving images and adding to logs"
   policy      = data.template_file.workers_dynamodb_policy_file.rendered
@@ -153,7 +156,7 @@ data "template_file" "workers_iam_policy_file" {
 }
 
 resource "aws_iam_policy" "devices_workers_iam_policy" {
-  name        = "${var.prefix}-${var.device_worker_role_name}-iam-policy"
+  name        = "${var.prefix}-${var.client}-${var.environment}-iam-policy"
   path        = "/"
   description = "Allow retrieving images and adding to logs"
   policy      = data.template_file.workers_iam_policy_file.rendered
@@ -176,7 +179,7 @@ data "template_file" "workers_log_policy_file" {
 }
 
 resource "aws_iam_policy" "device_worker_log_policy" {
-  name        = "${var.prefix}-${var.device_worker_role_name}-log-policy"
+  name        = "${var.prefix}-${var.client}-${var.environment}-log-policy"
   path        = "/"
   description = "Allow retrieving images and adding to logs"
   policy      = data.template_file.workers_log_policy_file.rendered
@@ -197,7 +200,7 @@ data "template_file" "workers_ec2_policy_file" {
 }
 
 resource "aws_iam_policy" "device_worker_ec2_policy" {
-  name        = "${var.prefix}-${var.device_worker_role_name}-ec2-policy"
+  name        = "${var.prefix}-${var.client}-${var.environment}-ec2-policy"
   path        = "/"
   description = "Allow retrieving images and adding to logs"
   policy      = data.template_file.workers_ec2_policy_file.rendered
@@ -222,7 +225,8 @@ data "template_file" "workers_ecs_limit_policy_file" {
 }
 
 resource "aws_iam_policy" "device_worker_ecs_limit_policy" {
-  name        = "${var.prefix}-${var.device_worker_role_name}-ecs-policy"
+  name = "${var.prefix}-${var.client}-${var.environment}-ecs-policy"
+
   path        = "/"
   description = "Allow retrieving images and adding to logs"
   policy      = data.template_file.workers_ecs_limit_policy_file.rendered

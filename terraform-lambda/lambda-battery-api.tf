@@ -1,6 +1,6 @@
 resource "aws_iam_role" "battery_api_lambda_exec" {
-  name = "battery_api-lambda"
-
+  # name = "battery_api-lambda"
+  name           = "${var.prefix}-${var.client}-${var.environment}-mock-battery-lambda-exec-role"
   assume_role_policy = <<POLICY
 {
   "Version": "2012-10-17",
@@ -25,8 +25,8 @@ resource "aws_iam_role_policy_attachment" "battery_api_lambda_policy" {
 
 resource "aws_iam_policy" "dyanmodb_lambda_access" {
   depends_on = [aws_dynamodb_table.battery-table]
-  name = "dyanmodb_lambda_access"
-
+  # name = "dyanmodb_lambda_access"
+  name           = "${var.prefix}-${var.client}-${var.environment}-dynamodb-lambda-access-ploicy"
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -60,8 +60,9 @@ resource "aws_iam_role_policy_attachment" "battery_api_lamda_access_s3" {
 }
 
 resource "aws_lambda_function" "battery_api" {
-  function_name = "battery_api"
-
+  # function_name = "battery_api"
+  function_name ="${var.prefix}-${var.client}-${var.environment}-mock-battery-pai"
+  
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_battery_api.key
 

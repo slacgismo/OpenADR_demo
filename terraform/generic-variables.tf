@@ -9,7 +9,13 @@ variable "aws_region" {
 variable "environment" {
   description = "Environment Variable used as a prefix"
   type        = string
-  default     = "dev"
+  # default     = "dev"
+}
+
+variable "client" {
+  description = "client name"
+  type        = string
+  # default     = "NHEC"
 }
 
 variable "project" {
@@ -20,7 +26,7 @@ variable "project" {
 variable "prefix" {
   description = "Name prefix"
   type        = string
-  default     = "openadr"
+  # default     = "openadr"
 }
 variable "creator" {
   description = "Creator"

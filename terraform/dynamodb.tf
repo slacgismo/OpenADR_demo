@@ -2,7 +2,7 @@
 
 
 resource "aws_dynamodb_table" "agenets_shared_state_lock" {
-  name           = "${var.prefix}-agent-shared-tf-state-lock"
+  name           = "${var.prefix}-${var.client}-${var.environment}-agent-shared-tf-state-lock"
   billing_mode   = "PROVISIONED"
   read_capacity  = 1
   write_capacity = 1

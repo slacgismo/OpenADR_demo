@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "agents" {
-  bucket        = "${var.prefix}-agents-state"
+  bucket        = lower("shared.${var.client}-${var.environment}.tf-state")
   force_destroy = true
   tags          = local.common_tags
 }

@@ -1,5 +1,6 @@
 resource "aws_dynamodb_table" "battery-table" {
-  name           = "battery-table"
+  # name           = "battery-table"
+  name           = "${var.prefix}-${var.client}-${var.environment}-mock-battery"
   billing_mode   = "PROVISIONED"
   read_capacity  = 1
   write_capacity = 1

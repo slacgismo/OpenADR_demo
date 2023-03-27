@@ -1,11 +1,7 @@
 
-resource "random_pet" "lambda_bucket_name" {
-  prefix = "lambda"
-  length = 2
-}
 
 resource "aws_s3_bucket" "lambda_bucket" {
-  bucket        = "openadr-device-data-test"
+  bucket        =  lower("${var.client}-${var.environment}.lambdabucket")
   force_destroy = true
   tags = local.common_tags
 }

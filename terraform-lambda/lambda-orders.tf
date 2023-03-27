@@ -1,5 +1,5 @@
 resource "aws_iam_role" "market_prices_lambda_exec" {
-  name = "market_prices-lambda"
+  name = "${var.prefix}-${var.client}-${var.environment}-orders-exec-role"
 
   assume_role_policy = <<POLICY
 {
@@ -25,7 +25,7 @@ resource "aws_iam_role_policy_attachment" "market_prices_lambda_policy" {
 
 
 resource "aws_lambda_function" "market_prices" {
-  function_name = "market_prices"
+    function_name ="${var.prefix}-${var.client}-${var.environment}-orders-api"
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_market_prices.key

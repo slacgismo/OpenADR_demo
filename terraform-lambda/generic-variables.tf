@@ -11,6 +11,11 @@ variable "environment" {
   type        = string
   default     = "dev"
 }
+variable "client" {
+  description = "Client name"
+  type        = string
+  default     = "NHEC"
+}
 
 variable "project" {
   description = "project name"

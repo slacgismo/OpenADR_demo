@@ -31,14 +31,14 @@ data "template_file" "devices_worker_container_definitions" {
     log_group_name                                      = "${aws_cloudwatch_log_group.worker_task_logs.name}"
     log_group_region                                    = "${var.aws_region}"
     WORKER_PORT                                         = "${var.worker_port}"
-    ENV                                                = "${var.environment}"
+    ENV                                                 = "${var.environment}"
     SQS_GROUPID                                         = "${var.sqs_group_id}"
   }
 }
 
 resource "aws_ecs_task_definition" "devices_worker" {
 
-  family                   = "${var.prefix}-devicesWorker"
+  family                   = "${var.prefix}-${var.client}-${var.environment}-devices-worker"
   container_definitions    = data.template_file.devices_worker_container_definitions.rendered
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"

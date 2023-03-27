@@ -1,5 +1,5 @@
 resource "aws_iam_role" "openadr_devices_lambda_exec" {
-  name = "openadr_devices-lambda"
+  name = "${var.prefix}-${var.client}-${var.environment}-devices-exec-role"
 
   assume_role_policy = <<POLICY
 {
@@ -48,8 +48,8 @@ resource "aws_iam_role_policy_attachment" "s3_lambda_test_s3_bucket_access" {
 
 
 resource "aws_lambda_function" "openadr_devices" {
-  function_name = "openadr_devices"
 
+  function_name ="${var.prefix}-${var.client}-${var.environment}-devices-pai"
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_openadr_devices.key
 

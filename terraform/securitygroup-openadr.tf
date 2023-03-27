@@ -3,7 +3,7 @@
 
 resource "aws_security_group" "devices_worker_sg" {
   description = "Access for the ECS service"
-  name        = "${var.prefix}-ecs-devices-worker-sg"
+  name        = "${var.prefix}-${var.client}-${var.environment}-ecs-devices-worker-sg"
   vpc_id      = module.vpc.vpc_id
 
 
@@ -32,15 +32,10 @@ resource "aws_security_group" "devices_worker_sg" {
 
 resource "aws_security_group" "ecs_agent_sg" {
   description = "Access for the ECS service"
-  name        = "${var.prefix}-ecs-agent-sg"
-  vpc_id      = module.vpc.vpc_id
+  name        = "${var.prefix}-${var.client}-${var.environment}-ecs-agent-sg"
 
-  # egress {
-  #   from_port   = 80
-  #   to_port     = 80
-  #   protocol    = "tcp"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
+  vpc_id = module.vpc.vpc_id
+
 
   egress {
     from_port   = 443
