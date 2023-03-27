@@ -1,16 +1,15 @@
 import threading
-import time
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import logging
 
 
 class HealthCheckServer(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path == '/health':
+        if self.path == "/health":
             self.send_response(200)
-            self.send_header('Content-type', 'text/plain')
+            self.send_header("Content-type", "text/plain")
             self.end_headers()
-            self.wfile.write(b'OK')
+            self.wfile.write(b"OK")
         else:
             self.send_error(404)
 
@@ -22,13 +21,13 @@ class HealthCheckService:
         self.path = path
 
     def run(self, long_process_fn, long_process_args):
-
         server_thread = threading.Thread(target=self.start_http_server)
         server_thread.start()
 
         if long_process_fn:
             long_process_thread = threading.Thread(
-                target=long_process_fn, args=long_process_args)
+                target=long_process_fn, args=long_process_args
+            )
             long_process_thread.start()
             long_process_thread.join()  # Wait for the thread to finish
 

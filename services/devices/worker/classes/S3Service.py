@@ -1,5 +1,4 @@
 import boto3
-import os
 from . import STSService
 import time
 import json
@@ -7,10 +6,9 @@ import json
 
 class S3Service:
     def __init__(self, bucket_name: str):
-
-        self.client = boto3.client('s3')
+        self.client = boto3.client("s3")
         self.bucket_name = bucket_name
-        self.s3 = boto3.client('s3')
+        self.s3 = boto3.client("s3")
 
     def download_file(self, source, destination) -> None:
         try:
@@ -50,18 +48,20 @@ class S3Service:
             return None
         except Exception as e:
             raise Exception(f"Error when remove {file_name} from s3: {e}")
+
     # list all the objects in s3 bucket on a given path
 
     def validate_s3_bucket(self, sts_service: STSService) -> None:
         try:
             account_id = sts_service.get_account_id()
             current_time = str(int(time.time()))
-            data = {'account_id': account_id, "time": current_time}
+            data = {"account_id": account_id, "time": current_time}
             # save data to s3
             response = self.s3.put_object(
                 Bucket=self.bucket_name,
                 Key=f"access/{account_id}.json",
-                Body=json.dumps(data))
+                Body=json.dumps(data),
+            )
 
             print("Validate s3 bucket write access success")
 

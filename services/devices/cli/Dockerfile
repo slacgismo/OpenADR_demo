@@ -1,7 +1,7 @@
 FROM python:3.9-slim-buster
 
 LABEL maintainer="Jimmy"
-
+ENV DEV="true"
 ENV PYTHONUNBUFFERED 1
 
 COPY requirements.txt /tmp/requirements.txt

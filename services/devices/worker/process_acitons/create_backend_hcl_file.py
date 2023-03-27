@@ -1,6 +1,4 @@
-import subprocess
 import os
-from enum import Enum
 
 
 def create_backend_hcl_file(
@@ -25,22 +23,3 @@ def create_backend_hcl_file(
             f.write(f'dynamodb_table = "{backend_dynamodb_table}"\n')
     except Exception as e:
         raise Exception(f"Error creating backend.hcl file: {e}")
-
-
-def create_terraform_auto_tfvars_file(
-    path: str,
-    terraform_auto_tfvars_file_name: str,
-    params: dict
-):
-    """
-    Create terraform.auto.tfvars file to store the variables
-    """
-    try:
-        os.makedirs(path, exist_ok=True)
-        terraform_auto_tfvars_file_path = os.path.join(
-            path, terraform_auto_tfvars_file_name)
-        with open(terraform_auto_tfvars_file_path, "w") as f:
-            for key, value in params.items():
-                f.write(f"{key}=\"{value}\"\n")
-    except Exception as e:
-        raise Exception(f"Error creating terraform.auto.tfvars file: {e}")

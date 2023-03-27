@@ -7,9 +7,10 @@ Then convet to task definition
 
 import json
 from typing import List, Dict, Any
-import uuid
 import os
 from enum import Enum
+from .guid import guid
+from pathlib import Path
 
 
 class VTN_TASK_VARIANTS_ENUM(Enum):
@@ -58,11 +59,6 @@ CONTAINER_DEFINITION_TEMPLATE = ({
     "command": ["python vtn.py"],
 
 })
-
-
-def guid():
-    """Return a globally unique id"""
-    return uuid.uuid4().hex[2:]
 
 
 def create_ven_params(
@@ -371,7 +367,7 @@ def create_and_export_task_definition(
     params: path:
     """
     if not os.path.exists(path):
-        raise Exception("path not found")
+        raise Exception(f"{path} path not found")
     vtn_id = guid()
     vtn_environment_variables = create_vtn_params(
         market_interval_in_second=market_interval_in_second,

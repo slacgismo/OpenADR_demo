@@ -90,7 +90,7 @@ def create_agents():
         market_interval=Market_Interval.One_Minute.value,
         number_of_market=1,
         number_of_resouce_per_market=1,
-        number_of_agent_per_resource=1,
+        number_of_agent_per_resource=2,
         device_type=Device_Type.ES.value,
         fifo_sqs=FIFO_SQS_URL,
         ecs_action=ECS_ACTIONS_ENUM.CREATE.value,
@@ -106,7 +106,7 @@ def update_agents():
         market_interval=Market_Interval.One_Minute.value,
         number_of_market=1,
         number_of_resouce_per_market=1,
-        number_of_agent_per_resource=1,
+        number_of_agent_per_resource=2,
         device_type=Device_Type.ES.value,
         fifo_sqs=FIFO_SQS_URL,
         ecs_action=ECS_ACTIONS_ENUM.UPDATE.value,
@@ -124,7 +124,6 @@ def destroy_all_agents(
     destroy_all(
         fifo_sqs=FIFO_SQS_URL,
         ecs_cluster_name=ECS_CLUSTER_NAME,
-        backend_bucket_name=BACKEND_S3_BUCKET_NAME,
         group_id=SQS_GROUPID
     )
     # generate_first_number_agents_from_simulation_csv_file(

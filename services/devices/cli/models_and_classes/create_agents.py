@@ -135,9 +135,8 @@ def generate_first_number_agents_from_simulation_csv_file(
     # TODO: if no workers, start the workers, it not enough workers, start more workers
     sqs_messages = create_messages_list(
         command_list=command_list,
-        MessageGroupId="TEST",
+        MessageGroupId=SQS_GROUPID,
         ecs_action=ecs_action,
-        SQS_GROUPID=SQS_GROUPID
     )
 
     sqs_service = SQSService(
@@ -167,12 +166,11 @@ def create_messages_list(
     command_list: List[Dict],
     MessageGroupId: str,
     ecs_action: str = None,
-    SQS_GROUPID: str = None,
 ) -> List[Dict]:
 
     message_attributes = {
         'Action': {'StringValue':  ecs_action, 'DataType': "String"},
-        'Services': {'StringValue': 'ECS', 'DataType': "String"},
+        'Services': {'StringValue': 'AWS', 'DataType': "String"},
     }
     deduplication_id = str(guid())
     group_id = MessageGroupId
@@ -183,7 +181,7 @@ def create_messages_list(
         'MessageBody': json.dumps(message),
         'MessageAttributes': message_attributes,
         'MessageDeduplicationId': deduplication_id,
-        'MessageGroupId': SQS_GROUPID
+        'MessageGroupId': MessageGroupId
     } for i, message in enumerate(command_list)]
 
     return sqs_messages

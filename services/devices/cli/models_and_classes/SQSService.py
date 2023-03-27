@@ -56,6 +56,7 @@ class SQSService:
                 MessageDeduplicationId=str(uuid4()),
                 MessageBody=message_body
             )
+            print(f"send mesage response:  {response}")
 
         except ClientError as e:
             print(

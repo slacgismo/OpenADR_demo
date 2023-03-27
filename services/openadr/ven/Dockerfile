@@ -1,9 +1,8 @@
 
-
 FROM python:3.9-alpine
 
 LABEL maintainer="Jimmy"
-
+ARG DEV
 ENV PYTHONUNBUFFERED 1
 ENV TERRAFORM_VERSION="1.3.6"
 
@@ -14,10 +13,11 @@ RUN apk add --no-cache --virtual .build-deps \
         curl \
         unzip \
         libffi-dev \
+
     && python -m venv /py \
     && /py/bin/pip install --upgrade pip \
     && /py/bin/pip install -r /tmp/requirements.txt \
-    && if [ "$DEV" = "true" ]; then \
+    && if [ "$DEV" == "true" ]; then \
            /py/bin/pip install -r /tmp/requirements.dev.txt; \
        fi \
     && rm -rf /tmp \
@@ -40,6 +40,7 @@ ENV PATH="/py/bin:$PATH"
 
 # COPY ./requirements.txt /tmp/requirements.txt
 # COPY ./requirements.dev.txt /tmp/requirements.dev.txt
+
 
 
 # ARG DEV=true
@@ -66,4 +67,4 @@ ENV PATH="/py/bin:$PATH"
 
 
 # ENV PATH="/py/bin:$PATH"
-# # CMD [ "python ./app/vtn.py" ]
+# CMD [ "python ven.py" ]
