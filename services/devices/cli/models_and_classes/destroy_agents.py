@@ -26,10 +26,10 @@ def destroy_all(
     group_id: str = None
 ):
     # list number of workers
-    esc_service = ECSService(
+    ecs_service = ECSService(
         ecs_cluster_name=ecs_cluster_name
     )
-    active_agents_list = esc_service.list_ecs_services()
+    active_agents_list = ecs_service.list_ecs_services()
     # find agenet id
     # download task definition from s3
     if active_agents_list is None:
