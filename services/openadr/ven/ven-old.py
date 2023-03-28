@@ -39,7 +39,7 @@ MARKET_INTERVAL_IN_SECOND = int(os.environ['MARKET_INTERVAL_IN_SECOND'])
 
 
 # parameters check
-device_params = json.loads(DEVICE_SETTINGS)
+device_settings = json.loads(DEVICE_SETTINGS)
 
 # check if device type exist, , device id exist,
 
@@ -57,10 +57,10 @@ async def collect_report_value(date_from, date_to, sampling_interval):
     try:
         if DEVICE_TYPE == DEVICE_TYPES.HS.value:
             # fetch brands from device params
-            DEVICE_BRAND = device_params['device_brand']
+            DEVICE_BRAND = device_settings['device_brand']
             if DEVICE_BRAND == BATTERY_BRANDS.SONNEN.value:
-                BATTERY_TOKEN = device_params['device_token']
-                BATTERY_SN = device_params['device_sn']
+                BATTERY_TOKEN = device_settings['device_token']
+                BATTERY_SN = device_settings['device_sn']
                 if ENV == 'PROD':
                     battery_interface = SonnenInterface(
                         serial=BATTERY_SN, auth_token=BATTERY_TOKEN)
@@ -96,10 +96,10 @@ def control_real_device(device_type: DEVICE_TYPES, device_id: str, value: float)
     # requset battery api to control the battery
     try:
         if device_type == DEVICE_TYPES.HS.value:
-            DEVICE_BRAND = device_params['device_brand']
+            DEVICE_BRAND = device_settings['device_brand']
             if DEVICE_BRAND == BATTERY_BRANDS.SONNEN.value:
-                BATTERY_TOKEN = device_params['device_token']
-                BATTERY_SN = device_params['device_sn']
+                BATTERY_TOKEN = device_settings['device_token']
+                BATTERY_SN = device_settings['device_sn']
                 battery_interface = SonnenInterface(
                     serial=BATTERY_SN, auth_token=BATTERY_TOKEN)
                 print("Send post requst to contorl the real battery")
@@ -117,10 +117,10 @@ def emulate_control_device(device_type: DEVICE_TYPES, device_id: str, value: flo
 
     try:
         if device_type == DEVICE_TYPES.HS.value:
-            DEVICE_BRAND = device_params['device_brand']
+            DEVICE_BRAND = device_settings['device_brand']
             if DEVICE_BRAND == BATTERY_BRANDS.SONNEN.value:
-                BATTERY_TOKEN = device_params['device_token']
-                BATTERY_SN = device_params['device_sn']
+                BATTERY_TOKEN = device_settings['device_token']
+                BATTERY_SN = device_settings['device_sn']
                 print("Send post requst to contorl the mock battery")
                 mock_battery_interface = MockSonnenInterface(
                     serial=BATTERY_SN, auth_token=BATTERY_TOKEN, url_ini=EMULATED_DEVICE_API_URL)

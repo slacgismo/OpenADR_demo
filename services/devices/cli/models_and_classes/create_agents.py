@@ -24,11 +24,11 @@ from botocore.exceptions import ClientError
 
 
 class Device_Type(Enum):
-    ES = "ES"
+    ES = "ES"  # battery
     HC = "HC"
     HW = "HW"
-    PV = "PV"
-    EV = "EV"
+    PV = "PV"  # photovoltaic
+    EV = "EV"  # electric vehicle
 
 
 class Market_Interval(Enum):
@@ -39,6 +39,29 @@ class Market_Interval(Enum):
 class BATTERY_BRANDS(Enum):
     SONNEN_BATTERY = "SONNEN_BATTERY"
     E_GUAGE = "E_GUAGE"
+
+
+class DEVICE_SETTING_KEY(Enum):
+    BATTERY_BRANDS = "battery_brand"
+    BATTERY_TOKEN = "battery_token"
+    BATTEY_SN = "battery_sn"
+
+
+class DEVICES_KEY(Enum):
+    DEVICE_ID = "device_id"
+    DEVICE_NAME = "device_name"
+    DEVICE_TYPE = "device_type"
+    DEVICE_SETTINGS = "device_settings"
+    FLEXIBLE = "flexible"
+    METER_ID = "meter_id"
+
+
+class AGNET_KEY(Enum):
+    AGENT_ID = "agent_id"
+    RESOURCE_ID = "resource_id"
+    MARKET_INTERVAL_IN_SECOND = "market_interval_in_second"
+    MARKET_ID = "market_id"
+    DEVICES = "devices"
 
 
 def generate_first_number_agents_from_simulation_csv_file(
@@ -64,13 +87,14 @@ def generate_first_number_agents_from_simulation_csv_file(
             "device_id": "807f8e4a37446e80c5756a74a3598d",
             "device_name": "battery_0",
             "device_type": "ES",
-            "device_params": {
+            "flexible": "1",
+            "meter_id": "6436a67e184d3694a15886215ae464"
+            "device_settings": {
                 "battery_token": "12321321qsd",
                 "battery_sn": "66354",
                 "device_brand": "SONNEN_BATTERY"
             },
-            "biding_price_threshold": "0.15",
-            "meter_id": "6436a67e184d3694a15886215ae464"
+
         }
     ]
     }
@@ -138,7 +162,6 @@ def generate_first_number_agents_from_simulation_csv_file(
         MessageGroupId=SQS_GROUPID,
         ecs_action=ecs_action,
     )
-
     sqs_service = SQSService(
         queue_url=fifo_sqs,
 
@@ -190,6 +213,44 @@ def create_messages_list(
 def guid():
     """Return a globally unique id"""
     return uuid.uuid4().hex[2:]
+
+
+def parse_batteries_csv_file_to_json(
+    path: str,
+    battery_file: str,
+    num_rows: int,
+    batter_brands: str
+):
+    """Parse the battery csv file and return a list of battery token
+    "Item1": {
+        "serial": {
+            "S": "66354"
+        },
+        "token": {
+            "S": "12321321qsd"
+        }
+    },
+    """
+    battery_df = convert_csv_to_pandas(file=battery_file, path=path)
+    battery_token_list = battery_df["battery_token"][:num_rows].tolist()
+    battery_sn_list = battery_df["battery_sn"][:num_rows].tolist()
+    battery_brand_list = battery_df["device_brand"][:num_rows].tolist()
+    batteries_json = {}
+    if len(battery_token_list) < num_rows:
+        raise Exception("battery_token_list is not enough")
+    # loop through the battery token list and create a json file
+    # for index, sen in battery_sn_list:
+    for index, sn in enumerate(battery_sn_list):
+        if sn == "null":
+            raise Exception("battery_sn is null")
+        batteries_json[f'Item{index}'] = {
+
+            "token": {"S": battery_token_list[index]},
+            "serial": {"S": str(battery_sn_list[index])}
+        }
+    # save battery to json file
+    with (open(f"{path}/batteries.json", "w")) as f:
+        json.dump(batteries_json, f, indent=4)
 
 
 def generate_emulated_battery_csv_file_with_device_id(
@@ -265,19 +326,19 @@ def make_command_list(
         "agent_id": "00ccff430c4bcfa1f1186f488b88fc",
         "resource_id": "caff6719c24359a155a4d0d2f265a7",
         "market_interval_in_second": "300",
-        "market_id": "dsadsa
+        flexible: true,
+        "meter_id": "6436a67e184d3694a15886215ae464"
         "devices": [
             {
                 "device_id": "807f8e4a37446e80c5756a74a3598d",
                 "device_name": "battery_0",
                 "device_type": "ES",
-                "device_params": {
+                "device_settings": {
                     "battery_token": "12321321qsd",
                     "battery_sn": "66354",
                     "device_brand": "SONNEN_BATTERY"
                 },
-                "biding_price_threshold": "0.15",
-                "meter_id": "6436a67e184d3694a15886215ae464"
+
             }
         ]
     }
@@ -299,22 +360,21 @@ def make_command_list(
                 break
 
         command = {
-            "agent_id": agent_id,
-            "resource_id": resource_id,
-            "market_interval_in_second": market_interval_in_second,
-            "market_id": market_id,
-            "devices": [{
-                "device_id": device_id,
-                "device_name": "battery_" + str(i),
-                "device_type": "ES",
-                "device_params": {
-                    "battery_token": battery_token_df[battery_token_df['device_id'] == device_id]['battery_token'].values[0],
-                    "battery_sn": str(battery_token_df[battery_token_df['device_id'] == device_id]['battery_sn'].values[0]),
-                    "device_brand": battery_token_df[battery_token_df['device_id'] == device_id]['device_brand'].values[0]
-                },
-                "biding_price_threshold": str(random.uniform(1, 10)),
-                "meter_id": guid()
-
+            AGNET_KEY.AGENT_ID.value: agent_id,
+            AGNET_KEY.RESOURCE_ID.value: resource_id,
+            AGNET_KEY.MARKET_INTERVAL_IN_SECOND.value: market_interval_in_second,
+            AGNET_KEY.DEVICES.value: [{
+                DEVICES_KEY.DEVICE_ID.value: device_id,
+                DEVICES_KEY.DEVICE_NAME.value: "battery_" + str(i),
+                DEVICES_KEY.DEVICE_TYPE.value: "ES",
+                DEVICES_KEY.FLEXIBLE.value: True,
+                DEVICES_KEY.METER_ID.value: guid(),  # TODO: need to be changed
+                DEVICES_KEY.DEVICE_SETTINGS.value: {
+                    DEVICE_SETTING_KEY.BATTERY_TOKEN.value: battery_token_df[battery_token_df['device_id'] == device_id]['battery_token'].values[0],
+                    DEVICE_SETTING_KEY.BATTEY_SN.value: str(battery_token_df[battery_token_df['device_id'] == device_id]['battery_sn'].values[0]),
+                    DEVICE_SETTING_KEY.BATTERY_BRANDS.value: battery_token_df[
+                        battery_token_df['device_id'] == device_id]['device_brand'].values[0]
+                }
             }for i, device_id in enumerate(device_ids)
             ]}
         command_list.append(command)

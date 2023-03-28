@@ -141,7 +141,7 @@
                 "value": "60"
             },
             {
-                "name": "BIDING_PRICE_THRESHOLD",
+                "name": "FLEXIBLE",
                 "value": "3.682823271993134"
             },
             {

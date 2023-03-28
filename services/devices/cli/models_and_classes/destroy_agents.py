@@ -55,7 +55,7 @@ def destroy_all(
                     "device_id": "",
                     "device_name": "",
                     "device_type": "",
-                    "device_params": {
+                    "device_settings": {
                         "battery_token": "",
                         "battery_sn": "",
                         "device_brand": ""
@@ -100,7 +100,7 @@ def destroy_all(
 #             "device_id": "807f8e4a37446e80c5756a74a3598d",
 #             "device_name": "battery_0",
 #             "device_type": "ES",
-#             "device_params": {
+#             "device_settings": {
 #                 "battery_token": "12321321qsd",
 #                 "battery_sn": "66354",
 #                 "device_brand": "SONNEN_BATTERY"

@@ -41,7 +41,7 @@ class VEN_TASK_VARIANTS_ENUM(Enum):
     DEVICE_TYPE = "DEVICE_TYPE"
     DEVICE_SETTINGS = "DEVICE_SETTINGS"
     MARKET_INTERVAL_IN_SECOND = "MARKET_INTERVAL_IN_SECOND"
-    BIDING_PRICE_THRESHOLD = "BIDING_PRICE_THRESHOLD"
+    FLEXIBLE = "FLEXIBLE"
     # from device admin environment variables
     EMULATED_DEVICE_API_URL = "EMULATED_DEVICE_API_URL"
 
@@ -73,9 +73,9 @@ def create_ven_params(
     vtn_address: str,
     vtn_port: str,
     device_type: str,
-    device_params: dict,
+    device_settings: dict,
     market_interval_in_second: str,
-    biding_price_threshold: str,
+    flexible: str,
 ) -> dict:
     ven_params = dict()
     for ven_task in VEN_TASK_VARIANTS_ENUM:
@@ -103,11 +103,11 @@ def create_ven_params(
         elif key == VEN_TASK_VARIANTS_ENUM.EMULATED_DEVICE_API_URL.value:
             ven_params[key] = EMULATED_DEVICE_API_URL
         elif key == VEN_TASK_VARIANTS_ENUM.DEVICE_SETTINGS.value:
-            ven_params[key] = device_params
+            ven_params[key] = device_settings
         elif key == VEN_TASK_VARIANTS_ENUM.MARKET_INTERVAL_IN_SECOND.value:
             ven_params[key] = market_interval_in_second
-        elif key == VEN_TASK_VARIANTS_ENUM.BIDING_PRICE_THRESHOLD.value:
-            ven_params[key] = biding_price_threshold
+        elif key == VEN_TASK_VARIANTS_ENUM.FLEXIBLE.value:
+            ven_params[key] = flexible
 
         else:
             raise Exception(
@@ -250,7 +250,7 @@ def generate_ven_task_definition(
         "vtn_address": str,
         "vtn_port": str,
         "mock_devices_api_url": str,
-        "device_params": dict,
+        "device_settings": dict,
         "market_interval_in_second": str,
         "price_threshold": str
     ]
@@ -402,11 +402,12 @@ def create_and_export_task_definition(
         meter_id = device['meter_id']
         device_name = device['device_name']
         device_type = device['device_type']
+        flexible = device['flexible']
         ven_environment_variables = dict()
         for key, value in enumerate(VEN_TASK_VARIANTS_ENUM):
 
             # have convet json format to string to pass to ven
-            device_params_str = json.dumps(device["device_params"])
+            device_settings_str = json.dumps(device["device_settings"])
             ven_environment_variables = create_ven_params(
                 ven_id=guid(),
                 env=env,
@@ -419,9 +420,9 @@ def create_and_export_task_definition(
                 vtn_address=vtn_address,
                 vtn_port=vtn_port,
                 device_type=device_type,
-                device_params=device_params_str,
+                device_settings=device_settings_str,
                 market_interval_in_second=market_interval_in_second,
-                biding_price_threshold=device['biding_price_threshold'],
+                flexible=flexible,
             )
         vens_info.append({
             "ven_id": ven_id,

@@ -13,7 +13,7 @@ import pandas as pd
 import random
 import click
 
-from models_and_classes.create_agents import generate_first_number_agents_from_simulation_csv_file, Market_Interval, Device_Type, generate_emulated_battery_csv_file_with_device_id, BATTERY_BRANDS, ECS_ACTIONS_ENUM
+from models_and_classes.create_agents import generate_first_number_agents_from_simulation_csv_file, Market_Interval, Device_Type, generate_emulated_battery_csv_file_with_device_id, BATTERY_BRANDS, ECS_ACTIONS_ENUM, parse_batteries_csv_file_to_json
 from models_and_classes.destroy_agents import destroy_all
 import logging
 logging.basicConfig(format='%(asctime)s %(message)s',
@@ -70,10 +70,18 @@ def create_battery_file():
         num_rows=500,
         batter_brands=BATTERY_BRANDS.SONNEN_BATTERY.value,
     )
+    # parse the csv file to json file
 
-# ***************************
-#  Generate message sqs and send to sqs queue
-# ***************************
+    parse_batteries_csv_file_to_json(
+        path="./simulation_data_files",
+        battery_file="simluated_battery.csv",
+        num_rows=250,
+        batter_brands=BATTERY_BRANDS.SONNEN_BATTERY.value,
+    )
+
+    # ***************************
+    #  Generate message sqs and send to sqs queue
+    # ***************************
 
 
 @click.command()
@@ -118,15 +126,6 @@ def destroy_all_agents(
         ecs_cluster_name=ECS_CLUSTER_NAME,
         group_id=SQS_GROUPID
     )
-    # generate_first_number_agents_from_simulation_csv_file(
-    #     market_interval=Market_Interval.One_Minute.value,
-    #     number_of_market=1,
-    #     number_of_resouce_per_market=1,
-    #     number_of_agent_per_resource=10,
-    #     device_type=Device_Type.ES.value,
-    #     fifo_sqs=FIFO_SQS_URL,
-    #     ecs_action=ECS_ACTIONS_ENUM.DELETE.value
-    # )
 
 
 # add the command to the cli

@@ -33,7 +33,7 @@ def simulated_message() -> Dict:
                 "device_id": guid(),
                 "device_name": "battery_0",
                 "device_type": "ES",
-                "device_params": {
+                "device_settings": {
                     "battery_token": "12321321qsd",
                     "battery_sn": "66354",
                     "device_brand": "SONNEN_BATTERY",
