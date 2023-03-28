@@ -201,6 +201,15 @@ https://www.youtube.com/watch?v=50rBFasH3OE&t=1051s
 
 Under the ec2 instance, we can use the following command to check the log of EC2 instance.
 
+#### set up the terraform backend dynamically
+
+https://brendanthompson.com/posts/2021/10/dynamic-terraform-backend-configuration
+terraform init -backend-config=backend.hcl
+
+#### terraform use environment variable
+
+https://support.hashicorp.com/hc/en-us/articles/4547786359571-Reading-and-using-environment-variables-in-Terraform-runs
+
 ```
 sudo cat /var/log/cloud-init-output.log
 ```

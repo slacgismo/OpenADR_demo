@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  worker:
+    platform: linux/amd64
+    build:
+      context: ./services/devices/worker
+      args:
+        - DEV=true
+    env_file:
+      - ./services/devices/worker/.env
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+      - FIFO_SQS_URL=${FIFO_SQS_URL:-https://sqs.us-east-2.amazonaws.com/041414866712/openadr_workers_sqs.fifo}
+      - BACKEND_S3_BUCKET_NAME=${BACKEND_S3_BUCKET_NAME:-openadr-agents-state}
+      - FIFO_DLQ_URL=${FIFO_DLQ_URL:-https://sqs.us-east-2.amazonaws.com/041414866712/openadr_workers_dlq.fifo}
+      - DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME:${DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME:-openadr-agent-shared-tf-state-lock}
+      - ECS_CLUSTER_NAME=${ECS_CLUSTER_NAME:-"openadr-dev-agents-cluster}
+      - WORKER_PORT=${WORKER_PORT:-8000}
+      - ENV=${ENV:-DEV}
+      - SQS_GROUPID=${SQS_GROUPID:-LOCAL}
+    volumes:
+      - ./services/devices/worker:/app
+    command: >
+      sh -c "python app.py"
