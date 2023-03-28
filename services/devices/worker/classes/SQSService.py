@@ -40,9 +40,15 @@ class SQSService:
                 Attributes = message.get("Attributes")
                 MessageGroupId = Attributes.get("MessageGroupId")
                 ReceiptHandle = message.get("ReceiptHandle")
+
                 if MessageGroupId == group_id:
+                    # if the message is for this group id then process it
+                    # delete the message from the queue
+                    self.delete_message(receipt_handle=ReceiptHandle)
                     return message
                 else:
+                    # not this group id so ignore it
+                    logging.info(f"Ignore group id {MessageGroupId}")
                     return None
         except ClientError as e:
             raise (

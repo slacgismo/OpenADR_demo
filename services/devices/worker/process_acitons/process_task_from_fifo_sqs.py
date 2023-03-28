@@ -46,9 +46,6 @@ def process_task_from_fifo_sqs(
                 logging.info("Waiting.... %s" % str(int(time.time())))
                 continue
 
-            sqs_service.delete_message(
-                receipt_handle=message['ReceiptHandle']
-            )
             if validate_message(message) is False:
                 raise Exception("Invalid message received")
 

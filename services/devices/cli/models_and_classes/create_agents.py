@@ -367,8 +367,10 @@ def make_command_list(
                 DEVICES_KEY.DEVICE_ID.value: device_id,
                 DEVICES_KEY.DEVICE_NAME.value: "battery_" + str(i),
                 DEVICES_KEY.DEVICE_TYPE.value: "ES",
-                DEVICES_KEY.FLEXIBLE.value: True,
-                DEVICES_KEY.METER_ID.value: guid(),  # TODO: need to be changed
+                # TODO: need to be changed depend on the device type
+                DEVICES_KEY.FLEXIBLE.value: "1",
+                # TODO: need to be changed
+                DEVICES_KEY.METER_ID.value: str(guid()),
                 DEVICES_KEY.DEVICE_SETTINGS.value: {
                     DEVICE_SETTING_KEY.BATTERY_TOKEN.value: battery_token_df[battery_token_df['device_id'] == device_id]['battery_token'].values[0],
                     DEVICE_SETTING_KEY.BATTEY_SN.value: str(battery_token_df[battery_token_df['device_id'] == device_id]['battery_sn'].values[0]),
