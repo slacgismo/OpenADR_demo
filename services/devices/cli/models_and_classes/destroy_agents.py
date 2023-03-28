@@ -18,6 +18,7 @@ def extract_first_and_second_word(text):
         first_word = match.group(1)
         second_word = match.group(2)
         return first_word, second_word
+    return None, None
 
 
 def destroy_all(

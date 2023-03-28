@@ -45,14 +45,17 @@ class TerraformExecution:
         if os.path.exists(_terraform_folder):
             remove_directory_contents(directory=_terraform_folder)
             logging.info("removed .terraform folder")
-        logging.info("no .terraform path found")
+        else:
+            logging.info("no .terraform path found")
         # chk if .terraform.lock.hcl file exists
-        terraform_lock_hcl_file = os.path.join(self.working_dir, ".terraform.lock.hcl")
+        terraform_lock_hcl_file = os.path.join(
+            self.working_dir, ".terraform.lock.hcl")
         # remove .terraform.lock.hcl
         if os.path.exists(terraform_lock_hcl_file):
             os.remove(terraform_lock_hcl_file)
             logging.info("removed .terraform.lock.hcl file")
-        logging.info("no .terraform.lock.hcl file found")
+        else:
+            logging.info("no .terraform.lock.hcl file found")
 
     def _create_backend_hcl_file(self):
         """
@@ -63,7 +66,8 @@ class TerraformExecution:
 
             os.makedirs(self.working_dir, exist_ok=True)
 
-            backend_hcl_file_path = os.path.join(self.working_dir, "backend.hcl")
+            backend_hcl_file_path = os.path.join(
+                self.working_dir, "backend.hcl")
             with open(backend_hcl_file_path, "w") as f:
                 f.write(f'bucket         = "{self.backend_s3_bucket_name}"\n')
                 f.write(f'key            = "{self.backend_s3_state_key}"\n')
@@ -109,7 +113,8 @@ class TerraformExecution:
                 )
 
         except subprocess.CalledProcessError as e:
-            raise Exception(f"{self.name_of_creation} Error when terrafrom init : {e}")
+            raise Exception(
+                f"{self.name_of_creation} Error when terrafrom init : {e}")
 
     # create terrafrom validate execution
 
