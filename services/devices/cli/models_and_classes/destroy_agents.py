@@ -18,6 +18,7 @@ def extract_first_and_second_word(text):
         first_word = match.group(1)
         second_word = match.group(2)
         return first_word, second_word
+    return None, None
 
 
 def destroy_all(
@@ -26,10 +27,10 @@ def destroy_all(
     group_id: str = None
 ):
     # list number of workers
-    esc_service = ECSService(
+    ecs_service = ECSService(
         ecs_cluster_name=ecs_cluster_name
     )
-    active_agents_list = esc_service.list_ecs_services()
+    active_agents_list = ecs_service.list_ecs_services()
     # find agenet id
     # download task definition from s3
     if active_agents_list is None:

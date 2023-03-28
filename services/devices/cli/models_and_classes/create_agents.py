@@ -12,7 +12,7 @@ from models_and_classes.SQSService import SQSService
 from models_and_classes.ECS_ACTIONS_ENUM import ECS_ACTIONS_ENUM
 import time
 import json
-""""
+"""
 This controller app is used to control the worker app for developement and testing purpose.
 It will generate following sqs:
 1. generate number agents for test purpose
@@ -33,7 +33,7 @@ class Device_Type(Enum):
 
 class Market_Interval(Enum):
     One_Minute = 60
-    Five_Miunte = 300
+    Five_Miuntes = 300
 
 
 class BATTERY_BRANDS(Enum):
@@ -42,7 +42,7 @@ class BATTERY_BRANDS(Enum):
 
 
 def generate_first_number_agents_from_simulation_csv_file(
-    market_interval: Market_Interval = Market_Interval.Five_Miunte,
+    market_interval: Market_Interval = Market_Interval.Five_Miuntes,
     number_of_market: int = 2,
     number_of_resouce_per_market: int = 2,
     number_of_agent_per_resource: int = 1,

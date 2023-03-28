@@ -28,28 +28,20 @@ It will generate following sqs:
 2. destroy number agents
 
 """
+try:
+    # The SQS_GROUPID is used to separate the sqs queue for different environment.
+    # if you want to send message to AWS worker, the SQS_GROUPID should be set to "AWS"
+    # if you want to send message to local worker, the SQS_GROUPID should be set to "LOCAL"
+    SQS_GROUPID = os.environ['SQS_GROUPID']
+    ENV = os.environ['ENV']
+    FIFO_SQS_URL = os.environ['FIFO_SQS_URL']
+    ECS_CLUSTER_NAME = os.environ['ECS_CLUSTER_NAME']
+    # create funtion to read csv file and convert to json forma
+    BACKEND_S3_BUCKET_NAME = os.environ['BACKEND_S3_BUCKET_NAME']
 
-SQS_GROUPID = os.environ['SQS_GROUPID']
-# The SQS_GROUPID is used to separate the sqs queue for different environment.
-# if you want to send message to AWS worker, the SQS_GROUPID should be set to "AWS"
-# if you want to send message to local worker, the SQS_GROUPID should be set to "LOCAL"
-if SQS_GROUPID is None:
-    raise Exception("SQS_GROUPID is not set")
-ENV = os.environ['ENV']
-if ENV is None:
-    raise Exception("ENV is not set")
+except Exception as e:
+    raise Exception(f"ENV is not set correctly: {e}")
 
-FIFO_SQS_URL = os.environ['FIFO_SQS_URL']
-if FIFO_SQS_URL is None:
-    raise Exception("FIFO_SQS_URL is not set")
-
-ECS_CLUSTER_NAME = os.environ['ECS_CLUSTER_NAME']
-if ECS_CLUSTER_NAME is None:
-    raise Exception("ECS_CLUSTER_NAME is not set")
-# create funtion to read csv file and convert to json forma
-BACKEND_S3_BUCKET_NAME = os.environ['BACKEND_S3_BUCKET_NAME']
-if BACKEND_S3_BUCKET_NAME is None:
-    raise Exception("BACKEND_S3_BUCKET_NAME is not set")
 # Parent Command
 
 

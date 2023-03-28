@@ -24,4 +24,4 @@ class ECSService:
             return service_names
 
         except Exception as e:
-            print(e)
+            raise Exception(f'Error when listing ecs services: {e}')
