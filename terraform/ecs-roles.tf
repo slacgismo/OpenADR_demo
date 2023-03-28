@@ -82,7 +82,7 @@ resource "aws_iam_role" "devices_workers_iam_role" {
 data "template_file" "workers_s3_policy_file" {
   template = file("./templates/ecs/worker/s3_policy.json.tpl")
   vars = {
-    backend_s3_bucket_agents_name = aws_s3_bucket.agents.bucket
+    backend_s3_bucket_agents_name = aws_s3_bucket.device_shared.bucket
     backend_s3_bucket_main_name   = var.backend_main_s3_bucket
   }
 }

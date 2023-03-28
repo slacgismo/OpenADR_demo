@@ -2,7 +2,7 @@
 
 resource "null_resource" "export_terrafrom_tfvars_to_devices_admin_worker_terraform" {
   depends_on = [
-    aws_s3_bucket.agents,
+    aws_s3_bucket.device_shared,
     aws_dynamodb_table.agenets_shared_state_lock,
     aws_cloudwatch_log_group.agent_task_logs,
     aws_ecs_cluster.main,
@@ -58,7 +58,7 @@ resource "null_resource" "export_env_file_for_devices_admin_worker" {
   provisioner "local-exec" {
     command = <<-EOT
       echo 'FIFO_SQS_URL="${aws_sqs_queue.opneadr_workers_sqs.url}"' > .env
-      echo 'BACKEND_S3_BUCKET_NAME="${aws_s3_bucket.agents.bucket}"' >> .env
+      echo 'BACKEND_S3_BUCKET_NAME="${aws_s3_bucket.device_shared.bucket}"' >> .env
       echo 'AWS_REGION="${var.aws_region}"' >> .env
       echo 'FIFO_DLQ_URL="${aws_sqs_queue.worker_dlq.url}"' >> .env
       echo 'HEALTH_CHEKC_PORT="${var.devices_worker_health_check_port}"' >> .env
