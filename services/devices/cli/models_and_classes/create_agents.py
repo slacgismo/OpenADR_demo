@@ -62,6 +62,37 @@ class AGNET_KEY(Enum):
     MARKET_INTERVAL_IN_SECOND = "market_interval_in_second"
     MARKET_ID = "market_id"
     DEVICES = "devices"
+    MARKET_START_TIMESTAMP = "market_start_timestamp"
+
+
+def parse_csv_and_export_json_file(
+        csv_file_path: str,
+        json_file_path: str,
+):
+    """
+    This function is used to parse csv file and export to json file
+    :param csv_file_path: the path of csv file
+    :param json_file_path: the path of json file
+    :return:
+    """
+    # read CSV file
+    with open(csv_file_path, 'r') as csv_file:
+        csv_reader = csv.DictReader(csv_file)
+        # convert CSV data to a list of dictionaries
+        data = [row for row in csv_reader]
+
+    # write JSON file
+    with open(json_file_path, 'w') as json_file:
+        json.dump(data, json_file, indent=4)
+
+    return
+
+    # reader = csv.DictReader(csv_file, fieldnames)
+    # for row in reader:
+    #     json.dump(row, json_file)
+    #     json_file.write(
+    #         ""
+    #     )
 
 
 def generate_first_number_agents_from_simulation_csv_file(
@@ -74,6 +105,7 @@ def generate_first_number_agents_from_simulation_csv_file(
     ecs_action: str = None,
     ENV: str = None,
     SQS_GROUPID: str = None,
+    market_start_timestamp: str = None,
 
 ) -> List[Dict]:
     """
@@ -113,8 +145,8 @@ def generate_first_number_agents_from_simulation_csv_file(
     markets_table_df = convert_csv_to_pandas(
         file="dump_markets.csv", path="./simulation_data_files")
     # create the list of the command to be sent to sqs
-    battery_token_df = convert_csv_to_pandas(
-        file="simluated_battery.csv", path="./simulation_data_files")
+    # battery_token_df = convert_csv_to_pandas(
+    #     file="simluated_battery.csv", path="./simulation_data_files")
     command_list = []
     # get the market id list hwere the market interval is 60
     market_resources_dict_list, resources_ids = get_market_and_resource_ids(
@@ -151,8 +183,10 @@ def generate_first_number_agents_from_simulation_csv_file(
         resouce_agent_dict_list=resouce_agent_dict_list,
         agent_device_dict_list=agent_device_dict_list,
         battery_token_df=battery_token_df,
-        market_interval_in_second=str(market_interval)
+        market_interval_in_second=str(market_interval),
+        market_start_timestamp=market_start_timestamp
     )
+    print("command_list`", command_list)
     print(f"length of command {len(command_list)} \n")
 
     # TODO: check the number of workers, estimate time and the number of workers
@@ -172,7 +206,7 @@ def generate_first_number_agents_from_simulation_csv_file(
     # time.sleep(5)
     # create message list
 
-    # TODO: send out the command to sqs queue
+    return
     for message in sqs_messages:
         sqs_service.send_message(
             message_body=message['MessageBody'],
@@ -215,80 +249,42 @@ def guid():
     return uuid.uuid4().hex[2:]
 
 
-def parse_batteries_csv_file_to_json(
-    path: str,
-    battery_file: str,
-    num_rows: int,
-    batter_brands: str
-):
-    """Parse the battery csv file and return a list of battery token
-    "Item1": {
-        "serial": {
-            "S": "66354"
-        },
-        "token": {
-            "S": "12321321qsd"
-        }
-    },
-    """
-    battery_df = convert_csv_to_pandas(file=battery_file, path=path)
-    battery_token_list = battery_df["battery_token"][:num_rows].tolist()
-    battery_sn_list = battery_df["battery_sn"][:num_rows].tolist()
-    battery_brand_list = battery_df["device_brand"][:num_rows].tolist()
-    batteries_json = {}
-    if len(battery_token_list) < num_rows:
-        raise Exception("battery_token_list is not enough")
-    # loop through the battery token list and create a json file
-    # for index, sen in battery_sn_list:
-    for index, sn in enumerate(battery_sn_list):
-        if sn == "null":
-            raise Exception("battery_sn is null")
-        batteries_json[f'Item{index}'] = {
+# def generate_emulated_battery_csv_file_with_device_id(
+#         path: str,
+#         battery_file: str,
+#         device_file: str,
+#         num_rows: int,
+#         batter_brands: str
+# ):
 
-            "token": {"S": battery_token_list[index]},
-            "serial": {"S": str(battery_sn_list[index])}
-        }
-    # save battery to json file
-    with (open(f"{path}/batteries.json", "w")) as f:
-        json.dump(batteries_json, f, indent=4)
+#     # get the device id list
+#     device_df = convert_csv_to_pandas(file=device_file, path=path)
+#     device_id_list = device_df["device_id"][:num_rows].tolist()
 
-
-def generate_emulated_battery_csv_file_with_device_id(
-        path: str,
-        battery_file: str,
-        device_file: str,
-        num_rows: int,
-        batter_brands: str
-):
-
-    # get the device id list
-    device_df = convert_csv_to_pandas(file=device_file, path=path)
-    device_id_list = device_df["device_id"][:num_rows].tolist()
-
-    header = ['device_id', 'device_name',
-              'battery_token', 'battery_sn', 'device_brand']
-    if len(device_id_list) < num_rows:
-        raise Exception("device_id_list is not enough")
-    # Generate data for each row
-    rows = []
-    for i in range(num_rows):
-        row = [
-            device_id_list[i],
-            "battery_" + str(i),
-            guid(),  # Generate random UUID v4 for battery_token
-            # Generate 5-digit random number for battery_sn
-            str(random.randint(10000, 99999)),
-            batter_brands  # Set device_brand to "Tesla"
-        ]
-        rows.append(row)
-    saved_battery_csv_file = os.path.join(path, battery_file)
-    if not os.path.exists(path):
-        os.makedirs(path)
-    # Write the data to a CSV file
-    with open(saved_battery_csv_file, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(header)
-        writer.writerows(rows)
+#     header = ['device_id', 'device_name',
+#               'battery_token', 'battery_sn', 'device_brand']
+#     if len(device_id_list) < num_rows:
+#         raise Exception("device_id_list is not enough")
+#     # Generate data for each row
+#     rows = []
+#     for i in range(num_rows):
+#         row = [
+#             device_id_list[i],
+#             "battery_" + str(i),
+#             guid(),  # Generate random UUID v4 for battery_token
+#             # Generate 5-digit random number for battery_sn
+#             str(random.randint(10000, 99999)),
+#             batter_brands  # Set device_brand to "Tesla"
+#         ]
+#         rows.append(row)
+#     saved_battery_csv_file = os.path.join(path, battery_file)
+#     if not os.path.exists(path):
+#         os.makedirs(path)
+#     # Write the data to a CSV file
+#     with open(saved_battery_csv_file, 'w', newline='') as csvfile:
+#         writer = csv.writer(csvfile)
+#         writer.writerow(header)
+#         writer.writerows(rows)
 
 
 def convert_csv_to_pandas(file: str, path: str) -> pd.DataFrame:
@@ -317,7 +313,8 @@ def make_command_list(
     resouce_agent_dict_list: List[Dict],
     agent_device_dict_list: List[Dict],
     battery_token_df: pd.DataFrame,
-    market_interval_in_second: str
+    market_interval_in_second: str,
+    market_start_timestamp: str
 
 ) -> List[Dict]:
     """
@@ -363,6 +360,7 @@ def make_command_list(
             AGNET_KEY.AGENT_ID.value: agent_id,
             AGNET_KEY.RESOURCE_ID.value: resource_id,
             AGNET_KEY.MARKET_INTERVAL_IN_SECOND.value: market_interval_in_second,
+            AGNET_KEY.MARKET_START_TIMESTAMP.value: market_start_timestamp,
             AGNET_KEY.DEVICES.value: [{
                 DEVICES_KEY.DEVICE_ID.value: device_id,
                 DEVICES_KEY.DEVICE_NAME.value: "battery_" + str(i),
@@ -394,7 +392,6 @@ def get_meter_device_relation(
 
     filter_meter_df = meters_table_df[meters_table_df['device_id'].isin(
         device_id_list)].reset_index(drop=True)
-    print(filter_meter_df.head(5))
     return meter_device_dict_list, meter_id_list
 
 
@@ -425,6 +422,7 @@ def get_agent_device_relation(
             "agent_id": agent_id, "device_ids": [device_id for device_id in device_ids],
 
         })
+
     return agent_device_dict_list, device_id_list
 
 

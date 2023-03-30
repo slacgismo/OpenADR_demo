@@ -1,4 +1,4 @@
-resource "aws_iam_role" "market_prices_lambda_exec" {
+resource "aws_iam_role" "lambda_orders" {
   name = "${var.prefix}-${var.client}-${var.environment}-orders-exec-role"
 
   assume_role_policy = <<POLICY
@@ -17,46 +17,58 @@ resource "aws_iam_role" "market_prices_lambda_exec" {
 POLICY
 }
 
-resource "aws_iam_role_policy_attachment" "market_prices_lambda_policy" {
-  role       = aws_iam_role.market_prices_lambda_exec.name
+resource "aws_iam_role_policy_attachment" "lambda_orders" {
+  role       = aws_iam_role.lambda_orders.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+# S3 access
+resource "aws_iam_role_policy_attachment" "orders_lamda_access_s3" {
+  role       = aws_iam_role.lambda_orders.name
+  policy_arn = aws_iam_policy.TESS_lambda_s3_access.arn
+}
 
 
-resource "aws_lambda_function" "market_prices" {
+# DynamoDB access
+resource "aws_iam_role_policy_attachment" "lambda_orders_dynamodb_access" {
+  role       = aws_iam_role.lambda_orders.name
+  policy_arn = aws_iam_policy.TESS_lambda_dyanmodb_access.arn
+}
+
+
+resource "aws_lambda_function" "lambda_orders" {
     function_name ="${var.prefix}-${var.client}-${var.environment}-orders-api"
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
-  s3_key    = aws_s3_object.lambda_market_prices.key
+  s3_key    = aws_s3_object.lambda_orders.key
 
   runtime = "nodejs16.x"
   handler = "function.handler"
 
-  source_code_hash = data.archive_file.lambda_market_prices.output_base64sha256
+  source_code_hash = data.archive_file.lambda_orders.output_base64sha256
 
-  role = aws_iam_role.market_prices_lambda_exec.arn
+  role = aws_iam_role.lambda_orders.arn
   tags = local.common_tags
 }
 
-resource "aws_cloudwatch_log_group" "market_prices" {
-  name = "/aws/lambda/${aws_lambda_function.market_prices.function_name}"
+resource "aws_cloudwatch_log_group" "lambda_orders" {
+  name = "/aws/lambda/${aws_lambda_function.lambda_orders.function_name}"
 
   retention_in_days = 14
 }
 
-data "archive_file" "lambda_market_prices" {
+data "archive_file" "lambda_orders" {
   type = "zip"
 
-  source_dir  = "${path.module}/market_prices"
-  output_path = "${path.module}/market_prices.zip"
+  source_dir  = "${path.module}/orders"
+  output_path = "${path.module}/templates/orders.zip"
 }
 
-resource "aws_s3_object" "lambda_market_prices" {
+resource "aws_s3_object" "lambda_orders" {
   bucket = aws_s3_bucket.lambda_bucket.id
 
-  key    = "market_prices.zip"
-  source = data.archive_file.lambda_market_prices.output_path
+  key    = "lambda_orders.zip"
+  source = data.archive_file.lambda_orders.output_path
 
-  etag = filemd5(data.archive_file.lambda_market_prices.output_path)
+  etag = filemd5(data.archive_file.lambda_orders.output_path)
 }

@@ -12,11 +12,12 @@ services:
       - AGENT_ID=${AGENT_ID:-agent_0}
       - RESOURCE_ID=${RESOURCE_ID:-resource0}
       - VTN_ID=${VTN_ID:-vtn0}
-      - METER_API_URL=${METER_API_URL:-https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/openadr_devices}
-      - DEVICE_API_URL=${DEVICE_API_URL:-https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/openadr_devices}
-      - ORDER_PAI_URL=${DEVICE_API_URL:-https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/market_prices}
-      - DISPATCH_API_URL=${DEVICE_API_URL:-https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/participated_vens}
+      - METER_API_URL=${METER_API_URL:-https://yuda2f93e6.execute-api.us-east-2.amazonaws.com/dev/meters}
+      - DEVICE_API_URL=${DEVICE_API_URL:-https://yuda2f93e6.execute-api.us-east-2.amazonaws.com/dev/devices}
+      - ORDER_PAI_URL=${DEVICE_API_URL:-https://yuda2f93e6.execute-api.us-east-2.amazonaws.com/dev/orders}
+      - DISPATCH_API_URL=${DEVICE_API_URL:-https://yuda2f93e6.execute-api.us-east-2.amazonaws.com/dev/dispatches}
       - MARKET_INTERVAL_IN_SECOND=${MARKET_INTERVAL_IN_SECOND:-20}
+      - TIMEZONE=${TIMEZONE:-America/Los_Angeles}
     networks:
       - adrnet
     ports:
@@ -47,7 +48,7 @@ services:
       - VTN_ADDRESS=${VTN_ADDRESS:-vtn}
       - VTN_PORT=${VTN_PORT:-8080}
       - DEVICE_TYPE=${DEVICE_TYPE:-HS}
-      - EMULATED_DEVICE_API_URL=${EMULATED_DEVICE_API_URL:-https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/battery_api}
+      - EMULATED_DEVICE_API_URL=${EMULATED_DEVICE_API_URL:-https://5cpljk0hz4.execute-api.us-east-2.amazonaws.com/dev/battery_api}
       - 'DEVICE_SETTINGS={"device_brand": "SONNEN_BATTERY", "battery_token": "12321321qsd", "battery_sn": "66354"}'
       - MARKET_INTERVAL_IN_SECOND=${MARKET_INTERVAL_IN_SECOND:-60}
       - FLEXIBLE=${FLEXIBLE:-True}

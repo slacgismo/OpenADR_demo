@@ -54,22 +54,22 @@ resource "aws_ecs_task_definition" "devices_worker" {
 # # create ecs service base on number of devices worker
 
 
-# resource "aws_ecs_service" "devices_worker" {
-#   # depends_on = [null_resource.build_and_push_docker_images_for_devices_admin_worker]
-#   for_each = { for i in range(var.number_of_devices_worker) : i => i }
+resource "aws_ecs_service" "devices_worker" {
+  # depends_on = [null_resource.build_and_push_docker_images_for_devices_admin_worker]
+  for_each = { for i in range(var.number_of_devices_worker) : i => i }
 
-#   name            = "${var.prefix}-devicesWorker-12"
-#   cluster         = aws_ecs_cluster.main.id
-#   task_definition = aws_ecs_task_definition.devices_worker.arn
-#   #   task_definition  = aws_ecs_task_definition.agent.family
-#   desired_count    = 1
-#   launch_type      = "FARGATE"
-#   platform_version = "1.4.0"
-#   network_configuration {
-#     subnets          = module.vpc.private_subnets
-#     security_groups  = [aws_security_group.devices_worker_sg.id]
-#     assign_public_ip = false
-#   }
-#   tags = local.common_tags
-# }
+  name            = "${var.prefix}-devicesWorker-12"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.devices_worker.arn
+  #   task_definition  = aws_ecs_task_definition.agent.family
+  desired_count    = 1
+  launch_type      = "FARGATE"
+  platform_version = "1.4.0"
+  network_configuration {
+    subnets          = module.vpc.private_subnets
+    security_groups  = [aws_security_group.devices_worker_sg.id]
+    assign_public_ip = false
+  }
+  tags = local.common_tags
+}
 

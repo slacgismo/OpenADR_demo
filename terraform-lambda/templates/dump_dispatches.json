@@ -1,0 +1,1248 @@
+{
+    "Item1": {
+        "order_id": {
+            "S": "d2d07b7aa447099acb3a7990e3af82"
+        },
+        "record_time": {
+            "N": "1678118460"
+        },
+        "quantity": {
+            "N": "0.0459854"
+        },
+        "valid_at": {
+            "N": "1678118460"
+        }
+    },
+    "Item2": {
+        "order_id": {
+            "S": "5b0bfa9343400c95e342bd2e6021bc"
+        },
+        "record_time": {
+            "N": "1678118460"
+        },
+        "quantity": {
+            "N": "0.0488815"
+        },
+        "valid_at": {
+            "N": "1678118460"
+        }
+    },
+    "Item3": {
+        "order_id": {
+            "S": "20b6b2bdd64878a3c7a3bdcb5ea59d"
+        },
+        "record_time": {
+            "N": "1678118460"
+        },
+        "quantity": {
+            "N": "0.0393082"
+        },
+        "valid_at": {
+            "N": "1678118460"
+        }
+    },
+    "Item4": {
+        "order_id": {
+            "S": "00cf3d15f949678a96fc9180e8a537"
+        },
+        "record_time": {
+            "N": "1678118460"
+        },
+        "quantity": {
+            "N": "0.0873245"
+        },
+        "valid_at": {
+            "N": "1678118460"
+        }
+    },
+    "Item5": {
+        "order_id": {
+            "S": "fdf4cb5cff4e7dbb81b4d76966f403"
+        },
+        "record_time": {
+            "N": "1678118520"
+        },
+        "quantity": {
+            "N": "0.0474548"
+        },
+        "valid_at": {
+            "N": "1678118520"
+        }
+    },
+    "Item6": {
+        "order_id": {
+            "S": "355753b84b41b085403f7809e56b45"
+        },
+        "record_time": {
+            "N": "1678118520"
+        },
+        "quantity": {
+            "N": "0.0253067"
+        },
+        "valid_at": {
+            "N": "1678118520"
+        }
+    },
+    "Item7": {
+        "order_id": {
+            "S": "8ba1c39acb48f68a9e1b96a0552701"
+        },
+        "record_time": {
+            "N": "1678118520"
+        },
+        "quantity": {
+            "N": "0.00935516"
+        },
+        "valid_at": {
+            "N": "1678118520"
+        }
+    },
+    "Item8": {
+        "order_id": {
+            "S": "4c7a78e1134cbc84ae03f8652e5ec4"
+        },
+        "record_time": {
+            "N": "1678118580"
+        },
+        "quantity": {
+            "N": "0.00574646"
+        },
+        "valid_at": {
+            "N": "1678118580"
+        }
+    },
+    "Item9": {
+        "order_id": {
+            "S": "b8c396782547f48b60d215d89632b1"
+        },
+        "record_time": {
+            "N": "1678118580"
+        },
+        "quantity": {
+            "N": "0.0523499"
+        },
+        "valid_at": {
+            "N": "1678118580"
+        }
+    },
+    "Item10": {
+        "order_id": {
+            "S": "67b4ce7ac34a6abfd126db7227b61d"
+        },
+        "record_time": {
+            "N": "1678118580"
+        },
+        "quantity": {
+            "N": "0.0292648"
+        },
+        "valid_at": {
+            "N": "1678118580"
+        }
+    },
+    "Item11": {
+        "order_id": {
+            "S": "f3605595ea477799e59ba41b827536"
+        },
+        "record_time": {
+            "N": "1678118580"
+        },
+        "quantity": {
+            "N": "0.0415405"
+        },
+        "valid_at": {
+            "N": "1678118580"
+        }
+    },
+    "Item12": {
+        "order_id": {
+            "S": "9bf13e892e4392b251745a44395357"
+        },
+        "record_time": {
+            "N": "1678118580"
+        },
+        "quantity": {
+            "N": "0.0212234"
+        },
+        "valid_at": {
+            "N": "1678118580"
+        }
+    },
+    "Item13": {
+        "order_id": {
+            "S": "2afa1c0af045c1b61db01dadc96794"
+        },
+        "record_time": {
+            "N": "1678118580"
+        },
+        "quantity": {
+            "N": "0.0293106"
+        },
+        "valid_at": {
+            "N": "1678118580"
+        }
+    },
+    "Item14": {
+        "order_id": {
+            "S": "f3154b2f8b4b909bad6bef82c0641c"
+        },
+        "record_time": {
+            "N": "1678118640"
+        },
+        "quantity": {
+            "N": "0.0420654"
+        },
+        "valid_at": {
+            "N": "1678118640"
+        }
+    },
+    "Item15": {
+        "order_id": {
+            "S": "f2ddecf1f041de8ad7d7600b3c8099"
+        },
+        "record_time": {
+            "N": "1678118640"
+        },
+        "quantity": {
+            "N": "0.0280991"
+        },
+        "valid_at": {
+            "N": "1678118640"
+        }
+    },
+    "Item16": {
+        "order_id": {
+            "S": "0d110aa6654b40b9dc8619911ab4ce"
+        },
+        "record_time": {
+            "N": "1678118640"
+        },
+        "quantity": {
+            "N": "0.055719"
+        },
+        "valid_at": {
+            "N": "1678118640"
+        }
+    },
+    "Item17": {
+        "order_id": {
+            "S": "1ac279d63842648df5efc0b3a06068"
+        },
+        "record_time": {
+            "N": "1678118640"
+        },
+        "quantity": {
+            "N": "0.038533"
+        },
+        "valid_at": {
+            "N": "1678118640"
+        }
+    },
+    "Item18": {
+        "order_id": {
+            "S": "43b2eeec79426d96a46741c92ca5ef"
+        },
+        "record_time": {
+            "N": "1678118640"
+        },
+        "quantity": {
+            "N": "0.0460892"
+        },
+        "valid_at": {
+            "N": "1678118640"
+        }
+    },
+    "Item19": {
+        "order_id": {
+            "S": "df7d2d843745dcb9887181a4f57479"
+        },
+        "record_time": {
+            "N": "1678118640"
+        },
+        "quantity": {
+            "N": "0.0416885"
+        },
+        "valid_at": {
+            "N": "1678118640"
+        }
+    },
+    "Item20": {
+        "order_id": {
+            "S": "389f20d4e7427887b115ac11da70d4"
+        },
+        "record_time": {
+            "N": "1678118700"
+        },
+        "quantity": {
+            "N": "0.0121994"
+        },
+        "valid_at": {
+            "N": "1678118700"
+        }
+    },
+    "Item21": {
+        "order_id": {
+            "S": "b14d8efc4b4376bd8b013d86c45572"
+        },
+        "record_time": {
+            "N": "1678118700"
+        },
+        "quantity": {
+            "N": "0.0189423"
+        },
+        "valid_at": {
+            "N": "1678118700"
+        }
+    },
+    "Item22": {
+        "order_id": {
+            "S": "54ef49f548484eb5899faa331a10c5"
+        },
+        "record_time": {
+            "N": "1678118700"
+        },
+        "quantity": {
+            "N": "0.0572922"
+        },
+        "valid_at": {
+            "N": "1678118700"
+        }
+    },
+    "Item23": {
+        "order_id": {
+            "S": "b5ebf7506b4520869487726172b04d"
+        },
+        "record_time": {
+            "N": "1678118700"
+        },
+        "quantity": {
+            "N": "0.0312836"
+        },
+        "valid_at": {
+            "N": "1678118700"
+        }
+    },
+    "Item24": {
+        "order_id": {
+            "S": "742c3c340a4fac94da90fb51414613"
+        },
+        "record_time": {
+            "N": "1678118700"
+        },
+        "quantity": {
+            "N": "0.0697815"
+        },
+        "valid_at": {
+            "N": "1678118700"
+        }
+    },
+    "Item25": {
+        "order_id": {
+            "S": "b82711336a4d0c90bb150456e7b163"
+        },
+        "record_time": {
+            "N": "1678118700"
+        },
+        "quantity": {
+            "N": "0.0656174"
+        },
+        "valid_at": {
+            "N": "1678118700"
+        }
+    },
+    "Item26": {
+        "order_id": {
+            "S": "8b889350694120ad1d1679ecffd1ce"
+        },
+        "record_time": {
+            "N": "1678118760"
+        },
+        "quantity": {
+            "N": "0.0399063"
+        },
+        "valid_at": {
+            "N": "1678118760"
+        }
+    },
+    "Item27": {
+        "order_id": {
+            "S": "0f5284d1d840c4813e3cf0033d3423"
+        },
+        "record_time": {
+            "N": "1678118760"
+        },
+        "quantity": {
+            "N": "0.0387283"
+        },
+        "valid_at": {
+            "N": "1678118760"
+        }
+    },
+    "Item28": {
+        "order_id": {
+            "S": "4ea1eeb6be420a95402ad51f239520"
+        },
+        "record_time": {
+            "N": "1678118760"
+        },
+        "quantity": {
+            "N": "0.0770355"
+        },
+        "valid_at": {
+            "N": "1678118760"
+        }
+    },
+    "Item29": {
+        "order_id": {
+            "S": "6358eaa07f45b7858ae2c4d4d09046"
+        },
+        "record_time": {
+            "N": "1678118760"
+        },
+        "quantity": {
+            "N": "0.0344315"
+        },
+        "valid_at": {
+            "N": "1678118760"
+        }
+    },
+    "Item30": {
+        "order_id": {
+            "S": "be180802064289a84a5d77085685de"
+        },
+        "record_time": {
+            "N": "1678118760"
+        },
+        "quantity": {
+            "N": "0.0338333"
+        },
+        "valid_at": {
+            "N": "1678118760"
+        }
+    },
+    "Item31": {
+        "order_id": {
+            "S": "e9e1718dc14db1a02cfc0a33d59fa0"
+        },
+        "record_time": {
+            "N": "1678118820"
+        },
+        "quantity": {
+            "N": "0.0743393"
+        },
+        "valid_at": {
+            "N": "1678118820"
+        }
+    },
+    "Item32": {
+        "order_id": {
+            "S": "51ad53f4364019880c24271455db07"
+        },
+        "record_time": {
+            "N": "1678118820"
+        },
+        "quantity": {
+            "N": "0.0488708"
+        },
+        "valid_at": {
+            "N": "1678118820"
+        }
+    },
+    "Item33": {
+        "order_id": {
+            "S": "a503283efc41a9ac127841e3b06bcc"
+        },
+        "record_time": {
+            "N": "1678118820"
+        },
+        "quantity": {
+            "N": "0.0793808"
+        },
+        "valid_at": {
+            "N": "1678118820"
+        }
+    },
+    "Item34": {
+        "order_id": {
+            "S": "12499ca9b14e6f90f89885a17c5c29"
+        },
+        "record_time": {
+            "N": "1678118880"
+        },
+        "quantity": {
+            "N": "0.0531387"
+        },
+        "valid_at": {
+            "N": "1678118880"
+        }
+    },
+    "Item35": {
+        "order_id": {
+            "S": "d7df60cec14920a07e7c0be5a876cb"
+        },
+        "record_time": {
+            "N": "1678118880"
+        },
+        "quantity": {
+            "N": "0.0130692"
+        },
+        "valid_at": {
+            "N": "1678118880"
+        }
+    },
+    "Item36": {
+        "order_id": {
+            "S": "fdcba3327347dc98f16ef2807843de"
+        },
+        "record_time": {
+            "N": "1678118880"
+        },
+        "quantity": {
+            "N": "0.068869"
+        },
+        "valid_at": {
+            "N": "1678118880"
+        }
+    },
+    "Item37": {
+        "order_id": {
+            "S": "a82f92b6bf4413a7f15b7b450a34d7"
+        },
+        "record_time": {
+            "N": "1678118880"
+        },
+        "quantity": {
+            "N": "0.0323669"
+        },
+        "valid_at": {
+            "N": "1678118880"
+        }
+    },
+    "Item38": {
+        "order_id": {
+            "S": "d0bc6a29424cc39b01ceeb9ab4f1f8"
+        },
+        "record_time": {
+            "N": "1678118880"
+        },
+        "quantity": {
+            "N": "0.0427322"
+        },
+        "valid_at": {
+            "N": "1678118880"
+        }
+    },
+    "Item39": {
+        "order_id": {
+            "S": "af5ae359c94ac896995c7de75a0e6d"
+        },
+        "record_time": {
+            "N": "1678118940"
+        },
+        "quantity": {
+            "N": "0.0606171"
+        },
+        "valid_at": {
+            "N": "1678118940"
+        }
+    },
+    "Item40": {
+        "order_id": {
+            "S": "eaa7288f204ae998d90728196d0ae7"
+        },
+        "record_time": {
+            "N": "1678118940"
+        },
+        "quantity": {
+            "N": "0.0260925"
+        },
+        "valid_at": {
+            "N": "1678118940"
+        }
+    },
+    "Item41": {
+        "order_id": {
+            "S": "dd8f6910ad4de5b43d4fa0704547ce"
+        },
+        "record_time": {
+            "N": "1678118940"
+        },
+        "quantity": {
+            "N": "0.0674561"
+        },
+        "valid_at": {
+            "N": "1678118940"
+        }
+    },
+    "Item42": {
+        "order_id": {
+            "S": "b724f6cc684a5c99684582f575fc67"
+        },
+        "record_time": {
+            "N": "1678119000"
+        },
+        "quantity": {
+            "N": "0.0466827"
+        },
+        "valid_at": {
+            "N": "1678119000"
+        }
+    },
+    "Item43": {
+        "order_id": {
+            "S": "4eb1270a4f4aa99b6778a96d84f549"
+        },
+        "record_time": {
+            "N": "1678119060"
+        },
+        "quantity": {
+            "N": "0.0221039"
+        },
+        "valid_at": {
+            "N": "1678119060"
+        }
+    },
+    "Item44": {
+        "order_id": {
+            "S": "1b3aca45574059b0c11ecb2cb684ba"
+        },
+        "record_time": {
+            "N": "1678119060"
+        },
+        "quantity": {
+            "N": "0.0726257"
+        },
+        "valid_at": {
+            "N": "1678119060"
+        }
+    },
+    "Item45": {
+        "order_id": {
+            "S": "012a4bacb24e708abfcf58fb6af547"
+        },
+        "record_time": {
+            "N": "1678119120"
+        },
+        "quantity": {
+            "N": "0.028093"
+        },
+        "valid_at": {
+            "N": "1678119120"
+        }
+    },
+    "Item46": {
+        "order_id": {
+            "S": "7ad9b45ada46b2aab664ee57fd5ed8"
+        },
+        "record_time": {
+            "N": "1678119120"
+        },
+        "quantity": {
+            "N": "0.0461884"
+        },
+        "valid_at": {
+            "N": "1678119120"
+        }
+    },
+    "Item47": {
+        "order_id": {
+            "S": "58f17c05a841a588c06126ee6335f3"
+        },
+        "record_time": {
+            "N": "1678119120"
+        },
+        "quantity": {
+            "N": "0.0522736"
+        },
+        "valid_at": {
+            "N": "1678119120"
+        }
+    },
+    "Item48": {
+        "order_id": {
+            "S": "49460db69649adb908e840b8028dab"
+        },
+        "record_time": {
+            "N": "1678119120"
+        },
+        "quantity": {
+            "N": "0.0460007"
+        },
+        "valid_at": {
+            "N": "1678119120"
+        }
+    },
+    "Item49": {
+        "order_id": {
+            "S": "9a6e471fec480f9e0e714f24775e6a"
+        },
+        "record_time": {
+            "N": "1678119180"
+        },
+        "quantity": {
+            "N": "0.0253586"
+        },
+        "valid_at": {
+            "N": "1678119180"
+        }
+    },
+    "Item50": {
+        "order_id": {
+            "S": "12398ecf364baebdb3dfd9c658692b"
+        },
+        "record_time": {
+            "N": "1678119180"
+        },
+        "quantity": {
+            "N": "0.0395828"
+        },
+        "valid_at": {
+            "N": "1678119180"
+        }
+    },
+    "Item51": {
+        "order_id": {
+            "S": "73d27c44984336a50a72170d57a659"
+        },
+        "record_time": {
+            "N": "1678119180"
+        },
+        "quantity": {
+            "N": "0.052182"
+        },
+        "valid_at": {
+            "N": "1678119180"
+        }
+    },
+    "Item52": {
+        "order_id": {
+            "S": "9456d8c393445f97702a2f65e17141"
+        },
+        "record_time": {
+            "N": "1678119240"
+        },
+        "quantity": {
+            "N": "0.0637939"
+        },
+        "valid_at": {
+            "N": "1678119240"
+        }
+    },
+    "Item53": {
+        "order_id": {
+            "S": "4e9ee14012497a8f87bee761e79a88"
+        },
+        "record_time": {
+            "N": "1678119240"
+        },
+        "quantity": {
+            "N": "0.0114441"
+        },
+        "valid_at": {
+            "N": "1678119240"
+        }
+    },
+    "Item54": {
+        "order_id": {
+            "S": "31207f37e14168a54ea0274dd7a8ae"
+        },
+        "record_time": {
+            "N": "1678119240"
+        },
+        "quantity": {
+            "N": "0.0490967"
+        },
+        "valid_at": {
+            "N": "1678119240"
+        }
+    },
+    "Item55": {
+        "order_id": {
+            "S": "053329f2f0448e94d284773ee7e62f"
+        },
+        "record_time": {
+            "N": "1678119300"
+        },
+        "quantity": {
+            "N": "0.0487106"
+        },
+        "valid_at": {
+            "N": "1678119300"
+        }
+    },
+    "Item56": {
+        "order_id": {
+            "S": "11184c5d594276a16301bf7e4fd784"
+        },
+        "record_time": {
+            "N": "1678119300"
+        },
+        "quantity": {
+            "N": "0.0502243"
+        },
+        "valid_at": {
+            "N": "1678119300"
+        }
+    },
+    "Item57": {
+        "order_id": {
+            "S": "c1bc42daec4adf8931948ef98af560"
+        },
+        "record_time": {
+            "N": "1678119420"
+        },
+        "quantity": {
+            "N": "0.0692337"
+        },
+        "valid_at": {
+            "N": "1678119420"
+        }
+    },
+    "Item58": {
+        "order_id": {
+            "S": "d01b9480a746f1b33ae021be12ea80"
+        },
+        "record_time": {
+            "N": "1678119420"
+        },
+        "quantity": {
+            "N": "0.0756485"
+        },
+        "valid_at": {
+            "N": "1678119420"
+        }
+    },
+    "Item59": {
+        "order_id": {
+            "S": "13d90ef906459985e4dc42843d2439"
+        },
+        "record_time": {
+            "N": "1678119420"
+        },
+        "quantity": {
+            "N": "0.0628998"
+        },
+        "valid_at": {
+            "N": "1678119420"
+        }
+    },
+    "Item60": {
+        "order_id": {
+            "S": "99956a5f114cec8eaa3ab5eb58cd51"
+        },
+        "record_time": {
+            "N": "1678119480"
+        },
+        "quantity": {
+            "N": "0.0320541"
+        },
+        "valid_at": {
+            "N": "1678119480"
+        }
+    },
+    "Item61": {
+        "order_id": {
+            "S": "56c833064b405d824bce3c77b4251b"
+        },
+        "record_time": {
+            "N": "1678119480"
+        },
+        "quantity": {
+            "N": "0.0141525"
+        },
+        "valid_at": {
+            "N": "1678119480"
+        }
+    },
+    "Item62": {
+        "order_id": {
+            "S": "8eb0369d314584a3226cce2cb84ed1"
+        },
+        "record_time": {
+            "N": "1678119480"
+        },
+        "quantity": {
+            "N": "0.0483795"
+        },
+        "valid_at": {
+            "N": "1678119480"
+        }
+    },
+    "Item63": {
+        "order_id": {
+            "S": "6f2d47a2b34b769ee7c59dfdbf1b82"
+        },
+        "record_time": {
+            "N": "1678119600"
+        },
+        "quantity": {
+            "N": "0.0448685"
+        },
+        "valid_at": {
+            "N": "1678119600"
+        }
+    },
+    "Item64": {
+        "order_id": {
+            "S": "75b4dc4b534560ae5bd46296b7b777"
+        },
+        "record_time": {
+            "N": "1678119720"
+        },
+        "quantity": {
+            "N": "0.0320526"
+        },
+        "valid_at": {
+            "N": "1678119720"
+        }
+    },
+    "Item65": {
+        "order_id": {
+            "S": "58802b24844798b214a83ae5b0fc7c"
+        },
+        "record_time": {
+            "N": "1678119720"
+        },
+        "quantity": {
+            "N": "0.0713425"
+        },
+        "valid_at": {
+            "N": "1678119720"
+        }
+    },
+    "Item66": {
+        "order_id": {
+            "S": "239db7adb5451396c14c59a8b3b8ef"
+        },
+        "record_time": {
+            "N": "1678119720"
+        },
+        "quantity": {
+            "N": "0.0541138"
+        },
+        "valid_at": {
+            "N": "1678119720"
+        }
+    },
+    "Item67": {
+        "order_id": {
+            "S": "848a451fbe46fe9287ad1f14a87796"
+        },
+        "record_time": {
+            "N": "1678119780"
+        },
+        "quantity": {
+            "N": "0.00872345"
+        },
+        "valid_at": {
+            "N": "1678119780"
+        }
+    },
+    "Item68": {
+        "order_id": {
+            "S": "7b241ef82d47569628325fab5528a2"
+        },
+        "record_time": {
+            "N": "1678119900"
+        },
+        "quantity": {
+            "N": "0.0514023"
+        },
+        "valid_at": {
+            "N": "1678119900"
+        }
+    },
+    "Item69": {
+        "order_id": {
+            "S": "1057661a364d5c89aebf503e30d6f6"
+        },
+        "record_time": {
+            "N": "1678119900"
+        },
+        "quantity": {
+            "N": "0.0871414"
+        },
+        "valid_at": {
+            "N": "1678119900"
+        }
+    },
+    "Item70": {
+        "order_id": {
+            "S": "00777c2eb049ceaa8610d1d8b9227a"
+        },
+        "record_time": {
+            "N": "1678119960"
+        },
+        "quantity": {
+            "N": "0.0698349"
+        },
+        "valid_at": {
+            "N": "1678119960"
+        }
+    },
+    "Item71": {
+        "order_id": {
+            "S": "6fb6b63ad94fc58628fff2e27530f7"
+        },
+        "record_time": {
+            "N": "1678120080"
+        },
+        "quantity": {
+            "N": "0.0500519"
+        },
+        "valid_at": {
+            "N": "1678120080"
+        }
+    },
+    "Item72": {
+        "order_id": {
+            "S": "57edfdd28441b8bfbda7c77e366c11"
+        },
+        "record_time": {
+            "N": "1678120080"
+        },
+        "quantity": {
+            "N": "0.0645081"
+        },
+        "valid_at": {
+            "N": "1678120080"
+        }
+    },
+    "Item73": {
+        "order_id": {
+            "S": "6037c3998644778d9c763b338a2a27"
+        },
+        "record_time": {
+            "N": "1678120140"
+        },
+        "quantity": {
+            "N": "0.0680237"
+        },
+        "valid_at": {
+            "N": "1678120140"
+        }
+    },
+    "Item74": {
+        "order_id": {
+            "S": "a1548264bd47929979abf838f02870"
+        },
+        "record_time": {
+            "N": "1678120200"
+        },
+        "quantity": {
+            "N": "0.0791077"
+        },
+        "valid_at": {
+            "N": "1678120200"
+        }
+    },
+    "Item75": {
+        "order_id": {
+            "S": "fb48a539c247589b2f2ab2ad51f3d5"
+        },
+        "record_time": {
+            "N": "1678120260"
+        },
+        "quantity": {
+            "N": "0.0523392"
+        },
+        "valid_at": {
+            "N": "1678120260"
+        }
+    },
+    "Item76": {
+        "order_id": {
+            "S": "c41003671b4296a937e90f9c23f280"
+        },
+        "record_time": {
+            "N": "1678120380"
+        },
+        "quantity": {
+            "N": "0.042836"
+        },
+        "valid_at": {
+            "N": "1678120380"
+        }
+    },
+    "Item77": {
+        "order_id": {
+            "S": "73eb4739054ca69ca842c8869513ab"
+        },
+        "record_time": {
+            "N": "1678120440"
+        },
+        "quantity": {
+            "N": "0.0132339"
+        },
+        "valid_at": {
+            "N": "1678120440"
+        }
+    },
+    "Item78": {
+        "order_id": {
+            "S": "9a2f7762314538a8a24b340cd1f25e"
+        },
+        "record_time": {
+            "N": "1678120560"
+        },
+        "quantity": {
+            "N": "0.0289734"
+        },
+        "valid_at": {
+            "N": "1678120560"
+        }
+    },
+    "Item79": {
+        "order_id": {
+            "S": "5b92ec8214401fa177fccc97b4f7b4"
+        },
+        "record_time": {
+            "N": "1678120560"
+        },
+        "quantity": {
+            "N": "0.0834366"
+        },
+        "valid_at": {
+            "N": "1678120560"
+        }
+    },
+    "Item80": {
+        "order_id": {
+            "S": "a2a5644eee48b695e5754b999596c8"
+        },
+        "record_time": {
+            "N": "1678120740"
+        },
+        "quantity": {
+            "N": "0.0828506"
+        },
+        "valid_at": {
+            "N": "1678120740"
+        }
+    },
+    "Item81": {
+        "order_id": {
+            "S": "55fcef2b8e4fffb60f0d6affde1754"
+        },
+        "record_time": {
+            "N": "1678120800"
+        },
+        "quantity": {
+            "N": "0.0252731"
+        },
+        "valid_at": {
+            "N": "1678120800"
+        }
+    },
+    "Item82": {
+        "order_id": {
+            "S": "1da7d1c5864a8aa99c5a587f702283"
+        },
+        "record_time": {
+            "N": "1678120860"
+        },
+        "quantity": {
+            "N": "0.079184"
+        },
+        "valid_at": {
+            "N": "1678120860"
+        }
+    },
+    "Item83": {
+        "order_id": {
+            "S": "ed56a793ce4de8a36fdde419510bce"
+        },
+        "record_time": {
+            "N": "1678121100"
+        },
+        "quantity": {
+            "N": "0.00569153"
+        },
+        "valid_at": {
+            "N": "1678121100"
+        }
+    },
+    "Item84": {
+        "order_id": {
+            "S": "fae8a1ca6548a38ce1221940389e0b"
+        },
+        "record_time": {
+            "N": "1678121100"
+        },
+        "quantity": {
+            "N": "0.0879974"
+        },
+        "valid_at": {
+            "N": "1678121100"
+        }
+    },
+    "Item85": {
+        "order_id": {
+            "S": "0a318599844079b2848aec14319ef4"
+        },
+        "record_time": {
+            "N": "1678121520"
+        },
+        "quantity": {
+            "N": "0.0758453"
+        },
+        "valid_at": {
+            "N": "1678121520"
+        }
+    },
+    "Item86": {
+        "order_id": {
+            "S": "57c81f103841d2abfb02a198fddc49"
+        },
+        "record_time": {
+            "N": "1678121880"
+        },
+        "quantity": {
+            "N": "0.0159363"
+        },
+        "valid_at": {
+            "N": "1678121880"
+        }
+    },
+    "Item87": {
+        "order_id": {
+            "S": "8637c2043b473d88fd422ecc2ab7ad"
+        },
+        "record_time": {
+            "N": "1678121940"
+        },
+        "quantity": {
+            "N": "0.0232437"
+        },
+        "valid_at": {
+            "N": "1678121940"
+        }
+    },
+    "Item88": {
+        "order_id": {
+            "S": "ae7efef9d841cabbaeb55400a877cf"
+        },
+        "record_time": {
+            "N": "1678122286"
+        },
+        "quantity": {
+            "N": "0.0537338"
+        },
+        "valid_at": {
+            "N": "1678122286"
+        }
+    },
+    "Item89": {
+        "order_id": {
+            "S": "bd6f8376f64088baf51ef1cea454de"
+        },
+        "record_time": {
+            "N": "1678122301"
+        },
+        "quantity": {
+            "N": "0.0511169"
+        },
+        "valid_at": {
+            "N": "1678122301"
+        }
+    }
+}

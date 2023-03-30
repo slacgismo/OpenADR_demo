@@ -5,15 +5,15 @@ It create/update/delete sqs message command to control the worker app.
 Once worker app receive the sqs message, it will handle the action.
 """
 
-
+import datetime
 import os
 import uuid
 from enum import Enum
 import pandas as pd
 import random
 import click
-
-from models_and_classes.create_agents import generate_first_number_agents_from_simulation_csv_file, Market_Interval, Device_Type, generate_emulated_battery_csv_file_with_device_id, BATTERY_BRANDS, ECS_ACTIONS_ENUM, parse_batteries_csv_file_to_json
+from models_and_classes.create_json_file_from_csv import filter_and_convert_csv_to_json
+from models_and_classes.create_agents import generate_first_number_agents_from_simulation_csv_file, Market_Interval, Device_Type,  BATTERY_BRANDS, ECS_ACTIONS_ENUM
 from models_and_classes.destroy_agents import destroy_all
 import logging
 logging.basicConfig(format='%(asctime)s %(message)s',
@@ -38,6 +38,7 @@ try:
     ECS_CLUSTER_NAME = os.environ['ECS_CLUSTER_NAME']
     # create funtion to read csv file and convert to json forma
     BACKEND_S3_BUCKET_NAME = os.environ['BACKEND_S3_BUCKET_NAME']
+    MARKET_START_TIME = os.environ['MARKET_START_TIME']
 
 except Exception as e:
     raise Exception(f"ENV is not set correctly: {e}")
@@ -51,6 +52,14 @@ class Envoriment(Enum):
     LOCAL = "LOCAL"
 
 
+def convert_datetime_to_timsestamp(time_str: str, format: str = "%Y-%m-%d %H:%M %Z") -> int:
+    time_format = "%Y-%m-%d %H:%M %Z"
+    # convert datetime object to timestamp
+    dt = datetime.datetime.strptime(time_str, time_format)
+    market_start_timestamp = dt.timestamp()
+    return int(market_start_timestamp)
+
+
 @click.group()
 def cli():
     pass
@@ -61,23 +70,45 @@ def cli():
 
 
 @click.command()
-def create_battery_file():
-
-    generate_emulated_battery_csv_file_with_device_id(
+def create_db_json():
+    filter_and_convert_csv_to_json(
+        devices_type=[Device_Type.ES.value],
+        num_rows=100,
         path="./simulation_data_files",
         battery_file="simluated_battery.csv",
-        device_file="dump_devices.csv",
-        num_rows=500,
         batter_brands=BATTERY_BRANDS.SONNEN_BATTERY.value,
     )
+    pass
+    # generate_emulated_battery_csv_file_with_device_id(
+    #     path="./simulation_data_files",
+    #     battery_file="simluated_battery.csv",
+    #     device_file="dump_devices.csv",
+    #     num_rows=500,
+    #     batter_brands=BATTERY_BRANDS.SONNEN_BATTERY.value,
+    # )
     # parse the csv file to json file
+    # export devices
+    # parse_csv_and_export_json_file(
+    #     csv_file_path="./simulation_data_files/dump_devices.csv",
+    #     json_file_path="./simulation_data_files/dump_devices.json",
+    # )
+    # # export orders
+    # parse_csv_and_export_json_file(
+    #     csv_file_path="./simulation_data_files/dump_orders.csv",
+    #     json_file_path="./simulation_data_files/dump_orders.json",
+    # )
+    # # export dispatches
+    # parse_csv_and_export_json_file(
+    #     csv_file_path="./simulation_data_files/dump_dispatches.csv",
+    #     json_file_path="./simulation_data_files/dump_dispatches.json",
+    # )
 
-    parse_batteries_csv_file_to_json(
-        path="./simulation_data_files",
-        battery_file="simluated_battery.csv",
-        num_rows=250,
-        batter_brands=BATTERY_BRANDS.SONNEN_BATTERY.value,
-    )
+    # parse_batteries_csv_file_to_json(
+    #     path="./simulation_data_files",
+    #     battery_file="simluated_battery.csv",
+    #     num_rows=250,
+    #     batter_brands=BATTERY_BRANDS.SONNEN_BATTERY.value,
+    # )
 
     # ***************************
     #  Generate message sqs and send to sqs queue
@@ -86,6 +117,13 @@ def create_battery_file():
 
 @click.command()
 def create_agents():
+
+    time_format = "%Y-%m-%d %H:%M %Z"
+
+    market_start_timestamp = convert_datetime_to_timsestamp(
+        time_str=MARKET_START_TIME, format=time_format
+    )
+
     generate_first_number_agents_from_simulation_csv_file(
         market_interval=Market_Interval.One_Minute.value,
         number_of_market=1,
@@ -95,13 +133,17 @@ def create_agents():
         fifo_sqs=FIFO_SQS_URL,
         ecs_action=ECS_ACTIONS_ENUM.CREATE.value,
         ENV=ENV,
-        SQS_GROUPID=SQS_GROUPID
-
-    )
+        SQS_GROUPID=SQS_GROUPID,
+        market_start_timestamp=market_start_timestamp)
 
 
 @click.command()
 def update_agents():
+    time_format = "%Y-%m-%d %H:%M %Z"
+
+    market_start_timestamp = convert_datetime_to_timsestamp(
+        time_str=MARKET_START_TIME, format=time_format
+    )
     generate_first_number_agents_from_simulation_csv_file(
         market_interval=Market_Interval.One_Minute.value,
         number_of_market=1,
@@ -111,7 +153,8 @@ def update_agents():
         fifo_sqs=FIFO_SQS_URL,
         ecs_action=ECS_ACTIONS_ENUM.UPDATE.value,
         ENV=ENV,
-        SQS_GROUPID=SQS_GROUPID
+        SQS_GROUPID=SQS_GROUPID,
+        market_start_timestamp=market_start_timestamp
     )
 # ***************************
 #  Destroy all workers
@@ -129,7 +172,7 @@ def destroy_all_agents(
 
 
 # add the command to the cli
-cli.add_command(create_battery_file)
+cli.add_command(create_db_json)
 cli.add_command(create_agents)
 cli.add_command(destroy_all_agents)
 cli.add_command(update_agents)

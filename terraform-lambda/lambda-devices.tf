@@ -1,4 +1,4 @@
-resource "aws_iam_role" "openadr_devices_lambda_exec" {
+resource "aws_iam_role" "lambda_devices" {
   name = "${var.prefix}-${var.client}-${var.environment}-devices-exec-role"
 
   assume_role_policy = <<POLICY
@@ -17,69 +17,57 @@ resource "aws_iam_role" "openadr_devices_lambda_exec" {
 POLICY
 }
 
-resource "aws_iam_role_policy_attachment" "openadr_devices_lambda_policy" {
-  role       = aws_iam_role.openadr_devices_lambda_exec.name
+resource "aws_iam_role_policy_attachment" "lambda_devices" {
+  role       = aws_iam_role.lambda_devices.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-resource "aws_iam_policy" "test_s3_bucket_access" {
-  name = "TestS3BucketAccess"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "s3:GetObject",
-          "s3:PutObject",
-        ]
-        Effect   = "Allow"
-        Resource = "arn:aws:s3:::${aws_s3_bucket.batteries.id}/*"
-      },
-    ]
-  })
-  
-}
-
-resource "aws_iam_role_policy_attachment" "s3_lambda_test_s3_bucket_access" {
-  role       = aws_iam_role.openadr_devices_lambda_exec.name
-  policy_arn = aws_iam_policy.test_s3_bucket_access.arn
-}
-
-
-resource "aws_lambda_function" "openadr_devices" {
+resource "aws_lambda_function" "lambda_devices" {
 
   function_name ="${var.prefix}-${var.client}-${var.environment}-devices-pai"
   s3_bucket = aws_s3_bucket.lambda_bucket.id
-  s3_key    = aws_s3_object.lambda_openadr_devices.key
+  s3_key    = aws_s3_object.lambda_devices.key
 
   runtime = "nodejs16.x"
   handler = "function.handler"
 
-  source_code_hash = data.archive_file.lambda_openadr_devices.output_base64sha256
+  source_code_hash = data.archive_file.lambda_devices.output_base64sha256
 
-  role = aws_iam_role.openadr_devices_lambda_exec.arn
+  role = aws_iam_role.lambda_devices.arn
   tags = local.common_tags
 }
 
-resource "aws_cloudwatch_log_group" "openadr_devices" {
-  name = "/aws/lambda/${aws_lambda_function.openadr_devices.function_name}"
+resource "aws_cloudwatch_log_group" "lambda_devices" {
+  name = "/aws/lambda/${aws_lambda_function.lambda_devices.function_name}"
 
   retention_in_days = 14
 }
 
-data "archive_file" "lambda_openadr_devices" {
+data "archive_file" "lambda_devices" {
   type = "zip"
 
-  source_dir  = "${path.module}/openadr_devices"
-  output_path = "${path.module}/openadr_devices.zip"
+  source_dir  = "${path.module}/devices"
+  output_path = "${path.module}/templates/lambda_devices.zip"
 }
 
-resource "aws_s3_object" "lambda_openadr_devices" {
+resource "aws_s3_object" "lambda_devices" {
   bucket = aws_s3_bucket.lambda_bucket.id
 
-  key    = "openadr_devices.zip"
-  source = data.archive_file.lambda_openadr_devices.output_path
+  key    = "lambda_devices.zip"
+  source = data.archive_file.lambda_devices.output_path
 
-  etag = filemd5(data.archive_file.lambda_openadr_devices.output_path)
+  etag = filemd5(data.archive_file.lambda_devices.output_path)
+}
+
+
+# S3 policy access
+resource "aws_iam_role_policy_attachment" "lambda_devices_s3_access" {
+  role       = aws_iam_role.lambda_devices.name
+  policy_arn = aws_iam_policy.TESS_lambda_s3_access.arn
+}
+
+# Dynamodb policy access
+resource "aws_iam_role_policy_attachment" "lambda_devices_dynamodb_access" {
+  role       = aws_iam_role.lambda_devices.name
+  policy_arn = aws_iam_policy.TESS_lambda_dyanmodb_access.arn
 }

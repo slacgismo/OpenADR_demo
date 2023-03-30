@@ -7,21 +7,37 @@ from functools import partial
 from aiohttp import web
 import os
 import logging
+logging.basicConfig(
+    format="%(asctime)s %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p", level=logging.INFO
+)
 
+# VTN_NAME = "ven123"
+# TIMEZONE = "America/Los_Angeles"
 
-VTN_NAME = "ven123"
-TIMEZONE = "America/Los_Angeles"
+# tz_local = pytz.timezone(TIMEZONE)
 
-tz_local = pytz.timezone(TIMEZONE)
+try:
+    # The SQS_GROUPID is used to separate the sqs queue for different environment.
+    # if you want to send message to AWS worker, the SQS_GROUPID should be set to "AWS"
+    # if you want to send message to local worker, the SQS_GROUPID should be set to "LOCAL"
+    ENV = os.environ['ENV']
+    AGENT_ID = os.environ['AGENT_ID']
+    RESOURCE_ID = os.environ['RESOURCE_ID']
+    VTN_ID = os.environ['VTN_ID']
+    MARKET_INTERVAL_IN_SECOND = os.environ['MARKET_INTERVAL_IN_SECOND']
+    TIMEZONE = os.environ['TIMEZONE']
+    METER_API_URL = os.environ['METER_API_URL']
+    DEVICE_API_URL = os.environ['DEVICE_API_URL']
+    ORDER_PAI_URL = os.environ['ORDER_PAI_URL']
+    DISPATCH_API_URL = os.environ['DISPATCH_API_URL']
+
+except Exception as e:
+    raise Exception(f"ENV is not set correctly: {e}")
+
 
 if __name__ == "__main__":
     pass
 
-enable_default_logging(level=logging.DEBUG)
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger('openleadr')
-
-logger.info("vtn at top")
 
 # Future db
 VENS = {
@@ -37,7 +53,7 @@ VENS = {
 
 def find_ven(form_data):
     for v in VENS.values():
-        logger.debug(v['ven_id'])
+        logging.info(v['ven_id'])
         if v.get('ven_id') == form_data:
             return True
         else:
@@ -45,9 +61,9 @@ def find_ven(form_data):
 
 
 def ven_lookup(ven_id):
-    logger.info(f"ven_lookup {ven_id}")
+    logging.info(f"ven_lookup {ven_id}")
     for v in VENS.values():
-        logger.debug(v['ven_id'])
+        logging.info(v['ven_id'])
         if v.get('ven_id') == ven_id:
             return {'ven_id': v['ven_id'],
                     'ven_name': v['ven_name'],
@@ -66,11 +82,11 @@ async def on_create_party_registration(registration_info):
     for v in VENS.values():
         # print(values['ven_name'])
         if v.get('ven_name') == ven_name:
-            logger.debug(
+            logging.debug(
                 f"REGISTRATION SUCCESS WITH NAME:  {v.get('ven_name')} FROM PAYLOAD, MATCH FOUND {ven_name}")
             return v['ven_id'], v['registration_id']
         else:
-            logger.debug(
+            logging.debug(
                 f"REGISTRATION FAIL BAD VEN NAME: {registration_info['ven_name']}")
             return False
 
@@ -80,7 +96,7 @@ async def on_register_report(ven_id, resource_id, measurement, unit, scale,
     """
     Inspect a report offering from the VEN and return a callback and sampling interval for receiving the reports.
     """
-    logger.debug(f"on_register_report {ven_id} {resource_id} {measurement}")
+    logging.debug(f"on_register_report {ven_id} {resource_id} {measurement}")
     callback = partial(on_update_report, ven_id=ven_id,
                        resource_id=resource_id, measurement=measurement)
     sampling_interval = min_sampling_interval
@@ -92,7 +108,7 @@ async def on_update_report(data, ven_id, resource_id, measurement):
     Callback that receives report data from the VEN and handles it.
     """
     for time, value in data:
-        logger.debug(
+        logging.debug(
             f"Ven {ven_id} reported {measurement} = {value} at time {time} for resource {resource_id}")
 
 
@@ -100,7 +116,7 @@ async def event_response_callback(ven_id, event_id, opt_type):
     """
     Callback that receives the response from a VEN to an Event.
     """
-    logger.debug(
+    logging.debug(
         f"VEN {ven_id} responded to Event {event_id} with: {opt_type}")
 
 
@@ -114,7 +130,7 @@ async def handle_cancel_event(request):
                             event_id="our-event-id",
                             )
 
-        datetime_local = datetime.now(tz_local)
+        datetime_local = datetime.now(TIMEZONE)
         datetime_local_formated = datetime_local.strftime("%H:%M:%S")
         info = f"Event canceled now, local time: {datetime_local_formated}"
         response_obj = {'status': 'success', 'info': info}
@@ -175,25 +191,19 @@ async def all_ven_info(request):
         # return failed with a status code of 500 i.e. 'Server Error'
         return web.json_response(response_obj, status=500)
 
-logger.debug("vtn before OpenADRServer")
 
 # Create the server object
 server = OpenADRServer(vtn_id='myvtn',
                        http_host='0.0.0.0')
 # ven_lookup=ven_lookup)
 
-logger.debug(f"vtn created server {server}")
-
 # Add the handler for client (VEN) registrations
 server.add_handler('on_create_party_registration',
                    on_create_party_registration)
 
-logger.debug(f"vtn add_handler on_create_party_registration")
 
 # Add the handler for report registrations from the VEN
 server.add_handler('on_register_report', on_register_report)
-
-logger.debug(f"vtn add_handler on_register_report")
 
 
 async def health_check(request):
@@ -208,15 +218,6 @@ async def health_check(request):
         # return failed with a status code of 500 i.e. 'Server Error'
         return web.json_response(response_obj, status=500)
 
-# Add a prepared event for a VEN that will be picked up when it polls for new messages.
-# server.add_event(ven_id='ven_id_123',
-#                 signal_name='simple',
-#                 signal_type='level',
-#                 intervals=[{'dtstart': datetime(2021, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
-#                             'duration': timedelta(minutes=10),
-#                             'signal_payload': 1}],
-#                 callback=event_response_callback)
-
 
 server.app.add_routes([
     web.get('/trigger/{minutes_duration}', handle_trigger_event),
@@ -225,7 +226,7 @@ server.app.add_routes([
     web.get('/health', health_check)
 ])
 
-logger.debug(f"Configured server {server}")
+logging.debug(f"Configured server {server}")
 
 loop = asyncio.new_event_loop()
 loop.set_debug(True)
