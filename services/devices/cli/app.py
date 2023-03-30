@@ -38,6 +38,8 @@ try:
     ECS_CLUSTER_NAME = os.environ['ECS_CLUSTER_NAME']
     # create funtion to read csv file and convert to json forma
     BACKEND_S3_BUCKET_NAME = os.environ['BACKEND_S3_BUCKET_NAME']
+
+    # "2020-01-01T00:00:00Z"
     MARKET_START_TIME = os.environ['MARKET_START_TIME']
 
 except Exception as e:
@@ -52,11 +54,13 @@ class Envoriment(Enum):
     LOCAL = "LOCAL"
 
 
-def convert_datetime_to_timsestamp(time_str: str, format: str = "%Y-%m-%d %H:%M %Z") -> int:
-    time_format = "%Y-%m-%d %H:%M %Z"
+def convert_datetime_to_timsestamp(time_str: str) -> int:
+    time_obj = datetime.datetime.fromisoformat(time_str.replace('Z', '+00:00'))
     # convert datetime object to timestamp
-    dt = datetime.datetime.strptime(time_str, time_format)
-    market_start_timestamp = dt.timestamp()
+    if not datetime.datetime.strptime(time_str, '%Y-%m-%dT%H:%M:%SZ'):
+        raise Exception("time_str is not in the correct format")
+
+    market_start_timestamp = int(time_obj.timestamp())
     return int(market_start_timestamp)
 
 
@@ -78,37 +82,6 @@ def create_db_json():
         battery_file="simluated_battery.csv",
         batter_brands=BATTERY_BRANDS.SONNEN_BATTERY.value,
     )
-    pass
-    # generate_emulated_battery_csv_file_with_device_id(
-    #     path="./simulation_data_files",
-    #     battery_file="simluated_battery.csv",
-    #     device_file="dump_devices.csv",
-    #     num_rows=500,
-    #     batter_brands=BATTERY_BRANDS.SONNEN_BATTERY.value,
-    # )
-    # parse the csv file to json file
-    # export devices
-    # parse_csv_and_export_json_file(
-    #     csv_file_path="./simulation_data_files/dump_devices.csv",
-    #     json_file_path="./simulation_data_files/dump_devices.json",
-    # )
-    # # export orders
-    # parse_csv_and_export_json_file(
-    #     csv_file_path="./simulation_data_files/dump_orders.csv",
-    #     json_file_path="./simulation_data_files/dump_orders.json",
-    # )
-    # # export dispatches
-    # parse_csv_and_export_json_file(
-    #     csv_file_path="./simulation_data_files/dump_dispatches.csv",
-    #     json_file_path="./simulation_data_files/dump_dispatches.json",
-    # )
-
-    # parse_batteries_csv_file_to_json(
-    #     path="./simulation_data_files",
-    #     battery_file="simluated_battery.csv",
-    #     num_rows=250,
-    #     batter_brands=BATTERY_BRANDS.SONNEN_BATTERY.value,
-    # )
 
     # ***************************
     #  Generate message sqs and send to sqs queue
@@ -118,12 +91,16 @@ def create_db_json():
 @click.command()
 def create_agents():
 
-    time_format = "%Y-%m-%d %H:%M %Z"
+    # market_start_timestamp = convert_datetime_to_timsestamp(
+    #     time_str=MARKET_START_TIME
+    # )
+    # now_utc = datetime.datetime.utcnow()
 
-    market_start_timestamp = convert_datetime_to_timsestamp(
-        time_str=MARKET_START_TIME, format=time_format
-    )
+    # Format the datetime object to a string in UTC timezone
+    # time_str_utc = now_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
 
+    # print(time_str_utc)
+    # return
     generate_first_number_agents_from_simulation_csv_file(
         market_interval=Market_Interval.One_Minute.value,
         number_of_market=1,
@@ -134,16 +111,15 @@ def create_agents():
         ecs_action=ECS_ACTIONS_ENUM.CREATE.value,
         ENV=ENV,
         SQS_GROUPID=SQS_GROUPID,
-        market_start_timestamp=market_start_timestamp)
+        market_start_time=MARKET_START_TIME)
 
 
 @click.command()
 def update_agents():
-    time_format = "%Y-%m-%d %H:%M %Z"
 
-    market_start_timestamp = convert_datetime_to_timsestamp(
-        time_str=MARKET_START_TIME, format=time_format
-    )
+    # market_start_timestamp = convert_datetime_to_timsestamp(
+    #     time_str=MARKET_START_TIME
+    # )
     generate_first_number_agents_from_simulation_csv_file(
         market_interval=Market_Interval.One_Minute.value,
         number_of_market=1,
@@ -154,7 +130,7 @@ def update_agents():
         ecs_action=ECS_ACTIONS_ENUM.UPDATE.value,
         ENV=ENV,
         SQS_GROUPID=SQS_GROUPID,
-        market_start_timestamp=market_start_timestamp
+        market_start_time=MARKET_START_TIME
     )
 # ***************************
 #  Destroy all workers

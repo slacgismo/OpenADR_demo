@@ -12,12 +12,13 @@ services:
       - AGENT_ID=${AGENT_ID:-agent_0}
       - RESOURCE_ID=${RESOURCE_ID:-resource0}
       - VTN_ID=${VTN_ID:-vtn0}
-      - METER_API_URL=${METER_API_URL:-https://yuda2f93e6.execute-api.us-east-2.amazonaws.com/dev/meters}
-      - DEVICE_API_URL=${DEVICE_API_URL:-https://yuda2f93e6.execute-api.us-east-2.amazonaws.com/dev/devices}
-      - ORDER_PAI_URL=${DEVICE_API_URL:-https://yuda2f93e6.execute-api.us-east-2.amazonaws.com/dev/orders}
-      - DISPATCH_API_URL=${DEVICE_API_URL:-https://yuda2f93e6.execute-api.us-east-2.amazonaws.com/dev/dispatches}
+      - METERS_API_URL=${METERS_API_URL:-https://yuda2f93e6.execute-api.us-east-2.amazonaws.com/dev/meters}
+      - DEVICES_API_URL=${DEVICES_API_URL:-https://yuda2f93e6.execute-api.us-east-2.amazonaws.com/dev/devices}
+      - ORDERS_PAI_URL=${ORDERS_PAI_URL:-https://yuda2f93e6.execute-api.us-east-2.amazonaws.com/dev/orders}
+      - DISPATCHES_API_URL=${DISPATCHES_API_URL:-https://yuda2f93e6.execute-api.us-east-2.amazonaws.com/dev/dispatches}
       - MARKET_INTERVAL_IN_SECOND=${MARKET_INTERVAL_IN_SECOND:-20}
-      - TIMEZONE=${TIMEZONE:-America/Los_Angeles}
+      - MARKET_START_TIME=${MARKET_START_TIMESTAMP:-2020-01-01T00:00:00Z}
+      - LOCAL_TIMEZONE=${LOCAL_TIMEZONE:-America/Los_Angeles}
     networks:
       - adrnet
     ports:
@@ -47,11 +48,15 @@ services:
       - DEVICE_NAME=${DEVICE_NAME:-battery0}
       - VTN_ADDRESS=${VTN_ADDRESS:-vtn}
       - VTN_PORT=${VTN_PORT:-8080}
-      - DEVICE_TYPE=${DEVICE_TYPE:-HS}
+      - DEVICE_TYPE=${DEVICE_TYPE:-ES}
       - EMULATED_DEVICE_API_URL=${EMULATED_DEVICE_API_URL:-https://5cpljk0hz4.execute-api.us-east-2.amazonaws.com/dev/battery_api}
       - 'DEVICE_SETTINGS={"device_brand": "SONNEN_BATTERY", "battery_token": "12321321qsd", "battery_sn": "66354"}'
       - MARKET_INTERVAL_IN_SECOND=${MARKET_INTERVAL_IN_SECOND:-60}
-      - FLEXIBLE=${FLEXIBLE:-True}
+      - FLEXIBLE=${FLEXIBLE:-1}
+      - MARKET_START_TIME=${MARKET_START_TIMESTAMP:-2020-01-01T00:00:00Z}
+      - LOCAL_TIMEZONE=${LOCAL_TIMEZONE:-America/Los_Angeles}
+      - HTTPSERVER_PORT=${HTTPSERVER_PORT:-8000}
+
     command: >
       sh -c "python ven.py"
     ports:

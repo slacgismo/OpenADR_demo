@@ -25,26 +25,22 @@ try:
     RESOURCE_ID = os.environ['RESOURCE_ID']
     VTN_ID = os.environ['VTN_ID']
     MARKET_INTERVAL_IN_SECOND = os.environ['MARKET_INTERVAL_IN_SECOND']
-    TIMEZONE = os.environ['TIMEZONE']
-    METER_API_URL = os.environ['METER_API_URL']
-    DEVICE_API_URL = os.environ['DEVICE_API_URL']
-    ORDER_PAI_URL = os.environ['ORDER_PAI_URL']
-    DISPATCH_API_URL = os.environ['DISPATCH_API_URL']
-
+    METERS_API_URL = os.environ['METERS_API_URL']
+    DEVICES_API_URL = os.environ['DEVICES_API_URL']
+    ORDERS_PAI_URL = os.environ['ORDERS_PAI_URL']
+    DISPATCHES_API_URL = os.environ['DISPATCHES_API_URL']
+    MARKET_START_TIME = os.environ['MARKET_START_TIME']
+    LOCAL_TIMEZONE = os.environ['LOCAL_TIMEZONE']
 except Exception as e:
     raise Exception(f"ENV is not set correctly: {e}")
 
 
-if __name__ == "__main__":
-    pass
-
-
 # Future db
 VENS = {
-    "ven123": {
-        "ven_name": "ven123",
-        "ven_id": "ven_id_ven123",
-        "registration_id": "reg_id_ven123"
+    "ven0": {
+        "ven_name": "ven0",
+        "ven_id": "ven0",
+        "registration_id": "ven0"
     }
 }
 
@@ -75,8 +71,6 @@ async def on_create_party_registration(registration_info):
     """
     Inspect the registration info and return a ven_id and registration_id.
     """
-    logger.debug(
-        f"TRYING TO LOOK UP VEN FOR REGISTRATION: {registration_info['ven_name']}")
 
     ven_name = registration_info['ven_name']
     for v in VENS.values():
@@ -130,7 +124,7 @@ async def handle_cancel_event(request):
                             event_id="our-event-id",
                             )
 
-        datetime_local = datetime.now(TIMEZONE)
+        datetime_local = datetime.now(LOCAL_TIMEZONE)
         datetime_local_formated = datetime_local.strftime("%H:%M:%S")
         info = f"Event canceled now, local time: {datetime_local_formated}"
         response_obj = {'status': 'success', 'info': info}
@@ -164,7 +158,7 @@ async def handle_trigger_event(request):
                          event_id="our-event-id",
                          )
 
-        datetime_local = datetime.now(tz_local)
+        datetime_local = datetime.now(LOCAL_TIMEZONE)
         datetime_local_formated = datetime_local.strftime("%H:%M:%S")
         info = f"Event added now, local time: {datetime_local_formated}"
         response_obj = {'status': 'success', 'info': info}
@@ -218,20 +212,19 @@ async def health_check(request):
         # return failed with a status code of 500 i.e. 'Server Error'
         return web.json_response(response_obj, status=500)
 
+if __name__ == "__main__":
 
-server.app.add_routes([
-    web.get('/trigger/{minutes_duration}', handle_trigger_event),
-    web.get('/cancel', handle_cancel_event),
-    web.get('/vens', all_ven_info),
-    web.get('/health', health_check)
-])
+    server.app.add_routes([
+        web.get('/trigger/{minutes_duration}', handle_trigger_event),
+        web.get('/cancel', handle_cancel_event),
+        web.get('/vens', all_ven_info),
+        web.get('/health', health_check)
+    ])
 
-logging.debug(f"Configured server {server}")
+    logging.debug(f"Configured server {server}")
 
-loop = asyncio.new_event_loop()
-loop.set_debug(True)
-asyncio.set_event_loop(loop)
-loop.create_task(server.run())
-# Using this line causes failure
-# asyncio.run(server.run(), debug=True)
-loop.run_forever()
+    loop = asyncio.new_event_loop()
+    loop.set_debug(True)
+    asyncio.set_event_loop(loop)
+    loop.create_task(server.run())
+    loop.run_forever()

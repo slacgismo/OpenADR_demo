@@ -62,7 +62,8 @@ class AGNET_KEY(Enum):
     MARKET_INTERVAL_IN_SECOND = "market_interval_in_second"
     MARKET_ID = "market_id"
     DEVICES = "devices"
-    MARKET_START_TIMESTAMP = "market_start_timestamp"
+    MARKET_START_TIME = "market_start_time"
+    LOCAL_TIMEZONE = "local_timezone"
 
 
 def parse_csv_and_export_json_file(
@@ -114,6 +115,7 @@ def generate_first_number_agents_from_simulation_csv_file(
     "resource_id": "caff6719c24359a155a4d0d2f265a7",
     "market_interval_in_second": "300",
     "market_id": "6436a67e184d3694a15886215ae464",
+    market_start_time:  
     "devices": [
         {
             "device_id": "807f8e4a37446e80c5756a74a3598d",
@@ -145,8 +147,8 @@ def generate_first_number_agents_from_simulation_csv_file(
     markets_table_df = convert_csv_to_pandas(
         file="dump_markets.csv", path="./simulation_data_files")
     # create the list of the command to be sent to sqs
-    # battery_token_df = convert_csv_to_pandas(
-    #     file="simluated_battery.csv", path="./simulation_data_files")
+    battery_token_df = convert_csv_to_pandas(
+        file="simluated_battery.csv", path="./simulation_data_files")
     command_list = []
     # get the market id list hwere the market interval is 60
     market_resources_dict_list, resources_ids = get_market_and_resource_ids(
