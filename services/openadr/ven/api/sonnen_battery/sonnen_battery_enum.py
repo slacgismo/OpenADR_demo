@@ -37,4 +37,4 @@ class SonnenBatteryAttributeKey(Enum):
     USOC = 17
     Uac = 18
     Ubat = 19
-    Timestamp = 'Timestamp'
+    Timestamp = 20

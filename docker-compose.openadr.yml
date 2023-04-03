@@ -16,7 +16,7 @@ services:
       - DEVICES_API_URL=${DEVICES_API_URL:-https://yuda2f93e6.execute-api.us-east-2.amazonaws.com/dev/devices}
       - ORDERS_PAI_URL=${ORDERS_PAI_URL:-https://yuda2f93e6.execute-api.us-east-2.amazonaws.com/dev/orders}
       - DISPATCHES_API_URL=${DISPATCHES_API_URL:-https://yuda2f93e6.execute-api.us-east-2.amazonaws.com/dev/dispatches}
-      - MARKET_INTERVAL_IN_SECOND=${MARKET_INTERVAL_IN_SECOND:-20}
+      - MARKET_INTERVAL_IN_SECOND=${MARKET_INTERVAL_IN_SECOND:-60}
       - MARKET_START_TIME=${MARKET_START_TIMESTAMP:-2020-01-01T00:00:00Z}
       - LOCAL_TIMEZONE=${LOCAL_TIMEZONE:-America/Los_Angeles}
     networks:
@@ -40,6 +40,7 @@ services:
       - ./services/openadr/ven:/app
     environment:
       - ENV=${ENV:-DEV} # PROD or DEV (PROD: real device, DEV: mock device)
+      - IS_USING_MOCK_DEVICE=${IS_USING_MOCK_DEVICE:-0} #1 for Ture and 0 for False
       - VEN_ID=${VEN_ID:-ven0}
       - RESOURCE_ID=${RESOURCE_ID:-resource0}
       - METER_ID=${METER_ID:-meter0}
@@ -50,17 +51,17 @@ services:
       - VTN_PORT=${VTN_PORT:-8080}
       - DEVICE_TYPE=${DEVICE_TYPE:-ES}
       - EMULATED_DEVICE_API_URL=${EMULATED_DEVICE_API_URL:-https://5cpljk0hz4.execute-api.us-east-2.amazonaws.com/dev/battery_api}
-      - 'DEVICE_SETTINGS={"device_brand": "SONNEN_BATTERY", "battery_token": "12321321qsd", "battery_sn": "66354"}'
-      - MARKET_INTERVAL_IN_SECOND=${MARKET_INTERVAL_IN_SECOND:-60}
-      - FLEXIBLE=${FLEXIBLE:-1}
+      - 'DEVICE_SETTINGS={"device_brand": "SONNEN_BATTERY", "battery_token": "assdds", "battery_sn": "66352"}'
+      - MARKET_INTERVAL_IN_SECOND=${MARKET_INTERVAL_IN_SECOND:-20}
+      - FLEXIBLE=${FLEXIBLE:-1} # 1 for Ture and 0 for False
       - MARKET_START_TIME=${MARKET_START_TIMESTAMP:-2020-01-01T00:00:00Z}
       - LOCAL_TIMEZONE=${LOCAL_TIMEZONE:-America/Los_Angeles}
-      - HTTPSERVER_PORT=${HTTPSERVER_PORT:-8000}
+      - HTTPSERVER_PORT=${HTTPSERVER_PORT:-8070}
 
     command: >
       sh -c "python ven.py"
     ports:
-      - "8000:8000"
+      - "8070:8070"
     depends_on:
       - vtn
 networks:

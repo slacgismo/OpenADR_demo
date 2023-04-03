@@ -23,7 +23,7 @@ class SonnenInterface():
         self.headers = {'Accept': 'application/vnd.sonnenbatterie.api.core.v1+json',
                         'Authorization': 'Bearer ' + self.token, }
 
-    def get_status(self):
+    async def get_status(self):
         status_endpoint = '/api/v1/status'
 
         try:
@@ -32,11 +32,11 @@ class SonnenInterface():
             resp.raise_for_status()
 
         except requests.exceptions.HTTPError as err:
-            print(err)
+            raise (f"Error when get status from sonnen battery: {err}")
 
         return resp.json()
 
-    def get_status_and_convert_to_openleadr_report(self):
+    async def get_status_and_convert_to_openleadr_report(self):
         """ 
         Get battery status and convert to the openADR historical report format
         Since openADR protocol not allow to pass json format, we have to pass the 
@@ -82,7 +82,7 @@ class SonnenInterface():
     # period the energy would be dispensed to supply the demand of power from all the essential loads.
     # Load management can be enabled to further extend the life of the batteries by the Developers.
 
-    def enable_backup_mode(self):
+    async def enable_backup_mode(self):
         backup_endpoint = '/api/setting?EM_OperatingMode=7'
         try:
             resp = requests.get(self.url_ini + self.serial +
@@ -98,7 +98,7 @@ class SonnenInterface():
     # The ecoLinx monitors all energy sources (Grid, PV, Generator), loads, and Energy Reserve Percentage
     # in order to minimize purchase of energy from the Grid.
 
-    def enable_self_consumption(self):
+    async def enable_self_consumption(self):
         # now it seems 8 converts internally to 2 (test and update the code)
         sc_endpoint = '/api/setting?EM_OperatingMode=2'
         try:
@@ -111,7 +111,7 @@ class SonnenInterface():
 
         return resp.json()
 
-    def powermeter(self):
+    async def powermeter(self):
         sc_endpoint = '/api/powermeter'
         try:
             resp = requests.get(self.url_ini + self.serial +
@@ -123,7 +123,7 @@ class SonnenInterface():
 
         return resp.json()
 
-    def set_min_soc(self, value=5):
+    async def set_min_soc(self, value=5):
         sc_endpoint = '/api/setting?EM_USOC='+str(value)
         try:
             resp = requests.get(self.url_ini + self.serial +
@@ -138,7 +138,7 @@ class SonnenInterface():
     # This mode allows users to set time windows where it is preferred to employ the use of stored energy
     # (from PV) rather than consume from the grid.
 
-    def enable_tou(self):
+    async def enable_tou(self):
         tou_endpoint = '/api/setting?EM_OperatingMode=10'
         try:
             resp = requests.get(self.url_ini + self.serial +
@@ -150,7 +150,7 @@ class SonnenInterface():
 
         return resp.json()
 
-    def tou_grid_feedin(self, value=0):
+    async def tou_grid_feedin(self, value=0):
         # value = 0 disable charging from grid
         # value = 1 enable charging from grid
         grid_feedin_endpoint = '/api/setting?EM_US_GRID_ENABLED=' + str(value)
@@ -164,7 +164,7 @@ class SonnenInterface():
 
         return resp.json()
 
-    def tou_window(self, pk_start='[16:00]', pk_end='[21:00]', opk_start='[21:01]'):
+    async def tou_window(self, pk_start='[16:00]', pk_end='[21:00]', opk_start='[21:01]'):
         # value format = [HH:00] in 24hrs format
         tou_pk_start_endpoint = '/api/setting?EM_US_PEAK_HOUR_START_TIME=' + pk_start
         tou_pk_end_endpoint = '/api/setting?EM_US_PEAK_HOUR_END_TIME=' + pk_end
@@ -192,7 +192,7 @@ class SonnenInterface():
     # value to 0).
 
     # Enabled by default
-    def enable_manual_mode(self):
+    async def enable_manual_mode(self):
         manual_endpoint = '/api/setting?EM_OperatingMode=1'
         try:
             resp = requests.get(self.url_ini + self.serial +
@@ -204,7 +204,7 @@ class SonnenInterface():
 
         return resp.json()
 
-    def manual_mode_control(self, mode='charge', value='0'):
+    async def manual_mode_control(self, mode='charge', value='0'):
         control_endpoint = '/api/v1/setpoint/'
         # Checking if system is in off-grid mode
         voltage = SonnenInterface(

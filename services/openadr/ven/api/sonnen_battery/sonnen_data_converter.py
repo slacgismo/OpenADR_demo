@@ -1,4 +1,4 @@
-from .sonnen_battery_enum import SonnenBatteryAttributeKey, SonnenBatterySystemStatus
+from .Sonnen_Battery_Enum import SonnenBatteryAttributeKey, SonnenBatterySystemStatus
 from enum import Enum
 from datetime import datetime
 

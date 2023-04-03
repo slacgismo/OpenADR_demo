@@ -7,7 +7,7 @@ from requests.auth import HTTPDigestAuth
 # import pandas as pd
 import time as t
 import os
-
+import logging
 
 import types
 from .sonnen_data_converter import convert_sonnen_data_to_openadr_report_format
@@ -23,22 +23,21 @@ class MockSonnenInterface():
         self.headers = {'Accept': 'application/vnd.sonnenbatterie.api.core.v1+json',
                         'Authorization': 'Bearer ' + self.token, }
 
-    def mock_control_battery(self, mode):
-        print(f"Mock control battery to {mode}")
+    async def get_mock_battery_status(self):
+
         params = {"serial": self.serial}
 
         try:
             resp = requests.post(self.url_ini, params=params,
                                  headers=self.headers)
-
+            batt_staus = resp.json()
+            return batt_staus
             print("*********** response of control battery: ", resp)
         except requests.exceptions.HTTPError as err:
             print(err)
             return requests.exceptions.HTTPError
 
-        return True
-
-    def get_status_and_convert_to_openleadr_report(self):
+    async def get_status_and_convert_to_openleadr_report(self):
         """
         Get battery status and convert to the openADR historical report format
         Since openADR protocol not allow to pass json format, we have to pass the
@@ -83,7 +82,7 @@ class MockSonnenInterface():
     # period the energy would be dispensed to supply the demand of power from all the essential loads.
     # Load management can be enabled to further extend the life of the batteries by the Developers.
 
-    def enable_backup_mode(self):
+    async def enable_backup_mode(self):
 
         return "enable backup mode"
 
@@ -91,32 +90,32 @@ class MockSonnenInterface():
     # The ecoLinx monitors all energy sources (Grid, PV, Generator), loads, and Energy Reserve Percentage
     # in order to minimize purchase of energy from the Grid.
 
-    def enable_self_consumption(self):
+    async def enable_self_consumption(self):
         # now it seems 8 converts internally to 2 (test and update the code)
 
         return "enable self consumption"
 
-    def powermeter(self):
+    async def powermeter(self):
 
         return "powermeter"
 
-    def set_min_soc(self, value=5):
+    async def set_min_soc(self, value=5):
 
         return "set_min_soc"
     # Time of Use (TOU):
     # This mode allows users to set time windows where it is preferred to employ the use of stored energy
     # (from PV) rather than consume from the grid.
 
-    def enable_tou(self):
+    async def enable_tou(self):
         return "enable_tou"
 
-    def tou_grid_feedin(self, value=0):
+    async def tou_grid_feedin(self, value=0):
         # value = 0 disable charging from grid
         # value = 1 enable charging from grid
 
         return "tou_grid_feedin"
 
-    def tou_window(self, pk_start='[16:00]', pk_end='[21:00]', opk_start='[21:01]'):
+    async def tou_window(self, pk_start='[16:00]', pk_end='[21:00]', opk_start='[21:01]'):
         # value format = [HH:00] in 24hrs format
 
         return "tou_window"
@@ -128,9 +127,9 @@ class MockSonnenInterface():
     # value to 0).
 
     # Enabled by default
-    def enable_manual_mode(self):
+    async def enable_manual_mode(self):
         return "enable_manual_mode"
 
-    def manual_mode_control(self, mode='charge', value='0'):
+    async def manual_mode_control(self, mode='charge', value='0'):
 
         return "manual_mode_control"

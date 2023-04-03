@@ -1,3 +1,6 @@
+import functools
+import logging
+import os
 import asyncio
 from datetime import datetime, timezone, timedelta
 import pytz
@@ -5,16 +8,15 @@ from openleadr import OpenADRServer, enable_default_logging
 from openleadr.utils import generate_id
 from functools import partial
 from aiohttp import web
-import os
-import logging
+from actions.handle_order import handle_order
+from actions.handle_meter import handle_meter
+from actions.handle_health_check import handle_health_check
+from actions.handle_all_ven_info import handle_all_ven_info
+from actions.on_create_party_registration import on_create_party_registration
 logging.basicConfig(
     format="%(asctime)s %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p", level=logging.INFO
 )
 
-# VTN_NAME = "ven123"
-# TIMEZONE = "America/Los_Angeles"
-
-# tz_local = pytz.timezone(TIMEZONE)
 
 try:
     # The SQS_GROUPID is used to separate the sqs queue for different environment.
@@ -33,7 +35,7 @@ try:
     LOCAL_TIMEZONE = os.environ['LOCAL_TIMEZONE']
 except Exception as e:
     raise Exception(f"ENV is not set correctly: {e}")
-
+tz_local = pytz.timezone(LOCAL_TIMEZONE)
 
 # Future db
 VENS = {
@@ -67,164 +69,35 @@ def ven_lookup(ven_id):
     return {}
 
 
-async def on_create_party_registration(registration_info):
-    """
-    Inspect the registration info and return a ven_id and registration_id.
-    """
-
-    ven_name = registration_info['ven_name']
-    for v in VENS.values():
-        # print(values['ven_name'])
-        if v.get('ven_name') == ven_name:
-            logging.debug(
-                f"REGISTRATION SUCCESS WITH NAME:  {v.get('ven_name')} FROM PAYLOAD, MATCH FOUND {ven_name}")
-            return v['ven_id'], v['registration_id']
-        else:
-            logging.debug(
-                f"REGISTRATION FAIL BAD VEN NAME: {registration_info['ven_name']}")
-            return False
-
-
-async def on_register_report(ven_id, resource_id, measurement, unit, scale,
-                             min_sampling_interval, max_sampling_interval):
-    """
-    Inspect a report offering from the VEN and return a callback and sampling interval for receiving the reports.
-    """
-    logging.debug(f"on_register_report {ven_id} {resource_id} {measurement}")
-    callback = partial(on_update_report, ven_id=ven_id,
-                       resource_id=resource_id, measurement=measurement)
-    sampling_interval = min_sampling_interval
-    return callback, sampling_interval
-
-
-async def on_update_report(data, ven_id, resource_id, measurement):
-    """
-    Callback that receives report data from the VEN and handles it.
-    """
-    for time, value in data:
-        logging.debug(
-            f"Ven {ven_id} reported {measurement} = {value} at time {time} for resource {resource_id}")
-
-
-async def event_response_callback(ven_id, event_id, opt_type):
-    """
-    Callback that receives the response from a VEN to an Event.
-    """
-    logging.debug(
-        f"VEN {ven_id} responded to Event {event_id} with: {opt_type}")
-
-
-async def handle_cancel_event(request):
-    """
-    Handle a cancel event request.
-    """
-    try:
-        server = request.app["server"]
-        server.cancel_event(ven_id='ven_id_ben_house',
-                            event_id="our-event-id",
-                            )
-
-        datetime_local = datetime.now(LOCAL_TIMEZONE)
-        datetime_local_formated = datetime_local.strftime("%H:%M:%S")
-        info = f"Event canceled now, local time: {datetime_local_formated}"
-        response_obj = {'status': 'success', 'info': info}
-
-        # return sucess
-        return web.json_response(response_obj)
-
-    except Exception as e:
-
-        response_obj = {'status': 'failed', 'info': str(e)}
-
-        # return failed with a status code of 500 i.e. 'Server Error'
-        return web.json_response(response_obj, status=500)
-
-
-async def handle_trigger_event(request):
-    """
-    Handle a trigger event request.
-    """
-    try:
-        duration = request.match_info['minutes_duration']
-
-        server = request.app["server"]
-        server.add_event(ven_id='ven_id_ben_house',
-                         signal_name='SIMPLE',
-                         signal_type='level',
-                         intervals=[{'dtstart': datetime.now(timezone.utc),
-                                     'duration': timedelta(minutes=int(duration)),
-                                     'signal_payload': 1.0}],
-                         callback=event_response_callback,
-                         event_id="our-event-id",
-                         )
-
-        datetime_local = datetime.now(LOCAL_TIMEZONE)
-        datetime_local_formated = datetime_local.strftime("%H:%M:%S")
-        info = f"Event added now, local time: {datetime_local_formated}"
-        response_obj = {'status': 'success', 'info': info}
-
-        # return sucess
-        return web.json_response(response_obj)
-
-    except Exception as e:
-
-        response_obj = {'status': 'failed', 'info': str(e)}
-        # return failed with a status code of 500 i.e. 'Server Error'
-        return web.json_response(response_obj, status=500)
-
-
-async def all_ven_info(request):
-    """
-    Handle a trigger event request.
-    """
-    try:
-        return web.json_response(VENS)
-    except Exception as e:
-        # Bad path where name is not set
-        response_obj = {'status': 'failed', 'info': str(e)}
-        # return failed with a status code of 500 i.e. 'Server Error'
-        return web.json_response(response_obj, status=500)
-
-
-# Create the server object
-server = OpenADRServer(vtn_id='myvtn',
-                       http_host='0.0.0.0')
-# ven_lookup=ven_lookup)
-
-# Add the handler for client (VEN) registrations
-server.add_handler('on_create_party_registration',
-                   on_create_party_registration)
-
-
-# Add the handler for report registrations from the VEN
-server.add_handler('on_register_report', on_register_report)
-
-
-async def health_check(request):
-    """
-    Handle a trigger event request.
-    """
-    try:
-        return web.json_response("ok", status=200)
-    except Exception as e:
-        # Bad path where name is not set
-        response_obj = {'status': 'failed', 'info': str(e)}
-        # return failed with a status code of 500 i.e. 'Server Error'
-        return web.json_response(response_obj, status=500)
-
 if __name__ == "__main__":
 
+    # Create the server object
+    server = OpenADRServer(vtn_id='myvtn',
+                           http_host='0.0.0.0',
+                           ven_lookup=ven_lookup)
+
+    # Add the handler for client (VEN) registrations
+    server.add_handler('on_create_party_registration',
+                       functools.partial(on_create_party_registration, VENS=VENS, DEVICES_API_URL=DEVICES_API_URL))
+
+    # Add the handler for report registrations from the VEN
+    # server.add_handler('on_register_report', on_register_report)
+
     server.app.add_routes([
-        web.get('/trigger/{minutes_duration}', handle_trigger_event),
-        web.get('/cancel', handle_cancel_event),
-        web.get('/vens', all_ven_info),
-        web.get('/health', health_check)
+        # web.get('/trigger/{minutes_duration}', handle_trigger_event),
+        # web.get('/cancel', handle_cancel_event),
+        web.put('/order/{ven_id}', functools.partial(handle_order,
+                ORDERS_PAI_URL=ORDERS_PAI_URL)),
+        web.put('/meter/{ven_id}', functools.partial(handle_meter,
+                                                     METERS_API_URL=METERS_API_URL)),
+        web.get('/vens', functools.partial(handle_all_ven_info, VENS=VENS)),
+        web.get('/health', handle_health_check)
     ])
 
-    logging.debug(f"Configured server {server}")
+    # logging.debug(f"Configured server {server}")
 
     loop = asyncio.new_event_loop()
-    loop.set_debug(True)
+    # loop.set_debug(True)
     asyncio.set_event_loop(loop)
     loop.create_task(server.run())
     loop.run_forever()
