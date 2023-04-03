@@ -17,7 +17,7 @@ resource "aws_apigatewayv2_route" "get_lambda_meters" {
 resource "aws_apigatewayv2_route" "post_lambda_meters" {
   api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "PUT /db/meter/{device_id}/{meter_id}"
+  route_key = "PUT /meter/{device_id}/{meter_id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_meters.id}"
 }
 

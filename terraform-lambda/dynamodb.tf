@@ -19,12 +19,27 @@ resource "aws_dynamodb_table" "orders" {
   billing_mode = "PROVISIONED"
   read_capacity  = 1
   write_capacity = 1
+
   attribute {
     name = "order_id"
     type = "S"
   }
 
+  attribute {
+    name = "device_id"
+    type = "S"
+  }
+
   hash_key = "order_id"
+
+  global_secondary_index {
+    name = "device_id-index"
+    hash_key = "device_id"
+    range_key = "order_id"
+    projection_type = "ALL"
+    read_capacity = 1
+    write_capacity = 1
+  }
 }
 # Define second DynamoDB table
 resource "aws_dynamodb_table" "dispatches" {

@@ -14,7 +14,7 @@ resource "aws_apigatewayv2_integration" "lambda_battery_api" {
 resource "aws_apigatewayv2_route" "get_battery_api" {
   api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "GET /battery_api"
+  route_key = "GET /battery_api/{serial}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_battery_api.id}"
 }
 

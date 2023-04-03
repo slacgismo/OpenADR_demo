@@ -40,8 +40,8 @@ resource "aws_lambda_function" "dispatches" {
   function_name ="${var.prefix}-${var.client}-${var.environment}-dispatch-api"
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.dispatch_vens.key
-
-  runtime = "nodejs16.x"
+  runtime = "python3.9"
+  # runtime = "nodejs16.x"
   handler = "function.handler"
 
   source_code_hash = data.archive_file.dispatch_vens.output_base64sha256

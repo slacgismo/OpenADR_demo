@@ -9,7 +9,7 @@ resource "aws_apigatewayv2_integration" "lambda_dispatches" {
 
 resource "aws_apigatewayv2_route" "get_dispatches" {
   api_id = aws_apigatewayv2_api.main.id
-  route_key = "GET /db/dispatch/{order_id}"
+  route_key = "GET /dispatch/{order_id}"
   # route_key = "GET /dispatches"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_dispatches.id}"
 }
@@ -17,7 +17,7 @@ resource "aws_apigatewayv2_route" "get_dispatches" {
 resource "aws_apigatewayv2_route" "post_dispatches" {
   api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "PUT /db/dispatch"
+  route_key = "PUT /dispatch"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_dispatches.id}"
 }
 

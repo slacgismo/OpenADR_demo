@@ -79,7 +79,7 @@ async def handle_order(request, ORDERS_PAI_URL):
                     timezone=timezone.utc,
                     price=price,
                 )
-            if quantity and quantity != "0":
+            if quantity:
                 await send_quantity_to_ven_through_openadr_event(
                     request=request,
                     ven_id=ven_id,

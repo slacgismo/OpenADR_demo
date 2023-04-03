@@ -87,8 +87,8 @@ resource "aws_lambda_function" "battery_api" {
   
   s3_bucket = aws_s3_bucket.device_shared.id
   s3_key    = aws_s3_object.lambda_battery_api.key
-
-  runtime = "nodejs16.x"
+  runtime = "python3.9"
+  # runtime = "nodejs16.x"
   handler = "function.handler"
 
   source_code_hash = data.archive_file.lambda_battery_api.output_base64sha256

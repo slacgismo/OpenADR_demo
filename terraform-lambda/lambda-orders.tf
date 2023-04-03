@@ -41,8 +41,8 @@ resource "aws_lambda_function" "lambda_orders" {
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_orders.key
-
-  runtime = "nodejs16.x"
+  runtime = "python3.9"
+  # runtime = "nodejs16.x"
   handler = "function.handler"
 
   source_code_hash = data.archive_file.lambda_orders.output_base64sha256

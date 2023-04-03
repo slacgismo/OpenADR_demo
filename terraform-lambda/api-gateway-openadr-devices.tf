@@ -10,14 +10,14 @@ resource "aws_apigatewayv2_integration" "lambda_devices" {
 resource "aws_apigatewayv2_route" "get_lambda_devices" {
   api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "GET /db/device/{device_id}"
+  route_key = "GET /device/{device_id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_devices.id}"
 }
 
 resource "aws_apigatewayv2_route" "post_lambda_devices" {
   api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "POST /db/device"
+  route_key = "POST /device"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_devices.id}"
 }
 
