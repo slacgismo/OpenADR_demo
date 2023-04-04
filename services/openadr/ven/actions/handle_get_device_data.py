@@ -17,6 +17,10 @@ import aiohttp
 
 async def handle_get_device_data(
     market_interval: int = 60,
+    device_brand: str = None,
+    device_id: str = None,
+    meter_id: str = None,
+    resource_id: str = None,
     market_start_time: str = None,
     is_using_mock_device: bool = False,
     device_type: str = None,
@@ -56,9 +60,17 @@ async def handle_get_device_data(
             logging.info("device_data: ", device_data)
             shared_device_data = SharedDeviceData.get_instance()
             shared_device_data.set(device_data)
-
+            # TODO: refactor this to a new function
+            data = {
+                "device_data": device_data,
+                "device_type": device_type,
+                "device_id": device_id,
+                "meter_id": meter_id,
+                "resource_id": resource_id,
+                "device_brand": device_brand
+            }
             response = await put_data_to_meter_api(
-                data=device_data,
+                data=data,
                 vtn_measurement_url=vtn_measurement_url)
             # logging.info(f"Put data to meter api: {response}")
 

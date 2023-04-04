@@ -1,4 +1,3 @@
-
 import boto3
 import json
 import logging
@@ -15,10 +14,8 @@ logger.setLevel(logging.INFO)
 
 def handler(event, context):
     try:
-
         http_method = event['httpMethod']
         if http_method == 'GET':
-
             return {
                 'statusCode': 200,
                 'body': json.dumps({'device_id': "get device id"})
@@ -30,29 +27,24 @@ def handler(event, context):
                     'body': json.dumps({'error': 'Missing device_id'})
                 }
             device_id = event['pathParameters']['device_id']
-            query_params = event['queryStringParameters']
-            if query_params is None:
-                logger.error("No query params")
+            request_body = json.loads(event['body'])
 
-            resource_id = query_params.get('resource_id', None)
+            resource_id = request_body.get('resource_id', None)
             if resource_id is None:
                 logger.error("No resource_id")
-
-            quantity = query_params.get('quantity', None)
+            quantity = request_body.get('quantity', None)
             if quantity is None:
                 logger.error("No quantity")
-
-            flexible = query_params.get('flexible', 0)
-            state = query_params.get('state', None)
+            flexible = request_body.get('flexible', 0)
+            state = request_body.get('state', None)
             if state is None:
                 logger.error("No state")
-
-            record_time = query_params.get('record_time', None)
+            record_time = request_body.get('record_time', None)
             if record_time is None:
                 logger.error("No record_time")
-            # simluate put data into db (dynamodb)
-            # wait couple of seconds and get order_id back from dynamodb
-            # return order id .
+            # simulate put data into db (dynamodb)
+            # wait a couple of seconds and get order_id back from dynamodb
+            # return order id
             return get_order_info_from_dynamodb(
                 device_id=device_id,
                 table_name=table_name,
@@ -110,7 +102,8 @@ def get_order_info_from_dynamodb(device_id: str, table_name: str, dynamodb_clien
 
             return {
                 'statusCode': 200,
-                'body': json.dumps(items)
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps(items[0])
             }
 
         # If no objects are found, return a failure response
@@ -124,5 +117,6 @@ def get_order_info_from_dynamodb(device_id: str, table_name: str, dynamodb_clien
     except Exception as e:
         return {
             'statusCode': 500,
+
             'body': 'Error retrieving orders: {}'.format(str(e))
         }

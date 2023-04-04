@@ -65,7 +65,8 @@ async def submit_order_to_vtn(
 
             if device_data is None:
                 logging.info("====================================")
-                logging.info("No device data to submit measurement")
+                logging.info(
+                    "No device data to submit order, skip this market interval")
                 logging.info("====================================")
             else:
                 order_data = convert_device_data_to_order_data(
@@ -78,6 +79,8 @@ async def submit_order_to_vtn(
                     device_data=order_data,
                     vtn_order_url=vtn_order_url
                 )
+                # clear the device data
+                shared_device_data.clear()
 
         except Exception as e:
             logging.error(f"Error submit order: {e}")

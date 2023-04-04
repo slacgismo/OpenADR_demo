@@ -1,99 +1,83 @@
-import boto3
-import json
+const aws = require("aws-sdk");
 
-dynamodb = boto3.client('dynamodb')
-table_name = 'openadr-NHEC-dev-mock-battery'
+const dynamodb = new aws.DynamoDB();
 
-get_battery_data = {
-    "BackupBuffer": "10",
-    "BatteryCharging": True,
-    "BatteryDischarging": False,
-    "Consumption_Avg": 0,
-    "Consumption_W": 0,
-    "Fac": 60,
-    "FlowConsumptionBattery": True,
-    "FlowConsumptionGrid": False,
-    "FlowConsumptionProduction": False,
-    "FlowGridBattery": True,
-    "FlowProductionBattery": True,
-    "FlowProductionGrid": True,
-    "GridFeedIn_W": 196,
-    "IsSystemInstalled": 1,
-    "OperatingMode": "2",
-    "Pac_total_W": -1800,
-    "Production_W": 1792,
-    "RSOC": 50,
-    "RemainingCapacity_W": 5432,
-    "SystemStatus": "OnGrid",
-    "Timestamp": "2023-02-09 14:50:32",
-    "USOC": 50,
-    "Uac": 237,
-    "Ubat": 54,
-}
+const random_value = (min, max, decimal) => {
+  const randomFloat = (Math.random() * (max - min) + min).toFixed(decimal);
+  return randomFloat;
+};
 
+// return data from batteries array
+const get_battery_data = () => {
+  var data = {
+    BackupBuffer: "10",
+    BatteryCharging: true,
+    BatteryDischarging: false,
+    Consumption_Avg: 0,
+    Consumption_W: 0,
+    Fac: 60,
+    FlowConsumptionBattery: false,
+    FlowConsumptionGrid: false,
+    FlowConsumptionProduction: false,
+    FlowGridBattery: true,
+    FlowProductionBattery: true,
+    FlowProductionGrid: true,
+    GridFeedIn_W: 196,
+    IsSystemInstalled: 1,
+    OperatingMode: "2",
+    Pac_total_W: -1800,
+    Production_W: 1792,
+    RSOC: random_value(20, 98, 0),
+    RemainingCapacity_W: 5432,
+    SystemStatus: "OnGrid",
+    Timestamp: "2023-02-09 14:50:32",
+    USOC: random_value(10, 95, 0),
+    Uac: 237,
+    Ubat: 54,
+  };
+  return data;
+};
 
-def handler(event, context):
-    try:
-        http_method = event['httpMethod']
-        if http_method == 'GET':
-            serial = event['pathParameters']['serial']
-            return get_battery_info_from_dynamodb(
-                serial=serial,
-                table_name=table_name,
-                dynamodb_client=dynamodb
-            )
+exports.handler = async (event) => {
+  // check header has an authorization token and check if queryStringParameters exusts
+  if (
+    !event.headers.authorization ||
+    !event.queryStringParameters ||
+    !event.queryStringParameters["serial"]
+  ) {
+    // return status code 401 if not exist
+    return {
+      statusCode: 401,
+      body: JSON.stringify({ message: "Invalid or missing token" }),
+    };
+  }
+  const authHeader = event.headers.Authorization || event.headers.authorization;
+  const serial = event.queryStringParameters["serial"];
+  const match = authHeader.match(/^Bearer (.+)$/);
+  if (!match) {
+    return {
+      statusCode: 401,
+      body: 'Invalid authorization header format. Format should be "Bearer <token>".',
+    };
+  }
+  const token = match[1];
+  const params = {
+    TableName: "battery-table",
+    Key: {
+      serial: { S: serial },
+    },
+  };
+  const result = await dynamodb.getItem(params).promise();
+  if (result.Item && result.Item.token && result.Item.token.S === token) {
+    const data = get_battery_data();
+    return {
+      statusCode: 200,
+      body: JSON.stringify(data),
+    };
+  }
 
-        elif http_method == 'POST':
-            return {
-                'statusCode': 200,
-                'body': json.dumps({'serial': "post serial id"})
-            }
-    except Exception as e:
-        return {
-            'statusCode': 500,
-            'body': json.dumps({'error ': str(e)})
-        }
-
-
-def get_battery_info_from_dynamodb(serial: str, table_name: str, dynamodb_client):
-    try:
-
-        response = dynamodb_client.query(
-            TableName=table_name,
-            KeyConditionExpression='serial = :val',
-            ExpressionAttributeValues={
-                ':val': {'S': serial}
-            }
-        )
-        if 'Items' in response:
-            items = []
-            if len(response['Items']) > 0 :
-                for item in response['Items']:
-                    items.append({
-                        'serial': item['serial']['S'],
-                        'token': item['token']['S']
-                    })
-                
-                return {
-                    'statusCode': 200,
-                    'body': json.dumps(get_battery_data)
-                }
-            else:
-                return {
-                    'statusCode': 404,
-                    'body': 'No objects found with serial: {}'.format(serial)
-                }
-
-        # If no objects are found, return a failure response
-        else:
-            return {
-                'statusCode': 404,
-                'body': 'No objects found with serial: {}'.format(serial)
-            }
-
-    # If an error occurs, return an error response
-    except Exception as e:
-        return {
-            'statusCode': 500,
-            'body': 'Error retrieving object: {}'.format(str(e))
-        }
+  return {
+    statusCode: 400,
+    body: JSON.stringify({ message: "failed" }),
+  };
+};

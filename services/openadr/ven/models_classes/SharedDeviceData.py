@@ -23,3 +23,6 @@ class SharedDeviceData:
 
     def set(self, new_value):
         self._value = new_value
+
+    def clear(self):
+        self._value = None

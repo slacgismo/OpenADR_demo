@@ -51,6 +51,7 @@ def handler(event, context):
     except Exception as e:
         return {
             'statusCode': 500,
+            'headers': {'Content-Type': 'application/json'},
             'body': json.dumps({'error ': str(e)})
         }
 
@@ -76,6 +77,7 @@ def get_battery_info_from_dynamodb(serial: str, table_name: str, dynamodb_client
 
                 return {
                     'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json'},
                     'body': json.dumps(get_battery_data)
                 }
             else:

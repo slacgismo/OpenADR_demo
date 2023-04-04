@@ -22,7 +22,7 @@ services:
       - WORKER_PORT=${WORKER_PORT:-8000}
       - ENV=${ENV:-DEV}
       - SQS_GROUPID=${SQS_GROUPID:-LOCAL}
-      - MARKET_START_TIME=${MARKET_START_TIME:-2023-03-29 12:00 UTC}
+
     volumes:
       - ./services/devices/worker:/app
     command: >

@@ -25,14 +25,13 @@ class MockSonnenInterface():
 
     async def get_mock_battery_status(self):
 
-        params = {"serial": self.serial}
-
         try:
-            resp = requests.post(self.url_ini, params=params,
-                                 headers=self.headers)
+            resp = requests.get(self.url_ini + f"/{self.serial}",
+                                headers=self.headers)
+
             batt_staus = resp.json()
             return batt_staus
-            print("*********** response of control battery: ", resp)
+
         except requests.exceptions.HTTPError as err:
             print(err)
             return requests.exceptions.HTTPError

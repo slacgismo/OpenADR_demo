@@ -25,6 +25,7 @@ def handler(event, context):
     except Exception as e:
         return {
             'statusCode': 500,
+            'headers': {'Content-Type': 'application/json'},
             'body': json.dumps({'error ': str(e)})
         }
 
@@ -51,6 +52,7 @@ def get_device_info_from_dynamodb(device_id: str, table_name: str, dynamodb_clie
 
             return {
                 'statusCode': 200,
+                'headers': {'Content-Type': 'application/json'},
                 'body': json.dumps(items)
             }
 
@@ -58,6 +60,7 @@ def get_device_info_from_dynamodb(device_id: str, table_name: str, dynamodb_clie
         else:
             return {
                 'statusCode': 404,
+                'headers': {'Content-Type': 'application/text'},
                 'body': 'No objects found with device ID: {}'.format(device_id)
             }
 
@@ -65,5 +68,6 @@ def get_device_info_from_dynamodb(device_id: str, table_name: str, dynamodb_clie
     except Exception as e:
         return {
             'statusCode': 500,
+            'headers': {'Content-Type': 'application/text'},
             'body': 'Error retrieving object: {}'.format(str(e))
         }

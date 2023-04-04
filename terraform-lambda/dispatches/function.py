@@ -53,6 +53,7 @@ def get_dispatch_info_from_dynamodb(order_id: str, table_name: str, dynamodb_cli
 
             return {
                 'statusCode': 200,
+                'headers': {'Content-Type': 'application/json'},
                 'body': json.dumps(items)
             }
 
@@ -60,7 +61,7 @@ def get_dispatch_info_from_dynamodb(order_id: str, table_name: str, dynamodb_cli
         else:
             return {
                 'statusCode': 404,
-                'body': 'No objects found with order ID: {}'.format(device_id)
+                'body': 'No objects found with order ID: {}'.format(order_id)
             }
 
     # If an error occurs, return an error response

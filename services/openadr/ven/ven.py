@@ -75,6 +75,9 @@ def main():
         shared_device_info.set_emulated_device_api_url(EMULATED_DEVICE_API_URL)
         shared_device_info.set_is_using_mock_device(is_using_mock_device)
 
+        device_settings = json.loads(DEVICE_SETTINGS)
+        device_brand = device_settings["device_brand"]
+
     except Exception as e:
         logging.error(f"Envoronment variables are not dictionary: {e}")
 
@@ -82,6 +85,7 @@ def main():
 
     client = OpenADRClient(
         ven_name=VEN_ID, vtn_url=f"http://{VTN_ADDRESS}:{VTN_PORT}/OpenADR2/Simple/2.0b", debug=True)
+
     client.add_handler('on_event', functools.partial(
         handle_event, shared_device_info=shared_device_info))
     # Add event handling capability to the client
@@ -104,6 +108,10 @@ def main():
     # run the get device data
     asyncio.run_coroutine_threadsafe(
         handle_get_device_data(
+            device_brand=device_brand,
+            device_id=DEVICE_ID,
+            meter_id=METER_ID,
+            resource_id=RESOURCE_ID,
             market_interval=int(MARKET_INTERVAL_IN_SECOND),
             market_start_time=MARKET_START_TIME,
             is_using_mock_device=is_using_mock_device,
