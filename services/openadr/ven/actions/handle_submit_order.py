@@ -68,19 +68,29 @@ async def submit_order_to_vtn(
                 logging.info(
                     "No device data to submit order, skip this market interval")
                 logging.info("====================================")
-            else:
-                order_data = convert_device_data_to_order_data(
-                    device_data=device_data,
-                    device_type=DEVICE_TYPES.ES.value,
-                    deivce_brand=BATTERY_BRANDS.SONNEN_BATTERY.value
-                )
+                return
 
-                await put_data_to_order_api_of_vtn(
-                    device_data=order_data,
-                    vtn_order_url=vtn_order_url
-                )
-                # clear the device data
-                shared_device_data.clear()
+            # check the Uac value, if it is 0, skip this market interval
+            Uac = device_data[SonnenBatteryAttributeKey.Uac.name]
+            if Uac == 0:
+                logging.info("====================================")
+                logging.info(
+                    "Uac is 0, battery is offgrid, skip this market interval")
+                logging.info("====================================")
+                return
+
+            order_data = convert_device_data_to_order_data(
+                device_data=device_data,
+                device_type=DEVICE_TYPES.ES.value,
+                deivce_brand=BATTERY_BRANDS.SONNEN_BATTERY.value
+            )
+
+            await put_data_to_order_api_of_vtn(
+                device_data=order_data,
+                vtn_order_url=vtn_order_url
+            )
+            # clear the device data
+            shared_device_data.clear()
 
         except Exception as e:
             logging.error(f"Error submit order: {e}")

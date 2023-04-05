@@ -23,11 +23,12 @@ async def handle_event(event, shared_device_info: SharedDeviceInfo):
                 f"******** {ven_id} get event: {signal_name} {signal_type} {signal_payload} ********")
             # start to dispatch order
             if signal_name == 'LOAD_DISPATCH' and signal_type == 'level':
-                if signal_payload != 0:
+                if signal_payload:
                     pass
                     await handle_dispatch(
                         device_settings=device_settings,
                         device_type=device_type,
+                        dispatch_quantity=signal_payload,
                         is_using_mock_device=is_using_mock_device,
                         emulated_device_api_url=emulated_device_api_url)
 

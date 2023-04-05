@@ -10,7 +10,7 @@ services:
     environment:
       - ENV=${ENV:-DEV} # PROD or DEV (PROD: real device, DEV: mock device)
       - AGENT_ID=${AGENT_ID:-d5f36f77f24d19a2820538f415b0fd}
-      - RESOURCE_ID=${RESOURCE_ID:-3b4a58e3cd70cd9c6f781d9267c6c5c0}
+      - RESOURCE_ID=${RESOURCE_ID:-resource0}
       - VTN_ID=${VTN_ID:-vtn-d5f36f77f24d19a2820538f415b0fd}
       - METERS_API_URL=${METERS_API_URL:-https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/meter}
       - DEVICES_API_URL=${DEVICES_API_URL:-https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/device}

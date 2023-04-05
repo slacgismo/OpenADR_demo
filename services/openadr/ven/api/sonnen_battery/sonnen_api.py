@@ -205,22 +205,42 @@ class SonnenInterface():
         return resp.json()
 
     async def manual_mode_control(self, mode='charge', value='0'):
+        """
+        mode = 'charge' or 'discharge'
+
+        """
         control_endpoint = '/api/v1/setpoint/'
-        # Checking if system is in off-grid mode
-        voltage = SonnenInterface(
-            serial=self.serial, auth_token=self.token).get_status()['Uac']
+        try:
+            resp = requests.get(self.url_ini + self.serial + control_endpoint + mode + '/' + value,
+                                headers=self.headers)
+            resp.raise_for_status()
 
-        if voltage == 0:
-            print('Battery is in off-grid mode... Cannot execute the command')
-            return {}
+        except requests.exceptions.HTTPError as err:
+            print(err)
 
-        else:
-            try:
-                resp = requests.get(self.url_ini + self.serial + control_endpoint + mode + '/' + value,
-                                    headers=self.headers)
-                resp.raise_for_status()
+        return resp.json()
 
-            except requests.exceptions.HTTPError as err:
-                print(err)
+    # async def manual_mode_control(self, mode='charge', value='0'):
+    #     """
+    #     mode = 'charge' or 'discharge'
 
-            return resp.json()
+    #     """
+    #     control_endpoint = '/api/v1/setpoint/'
+    #     # Checking if system is in off-grid mode
+    #     voltage = SonnenInterface(
+    #         serial=self.serial, auth_token=self.token).get_status()['Uac']
+
+    #     if voltage == 0:
+    #         print('Battery is in off-grid mode... Cannot execute the command')
+    #         return {}
+
+    #     else:
+    #         try:
+    #             resp = requests.get(self.url_ini + self.serial + control_endpoint + mode + '/' + value,
+    #                                 headers=self.headers)
+    #             resp.raise_for_status()
+
+    #         except requests.exceptions.HTTPError as err:
+    #             print(err)
+
+    #         return resp.json()
