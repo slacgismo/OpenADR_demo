@@ -12,7 +12,7 @@ services:
       - AGENT_ID=${AGENT_ID:-d5f36f77f24d19a2820538f415b0fd}
       - RESOURCE_ID=${RESOURCE_ID:-resource0}
       - VTN_ID=${VTN_ID:-vtn-d5f36f77f24d19a2820538f415b0fd}
-      - METERS_API_URL=${METERS_API_URL:-https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/meter}
+      - METER_API_URL=${METER_API_URL:-https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/meter}
       - DEVICES_API_URL=${DEVICES_API_URL:-https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/device}
       - ORDERS_PAI_URL=${ORDERS_PAI_URL:-https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/order}
       - DISPATCHES_API_URL=${DISPATCHES_API_URL:-https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/dispatch}

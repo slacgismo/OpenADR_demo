@@ -28,7 +28,7 @@ try:
     RESOURCE_ID = os.environ['RESOURCE_ID']
     VTN_ID = os.environ['VTN_ID']
     MARKET_INTERVAL_IN_SECONDS = os.environ['MARKET_INTERVAL_IN_SECONDS']
-    METERS_API_URL = os.environ['METERS_API_URL']
+    METER_API_URL = os.environ['METER_API_URL']
     DEVICES_API_URL = os.environ['DEVICES_API_URL']
     ORDERS_PAI_URL = os.environ['ORDERS_PAI_URL']
     DISPATCHES_API_URL = os.environ['DISPATCHES_API_URL']
@@ -126,7 +126,7 @@ if __name__ == "__main__":
         web.put('/order/{ven_id}', functools.partial(handle_order,
                 ORDERS_PAI_URL=ORDERS_PAI_URL)),
         web.put('/meter/{ven_id}', functools.partial(handle_meter,
-                                                     METERS_API_URL=METERS_API_URL, MARKET_INTERVAL_IN_SECONDS=int(MARKET_INTERVAL_IN_SECONDS))),
+                                                     METER_API_URL=METER_API_URL, MARKET_INTERVAL_IN_SECONDS=int(MARKET_INTERVAL_IN_SECONDS))),
         # web.get('/vens', functools.partial(handle_all_ven_info, VENS=VENS)),
         web.get('/health', handle_health_check)
     ])

@@ -42,7 +42,7 @@ class BATTERY_BRANDS(Enum):
 
 
 class DEVICE_SETTING_KEY(Enum):
-    BATTERY_BRANDS = "battery_brand"
+    DEVICE_BRAND = "device_brand"
     BATTERY_TOKEN = "battery_token"
     BATTEY_SN = "battery_sn"
 
@@ -396,7 +396,7 @@ def make_command_list(
                 DEVICES_KEY.DEVICE_SETTINGS.value: {
                     DEVICE_SETTING_KEY.BATTERY_TOKEN.value: battery_token_df[battery_token_df['device_id'] == device_id]['battery_token'].values[0],
                     DEVICE_SETTING_KEY.BATTEY_SN.value: str(battery_token_df[battery_token_df['device_id'] == device_id]['battery_sn'].values[0]),
-                    DEVICE_SETTING_KEY.BATTERY_BRANDS.value: battery_token_df[
+                    DEVICE_SETTING_KEY.DEVICE_BRAND.value: battery_token_df[
                         battery_token_df['device_id'] == device_id]['device_brand'].values[0]
                 }
             }for i, device_id in enumerate(device_ids)

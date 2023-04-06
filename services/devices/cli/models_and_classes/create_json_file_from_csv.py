@@ -27,7 +27,7 @@ def parse_batteries_csv_file_to_json(
     battery_df = convert_csv_to_pandas(file=battery_file, path=path)
     battery_token_list = battery_df["battery_token"][:num_rows].tolist()
     battery_sn_list = battery_df["battery_sn"][:num_rows].tolist()
-    battery_brand_list = battery_df["device_brand"][:num_rows].tolist()
+    device_brand_list = battery_df["device_brand"][:num_rows].tolist()
     batteries_json = {}
     if len(battery_token_list) < num_rows:
         raise Exception("battery_token_list is not enough")

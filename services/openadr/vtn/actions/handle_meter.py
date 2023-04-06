@@ -8,7 +8,7 @@ from .handle_order import sumbit_oder_to_oder_api
 import time
 
 
-async def handle_meter(request, METERS_API_URL, MARKET_INTERVAL_IN_SECONDS):
+async def handle_meter(request, METER_API_URL, MARKET_INTERVAL_IN_SECONDS):
     """
     Handle a meter.
     """
@@ -35,7 +35,7 @@ async def handle_meter(request, METERS_API_URL, MARKET_INTERVAL_IN_SECONDS):
             market_interval_in_seconds=MARKET_INTERVAL_IN_SECONDS,
             device_data=device_data)
 
-        meter_url = METERS_API_URL + "/" + device_id + "/" + meter_id
+        meter_url = METER_API_URL + "/" + device_id + "/" + meter_id
 
         meter_data = {
             "resource_id": resource_id,
@@ -102,7 +102,7 @@ def convert_device_data_to_meter_data(
 #     reactive_energy: str = None,
 #     real_power: str = None,
 #     reactive_power: str = None,
-#     METERS_API_URL: str = None,
+#     METER_API_URL: str = None,
 # ):
 #     """
 #     Submit the oder_id to dispatch and await for the response
@@ -110,7 +110,7 @@ def convert_device_data_to_meter_data(
 #     PUT /meter/{device_id}/{meter_id}
 #     """
 
-#     meter_url = METERS_API_URL + "/" + device_id + "/" + meter_id
+#     meter_url = METER_API_URL + "/" + device_id + "/" + meter_id
 #     print(f"send device data to TESS meter  api: {device_id}/{meter_id}")
 #     data = {
 #         "resource_id": resource_id,
