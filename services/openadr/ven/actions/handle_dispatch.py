@@ -28,31 +28,6 @@ from helper.guid import guid
 import os
 
 
-async def submit_dispatch_to_vtn(
-    vtn_dispatch_url: str = None,
-    order_id: str = None,
-    timeout: int = 10,
-):
-    url = vtn_dispatch_url
-    dispatch_data = {
-        "order_id": order_id,
-    }
-    logging.info(
-        f"send dispatch request to TESS dispatch api: {url}")
-    async with aiohttp.ClientSession() as session:
-        async with session.put(vtn_dispatch_url, json=dispatch_data, timeout=timeout) as response:
-            content_type = response.headers.get('Content-Type', '')
-            if 'application/json' not in content_type:
-                text = await response.text()
-                logging.error(
-                    f"Unexpected content type: {content_type} {text}")
-                raise Exception(f"Unexpected content type: {content_type}")
-            if response.status != 200:
-                raise Exception(
-                    f"Error submit order to TESS: {response.status}")
-            return await response.json()
-
-
 async def handle_dispatch(
     vtn_dispatch_url: str = None,
     shared_device_info: SharedDeviceInfo = None,
@@ -66,14 +41,17 @@ async def handle_dispatch(
     while True:
         try:
             dispatch_info = shared_device_info.get_first_dispatch()
+            market_start_time = shared_device_info.get_market_start_time()
             if dispatch_info is None:
                 # logging.info("No dispatch request")
                 await asyncio.sleep(1)
             else:
                 logging.error("========================================")
                 logging.info("Invoek dispatch request")
-                length_of_queue = shared_device_info.len_dispatch_queue()
+                # length_of_queue = shared_device_info.len_dispatch_queue()
+                # if we want to get dispatch time from TESS
                 dispatch_timestamp = dispatch_info['dispatch_timestamp']
+
                 order_id = dispatch_info['order_id']
                 quantity = dispatch_info['quantity']
                 current_time = int(time.time())
@@ -245,3 +223,28 @@ async def control_sonnen_battery(battery_interface, quantity: float, enable_self
     else:
         raise Exception(
             f"enable_manual_mode failed: {response}")
+
+
+async def submit_dispatch_to_vtn(
+    vtn_dispatch_url: str = None,
+    order_id: str = None,
+    timeout: int = 10,
+):
+    url = vtn_dispatch_url
+    dispatch_data = {
+        "order_id": order_id,
+    }
+    logging.info(
+        f"send dispatch request to TESS dispatch api: {url}")
+    async with aiohttp.ClientSession() as session:
+        async with session.put(vtn_dispatch_url, json=dispatch_data, timeout=timeout) as response:
+            content_type = response.headers.get('Content-Type', '')
+            if 'application/json' not in content_type:
+                text = await response.text()
+                logging.error(
+                    f"Unexpected content type: {content_type} {text}")
+                raise Exception(f"Unexpected content type: {content_type}")
+            if response.status != 200:
+                raise Exception(
+                    f"Error submit order to TESS: {response.status}")
+            return await response.json()

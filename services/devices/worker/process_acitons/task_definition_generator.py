@@ -83,6 +83,11 @@ def create_ven_params(
     device_settings: dict,
     market_interval_in_second: str,
     flexible: str,
+    market_start_time: str,
+    local_timezone: str,
+    httpserver_port: int,
+    is_using_mock_order: bool,
+    is_using_mock_device: bool,
 ) -> dict:
     ven_params = dict()
     for ven_task in VEN_TASK_VARIANTS_ENUM:
@@ -115,7 +120,16 @@ def create_ven_params(
             ven_params[key] = market_interval_in_second
         elif key == VEN_TASK_VARIANTS_ENUM.FLEXIBLE.value:
             ven_params[key] = flexible
-
+        elif key == VEN_TASK_VARIANTS_ENUM.MARKET_START_TIME.value:
+            ven_params[key] = market_start_time
+        elif key == VEN_TASK_VARIANTS_ENUM.LOCAL_TIMEZONE.value:
+            ven_params[key] = local_timezone
+        elif key == VEN_TASK_VARIANTS_ENUM.HTTPSERVER_PORT.value:
+            ven_params[key] = httpserver_port
+        elif key == VEN_TASK_VARIANTS_ENUM.IS_USING_MOCK_ORDER.value:
+            ven_params[key] = is_using_mock_order
+        elif key == VEN_TASK_VARIANTS_ENUM.IS_USING_MOCK_DEVICE.value:
+            ven_params[key] = is_using_mock_device
         else:
             raise Exception(
                 f"ven key {key} is not set, please check your code")
@@ -133,6 +147,8 @@ def create_vtn_params(
     DEVICE_API_URL: str,
     ORDER_PAI_URL: str,
     DISPATCH_API_URL: str,
+    market_start_time: str,
+    local_timezone: str,
 ) -> dict:
     vtn_params = dict()
     # for key, value in enumerate(VTN_TASK_VARIANTS_ENUM):
@@ -156,6 +172,10 @@ def create_vtn_params(
             vtn_params[key] = resource_id
         elif key == VTN_TASK_VARIANTS_ENUM.ENV.value:
             vtn_params[key] = env
+        elif key == VTN_TASK_VARIANTS_ENUM.MARKET_START_TIME.value:
+            vtn_params[key] = market_start_time
+        elif key == VTN_TASK_VARIANTS_ENUM.LOCAL_TIMEZONE.value:
+            vtn_params[key] = local_timezone
         else:
             raise Exception(
                 f"vtn key {key} is not set, please check your code")
@@ -366,6 +386,9 @@ def create_and_export_task_definition(
     EMULATED_DEVICE_API_URL: str,
     file_name: str,
     path: str,
+    market_start_time: str,
+    local_timezone: str,
+
 ) -> bool:
     """
     parse message body and create task definition
@@ -376,6 +399,7 @@ def create_and_export_task_definition(
     if not os.path.exists(path):
         raise Exception(f"{path} path not found")
     vtn_id = guid()
+
     vtn_environment_variables = create_vtn_params(
         market_interval_in_second=market_interval_in_second,
         agent_id=agent_id,
@@ -386,7 +410,10 @@ def create_and_export_task_definition(
         DEVICE_API_URL=DEVICE_API_URL,
         ORDER_PAI_URL=ORDER_PAI_URL,
         DISPATCH_API_URL=DISPATCH_API_URL,
+        market_start_time=market_start_time,
+        local_timezone=local_timezone,
     )
+
     vtn_container_definition = generate_vtn_task_definition(
         vtn_template=CONTAINER_DEFINITION_TEMPLATE.copy(),
         vtn_id=vtn_id,
@@ -403,18 +430,25 @@ def create_and_export_task_definition(
     # devices = message_body['devices']
     ven_container_definition_list = list()
     vens_info = list()
+
     for device in devices:
-        ven_id = guid()
+
         device_id = device['device_id']
+        ven_id = "ven-" + device_id
         meter_id = device['meter_id']
         device_name = device['device_name']
         device_type = device['device_type']
         flexible = device['flexible']
+        httpserver_port = device['httpserver_port']
+        is_using_mock_device = device['is_using_mock_device']
+        is_using_mock_order = device['is_using_mock_order']
+
         ven_environment_variables = dict()
         for key, value in enumerate(VEN_TASK_VARIANTS_ENUM):
 
             # have convet json format to string to pass to ven
             device_settings_str = json.dumps(device["device_settings"])
+
             ven_environment_variables = create_ven_params(
                 ven_id=guid(),
                 env=env,
@@ -429,7 +463,12 @@ def create_and_export_task_definition(
                 device_type=device_type,
                 device_settings=device_settings_str,
                 market_interval_in_second=market_interval_in_second,
-                flexible=flexible,
+                flexible=str(flexible),
+                market_start_time=market_start_time,
+                local_timezone=local_timezone,
+                is_using_mock_order=str(is_using_mock_order),
+                is_using_mock_device=str(is_using_mock_device),
+                httpserver_port=str(httpserver_port)
             )
         vens_info.append({
             "ven_id": ven_id,

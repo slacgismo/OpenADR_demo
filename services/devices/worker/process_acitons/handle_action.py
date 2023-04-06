@@ -47,11 +47,16 @@ def parse_message_body(message_body: dict):
         raise Exception(
             f"agent_id is not in the message, or resource_id is not in the message, or market_interval_in_second is not in the message, devices is  not in the message"
         )
-    agent_id = message_body["agent_id"]
-    resource_id = message_body["resource_id"]
-    market_interval_in_second = message_body["market_interval_in_second"]
-    devices = message_body["devices"]
-    return agent_id, resource_id, market_interval_in_second, devices
+    try:
+        agent_id = message_body["agent_id"]
+        resource_id = message_body["resource_id"]
+        market_interval_in_second = message_body["market_interval_in_second"]
+        devices = message_body["devices"]
+        market_start_time = message_body["market_start_time"]
+        local_timezone = message_body["local_timezone"]
+        return agent_id, resource_id, market_interval_in_second, devices, market_start_time, local_timezone
+    except Exception as e:
+        raise Exception(f"Error parsing message body: {e}")
 
 
 def handle_action(
@@ -70,7 +75,7 @@ def handle_action(
     params: AWS_REGION: str
     return: None
     """
-    agent_id, resource_id, market_interval_in_second, devices = parse_message_body(
+    agent_id, resource_id, market_interval_in_second, devices, market_start_time, local_timezone = parse_message_body(
         message_body
     )
 
@@ -115,7 +120,8 @@ def handle_action(
         task_definition_file_name=task_definition_file_name,
         backend_s3_state_key=backend_s3_state_key,
         s3_service=s3_service,
-    )
+        market_start_time=market_start_time,
+        local_timezone=local_timezone)
 
     if action == ECS_ACTIONS_ENUM.CREATE.value:
         logging.info("=============================================")

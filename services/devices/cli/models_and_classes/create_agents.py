@@ -54,6 +54,9 @@ class DEVICES_KEY(Enum):
     DEVICE_SETTINGS = "device_settings"
     FLEXIBLE = "flexible"
     METER_ID = "meter_id"
+    IS_USING_MOCK_ORDER = "is_using_mock_order"
+    IS_USING_MOCK_DEVICE = "is_using_mock_device"
+    HTTPSERVER_PORT = "httpserver_port"
 
 
 class AGNET_KEY(Enum):
@@ -106,7 +109,10 @@ def generate_first_number_agents_from_simulation_csv_file(
     ecs_action: str = None,
     ENV: str = None,
     SQS_GROUPID: str = None,
-    market_start_timestamp: str = None,
+    market_start_time: str = None,
+    locl_timezone: str = None,
+    is_using_mock_device: bool = True,
+    is_using_mock_order: bool = True,
 
 ) -> List[Dict]:
     """
@@ -115,7 +121,8 @@ def generate_first_number_agents_from_simulation_csv_file(
     "resource_id": "caff6719c24359a155a4d0d2f265a7",
     "market_interval_in_second": "300",
     "market_id": "6436a67e184d3694a15886215ae464",
-    market_start_time:  
+    "market_start_time":  "2020-01-01T00:00:00Z"
+    "local_timezone": "America/New_York"
     "devices": [
         {
             "device_id": "807f8e4a37446e80c5756a74a3598d",
@@ -128,7 +135,9 @@ def generate_first_number_agents_from_simulation_csv_file(
                 "battery_sn": "66354",
                 "device_brand": "SONNEN_BATTERY"
             },
-
+            "is_using_mock_order" :1
+            "is_using_mock_device" : 1
+            httpserver_port: 8000
         }
     ]
     }
@@ -186,7 +195,10 @@ def generate_first_number_agents_from_simulation_csv_file(
         agent_device_dict_list=agent_device_dict_list,
         battery_token_df=battery_token_df,
         market_interval_in_second=str(market_interval),
-        market_start_timestamp=market_start_timestamp
+        market_start_time=market_start_time,
+        local_timezone=locl_timezone,
+        is_using_mock_device=is_using_mock_device,
+        is_using_mock_order=is_using_mock_order
     )
     print("command_list`", command_list)
     print(f"length of command {len(command_list)} \n")
@@ -207,8 +219,6 @@ def generate_first_number_agents_from_simulation_csv_file(
     # print("Purge sqs queue")
     # time.sleep(5)
     # create message list
-
-    return
     for message in sqs_messages:
         sqs_service.send_message(
             message_body=message['MessageBody'],
@@ -316,7 +326,10 @@ def make_command_list(
     agent_device_dict_list: List[Dict],
     battery_token_df: pd.DataFrame,
     market_interval_in_second: str,
-    market_start_timestamp: str
+    market_start_time: str,
+    local_timezone: str,
+    is_using_mock_device: bool,
+    is_using_mock_order: bool,
 
 ) -> List[Dict]:
     """
@@ -325,6 +338,8 @@ def make_command_list(
         "agent_id": "00ccff430c4bcfa1f1186f488b88fc",
         "resource_id": "caff6719c24359a155a4d0d2f265a7",
         "market_interval_in_second": "300",
+        market_start_time: "2021-01-01 00:00:00",
+        local_timezone: "America/Los_Angeles",
         flexible: true,
         "meter_id": "6436a67e184d3694a15886215ae464"
         "devices": [
@@ -337,7 +352,9 @@ def make_command_list(
                     "battery_sn": "66354",
                     "device_brand": "SONNEN_BATTERY"
                 },
-
+                "is_using_mock_order": true,
+                "is_using_mock_device": true,
+                "httpserver_port: 8000
             }
         ]
     }
@@ -347,6 +364,7 @@ def make_command_list(
 
         agent_id = agent['agent_id']
         device_ids = agent['device_ids']
+
         resource_id = None
         market_id = None
         for resource_agent in resouce_agent_dict_list:
@@ -362,13 +380,17 @@ def make_command_list(
             AGNET_KEY.AGENT_ID.value: agent_id,
             AGNET_KEY.RESOURCE_ID.value: resource_id,
             AGNET_KEY.MARKET_INTERVAL_IN_SECONDS.value: market_interval_in_second,
-            AGNET_KEY.MARKET_START_TIMESTAMP.value: market_start_timestamp,
+            AGNET_KEY.MARKET_START_TIME.value: market_start_time,
+            AGNET_KEY.LOCAL_TIMEZONE.value: local_timezone,
             AGNET_KEY.DEVICES.value: [{
                 DEVICES_KEY.DEVICE_ID.value: device_id,
                 DEVICES_KEY.DEVICE_NAME.value: "battery_" + str(i),
                 DEVICES_KEY.DEVICE_TYPE.value: "ES",
                 # TODO: need to be changed depend on the device type
                 DEVICES_KEY.FLEXIBLE.value: "1",
+                DEVICES_KEY.IS_USING_MOCK_ORDER.value: is_using_mock_order,
+                DEVICES_KEY.IS_USING_MOCK_DEVICE.value: is_using_mock_device,
+                DEVICES_KEY.HTTPSERVER_PORT.value: "8000",
                 # TODO: need to be changed
                 DEVICES_KEY.METER_ID.value: str(guid()),
                 DEVICES_KEY.DEVICE_SETTINGS.value: {

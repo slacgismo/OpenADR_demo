@@ -1,6 +1,7 @@
 import aiohttp
 import asyncio
 from datetime import timedelta
+from aiohttp import web
 import pytz
 from openleadr import OpenADRClient, enable_default_logging
 import os
@@ -78,6 +79,7 @@ def main():
         shared_device_info.set_emulated_device_api_url(EMULATED_DEVICE_API_URL)
         shared_device_info.set_is_using_mock_device(is_using_mock_device)
         shared_device_info.set_market_interval(int(MARKET_INTERVAL_IN_SECONDS))
+        shared_device_info.set_market_start_time(MARKET_START_TIME)
 
         device_settings = json.loads(DEVICE_SETTINGS)
         device_brand = device_settings["device_brand"]
@@ -98,14 +100,16 @@ def main():
     loop2 = asyncio.new_event_loop()
     loop3 = asyncio.new_event_loop()
     loop4 = asyncio.new_event_loop()
-    # ================== start healthcheck server and openadr client in thread 1 ==================
-    server = HttpServer(
-        host="localhost", port=int(HTTPSERVER_PORT), path="/health"
-    )
+    # == == == == == == == == == start healthcheck server and openadr client in thread 1 == == == == == == == == ==
+    # server = HttpServer(
+    #     host="localhost", port=int(HTTPSERVER_PORT), path="/health"
+    # )
+    # server = HttpServer(host='localhost', port=8000, path='/health')
 
     t1 = threading.Thread(target=start_loop, args=(loop1,))
     t1.start()
     asyncio.run_coroutine_threadsafe(client.run(), loop1)
+    # asyncio.run_coroutine_threadsafe(server.run_server(), loop1)
 
     # # ================== start the get device data thread 2 ==================
     t2 = threading.Thread(target=start_loop, args=(loop2,))
@@ -146,12 +150,8 @@ def main():
         handle_dispatch(
             vtn_dispatch_url=VTN_DISPATCH_URL,
             shared_device_info=shared_device_info,
-            # market_interval=int(MARKET_INTERVAL_IN_SECONDS),
-            # market_start_time=MARKET_START_TIME,
         ), loop4
     )
-
-    asyncio.run_coroutine_threadsafe(server.start(), loop1)
 
     try:
         t1.join()

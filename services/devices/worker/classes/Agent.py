@@ -29,12 +29,18 @@ class Agent:
         task_definition_file_name: str = None,
         backend_s3_state_key: str = None,
         s3_service: S3Service = None,
+        market_start_time: str = None,
+        local_timezone: str = None
+
+
     ):
         self.s3_service = s3_service
         self.agent_id = agent_id
         self.resource_id = resource_id
         self.market_interval_in_second = market_interval_in_second
         self.devices = devices
+        self.market_start_time = market_start_time
+        self.local_timezone = local_timezone
 
         self.s3_bucket_name_of_task_definition_file = (
             s3_bucket_name_of_task_definition_file
@@ -52,8 +58,6 @@ class Agent:
 
     def create_ecs_service(
         self,
-        #    backend_s3_state_key,
-        #    task_definition_file_name: str
     ):
         print("start to create take definition file=====================")
         worker_path = Path(__file__).parent.parent
@@ -82,6 +86,9 @@ class Agent:
             ORDER_PAI_URL=f"{{${VTN_TASK_VARIANTS_ENUM.ORDER_PAI_URL.value}}}",
             file_name=self.task_definition_file_name,
             path=templates_abs_path,
+            market_start_time=self.market_start_time,
+            local_timezone=self.local_timezone,
+
         )
         print(
             "created_task_definiton_name_file_path",

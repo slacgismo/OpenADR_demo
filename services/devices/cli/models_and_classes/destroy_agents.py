@@ -50,6 +50,8 @@ def destroy_all(
             "resource_id": "",
             "market_interval_in_second": "",
             "market_id": "",
+            "market_start_time": "",
+            "local_timezone": "",
             "devices": [
                 {
                     "device_id": "",
@@ -62,6 +64,8 @@ def destroy_all(
                     },
                     "biding_price_threshold": "",
                     "meter_id": "",
+                    "is_using_mock_device": "",
+                    "is_using_mock_order": "",
                 }
             ]
         }

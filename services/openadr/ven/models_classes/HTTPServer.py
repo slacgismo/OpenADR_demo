@@ -14,28 +14,84 @@ from api.sonnen_battery.filter_battery_data import filter_battery_data
 from .Devices_Enum import DEVICE_TYPES, BATTERY_BRANDS, SONNEN_BATTERY_DEVICE_SETTINGS
 
 from aiohttp import web
-
-
-async def health_handler(request):
-    print("Health check")
-    return web.Response(text="OK")
+import logging
 
 
 class HttpServer:
-    def __init__(self, host="localhost", port=8000, path="/health"):
+    def __init__(self, host='localhost', port=8888, path='/health'):
         self.host = host
         self.port = port
         self.app = web.Application()
-        self.app.add_routes([web.get(path, health_handler)])
-        self.runner = web.AppRunner(self.app)
+        self.app.add_routes([web.get(path, self.handle_health)])
+
+    async def handle_health(self, request):
+        return web.Response(text='ok')
 
     async def start(self):
-        await self.runner.setup()
-        site = web.TCPSite(self.runner, self.host, self.port)
+        runner = web.AppRunner(self.app)
+        await runner.setup()
+        site = web.TCPSite(runner, self.host, self.port)
         await site.start()
+        print("===================================")
+        print(f'Server started at http://{self.host}:{self.port}/health')
+        print("===================================")
 
     async def stop(self):
-        await self.runner.cleanup()
+        await self.app.shutdown()
+
+
+# async def async_task():
+#     while True:
+#         print('Async task running')
+#         await asyncio.sleep(1)
+
+# class HttpServer:
+#     def __init__(self, host: str, port: int, path: str):
+#         self.host = host
+#         self.port = port
+#         self.path = path
+
+#     async def health_check(self, request):
+#         return web.Response(text='Okay')
+
+#     async def run_server(self):
+#         app = web.Application()
+#         app.router.add_get(self.path, self.health_check)
+
+#         runner = web.AppRunner(app)
+#         await runner.setup()
+
+#         site = web.TCPSite(runner, self.host, self.port)
+#         await site.start()
+
+#         # Wait for the server to shut down
+#         await asyncio.Event().wait()
+
+# async def health_handler(request):
+#     print("Health check")
+#     return web.Response(text="OK")
+
+
+# class HttpServer:
+#     def __init__(self, host="localhost", port=8000, path="/health"):
+#         self.host = host
+#         self.port = port
+#         self.app = web.Application()
+#         self.path = path
+#         self.app.add_routes([web.get(self.path, health_handler)])
+#         self.runner = web.AppRunner(self.app)
+
+#     async def start(self):
+#         logging.info("===================================")
+#         logging.info(
+#             f"Starting HTTP server: {self.host}:{self.port}/{self.path}")
+#         logging.info("===================================")
+#         await self.runner.setup()
+#         site = web.TCPSite(self.runner, self.host, self.port)
+#         await site.start()
+
+#     async def stop(self):
+#         await self.runner.cleanup()
 
 
 # import aiohttp

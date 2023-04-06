@@ -70,13 +70,7 @@ def main():
     """
     Main function
     """
-    # process_task_from_fifo_sqs(
-    #     queue_url=FIFO_SQS_URL,
-    #     BACKEND_S3_BUCKET_NAME=BACKEND_S3_BUCKET_NAME,
-    #     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
-    #     AWS_REGION=AWS_REGION,
-    #     ENV=ENV,
-    # )
+
     http_server = HealthCheckService(
         host="localhost", port=int(WORKER_PORT), path="/health"
     )

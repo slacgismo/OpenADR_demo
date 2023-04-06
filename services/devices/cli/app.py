@@ -41,6 +41,7 @@ try:
 
     # "2020-01-01T00:00:00Z"
     MARKET_START_TIME = os.environ['MARKET_START_TIME']
+    LOCAL_TIMEZONE = os.environ['LOCAL_TIMEZONE']
 
 except Exception as e:
     raise Exception(f"ENV is not set correctly: {e}")
@@ -92,16 +93,6 @@ def create_db_json():
 @click.command()
 def create_agents():
 
-    # market_start_timestamp = convert_datetime_to_timsestamp(
-    #     time_str=MARKET_START_TIME
-    # )
-    # now_utc = datetime.datetime.utcnow()
-
-    # Format the datetime object to a string in UTC timezone
-    # time_str_utc = now_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-    # print(time_str_utc)
-    # return
     generate_first_number_agents_from_simulation_csv_file(
         market_interval=Market_Interval.One_Minute.value,
         number_of_market=1,
@@ -112,7 +103,11 @@ def create_agents():
         ecs_action=ECS_ACTIONS_ENUM.CREATE.value,
         ENV=ENV,
         SQS_GROUPID=SQS_GROUPID,
-        market_start_time=MARKET_START_TIME)
+        market_start_time=MARKET_START_TIME,
+        locl_timezone=LOCAL_TIMEZONE,
+        is_using_mock_device="1",
+        is_using_mock_order="1"
+    )
 
 
 @click.command()
@@ -131,7 +126,8 @@ def update_agents():
         ecs_action=ECS_ACTIONS_ENUM.UPDATE.value,
         ENV=ENV,
         SQS_GROUPID=SQS_GROUPID,
-        market_start_time=MARKET_START_TIME
+        market_start_time=MARKET_START_TIME,
+        locl_timezone=LOCAL_TIMEZONE
     )
 # ***************************
 #  Destroy all workers

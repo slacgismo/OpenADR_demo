@@ -54,54 +54,16 @@ services:
       - 'DEVICE_SETTINGS={"device_brand": "SONNEN_BATTERY", "battery_token": "b51f18cd294592a3777f243287938d", "battery_sn": "40857"}'
       - MARKET_INTERVAL_IN_SECONDS=${S:-20}
       - FLEXIBLE=${FLEXIBLE:-1} # 1 for Ture and 0 for False
-      - MARKET_START_TIME=${MARKET_START_TIMESTAMP:-2020-01-01T00:00:00Z}
+      - MARKET_START_TIME=${MARKET_START_TIME:-2020-01-01T00:00:00Z}
       - LOCAL_TIMEZONE=${LOCAL_TIMEZONE:-America/Los_Angeles}
-      - HTTPSERVER_PORT=${HTTPSERVER_PORT:-8070}
+      - HTTPSERVER_PORT=${HTTPSERVER_PORT:-8888}
       - IS_USING_MOCK_ORDER=${IS_USING_MOCK_ORDER:-1} #1 for Ture the order is from dump_order.json and 0 for False for self-generated order
 
     command: >
       sh -c "python ven.py"
     ports:
-      - "8070:8070"
+      - "8888:8888"
     depends_on:
       - vtn
 networks:
   adrnet:
-
-  # ven2:
-  #   platform: linux/amd64
-  #   build:
-  #     context: ./services/openadr/ven
-  #     args:
-  #       - DEV=true
-  #   networks:
-  #     - adrnet
-  #   volumes:
-  #     - ./services/openadr/ven:/app
-  #   environment:
-  #     - ENV=${ENV:-DEV} # PROD or DEV (PROD: real device, DEV: mock device)
-  #     - IS_USING_MOCK_DEVICE=${IS_USING_MOCK_DEVICE:-1} #1 for Ture and 0 for False
-  #     - VEN_ID=${VEN_ID:-ven-320d141048c23741139cc30262369a86}
-  #     - RESOURCE_ID=${RESOURCE_ID:-resource0}
-  #     - METER_ID=${METER_ID:-meter0}
-  #     - DEVICE_ID=${DEVICE_ID:-320d141048c23741139cc30262369a86}
-  #     - AGENT_ID=${AGENT_ID:-agent-d5f36f77f24d19a2820538f415b0fd}
-  #     - DEVICE_NAME=${DEVICE_NAME:-battery0}
-  #     - VTN_ADDRESS=${VTN_ADDRESS:-vtn}
-  #     - VTN_PORT=${VTN_PORT:-8080}
-  #     - DEVICE_TYPE=${DEVICE_TYPE:-ES}
-  #     - EMULATED_DEVICE_API_URL=${EMULATED_DEVICE_API_URL:-https://l7xxtd4xh9.execute-api.us-east-2.amazonaws.com/dev/battery_api}
-  #     - 'DEVICE_SETTINGS={"device_brand": "SONNEN_BATTERY", "battery_token": "b51f18cd294592a3777f243287938d", "battery_sn": "40857"}'
-  #     - MARKET_INTERVAL_IN_SECONDS=${S:-20}
-  #     - FLEXIBLE=${FLEXIBLE:-1} # 1 for Ture and 0 for False
-  #     - MARKET_START_TIME=${MARKET_START_TIMESTAMP:-2020-01-01T00:00:00Z}
-  #     - LOCAL_TIMEZONE=${LOCAL_TIMEZONE:-America/Los_Angeles}
-  #     - HTTPSERVER_PORT=${HTTPSERVER_PORT:-8060}
-  #     - IS_USING_MOCK_ORDER=${IS_USING_MOCK_ORDER:-1} #1 for Ture the order is from dump_order.json and 0 for False for self-generated order
-
-  #   command: >
-  #     sh -c "python ven.py"
-  #   ports:
-  #     - "8060:8060"
-  #   depends_on:
-  #     - vtn

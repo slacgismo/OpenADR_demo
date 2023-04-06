@@ -90,6 +90,7 @@ resource "null_resource" "exports_env_file_for_devices_admin_cli" {
       echo 'ENV="${var.environment}"'>> .env
       echo 'BACKEND_S3_BUCKET_NAME="${aws_s3_bucket.device_shared.bucket}"' >> .env
       echo 'MARKET_START_TIME="${var.market_sart_time}"' >> .env
+       echo 'LOCAL_TIMEZONE="${var.local_timezone}"' >> .env
 
     EOT
     # save to devices admin cli folder

@@ -136,3 +136,8 @@ variable "market_sart_time" {
   description = "The start time of market"
   default     = "2021-01-01T00:00:00Z"
 }
+
+variable "local_timezone" {
+  description = "The local timezone"
+  default     = "America/Lo_Angeles"
+}

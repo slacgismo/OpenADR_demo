@@ -21,6 +21,7 @@ class SharedDeviceInfo:
                  emulated_device_api_url: str = None,
                  market_interval: int = None,
                  dispatch_queue: list = None,
+                 market_start_time: str = None,
                  #  dispatch_timestamp: int = None,
                  #  dispatch_quantity: float = None,
                  #  price: float = None,
@@ -39,6 +40,7 @@ class SharedDeviceInfo:
         self._ven_id = ven_id
         self._is_using_mock_device = is_using_mock_device
         self._emulated_device_api_url = emulated_device_api_url
+        self._market_start_time = market_start_time
 
         self._market_interval = market_interval
         self._dispatch_queue = dispatch_queue
@@ -145,3 +147,9 @@ class SharedDeviceInfo:
             'quantity': quantity,
             'price': price,
         })
+
+    def get_market_start_time(self):
+        return self._market_start_time
+
+    def set_market_start_time(self, market_start_time):
+        self._market_start_time = market_start_time
