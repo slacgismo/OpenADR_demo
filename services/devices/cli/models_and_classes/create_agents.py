@@ -59,7 +59,7 @@ class DEVICES_KEY(Enum):
 class AGNET_KEY(Enum):
     AGENT_ID = "agent_id"
     RESOURCE_ID = "resource_id"
-    MARKET_INTERVAL_IN_SECOND = "market_interval_in_second"
+    MARKET_INTERVAL_IN_SECONDS = "market_interval_in_second"
     MARKET_ID = "market_id"
     DEVICES = "devices"
     MARKET_START_TIME = "market_start_time"
@@ -361,7 +361,7 @@ def make_command_list(
         command = {
             AGNET_KEY.AGENT_ID.value: agent_id,
             AGNET_KEY.RESOURCE_ID.value: resource_id,
-            AGNET_KEY.MARKET_INTERVAL_IN_SECOND.value: market_interval_in_second,
+            AGNET_KEY.MARKET_INTERVAL_IN_SECONDS.value: market_interval_in_second,
             AGNET_KEY.MARKET_START_TIMESTAMP.value: market_start_timestamp,
             AGNET_KEY.DEVICES.value: [{
                 DEVICES_KEY.DEVICE_ID.value: device_id,

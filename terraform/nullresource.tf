@@ -78,6 +78,7 @@ resource "null_resource" "exports_env_file_for_devices_admin_cli" {
   depends_on = [aws_sqs_queue.opneadr_workers_sqs]
 
   # always run this resource
+
   triggers = {
     always_run = timestamp()
   }
@@ -87,8 +88,11 @@ resource "null_resource" "exports_env_file_for_devices_admin_cli" {
       echo 'ECS_CLUSTER_NAME="${aws_ecs_cluster.main.name}"'>> .env
       echo 'SQS_GROUPID="${var.sqs_group_id}"'>> .env
       echo 'ENV="${var.environment}"'>> .env
+      echo 'BACKEND_S3_BUCKET_NAME="${aws_s3_bucket.device_shared.bucket}"' >> .env
+      echo 'MARKET_START_TIME="${var.market_sart_time}"' >> .env
+
     EOT
-    # save to devices admin worker terraform folder
+    # save to devices admin cli folder
     working_dir = "../services/devices/cli"
 
   }

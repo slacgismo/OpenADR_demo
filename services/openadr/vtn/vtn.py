@@ -13,6 +13,7 @@ from actions.handle_meter import handle_meter
 from actions.handle_health_check import handle_health_check
 from actions.handle_all_ven_info import handle_all_ven_info
 from actions.handle_device import check_device_id_from_tess_device_api
+from actions.handle_dispatch import handle_dispatch
 from utils.guid import guid
 from classes.SharedVenInfos import SharedVenInfos
 from utils.parse_device_id_from_ven_id import parse_device_id_from_ven_id
@@ -120,8 +121,10 @@ if __name__ == "__main__":
     server.app.add_routes([
         # web.get('/trigger/{minutes_duration}', handle_trigger_event),
         # web.get('/cancel', handle_cancel_event),
+        web.put('/dispatch/{ven_id}', functools.partial(handle_dispatch,
+                                                        DISPATCHES_API_URL=DISPATCHES_API_URL)),
         web.put('/order/{ven_id}', functools.partial(handle_order,
-                ORDERS_PAI_URL=ORDERS_PAI_URL, DISPATCHES_API_URL=DISPATCHES_API_URL)),
+                ORDERS_PAI_URL=ORDERS_PAI_URL)),
         web.put('/meter/{ven_id}', functools.partial(handle_meter,
                                                      METERS_API_URL=METERS_API_URL, MARKET_INTERVAL_IN_SECONDS=int(MARKET_INTERVAL_IN_SECONDS))),
         # web.get('/vens', functools.partial(handle_all_ven_info, VENS=VENS)),

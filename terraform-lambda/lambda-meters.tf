@@ -1,6 +1,6 @@
 resource "aws_iam_role" "lambda_meters_lambda_exec" {
   # name = "battery_api-lambda"
-  name           = "${var.prefix}-${var.client}-${var.environment}-meters-lambda-exec-role"
+  name               = "${var.prefix}-${var.client}-${var.environment}-meters-lambda-exec-role"
   assume_role_policy = <<POLICY
 {
   "Version": "2012-10-17",
@@ -39,12 +39,12 @@ resource "aws_iam_role_policy_attachment" "lambda_meters_dynamodb_access" {
 
 resource "aws_lambda_function" "lambda_meters" {
   # function_name = "battery_api"
-  function_name ="${var.prefix}-${var.client}-${var.environment}-meters-pai"
-  
+  function_name = "${var.prefix}-${var.client}-${var.environment}-meters-pai"
+
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_meters.key
-  runtime = "python3.9"
-#   runtime = "nodejs16.x"
+  runtime   = "python3.9"
+  #   runtime = "nodejs16.x"
   handler = "function.handler"
 
   source_code_hash = data.archive_file.lambda_meters.output_base64sha256

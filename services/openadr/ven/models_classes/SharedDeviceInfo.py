@@ -18,8 +18,13 @@ class SharedDeviceInfo:
                  device_settings: dict = None,
                  device_type: str = None,
                  is_using_mock_device: bool = None,
-                 emulated_device_api_url: str = None
-
+                 emulated_device_api_url: str = None,
+                 market_interval: int = None,
+                 dispatch_queue: list = None,
+                 #  dispatch_timestamp: int = None,
+                 #  dispatch_quantity: float = None,
+                 #  price: float = None,
+                 #  order_id: str = None,
                  ):
         if SharedDeviceInfo.__instance is not None:
             raise Exception(
@@ -34,6 +39,14 @@ class SharedDeviceInfo:
         self._ven_id = ven_id
         self._is_using_mock_device = is_using_mock_device
         self._emulated_device_api_url = emulated_device_api_url
+
+        self._market_interval = market_interval
+        self._dispatch_queue = dispatch_queue
+        # self._dispatch_timestamp = dispatch_timestamp
+        # self._dispatch_quantity = dispatch_quantity
+        # self._price = price
+        # self._order_id = order_id
+
         SharedDeviceInfo.__instance = self
 
     @classmethod
@@ -101,3 +114,34 @@ class SharedDeviceInfo:
 
     def set_emulated_device_api_url(self, emulated_device_api_url):
         self._emulated_device_api_url = emulated_device_api_url
+
+    def get_market_interval(self):
+        return self._market_interval
+
+    def set_market_interval(self, market_interval):
+        self._market_interval = market_interval
+
+    def get_first_dispatch(self):
+        if self._dispatch_queue is not None and len(self._dispatch_queue) > 0:
+            return self._dispatch_queue.pop(0)
+        else:
+            return None
+
+    def len_dispatch_queue(self):
+        return len(self._dispatch_queue)
+
+    def set_dispatch_queue(self,
+                           order_id: str = None,
+                           dispatch_timestamp: int = None,
+                           quantity: float = None,
+                           price: float = None,
+                           ):
+        if self._dispatch_queue is None:
+            self._dispatch_queue = []
+
+        self._dispatch_queue.append({
+            'order_id': order_id,
+            'dispatch_timestamp': dispatch_timestamp,
+            'quantity': quantity,
+            'price': price,
+        })

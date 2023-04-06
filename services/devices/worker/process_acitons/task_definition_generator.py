@@ -19,12 +19,14 @@ class VTN_TASK_VARIANTS_ENUM(Enum):
     AGENT_ID = "AGENT_ID"
     RESOURCE_ID = "RESOURCE_ID"
     VTN_ID = "VTN_ID"
-    MARKET_INTERVAL_IN_SECOND = "MARKET_INTERVAL_IN_SECOND"
+    MARKET_INTERVAL_IN_SECONDS = "MARKET_INTERVAL_IN_SECONDS"
     # from device admin environment variables
     METER_API_URL = "METER_API_URL"
     DEVICE_API_URL = "DEVICE_API_URL"
     ORDER_PAI_URL = "ORDER_PAI_URL"
     DISPATCH_API_URL = "DISPATCH_API_URL"
+    MARKET_START_TIME = "MARKET_START_TIME"
+    LOCAL_TIMEZONE = "LOCAL_TIMEZONE"
 
 
 class VEN_TASK_VARIANTS_ENUM(Enum):
@@ -40,10 +42,15 @@ class VEN_TASK_VARIANTS_ENUM(Enum):
     VTN_PORT = "VTN_PORT"
     DEVICE_TYPE = "DEVICE_TYPE"
     DEVICE_SETTINGS = "DEVICE_SETTINGS"
-    MARKET_INTERVAL_IN_SECOND = "MARKET_INTERVAL_IN_SECOND"
+    MARKET_INTERVAL_IN_SECONDS = "MARKET_INTERVAL_IN_SECONDS"
     FLEXIBLE = "FLEXIBLE"
     # from device admin environment variables
     EMULATED_DEVICE_API_URL = "EMULATED_DEVICE_API_URL"
+    IS_USING_MOCK_DEVICE = "IS_USING_MOCK_DEVICE"
+    MARKET_START_TIME = "MARKET_START_TIME"
+    LOCAL_TIMEZONE = "LOCAL_TIMEZONE"
+    HTTPSERVER_PORT = "HTTPSERVER_PORT"
+    IS_USING_MOCK_ORDER = "IS_USING_MOCK_ORDER"
 
 
 CONTAINER_DEFINITION_TEMPLATE = ({
@@ -104,7 +111,7 @@ def create_ven_params(
             ven_params[key] = EMULATED_DEVICE_API_URL
         elif key == VEN_TASK_VARIANTS_ENUM.DEVICE_SETTINGS.value:
             ven_params[key] = device_settings
-        elif key == VEN_TASK_VARIANTS_ENUM.MARKET_INTERVAL_IN_SECOND.value:
+        elif key == VEN_TASK_VARIANTS_ENUM.MARKET_INTERVAL_IN_SECONDS.value:
             ven_params[key] = market_interval_in_second
         elif key == VEN_TASK_VARIANTS_ENUM.FLEXIBLE.value:
             ven_params[key] = flexible
@@ -139,7 +146,7 @@ def create_vtn_params(
             vtn_params[key] = ORDER_PAI_URL
         elif key == VTN_TASK_VARIANTS_ENUM.DISPATCH_API_URL.value:
             vtn_params[key] = DISPATCH_API_URL
-        elif key == VTN_TASK_VARIANTS_ENUM.MARKET_INTERVAL_IN_SECOND.value:
+        elif key == VTN_TASK_VARIANTS_ENUM.MARKET_INTERVAL_IN_SECONDS.value:
             vtn_params[key] = market_interval_in_second
         elif key == VTN_TASK_VARIANTS_ENUM.VTN_ID.value:
             vtn_params[key] = vtn_id

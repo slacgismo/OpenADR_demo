@@ -33,7 +33,7 @@
                 "value": "4b9d2112d74eb6b52443c65eee05e9"
             },
             {
-                "name": "MARKET_INTERVAL_IN_SECOND",
+                "name": "MARKET_INTERVAL_IN_SECONDS",
                 "value": "60"
             },
             {
@@ -137,7 +137,7 @@
                 "value": "{\"battery_token\": \"abffc88ffe4d77a466bd480d350f9c\", \"battery_sn\": \"21511\", \"device_brand\": \"SONNEN_BATTERY\"}"
             },
             {
-                "name": "MARKET_INTERVAL_IN_SECOND",
+                "name": "MARKET_INTERVAL_IN_SECONDS",
                 "value": "60"
             },
             {

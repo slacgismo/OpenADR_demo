@@ -68,6 +68,7 @@ def convert_datetime_to_timsestamp(time_str: str) -> int:
 def cli():
     pass
 
+
 # ***************************
 #  Generate battery files
 # ***************************

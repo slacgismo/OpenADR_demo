@@ -131,3 +131,8 @@ variable "app_image_device_worker" {
 variable "app_image_device_cli" {
   description = "The ecr image of deivce cli"
 }
+
+variable "market_sart_time" {
+  description = "The start time of market"
+  default     = "2021-01-01T00:00:00Z"
+}

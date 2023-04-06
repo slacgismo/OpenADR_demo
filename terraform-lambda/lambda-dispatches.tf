@@ -37,10 +37,10 @@ resource "aws_iam_role_policy_attachment" "lambda_dispatches_dynamodb_access" {
 
 resource "aws_lambda_function" "dispatches" {
   # function_name = "participated_vens"
-  function_name ="${var.prefix}-${var.client}-${var.environment}-dispatch-api"
-  s3_bucket = aws_s3_bucket.lambda_bucket.id
-  s3_key    = aws_s3_object.dispatch_vens.key
-  runtime = "python3.9"
+  function_name = "${var.prefix}-${var.client}-${var.environment}-dispatch-api"
+  s3_bucket     = aws_s3_bucket.lambda_bucket.id
+  s3_key        = aws_s3_object.dispatch_vens.key
+  runtime       = "python3.9"
   # runtime = "nodejs16.x"
   handler = "function.handler"
 

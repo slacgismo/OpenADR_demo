@@ -1,9 +1,9 @@
 
 
 resource "aws_s3_bucket" "lambda_bucket" {
-  bucket        =  lower("${var.client}-${var.environment}.lambdabucket")
+  bucket        = lower("${var.client}-${var.environment}.lambdabucket")
   force_destroy = true
-  tags = local.common_tags
+  tags          = local.common_tags
 }
 
 resource "aws_s3_bucket_public_access_block" "lambda_bucket" {

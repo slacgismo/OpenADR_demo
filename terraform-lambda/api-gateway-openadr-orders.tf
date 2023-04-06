@@ -15,10 +15,10 @@ resource "aws_apigatewayv2_route" "get_lambda_orders" {
 }
 
 resource "aws_apigatewayv2_route" "post_lambda_orders" {
-  api_id = aws_apigatewayv2_api.main.id
-  route_key = "PUT /order/{device_id}"
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "PUT /order/{order_id}"
   # route_key = "POST /orders"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_orders.id}"
+  target = "integrations/${aws_apigatewayv2_integration.lambda_orders.id}"
 }
 
 resource "aws_lambda_permission" "api_gw_lambda_orders" {

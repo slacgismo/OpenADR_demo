@@ -1,6 +1,7 @@
 import logging
 from .handle_dispatch import handle_dispatch
 from models_classes.SharedDeviceInfo import SharedDeviceInfo
+import json
 
 
 async def handle_event(event, shared_device_info: SharedDeviceInfo):
@@ -24,13 +25,15 @@ async def handle_event(event, shared_device_info: SharedDeviceInfo):
             # start to dispatch order
             if signal_name == 'LOAD_DISPATCH' and signal_type == 'level':
                 if signal_payload:
-                    pass
-                    await handle_dispatch(
-                        device_settings=device_settings,
-                        device_type=device_type,
-                        dispatch_quantity=signal_payload,
-                        is_using_mock_device=is_using_mock_device,
-                        emulated_device_api_url=emulated_device_api_url)
+                    json_payload = json.loads(signal_payload)
+                    logging.info("******** dispatch order ********")
+                    logging.info(json_payload)
+                # await handle_dispatch(
+                #     device_settings=device_settings,
+                #     device_type=device_type,
+                #     dispatch_quantity=signal_payload,
+                #     is_using_mock_device=is_using_mock_device,
+                #     emulated_device_api_url=emulated_device_api_url)
 
     except Exception as e:
         logging.error(f"Error pase event: {e}")

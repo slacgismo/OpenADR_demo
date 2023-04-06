@@ -47,6 +47,34 @@ def parse_batteries_csv_file_to_json(
     logging.info(f"=== Create {path}/batteries.json ===")
 
 
+def convert_order_df_to_dump_order_json_file_for_ven(
+    df: pd.DataFrame,
+    json_file_path: str,
+):
+    logging.info(f"=== Create {json_file_path} ===")
+    # convert df to json
+    print(df.head(5))
+    output_dict = {}
+
+# iterate over each row in the DataFrame
+    for index, row in df.iterrows():
+
+        # get the device_id and remove it from the row
+        device_id = row['device_id']
+        row_dict = row.drop('device_id').to_dict()
+
+        # if the device_id is not already in the output dictionary, create a new array for it
+        if device_id not in output_dict:
+            output_dict[device_id] = []
+
+        # add the row as a dictionary to the device_id's array
+        output_dict[device_id].append(row_dict)
+
+    # print the output dictionary
+    with open(json_file_path, 'w') as outfile:
+        json.dump(output_dict, outfile)
+
+
 def convert_df_to_josn_file(
     df: pd.DataFrame,
     json_file_path: str,
@@ -133,10 +161,10 @@ def filter_and_convert_csv_to_json(
                                             == device_type]
 
     # create filter device table json
-    convert_df_to_josn_file(
-        df=filter_device_df,
-        json_file_path="./simulation_data_files/dump_devices.json",
-    )
+    # convert_df_to_josn_file(
+    #     df=filter_device_df,
+    #     json_file_path="./simulation_data_files/dump_devices.json",
+    # )
 
     filter_ES_device_ids = filter_device_df[filter_device_df["device_type"]
                                             == Device_Type.ES.value]["device_id"][:num_rows].tolist()
@@ -154,15 +182,16 @@ def filter_and_convert_csv_to_json(
         batter_brands=batter_brands,
     )
     # conver order csv to order df
-    # filter_order_df = pd.DataFrame()
+
+    filter_order_df = pd.DataFrame()
     orders_table_df = convert_csv_to_pandas(
         file="dump_orders.csv", path="./simulation_data_files")
     filter_orders_df = orders_table_df[orders_table_df["device_id"].isin(
         filter_ES_device_ids)]
     filter_orders_ids = filter_orders_df['order_id'].tolist()
     # create filter orders table json
-
-    convert_df_to_josn_file(
+    # the order json put to openadr ven. Since the orders are generated from devices then put to TESS.
+    convert_order_df_to_dump_order_json_file_for_ven(
         df=filter_orders_df,
         json_file_path="./simulation_data_files/dump_orders.json",
     )

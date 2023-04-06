@@ -54,7 +54,7 @@ def get_dispatch_info_from_dynamodb(order_id: str, table_name: str, dynamodb_cli
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json'},
-                'body': json.dumps(items)
+                'body': json.dumps(items[0])
             }
 
         # If no objects are found, return a failure response

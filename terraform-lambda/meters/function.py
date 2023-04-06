@@ -16,6 +16,7 @@ def handler(event, context):
 
             return {
                 'statusCode': 200,
+                'headers': {'Content-Type': 'application/json'},
                 'body': json.dumps({'get meter': "get meter"})
             }
         elif http_method == 'PUT':
@@ -23,10 +24,12 @@ def handler(event, context):
             meter_id = event['pathParameters']['meter_id']
             return {
                 'statusCode': 200,
+                'headers': {'Content-Type': 'application/json'},
                 'body': json.dumps({'devce_id': device_id, "meter_id": meter_id})
             }
     except Exception as e:
         return {
             'statusCode': 500,
+            'headers': {'Content-Type': 'application/json'},
             'body': json.dumps({'error': str(e)})
         }

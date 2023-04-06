@@ -14,6 +14,7 @@ from models_classes.HttpServer import HttpServer
 from helper.conver_date_to_timestamp import current_market_start_timestamp
 from actions.handle_submit_order import submit_order_to_vtn
 from actions.handle_event import handle_event
+from actions.handle_dispatch import handle_dispatch
 import functools
 try:
     ENV = os.environ['ENV']
@@ -28,13 +29,14 @@ try:
     VTN_PORT = os.environ['VTN_PORT']
     DEVICE_TYPE = os.environ['DEVICE_TYPE']
     EMULATED_DEVICE_API_URL = os.environ['EMULATED_DEVICE_API_URL']
-    MARKET_INTERVAL_IN_SECOND = os.environ['MARKET_INTERVAL_IN_SECOND']
+    MARKET_INTERVAL_IN_SECONDS = os.environ['MARKET_INTERVAL_IN_SECONDS']
     FLEXIBLE = os.environ['FLEXIBLE']
     MARKET_START_TIME = os.environ['MARKET_START_TIME']
     LOCAL_TIMEZONE = os.environ['LOCAL_TIMEZONE']
     HTTPSERVER_PORT = os.environ['HTTPSERVER_PORT']
     IS_USING_MOCK_DEVICE = os.environ['IS_USING_MOCK_DEVICE']
     DEVICE_SETTINGS = os.environ['DEVICE_SETTINGS']
+    IS_USING_MOCK_ORDER = os.environ['IS_USING_MOCK_ORDER']
 except Exception as e:
     raise Exception(f"ENV is not set correctly: {e}")
 
@@ -59,6 +61,7 @@ def main():
         vtn_base_url = f"http://{VTN_ADDRESS}:{VTN_PORT}"
         VTN_METER_URL = vtn_base_url + f"/meter/{VEN_ID}"
         VTN_ORDER_URL = vtn_base_url + f"/order/{VEN_ID}"
+        VTN_DISPATCH_URL = vtn_base_url + f"/dispatch/{VEN_ID}"
         device_settings = json.loads(DEVICE_SETTINGS)
         is_using_mock_device = int(IS_USING_MOCK_DEVICE)
         # set shared global variables
@@ -74,6 +77,7 @@ def main():
         shared_device_info.set_device_type(DEVICE_TYPE)
         shared_device_info.set_emulated_device_api_url(EMULATED_DEVICE_API_URL)
         shared_device_info.set_is_using_mock_device(is_using_mock_device)
+        shared_device_info.set_market_interval(int(MARKET_INTERVAL_IN_SECONDS))
 
         device_settings = json.loads(DEVICE_SETTINGS)
         device_brand = device_settings["device_brand"]
@@ -93,6 +97,7 @@ def main():
     loop1 = asyncio.new_event_loop()
     loop2 = asyncio.new_event_loop()
     loop3 = asyncio.new_event_loop()
+    loop4 = asyncio.new_event_loop()
     # ================== start healthcheck server and openadr client in thread 1 ==================
     server = HttpServer(
         host="localhost", port=int(HTTPSERVER_PORT), path="/health"
@@ -102,7 +107,7 @@ def main():
     t1.start()
     asyncio.run_coroutine_threadsafe(client.run(), loop1)
 
-    # ================== start the get device data thread 2 ==================
+    # # ================== start the get device data thread 2 ==================
     t2 = threading.Thread(target=start_loop, args=(loop2,))
     t2.start()
     # run the get device data
@@ -112,7 +117,7 @@ def main():
             device_id=DEVICE_ID,
             meter_id=METER_ID,
             resource_id=RESOURCE_ID,
-            market_interval=int(MARKET_INTERVAL_IN_SECOND),
+            market_interval=int(MARKET_INTERVAL_IN_SECONDS),
             market_start_time=MARKET_START_TIME,
             is_using_mock_device=is_using_mock_device,
             device_type=DEVICE_TYPE,
@@ -122,16 +127,28 @@ def main():
             vtn_measurement_url=VTN_METER_URL,
         ), loop2)
 
+    # ================== start the submit order thread 3 ==================
     t3 = threading.Thread(target=start_loop, args=(loop3,))
     t3.start()
-    # ================== start the submit order thread 3 ==================
     asyncio.run_coroutine_threadsafe(
         submit_order_to_vtn(
             vtn_order_url=VTN_ORDER_URL,
-            market_interval=int(MARKET_INTERVAL_IN_SECOND),
+            market_interval=int(MARKET_INTERVAL_IN_SECONDS),
             market_start_time=MARKET_START_TIME,
-            advanced_seconds=0
-        ), loop3
+            advanced_seconds=0,
+            is_using_mock_order=IS_USING_MOCK_ORDER), loop3
+    )
+
+    # ================== start the submit order thread 4 ==================
+    t4 = threading.Thread(target=start_loop, args=(loop4,))
+    t4.start()
+    asyncio.run_coroutine_threadsafe(
+        handle_dispatch(
+            vtn_dispatch_url=VTN_DISPATCH_URL,
+            shared_device_info=shared_device_info,
+            # market_interval=int(MARKET_INTERVAL_IN_SECONDS),
+            # market_start_time=MARKET_START_TIME,
+        ), loop4
     )
 
     asyncio.run_coroutine_threadsafe(server.start(), loop1)

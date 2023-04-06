@@ -36,6 +36,7 @@ if WORKER_PORT is None:
 logging.info(f"worker port is {WORKER_PORT}")
 
 FIFO_SQS_URL = os.environ.get("FIFO_SQS_URL")
+logging.info(f"FIFO_SQS_URL is {FIFO_SQS_URL}")
 if FIFO_SQS_URL is None:
     raise Exception("FIFO_SQS_URL is not set")
 

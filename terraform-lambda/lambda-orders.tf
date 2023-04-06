@@ -37,11 +37,11 @@ resource "aws_iam_role_policy_attachment" "lambda_orders_dynamodb_access" {
 
 
 resource "aws_lambda_function" "lambda_orders" {
-    function_name ="${var.prefix}-${var.client}-${var.environment}-orders-api"
+  function_name = "${var.prefix}-${var.client}-${var.environment}-orders-api"
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_orders.key
-  runtime = "python3.9"
+  runtime   = "python3.9"
   # runtime = "nodejs16.x"
   handler = "function.handler"
 

@@ -127,8 +127,8 @@ class MockSonnenInterface():
 
     # Enabled by default
     async def enable_manual_mode(self):
-        return "enable_manual_mode"
+        return {"status": "0"}
 
     async def manual_mode_control(self, mode='charge', value='0'):
 
-        return "manual_mode_control"
+        return {"ReturnCode": "0"}
