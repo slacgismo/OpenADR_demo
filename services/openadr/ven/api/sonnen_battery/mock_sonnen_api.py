@@ -132,3 +132,6 @@ class MockSonnenInterface():
     async def manual_mode_control(self, mode='charge', value='0'):
 
         return {"ReturnCode": "0"}
+
+    async def enable_self_consumption(self):
+        return {"status": "0"}
