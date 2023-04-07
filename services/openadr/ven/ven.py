@@ -109,6 +109,7 @@ def main():
     loop4 = asyncio.new_event_loop()
     # == == == == == == == == == start healthcheck server and openadr client in thread 1 == == == == == == == == ==
     # not work in container but work in local
+    logging.warning("VEN health check is not working in container")
     server = HttpServer(
         host="localhost", port=int(HTTPSERVER_PORT), path="/health"
     )

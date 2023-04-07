@@ -1,6 +1,5 @@
 
 
-import asyncio
 from api.sonnen_battery.filter_battery_data import filter_battery_data
 from api.sonnen_battery.sonnen_api import SonnenInterface
 from api.sonnen_battery.mock_sonnen_api import MockSonnenInterface
@@ -108,40 +107,18 @@ async def get_devices_data(
                         f"device_settings {key} is unknown: {device_settings}")
 
         except Exception as e:
-            # logging.error(
-            #     f"Error parsing device settings: {device_settings}, error: {e}")
+
             raise Exception(
                 f"Error parsing device settings: {device_settings}, error: {e}")
         try:
             if device_brand == BATTERY_BRANDS.SONNEN_BATTERY.value:
-                batter_data = dict()
-                if is_using_mock_device:
-                    logging.info(
-                        "=========  GET Mock battery data ==================")
-                    mock_battery_interface = MockSonnenInterface(
-                        serial=battery_sn, auth_token=battery_token, url_ini=emulated_device_api_url)
-                    # get battery data from mock device
-                    batter_data = await mock_battery_interface.get_mock_battery_status()
-                    filter_data = await filter_battery_data(batter_data)
-                    # logging.info(
-                    #     f"=========  filter_data {filter_data} ==================")
-                    return filter_data
-                else:
-                    logging.info(
-                        "======== GET real battery data ==================")
-                    battery_interface = SonnenInterface(
-                        serial=battery_sn, auth_token=battery_token)
-                    # get battery data from device
-                    batter_data = await battery_interface.get_status()
-
-                if batter_data is None:
-                    raise Exception(
-                        f"batter_data is None: {batter_data}")
-                else:
-                    filter_data = await filter_battery_data(batter_data)
-                    # logging.info(filter_data)
-                    return filter_data
-
+                filter_data = await get_sonnen_battery_data(
+                    is_using_mock_device=is_using_mock_device,
+                    battery_sn=battery_sn,
+                    battery_token=battery_token,
+                    emulated_device_api_url=emulated_device_api_url
+                )
+                return filter_data
             else:
                 raise Exception(
                     f"Device brand {device_brand} is not supported yet")
@@ -149,6 +126,40 @@ async def get_devices_data(
             raise Exception(f"Error getting battery data from API: {e}")
     else:
         raise Exception(f"Device type {device_type} is not supported yet")
+
+
+async def get_sonnen_battery_data(
+        is_using_mock_device: bool = False,
+        battery_sn: str = None,
+        battery_token: str = None,
+        emulated_device_api_url: str = None):
+
+    if is_using_mock_device:
+        logging.info(
+            "=========  GET Mock battery data ==================")
+        mock_battery_interface = MockSonnenInterface(
+            serial=battery_sn, auth_token=battery_token, url_ini=emulated_device_api_url)
+        # get battery data from mock device
+        batter_data = await mock_battery_interface.get_mock_battery_status()
+        filter_data = await filter_battery_data(batter_data)
+        logging.info(
+            f"=========  filter_data {filter_data} ==================")
+        return filter_data
+    else:
+        logging.info(
+            "======== GET real battery data ==================")
+        battery_interface = SonnenInterface(
+            serial=battery_sn, auth_token=battery_token)
+        # get battery data from device
+        batter_data = await battery_interface.get_status()
+
+    if batter_data is None:
+        raise Exception(
+            f"batter_data is None: {batter_data}")
+    else:
+        filter_data = await filter_battery_data(batter_data)
+        # logging.info(filter_data)
+        return filter_data
 
 
 async def put_data_to_meter_api(

@@ -102,61 +102,6 @@ async def handle_order(request, ORDERS_API_URL):
             return web.json_response(payload, status=200)
         else:
             return web.json_response("fail", status=400)
-            # send down the dispatch timestamp to VEN
-
-            # wait till dispatch timestamp
-            # while time_to_wait > 0:
-            #     await asyncio.sleep(1)
-            #     if time_to_wait % 1 == 0:
-            #         print(f"device_id: {device_id} wait..{time_to_wait}")
-            #     time_to_wait -= 1
-
-            # # logging.info("=====================================")
-            # # logging.info(
-            # #     f"device_id:{device_id} reach dispatch timestamp: {dispatch_timestamp}")
-            # # logging.info("=====================================")
-            # # send to a queue to handle dispatch
-
-            # if price:
-            #     await send_price_to_ven_through_openadr_event(
-            #         request=request,
-            #         ven_id=ven_id,
-            #         duration=1,
-            #         timezone=timezone.utc,
-            #         price=price,
-            #     )
-            # # wait for the dispatch response and send quantity to VEN
-            # dispatch_body = await handle_dispatch(
-            #     order_id=order_id,
-            #     DISPATCHES_API_URL=DISPATCHES_API_URL)
-
-            # # ask the quantity and price from TESS dispatch
-            # if dispatch_body:
-            #     # dispatch_body = await dispatch_response.json()
-            #     if 'quantity' not in dispatch_body:
-            #         raise Exception(
-            #             f"Error parse dispatch data: {dispatch_body}")
-
-            #     quantity = dispatch_body['quantity']
-
-            #     logging.info(f"Get quantity and price from dispatch success")
-
-            #     if quantity:
-            #         await send_quantity_to_ven_through_openadr_event(
-            #             request=request,
-            #             ven_id=ven_id,
-            #             duration=1,
-            #             timezone=timezone.utc,
-            #             quantity=quantity,
-            #         )
-            #         logging.info("trigger event to VEN")
-            #         response_obj = {'status': 'success',
-            #                         'info': "submit oder success"}
-            #         return web.json_response(response_obj, status=200)
-
-            # else:
-            #     raise Exception(
-            #         f"Error get dispatch data: {dispatch_body}")
 
     except Exception as e:
         raise Exception(f"Error handle order: {e}")
