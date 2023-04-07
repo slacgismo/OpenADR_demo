@@ -394,11 +394,15 @@ def make_command_list(
                 # TODO: need to be changed
                 DEVICES_KEY.METER_ID.value: str(guid()),
                 DEVICES_KEY.DEVICE_SETTINGS.value: {
-                    DEVICE_SETTING_KEY.BATTERY_TOKEN.value: battery_token_df[battery_token_df['device_id'] == device_id]['battery_token'].values[0],
-                    DEVICE_SETTING_KEY.BATTEY_SN.value: str(battery_token_df[battery_token_df['device_id'] == device_id]['battery_sn'].values[0]),
-                    DEVICE_SETTING_KEY.DEVICE_BRAND.value: battery_token_df[
-                        battery_token_df['device_id'] == device_id]['device_brand'].values[0]
-                }
+                    DEVICE_SETTING_KEY.BATTERY_TOKEN.value: "b51f18cd294592a3777f243287938d",
+                    DEVICE_SETTING_KEY.BATTEY_SN.value: "40857",
+                    DEVICE_SETTING_KEY.DEVICE_BRAND.value: "SONNEN_BATTERY"}
+                # DEVICES_KEY.DEVICE_SETTINGS.value: {
+                #     DEVICE_SETTING_KEY.BATTERY_TOKEN.value: battery_token_df[battery_token_df['device_id'] == device_id]['battery_token'].values[0],
+                #     DEVICE_SETTING_KEY.BATTEY_SN.value: str(battery_token_df[battery_token_df['device_id'] == device_id]['battery_sn'].values[0]),
+                #     DEVICE_SETTING_KEY.DEVICE_BRAND.value: battery_token_df[
+                #         battery_token_df['device_id'] == device_id]['device_brand'].values[0]
+                # }
             }for i, device_id in enumerate(device_ids)
             ]}
         command_list.append(command)

@@ -16,7 +16,7 @@ services:
       - DEVICES_API_URL=${DEVICES_API_URL:-https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/device}
       - ORDERS_API_URL=${ORDERS_API_URL:-https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/order}
       - DISPATCHES_API_URL=${DISPATCHES_API_URL:-https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/dispatch}
-      - MARKET_INTERVAL_IN_SECONDS=${MARKET_INTERVAL_IN_SECONDS:-60}
+      - MARKET_INTERVAL_IN_SECONDS=${MARKET_INTERVAL_IN_SECONDS:-20}
       - MARKET_START_TIME=${MARKET_START_TIMESTAMP:-2020-01-01T00:00:00Z}
       - LOCAL_TIMEZONE=${LOCAL_TIMEZONE:-America/Los_Angeles}
     networks:
@@ -52,7 +52,7 @@ services:
       - DEVICE_TYPE=${DEVICE_TYPE:-ES}
       - EMULATED_DEVICE_API_URL=${EMULATED_DEVICE_API_URL:-https://l7xxtd4xh9.execute-api.us-east-2.amazonaws.com/dev/battery_api}
       - 'DEVICE_SETTINGS={"device_brand": "SONNEN_BATTERY", "battery_token": "b51f18cd294592a3777f243287938d", "battery_sn": "40857"}'
-      - MARKET_INTERVAL_IN_SECONDS=${S:-60}
+      - MARKET_INTERVAL_IN_SECONDS=${S:-20}
       - FLEXIBLE=${FLEXIBLE:-1} # 1 for Ture and 0 for False
       - MARKET_START_TIME=${MARKET_START_TIME:-2020-01-01T00:00:00Z}
       - LOCAL_TIMEZONE=${LOCAL_TIMEZONE:-America/Los_Angeles}

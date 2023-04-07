@@ -57,7 +57,7 @@ async def handle_get_device_data(
                 device_settings=device_settings
             )
             # save the device data to the shared memory for other thread to use
-            logging.info("device_data: ", device_data)
+            logging.info(f"device_data: {device_data}")
             shared_device_data = SharedDeviceData.get_instance()
             shared_device_data.set(device_data)
             # TODO: refactor this to a new function
@@ -122,6 +122,10 @@ async def get_devices_data(
                         serial=battery_sn, auth_token=battery_token, url_ini=emulated_device_api_url)
                     # get battery data from mock device
                     batter_data = await mock_battery_interface.get_mock_battery_status()
+                    filter_data = await filter_battery_data(batter_data)
+                    # logging.info(
+                    #     f"=========  filter_data {filter_data} ==================")
+                    return filter_data
                 else:
                     logging.info(
                         "======== GET real battery data ==================")
