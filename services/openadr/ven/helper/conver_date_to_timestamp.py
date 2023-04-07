@@ -14,6 +14,20 @@ def convert_datetime_to_timsestamp(time_str: str) -> int:
     return int(market_start_timestamp)
 
 
+def next_market_start_timestamp(
+    market_start_timestamp: str,
+    market_interval: int,
+) -> int:
+
+    current_time = int(time.time())
+    time_since_start = current_time - market_start_timestamp
+    time_to_next_start = market_interval - \
+        (time_since_start % market_interval)
+    next_market_start_timestamp = current_time + time_to_next_start
+
+    return next_market_start_timestamp
+
+
 def current_market_start_timestamp(
     market_start_time: str,
     market_interval: int,

@@ -13,7 +13,7 @@ import logging
 import time
 import logging
 import time
-from helper.conver_date_to_timestamp import wait_till_next_market_start_time, current_market_start_timestamp, convert_datetime_to_timsestamp
+from helper.conver_date_to_timestamp import wait_till_next_market_start_time, current_market_start_timestamp, convert_datetime_to_timsestamp, next_market_start_timestamp
 from models_classes.SharedDeviceData import SharedDeviceData
 import aiohttp
 from enum import Enum
@@ -59,7 +59,7 @@ async def submit_order_to_vtn(
 
         while time_to_next_start > 0:
             await asyncio.sleep(1)
-            if time_to_next_start % 2 == 0:
+            if time_to_next_start % 10 == 0:
                 logging.info(
                     f"Waiting for next market start time, {time_to_next_start} seconds left")
             time_to_next_start -= 1
@@ -103,11 +103,20 @@ async def submit_order_to_vtn(
                 device_data=order_data,
                 vtn_order_url=vtn_order_url
             )
+
+            # calculate the dispatch timestamp from local here not from TESS.
+            # we can also to use local calculated dispatch timestamp to submit order to TESS
+
+            local_calculated_dispatch_timestamp = next_market_start_timestamp(
+                market_start_timestamp=market_start_timestamp,
+                market_interval=market_interval,
+            )
+            logging.info("====================================")
             logging.info(
-                f"dispatch_timestamp: {dispatch_timestamp}")
+                f"dispatch_timestamp: {dispatch_timestamp} local_calculated_dispatch_timestamp: {local_calculated_dispatch_timestamp}")
             shared_device_info = SharedDeviceInfo.get_instance()
             shared_device_info.set_dispatch_queue(
-                dispatch_timestamp=dispatch_timestamp,
+                dispatch_timestamp=local_calculated_dispatch_timestamp,
                 order_id=order_id,
                 quantity=quantity
             )

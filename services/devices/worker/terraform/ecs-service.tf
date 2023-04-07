@@ -6,8 +6,8 @@ data "template_file" "agent_container_definitions" {
   vars = {
     environment   = var.environment
     METER_API_URL = var.METER_API_URL
-    DEVICE_API_URL = var.DEVICE_API_URL
-    DISPATCH_API_URL = var.DISPATCH_API_URL
+    DEVICES_API_URL = var.DEVICES_API_URL
+    DISPATCHES_API_URL = var.DISPATCHES_API_URL
     app_image_vtn = var.app_image_vtn
     app_image_ven = var.app_image_ven
     cloudwatch_name = data.aws_cloudwatch_log_group.openadr_logs.name
@@ -15,7 +15,7 @@ data "template_file" "agent_container_definitions" {
     EMULATED_DEVICE_API_URL = var.EMULATED_DEVICE_API_URL
     vtn_address = var.vtn_address
     vtn_port = var.vtn_port
-    ORDER_PAI_URL = var.ORDER_PAI_URL
+    ORDERS_API_URL = var.ORDERS_API_URL
   }
 }
 

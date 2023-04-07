@@ -17,6 +17,8 @@ from actions.handle_submit_order import submit_order_to_vtn
 from actions.handle_event import handle_event
 from actions.handle_dispatch import handle_dispatch
 import functools
+from actions.check_vtn import check_vtn_and_retry
+import time
 try:
     ENV = os.environ['ENV']
     VEN_ID = os.environ['VEN_ID']
@@ -63,6 +65,7 @@ def main():
         VTN_METER_URL = vtn_base_url + f"/meter/{VEN_ID}"
         VTN_ORDER_URL = vtn_base_url + f"/order/{VEN_ID}"
         VTN_DISPATCH_URL = vtn_base_url + f"/dispatch/{VEN_ID}"
+        VTN_HEALTH_URL = vtn_base_url + f"/health"
         device_settings = json.loads(DEVICE_SETTINGS)
         is_using_mock_device = int(IS_USING_MOCK_DEVICE)
         # set shared global variables
@@ -89,6 +92,10 @@ def main():
 
         raise Exception(f"DEVICE_SETTINGS is not set correctly: {e}")
 
+    if check_vtn_and_retry(url=VTN_HEALTH_URL) is False:
+        logging.error(f"VTN is not available: {vtn_url}")
+        return
+
     client = OpenADRClient(
         ven_name=VEN_ID, vtn_url=f"http://{VTN_ADDRESS}:{VTN_PORT}/OpenADR2/Simple/2.0b", debug=True)
 
@@ -101,15 +108,16 @@ def main():
     loop3 = asyncio.new_event_loop()
     loop4 = asyncio.new_event_loop()
     # == == == == == == == == == start healthcheck server and openadr client in thread 1 == == == == == == == == ==
-    # server = HttpServer(
-    #     host="localhost", port=int(HTTPSERVER_PORT), path="/health"
-    # )
-    # server = HttpServer(host='localhost', port=8000, path='/health')
+    # not work in container but work in local
+    server = HttpServer(
+        host="localhost", port=int(HTTPSERVER_PORT), path="/health"
+    )
+    server = HttpServer(host='localhost', port=8000, path='/health')
 
     t1 = threading.Thread(target=start_loop, args=(loop1,))
     t1.start()
     asyncio.run_coroutine_threadsafe(client.run(), loop1)
-    # asyncio.run_coroutine_threadsafe(server.run_server(), loop1)
+    asyncio.run_coroutine_threadsafe(server.start(), loop1)
 
     # # ================== start the get device data thread 2 ==================
     t2 = threading.Thread(target=start_loop, args=(loop2,))

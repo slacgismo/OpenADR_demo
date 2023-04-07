@@ -1,10 +1,13 @@
 import boto3
 import json
 import logging
+import datetime
+import time
 
 dynamodb = boto3.client('dynamodb')
 table_name = 'openadr-NHEC-dev-orders'
-
+MARKET_START_TIME = "2020-01-01T00:00:00Z"
+MARKET_INTERVAL_IN_SECONDS = 20
 """
 PUT /db/order/<order_id>
 """
@@ -18,6 +21,7 @@ def handler(event, context):
         if http_method == 'GET':
             return {
                 'statusCode': 200,
+                'headers': {'Content-Type': 'application/json'},
                 'body': json.dumps({'device_id': "get device id"})
             }
         elif http_method == 'PUT':
@@ -53,10 +57,20 @@ def handler(event, context):
             order_info['state'] = state
             order_info['price'] = price
             order_info['auction_id'] = "12321"
+            # retrun current market end time. (same as next market start time)
+
+            market_start_timestamp = convert_datetime_to_timsestamp(
+                time_str=MARKET_START_TIME)
+            # get the current time
+            current_time = int(time.time())
+            time_since_start = current_time - market_start_timestamp
+            time_to_next_start = MARKET_INTERVAL_IN_SECONDS - \
+                (time_since_start % MARKET_INTERVAL_IN_SECONDS)
+            global_time_to_next_start = current_time + time_to_next_start
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json'},
-                'body': json.dumps({'order_id': order_id})
+                'body': json.dumps({'order_id': order_id, "device_id": device_id, "dispatch_timestamp": global_time_to_next_start})
             }
             # put_order_info_into_dynamodb(
             #     order_info = order_info,
@@ -73,8 +87,35 @@ def handler(event, context):
     except Exception as e:
         return {
             'statusCode': 500,
+            'headers': {'Content-Type': 'application/json'},
             'body': json.dumps({'error': str(e)})
         }
+
+
+def current_market_start_timestamp(
+    market_start_time: str,
+    market_interval: int,
+) -> int:
+    market_start_timestamp = convert_datetime_to_timsestamp(
+        time_str=market_start_time)
+    current_time = int(time.time())
+    time_since_start = current_time - market_start_timestamp
+    time_to_next_start = (time_since_start % market_interval)
+    if time_to_next_start == 0:
+        return current_time
+    else:
+        # return previouse market start time
+        return current_time + time_to_next_start - (market_interval)
+
+
+def convert_datetime_to_timsestamp(time_str: str) -> int:
+    time_obj = datetime.datetime.fromisoformat(time_str.replace('Z', '+00:00'))
+    # convert datetime object to timestamp
+    if not datetime.datetime.strptime(time_str, '%Y-%m-%dT%H:%M:%SZ'):
+        raise Exception("time_str is not in the correct format")
+
+    market_start_timestamp = int(time_obj.timestamp())
+    return int(market_start_timestamp)
 
 
 def put_order_info_into_dynamodb(order_info: dict, table_name: str, dynamodb_client) -> dict:

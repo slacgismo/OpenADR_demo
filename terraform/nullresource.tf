@@ -31,9 +31,9 @@ resource "null_resource" "export_terrafrom_tfvars_to_devices_admin_worker_terraf
       echo 'ecs_agent_sg="${aws_security_group.ecs_agent_sg.name}"' >> terraform.tfvars
       echo 'private_vpc_id="${module.vpc.vpc_id}"' >> terraform.tfvars
       echo 'METER_API_URL="${var.meter_api_url}"' >> terraform.tfvars
-      echo 'DEVICE_API_URL="${var.device_api_url}"' >> terraform.tfvars
-      echo 'ORDER_PAI_URL="${var.order_api_url}"' >> terraform.tfvars
-      echo 'DISPATCH_API_URL="${var.dispatch_api_url}"' >> terraform.tfvars
+      echo 'DEVICES_API_URL="${var.device_api_url}"' >> terraform.tfvars
+      echo 'ORDERS_API_URL="${var.order_api_url}"' >> terraform.tfvars
+      echo 'DISPATCHES_API_URL="${var.dispatch_api_url}"' >> terraform.tfvars
       echo 'EMULATED_DEVICE_API_URL="${var.emulated_device_api_url}"' >> terraform.tfvars
       echo 'vtn_address="${var.vtn_address}"' >> terraform.tfvars
       echo 'vtn_port="${var.vtn_port}"' >> terraform.tfvars

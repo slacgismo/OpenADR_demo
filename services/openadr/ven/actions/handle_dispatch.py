@@ -62,7 +62,7 @@ async def handle_dispatch(
                         f"Time to wait dispathch: {time_to_wait} is greater than market interval")
                 while time_to_wait > 0:
                     await asyncio.sleep(1)
-                    if time_to_wait % 2 == 0:
+                    if time_to_wait % 10 == 0:
                         logging.info(
                             f"Waiting for dispatch...{time_to_wait}")
                     time_to_wait -= 1

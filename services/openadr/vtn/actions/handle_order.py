@@ -40,7 +40,7 @@ def parse_order_data(data: dict):
     return order_id, aution_id, device_id, resource_id, flexible, state, price, quantity
 
 
-async def handle_order(request, ORDERS_PAI_URL):
+async def handle_order(request, ORDERS_API_URL):
     """
     Handle a order.
     """
@@ -66,7 +66,7 @@ async def handle_order(request, ORDERS_PAI_URL):
             state=state,
             price=price,
             quantity=quantity,
-            ORDERS_PAI_URL=ORDERS_PAI_URL
+            ORDERS_API_URL=ORDERS_API_URL
         )
 
         # wait till market interval end
@@ -85,14 +85,14 @@ async def handle_order(request, ORDERS_PAI_URL):
             logging.info(
                 f"device_id: {device_id}:  time_to_wait: {time_to_wait} dispatch_timestamp: {dispatch_timestamp}")
 
-            # if price:
-            #     await send_price_to_ven_through_openadr_event(
-            #         request=request,
-            #         ven_id=ven_id,
-            #         duration=1,
-            #         timezone=timezone.utc,
-            #         price=price,
-            #     )
+            if price:
+                await send_price_to_ven_through_openadr_event(
+                    request=request,
+                    ven_id=ven_id,
+                    duration=1,
+                    timezone=timezone.utc,
+                    price=price,
+                )
             payload = {
                 "order_id": order_id,
                 "device_id": device_id,
@@ -176,7 +176,7 @@ async def sumbit_oder_to_oder_api(
     flexible: str = None,
     state: str = None,
     price: str = None,
-    ORDERS_PAI_URL: str = None,
+    ORDERS_API_URL: str = None,
 ):
     """
     PUT /order/{device_id}
@@ -192,7 +192,7 @@ async def sumbit_oder_to_oder_api(
         'price': price
 
     }
-    order_url = ORDERS_PAI_URL+f"/{order_id}"
+    order_url = ORDERS_API_URL+f"/{order_id}"
     try:
         logging.info(f"order_url:{order_url}")
         async with aiohttp.ClientSession() as session:

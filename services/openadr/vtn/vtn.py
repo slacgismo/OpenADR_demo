@@ -30,7 +30,7 @@ try:
     MARKET_INTERVAL_IN_SECONDS = os.environ['MARKET_INTERVAL_IN_SECONDS']
     METER_API_URL = os.environ['METER_API_URL']
     DEVICES_API_URL = os.environ['DEVICES_API_URL']
-    ORDERS_PAI_URL = os.environ['ORDERS_PAI_URL']
+    ORDERS_API_URL = os.environ['ORDERS_API_URL']
     DISPATCHES_API_URL = os.environ['DISPATCHES_API_URL']
     MARKET_START_TIME = os.environ['MARKET_START_TIME']
     LOCAL_TIMEZONE = os.environ['LOCAL_TIMEZONE']
@@ -68,7 +68,8 @@ async def on_create_party_registration(registration_info, DEVICES_API_URL: str):
         logging.info(
             f"ven_name {ven_name} is not in VENS, check device_id on Tess Device API")
         logging.info("=======================================")
-        device_id = parse_device_id_from_ven_id(ven_id)
+        # device_id = parse_device_id_from_ven_id(ven_id)
+        device_id = ven_id
         response = await check_device_id_from_tess_device_api(
             ven_id=ven_id,
             device_id=device_id,
@@ -124,7 +125,7 @@ if __name__ == "__main__":
         web.put('/dispatch/{ven_id}', functools.partial(handle_dispatch,
                                                         DISPATCHES_API_URL=DISPATCHES_API_URL)),
         web.put('/order/{ven_id}', functools.partial(handle_order,
-                ORDERS_PAI_URL=ORDERS_PAI_URL)),
+                ORDERS_API_URL=ORDERS_API_URL)),
         web.put('/meter/{ven_id}', functools.partial(handle_meter,
                                                      METER_API_URL=METER_API_URL, MARKET_INTERVAL_IN_SECONDS=int(MARKET_INTERVAL_IN_SECONDS))),
         # web.get('/vens', functools.partial(handle_all_ven_info, VENS=VENS)),

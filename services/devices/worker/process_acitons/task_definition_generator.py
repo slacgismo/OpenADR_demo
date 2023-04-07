@@ -22,9 +22,9 @@ class VTN_TASK_VARIANTS_ENUM(Enum):
     MARKET_INTERVAL_IN_SECONDS = "MARKET_INTERVAL_IN_SECONDS"
     # from device admin environment variables
     METER_API_URL = "METER_API_URL"
-    DEVICE_API_URL = "DEVICE_API_URL"
-    ORDER_PAI_URL = "ORDER_PAI_URL"
-    DISPATCH_API_URL = "DISPATCH_API_URL"
+    DEVICES_API_URL = "DEVICES_API_URL"
+    ORDERS_API_URL = "ORDERS_API_URL"
+    DISPATCHES_API_URL = "DISPATCHES_API_URL"
     MARKET_START_TIME = "MARKET_START_TIME"
     LOCAL_TIMEZONE = "LOCAL_TIMEZONE"
 
@@ -144,9 +144,9 @@ def create_vtn_params(
     resource_id: str,
     env: str,
     METER_API_URL: str,
-    DEVICE_API_URL: str,
-    ORDER_PAI_URL: str,
-    DISPATCH_API_URL: str,
+    DEVICES_API_URL: str,
+    ORDERS_API_URL: str,
+    DISPATCHES_API_URL: str,
     market_start_time: str,
     local_timezone: str,
 ) -> dict:
@@ -156,12 +156,12 @@ def create_vtn_params(
         key = vtn_task.value
         if key == VTN_TASK_VARIANTS_ENUM.METER_API_URL.value:
             vtn_params[key] = METER_API_URL
-        elif key == VTN_TASK_VARIANTS_ENUM.DEVICE_API_URL.value:
-            vtn_params[key] = DEVICE_API_URL
-        elif key == VTN_TASK_VARIANTS_ENUM.ORDER_PAI_URL.value:
-            vtn_params[key] = ORDER_PAI_URL
-        elif key == VTN_TASK_VARIANTS_ENUM.DISPATCH_API_URL.value:
-            vtn_params[key] = DISPATCH_API_URL
+        elif key == VTN_TASK_VARIANTS_ENUM.DEVICES_API_URL.value:
+            vtn_params[key] = DEVICES_API_URL
+        elif key == VTN_TASK_VARIANTS_ENUM.ORDERS_API_URL.value:
+            vtn_params[key] = ORDERS_API_URL
+        elif key == VTN_TASK_VARIANTS_ENUM.DISPATCHES_API_URL.value:
+            vtn_params[key] = DISPATCHES_API_URL
         elif key == VTN_TASK_VARIANTS_ENUM.MARKET_INTERVAL_IN_SECONDS.value:
             vtn_params[key] = market_interval_in_second
         elif key == VTN_TASK_VARIANTS_ENUM.VTN_ID.value:
@@ -214,7 +214,7 @@ def generate_vtn_task_definition(
         "market_interval_in_second": "str"
     ]
     """
-    vtn_template['name'] = "vtn-" + vtn_id
+    vtn_template['name'] = vtn_id
     vtn_template['image'] = app_image_vtn
     vtn_template['environment'] = [{"name": key.upper(), "value": value}
                                    for key, value in environment_variables.items()]
@@ -285,7 +285,7 @@ def generate_ven_task_definition(
 
     """
     ven_id = ven_id
-    ven_template['name'] = "ven-" + ven_id
+    ven_template['name'] = ven_id
     ven_template['image'] = app_image_ven
     ven_template['command'] = ["python ven.py"]
     ven_template['environment'] = [{"name": key.upper(), "value": value}
@@ -373,9 +373,9 @@ def create_and_export_task_definition(
     resource_id: str,
     env: str,
     METER_API_URL: str,
-    DEVICE_API_URL: str,
-    ORDER_PAI_URL: str,
-    DISPATCH_API_URL: str,
+    DEVICES_API_URL: str,
+    ORDERS_API_URL: str,
+    DISPATCHES_API_URL: str,
     devices: list,
     app_image_vtn: str,
     log_group_name: str,
@@ -407,9 +407,9 @@ def create_and_export_task_definition(
         vtn_id=vtn_id,
         env=env,
         METER_API_URL=METER_API_URL,
-        DEVICE_API_URL=DEVICE_API_URL,
-        ORDER_PAI_URL=ORDER_PAI_URL,
-        DISPATCH_API_URL=DISPATCH_API_URL,
+        DEVICES_API_URL=DEVICES_API_URL,
+        ORDERS_API_URL=ORDERS_API_URL,
+        DISPATCHES_API_URL=DISPATCHES_API_URL,
         market_start_time=market_start_time,
         local_timezone=local_timezone,
     )

@@ -49,18 +49,19 @@ variable "agent_id" {
 variable "METER_API_URL"  {
   description = "Save data url"
   type        = string
-
+  default = "https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/meter"
 }
 
-variable "DISPATCH_API_URL"  {
+variable "DISPATCHES_API_URL"  {
   description = "participated vens url"
   type        = string
-
+  default = "https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/dispatch"
 }
 
-variable "DEVICE_API_URL"  {
+variable "DEVICES_API_URL"  {
   description = "get vens url"
   type        = string
+  default = "https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/device"
 }
 
 variable "app_image_vtn"  {
@@ -77,10 +78,12 @@ variable "app_image_ven"  {
 variable "EMULATED_DEVICE_API_URL"  {
   description = "mock devices api url"
   type        = string
+  default = "https://l7xxtd4xh9.execute-api.us-east-2.amazonaws.com/dev/battery_api"
 }
-variable "ORDER_PAI_URL"  {
+variable "ORDERS_API_URL"  {
   description = "market prices url"
   type        = string
+  default = "https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/order"
 }
 
 variable "vtn_address"  {

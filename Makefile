@@ -60,13 +60,16 @@ login-ecr:
 	
 .PHONY: tagAndPush
 tagAndPush:
-	docker tag openadr_worker:latest 041414866712.dkr.ecr.us-east-2.amazonaws.com/devices_worker:latest
+
 	docker tag openadr_vtn:latest 041414866712.dkr.ecr.us-east-2.amazonaws.com/vtn:latest
 	docker tag openadr_ven:latest 041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest
 	docker push 041414866712.dkr.ecr.us-east-2.amazonaws.com/vtn:latest
 	docker push 041414866712.dkr.ecr.us-east-2.amazonaws.com/ven:latest
-	docker push 041414866712.dkr.ecr.us-east-2.amazonaws.com/devices_worker:latest
 
+.PHONY: tagAndPushWorker
+tagAndPushWorker:
+	docker tag openadr_worker:latest 041414866712.dkr.ecr.us-east-2.amazonaws.com/devices_worker:latest
+	docker push 041414866712.dkr.ecr.us-east-2.amazonaws.com/devices_worker:latest
 
 .PHONY: docker-compose-up help
 help:
