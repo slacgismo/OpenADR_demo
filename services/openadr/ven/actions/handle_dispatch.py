@@ -72,6 +72,7 @@ async def handle_dispatch(
                 response_message = await submit_dispatch_to_vtn(
                     vtn_dispatch_url=vtn_dispatch_url,
                     order_id=order_id,
+                    quantity=quantity,
 
                 )
                 if 'quantity' not in response_message:
@@ -228,11 +229,14 @@ async def control_sonnen_battery(battery_interface, quantity: float, enable_self
 async def submit_dispatch_to_vtn(
     vtn_dispatch_url: str = None,
     order_id: str = None,
-    timeout: int = 10,
+    timeout: int = 5,
+    quantity: float = None,
 ):
     url = vtn_dispatch_url
     dispatch_data = {
         "order_id": order_id,
+        "record_time": int(time.time()),
+        "quantity": quantity
     }
     logging.info(
         f"send dispatch request to TESS dispatch api: {url}")
