@@ -191,8 +191,8 @@ def convert_device_data_to_order_data(
                     Pmax = 100      # $/MWh resources
                     Kes = 1     # none  participant
                     Qdesired = 80  # kWh   participant
-                    Qmin = 20       # kWh   participant
-                    Qmax = 95       # kWh   participant
+                    Qmin = 20       # kWh   participant # min charging or discharging capacity of battery
+                    Qmax = 95       # kWh   participant # max charging or discharging capacity of battery
                     Qcap = 100      # kWh   participant
                     dQmax = 6       # kW    participant
                     # Qlast = last state of USOC
