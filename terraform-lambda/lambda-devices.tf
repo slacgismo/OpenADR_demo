@@ -24,14 +24,19 @@ resource "aws_iam_role_policy_attachment" "lambda_devices" {
 
 resource "aws_lambda_function" "lambda_devices" {
 
-  function_name = "${var.prefix}-${var.client}-${var.environment}-devices-pai"
+  function_name = "${var.prefix}-${var.client}-${var.environment}-devices-api"
   s3_bucket     = aws_s3_bucket.lambda_bucket.id
   s3_key        = aws_s3_object.lambda_devices.key
   runtime       = "python3.9"
-  # runtime = "nodejs16.x"
   handler = "function.handler"
 
   source_code_hash = data.archive_file.lambda_devices.output_base64sha256
+  environment {
+      variables = {
+          "DEVICES_TABLE_NAME" = aws_dynamodb_table.devices.name
+    }
+  }
+
 
   role = aws_iam_role.lambda_devices.arn
   tags = local.common_tags

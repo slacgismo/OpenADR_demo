@@ -2,10 +2,10 @@
 
 import boto3
 import json
-
+import os
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('openadr-NHEC-dev-meters')
-
+# table = dynamodb.Table('openadr-NHEC-dev-meters')
+meters_table_name = os.environ["METERS_TABLE_NAME"]
 # "PUT /meter/{device_id}/{meter_id}"
 
 

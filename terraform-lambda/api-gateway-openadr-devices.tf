@@ -17,7 +17,7 @@ resource "aws_apigatewayv2_route" "get_lambda_devices" {
 resource "aws_apigatewayv2_route" "post_lambda_devices" {
   api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "POST /device"
+  route_key = "PUT /device/{device_id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_devices.id}"
 }
 

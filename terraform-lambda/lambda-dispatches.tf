@@ -45,7 +45,11 @@ resource "aws_lambda_function" "dispatches" {
   handler = "function.handler"
 
   source_code_hash = data.archive_file.dispatch_vens.output_base64sha256
-
+  environment {
+      variables = {
+          "DISPATCHES_TABLE_NAME" = aws_dynamodb_table.dispatches.name
+    }
+  }
   role = aws_iam_role.dispatch_exec.arn
   tags = local.common_tags
 }

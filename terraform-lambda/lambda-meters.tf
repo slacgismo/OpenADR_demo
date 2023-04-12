@@ -39,7 +39,7 @@ resource "aws_iam_role_policy_attachment" "lambda_meters_dynamodb_access" {
 
 resource "aws_lambda_function" "lambda_meters" {
   # function_name = "battery_api"
-  function_name = "${var.prefix}-${var.client}-${var.environment}-meters-pai"
+  function_name = "${var.prefix}-${var.client}-${var.environment}-meters-api"
 
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_meters.key
@@ -48,7 +48,11 @@ resource "aws_lambda_function" "lambda_meters" {
   handler = "function.handler"
 
   source_code_hash = data.archive_file.lambda_meters.output_base64sha256
-
+  environment {
+    variables = {
+      "METERS_TABLE_NAME" = aws_dynamodb_table.meters.name
+    }
+  }
   role = aws_iam_role.lambda_meters_lambda_exec.arn
   tags = local.common_tags
 }

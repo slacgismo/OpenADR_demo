@@ -3,9 +3,10 @@ import json
 import logging
 import datetime
 import time
-
+import os
 dynamodb = boto3.client('dynamodb')
-table_name = 'openadr-NHEC-dev-orders'
+# table_name = 'openadr-NHEC-dev-orders'
+orders_table_name = os.environ["ORDERS_TABLE_NAME"]
 MARKET_START_TIME = "2020-01-01T00:00:00Z"
 MARKET_INTERVAL_IN_SECONDS = 20
 """
@@ -56,6 +57,7 @@ def handler(event, context):
             order_info['flexible'] = flexible
             order_info['state'] = state
             order_info['price'] = price
+            # aution id  from device or generate here?
             order_info['auction_id'] = "12321"
             # retrun current market end time. (same as next market start time)
 

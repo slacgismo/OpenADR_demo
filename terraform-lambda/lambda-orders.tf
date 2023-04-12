@@ -47,6 +47,12 @@ resource "aws_lambda_function" "lambda_orders" {
 
   source_code_hash = data.archive_file.lambda_orders.output_base64sha256
 
+  environment {
+    variables = {
+      "ORDERS_TABLE_NAME" = aws_dynamodb_table.orders.name
+    }
+  }
+
   role = aws_iam_role.lambda_orders.arn
   tags = local.common_tags
 }
