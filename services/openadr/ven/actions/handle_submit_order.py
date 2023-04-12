@@ -21,7 +21,7 @@ import json
 from helper.guid import guid
 import os
 from .handle_dispatch import handle_dispatch
-from .calculate_power_price_and_quantity import power_price, power_quantity
+from .battery_heursitic_strategy import power_price, power_quantity
 import random
 
 
