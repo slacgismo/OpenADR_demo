@@ -26,17 +26,17 @@ try:
     ENV = os.environ['ENV']
     AGENT_ID = os.environ['AGENT_ID']
     RESOURCE_ID = os.environ['RESOURCE_ID']
-    VTN_ID = os.environ['VTN_ID']
     MARKET_INTERVAL_IN_SECONDS = os.environ['MARKET_INTERVAL_IN_SECONDS']
     METER_API_URL = os.environ['METER_API_URL']
     DEVICES_API_URL = os.environ['DEVICES_API_URL']
     ORDERS_API_URL = os.environ['ORDERS_API_URL']
     DISPATCHES_API_URL = os.environ['DISPATCHES_API_URL']
-    MARKET_START_TIME = os.environ['MARKET_START_TIME']
-    LOCAL_TIMEZONE = os.environ['LOCAL_TIMEZONE']
 except Exception as e:
     raise Exception(f"ENV is not set correctly: {e}")
-tz_local = pytz.timezone(LOCAL_TIMEZONE)
+# tz_local = pytz.timezone(LOCAL_TIMEZONE)
+VTN_ID = 'vtn-' + AGENT_ID
+MARKET_START_TIME = "2020-01-01T00:00:00Z"
+
 
 # Future db
 VENS = {

@@ -18,31 +18,39 @@ from actions.handle_event import handle_event
 from actions.handle_dispatch import handle_dispatch
 import functools
 from actions.check_vtn import check_vtn_and_retry
-import time
 try:
-    ENV = os.environ['ENV']
-    VEN_ID = os.environ['VEN_ID']
+    ENVIRONMENT = os.environ['ENVIRONMENT']
     RESOURCE_ID = os.environ['RESOURCE_ID']
     METER_ID = os.environ['METER_ID']
     DEVICE_ID = os.environ['DEVICE_ID']
     AGENT_ID = os.environ['AGENT_ID']
-    DEVICE_NAME = os.environ['DEVICE_NAME']
     IS_USING_MOCK_DEVICE = os.environ['IS_USING_MOCK_DEVICE']
-    VTN_ADDRESS = os.environ['VTN_ADDRESS']
-    VTN_PORT = os.environ['VTN_PORT']
     DEVICE_TYPE = os.environ['DEVICE_TYPE']
     EMULATED_DEVICE_API_URL = os.environ['EMULATED_DEVICE_API_URL']
     MARKET_INTERVAL_IN_SECONDS = os.environ['MARKET_INTERVAL_IN_SECONDS']
     FLEXIBLE = os.environ['FLEXIBLE']
-    MARKET_START_TIME = os.environ['MARKET_START_TIME']
-    LOCAL_TIMEZONE = os.environ['LOCAL_TIMEZONE']
-    HTTPSERVER_PORT = os.environ['HTTPSERVER_PORT']
     IS_USING_MOCK_DEVICE = os.environ['IS_USING_MOCK_DEVICE']
     DEVICE_SETTINGS = os.environ['DEVICE_SETTINGS']
     IS_USING_MOCK_ORDER = int(os.environ['IS_USING_MOCK_ORDER'])
     print(f"IS_USING_MOCK_ORDER {IS_USING_MOCK_ORDER}")
 except Exception as e:
     raise Exception(f"ENV is not set correctly: {e}")
+
+# Constant that not change
+VEN_ID = DEVICE_ID
+if ENVIRONMENT == "LOCAL":
+    VTN_ADDRESS = 'vtn'
+elif ENVIRONMENT == "AWS":
+    # AWS ECS service always use the private ip 127.0.0.1
+    VTN_ADDRESS = '127.0.0.1'
+else:
+    raise Exception(f"ENV:{ENVIRONMENT} is not set correctly")
+
+VTN_PORT = '8080'
+MARKET_START_TIME = "2020-01-01T00:00:00Z"
+# VEN health check port
+HTTPSERVER_PORT = "8000"
+
 
 logging.basicConfig(
     format="%(asctime)s %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p", level=logging.INFO
@@ -72,7 +80,6 @@ def main():
         # set shared global variables
         shared_device_info = SharedDeviceInfo.get_instance()
         shared_device_info.set_device_id(DEVICE_ID)
-
         shared_device_info.set_meter_id(METER_ID)
         shared_device_info.set_resource_id(RESOURCE_ID)
         shared_device_info.set_ven_id(VEN_ID)

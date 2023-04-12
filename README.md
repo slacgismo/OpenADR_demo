@@ -210,6 +210,12 @@ terraform init -backend-config=backend.hcl
 
 https://support.hashicorp.com/hc/en-us/articles/4547786359571-Reading-and-using-environment-variables-in-Terraform-runs
 
+### terraform and aws Lambda
+
+https://github.com/FitnessKeeper/terraform-lambda
+https://www.newredo.com/terraform-in-lambda/
+https://adamtheautomator.com/terraform-and-aws-lambda/
+
 ```
 sudo cat /var/log/cloud-init-output.log
 ```

@@ -7,8 +7,8 @@ from statistics import NormalDist
 # variable = value [units] [source]
 Pmean = 50      # $/MWh auction
 Pstdev = 5       # $/MWh auction
-Pmin = 0        # $/MWh resources
-Pmax = 100      # $/MWh resources
+Pmin = 0        # $/MWh resources   # min price of the market
+Pmax = 100      # $/MWh resources # max price of the market
 tclear = 0.083  # h     resources
 Kes = 1     # none  participant
 Qdesired = 80  # kWh   participant
@@ -38,7 +38,7 @@ dQmax = 6       # kW    participant
 # 4. Pmean = Aution_Table(expected_price)
 # 5. Pstedev = Aution_Table(expected_stdev)
 # 6. Kes(from customers UI/UX)  paticipant
-# 7. Qlast = USOC from device  paticipant
+# 7. Qlast = USOC from  paticipant
 
 
 def power_quantity(Qdesired, Qmin, Qmax, Qcap, Qlast, dQmax):
