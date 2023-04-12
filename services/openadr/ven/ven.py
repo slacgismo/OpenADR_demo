@@ -123,7 +123,7 @@ def main():
     # # ================== start the get device data thread 2 ==================
     t2 = threading.Thread(target=start_loop, args=(loop2,))
     t2.start()
-    # run the get device data
+    # run the get device data at end of market interval
     asyncio.run_coroutine_threadsafe(
         handle_get_device_data(
             device_brand=device_brand,
@@ -141,6 +141,7 @@ def main():
         ), loop2)
 
     # ================== start the submit order thread 3 ==================
+    # start of the market interval
     t3 = threading.Thread(target=start_loop, args=(loop3,))
     t3.start()
     asyncio.run_coroutine_threadsafe(
@@ -152,7 +153,8 @@ def main():
             is_using_mock_order=IS_USING_MOCK_ORDER), loop3
     )
 
-    # ================== start the submit order thread 4 ==================
+    # ================== start the submit dispatch thread 4 ==================
+    # end of market interval
     t4 = threading.Thread(target=start_loop, args=(loop4,))
     t4.start()
     asyncio.run_coroutine_threadsafe(

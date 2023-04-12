@@ -181,11 +181,32 @@ def convert_device_data_to_order_data(
             if deivce_brand == BATTERY_BRANDS.SONNEN_BATTERY.value:
                 if SonnenBatteryAttributeKey.Timestamp.name in device_data:
 
+                    # we need USOC here , from customer desired USOC random from 40 to 80 percent
+                    # if USOC < desired_USOC and USOC > Qmin:
+                    # quantity is the max charging capacity of battery
+                    # quantity is charging, it's positive.
+                    # Price
+                    # Porder = gussiasn_function(inverer_normal, Pmean = Aution_Table(expected_price), 3*Kes(from customers UI/UX), Pstedev = Aution_Table(expected_stdev), (1- (Qlast = USOC - Qmin = (customer from UI/UX)))/2*(Qdesired = desired_USOC,  Qmin = (customer from UI/UX)))))``
+                    # elif USOC > desired_USOC or USOC < Qmax:
+                    # quantity is the max discharging capacity of battery
+                    # quantity is discharging, it's negative.
+                    # Porder = gussiasn_function(inverer_normal, Pmean = Aution_Table(expected_price), 3*Kes(from customers UI/UX), Pstedev = Aution_Table(expected_stdev), (1- (Qmax = (from customer UI/UX) - Qlast = USOC )/Qmax = (from customer UI/UX) - Qdesided =  desired_USOC))
+                    # qual: do nothing.
+
+                    # 1. desied_USOC from customers UI/UX
+                    # 2. Qmin
+                    # 3. Qmax
+                    # 4. Pmean = Aution_Table(expected_price)
+                    # 5. Pstedev = Aution_Table(expected_stdev)
+                    # 6. Kes(from customers UI/UX)
+                    # 7. Qlast = USOC from device
+
                     quantity = "1000"
                     logging.warning(
                         "----------- TODO: quantity is hard coded 1000 W, price is hard coded 1.2 -----------")
                     state = device_data[SonnenBatteryAttributeKey.Pac_total_W.name]
                     price = "1.2"
+                    # ? should we generated aution_id here?
                     aution_id = str(guid())
                     order_id = str(guid())
                 else:

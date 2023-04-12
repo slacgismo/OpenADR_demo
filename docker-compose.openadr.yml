@@ -16,9 +16,9 @@ services:
       - DEVICES_API_URL=${DEVICES_API_URL:-https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/device}
       - ORDERS_API_URL=${ORDERS_API_URL:-https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/order}
       - DISPATCHES_API_URL=${DISPATCHES_API_URL:-https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/dispatch}
-      - MARKET_INTERVAL_IN_SECONDS=${MARKET_INTERVAL_IN_SECONDS:-20}
-      - MARKET_START_TIME=${MARKET_START_TIMESTAMP:-2020-01-01T00:00:00Z}
-      - LOCAL_TIMEZONE=${LOCAL_TIMEZONE:-America/Los_Angeles}
+      - MARKET_INTERVAL_IN_SECONDS=${MARKET_INTERVAL_IN_SECONDS:-20} 300 , 60 . this is necessary.
+      - MARKET_START_TIME=${MARKET_START_TIMESTAMP:-2020-01-01T00:00:00Z} // remove this always start from 0 hardcord .
+      - LOCAL_TIMEZONE=${LOCAL_TIMEZONE:-America/Los_Angeles} // remove this
     networks:
       - adrnet
     ports:

@@ -83,7 +83,7 @@ resource "aws_iam_role_policy_attachment" "battery_api_lamda_access_s3" {
 
 resource "aws_lambda_function" "battery_api" {
   # function_name = "battery_api"
-  function_name ="${var.prefix}-${var.client}-${var.environment}-mock-battery-pai"
+  function_name ="${var.prefix}-${var.client}-${var.environment}-mock-battery-api"
   
   s3_bucket = aws_s3_bucket.device_shared.id
   s3_key    = aws_s3_object.lambda_battery_api.key

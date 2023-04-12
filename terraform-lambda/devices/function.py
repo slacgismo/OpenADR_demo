@@ -4,8 +4,6 @@ import json
 import time
 import os
 dynamodb = boto3.client('dynamodb')
-# table = dynamodb.Table('openadr-NHEC-dev-devices')
-# table_name = 'openadr-NHEC-dev-devices'
 devices_table_name = os.environ["DEVICES_TABLE_NAME"]
 
 
