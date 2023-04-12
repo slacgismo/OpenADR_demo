@@ -38,3 +38,10 @@ variable "managedBy" {
   default     = "Terraform"
 }
 
+
+
+variable "project_pa_number" {
+  description = "project pa bumber"
+  type        = string
+  default     = "20813-H2002"
+}
