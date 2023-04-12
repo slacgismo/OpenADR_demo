@@ -33,7 +33,34 @@ def handler(event, context):
                 table_name=devices_table_name,
                 dynamodb_client=dynamodb
             ))
+        elif http_method == "DELETE":
+            device_id = event['pathParameters']['device_id']
+            return asyncio.run(delete_device_info_from_dynamodb(
+                device_id=device_id,
+                table_name=devices_table_name,
+                dynamodb_client=dynamodb
+            ))
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json'},
+            'body': json.dumps({'error ': str(e)})
+        }
 
+
+async def delete_device_info_from_dynamodb(device_id: str, table_name: str, dynamodb_client):
+    try:
+        response = await asyncio.to_thread(dynamodb_client.delete_item,
+                                           TableName=table_name,
+                                           Key={
+                                               'device_id': {'S': device_id}
+                                           }
+                                           )
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json'},
+            'body': json.dumps(response)
+        }
     except Exception as e:
         return {
             'statusCode': 500,

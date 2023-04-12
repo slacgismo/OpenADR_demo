@@ -14,10 +14,19 @@ resource "aws_apigatewayv2_route" "get_lambda_devices" {
   target    = "integrations/${aws_apigatewayv2_integration.lambda_devices.id}"
 }
 
-resource "aws_apigatewayv2_route" "post_lambda_devices" {
+resource "aws_apigatewayv2_route" "put_lambda_devices" {
   api_id = aws_apigatewayv2_api.main.id
 
   route_key = "PUT /device/{device_id}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_devices.id}"
+}
+
+
+
+resource "aws_apigatewayv2_route" "delete_lambda_devices" {
+  api_id = aws_apigatewayv2_api.main.id
+
+  route_key = "DELETE /device/{device_id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_devices.id}"
 }
 
@@ -31,6 +40,6 @@ resource "aws_lambda_permission" "api_gw" {
 }
 
 output "devices_devices_base_url" {
-  value = "${aws_apigatewayv2_stage.dev.invoke_url}/${aws_apigatewayv2_route.post_lambda_devices.route_key}"
+  value = "${aws_apigatewayv2_stage.dev.invoke_url}/${aws_apigatewayv2_route.put_lambda_devices.route_key}"
 
 }

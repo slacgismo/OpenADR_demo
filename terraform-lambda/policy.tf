@@ -37,6 +37,7 @@ resource "aws_iam_policy" "TESS_lambda_dyanmodb_access" {
         Action = [
           "dynamodb:BatchGetItem",
           "dynamodb:GetItem",
+          "dynamodb:DeleteItem",
           "dynamodb:Query",
           "dynamodb:Scan",
           "dynamodb:BatchWriteItem",
