@@ -66,32 +66,40 @@ async def on_create_party_registration(registration_info, DEVICES_API_URL: str):
     else:
         logging.info("=======================================")
         logging.info(
-            f"ven_name {ven_name} is not in VENS, check device_id on Tess Device API")
+            f"ven_name {ven_name} is not in VENS,add to VTN")
         logging.info("=======================================")
-        # device_id = parse_device_id_from_ven_id(ven_id)
         device_id = ven_id
-        response = await check_device_id_from_tess_device_api(
-            ven_id=ven_id,
-            device_id=device_id,
-            agent_id=None,
-            resource_id=None,
-            DEVICES_API_URL=DEVICES_API_URL
-        )
+        registration_id = str(guid())
+        VENS[ven_name] = {
+            "device_id": device_id,
+            "ven_name": ven_name,
+            "registration_id": registration_id
+        }
+        return ven_id, registration_id
+        # device_id = parse_device_id_from_ven_id(ven_id)
 
-        if response.status == 200:
-            logging.info("======================================1=")
-            registration_id = str(guid())
-            VENS[ven_name] = {
-                "device_id": device_id,
-                "ven_name": ven_name,
-                "registration_id": registration_id
-            }
-            logging.info(
-                f"VEN {ven_name} registered with registration_id {registration_id}")
-            return ven_id, registration_id
+        # response = await check_device_id_from_tess_device_api(
+        #     ven_id=ven_id,
+        #     device_id=device_id,
+        #     agent_id=None,
+        #     resource_id=None,
+        #     DEVICES_API_URL=DEVICES_API_URL
+        # )
 
-        else:
-            return False
+        # if response.status == 200:
+        #     logging.info("======================================1=")
+        #     registration_id = str(guid())
+        # VENS[ven_name] = {
+        #     "device_id": device_id,
+        #     "ven_name": ven_name,
+        #     "registration_id": registration_id
+        # }
+        #     logging.info(
+        #         f"VEN {ven_name} registered with registration_id {registration_id}")
+        #     return ven_id, registration_id
+
+        # else:
+        #     return False
 
 
 async def ven_lookup(ven_id):

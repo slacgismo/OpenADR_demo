@@ -16,9 +16,9 @@ services:
       - DEVICES_API_URL=${DEVICES_API_URL:-https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/device}
       - ORDERS_API_URL=${ORDERS_API_URL:-https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/order}
       - DISPATCHES_API_URL=${DISPATCHES_API_URL:-https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/dispatch}
-      - MARKET_INTERVAL_IN_SECONDS=${MARKET_INTERVAL_IN_SECONDS:-20} 300 , 60 . this is necessary.
-      - MARKET_START_TIME=${MARKET_START_TIMESTAMP:-2020-01-01T00:00:00Z} // remove this always start from 0 hardcord .
-      - LOCAL_TIMEZONE=${LOCAL_TIMEZONE:-America/Los_Angeles} // remove this
+      - MARKET_INTERVAL_IN_SECONDS=${MARKET_INTERVAL_IN_SECONDS:-20}
+      - MARKET_START_TIME=${MARKET_START_TIMESTAMP:-2020-01-01T00:00:00Z}
+      - LOCAL_TIMEZONE=${LOCAL_TIMEZONE:-America/Los_Angeles}
     networks:
       - adrnet
     ports:
@@ -57,7 +57,7 @@ services:
       - MARKET_START_TIME=${MARKET_START_TIME:-2020-01-01T00:00:00Z}
       - LOCAL_TIMEZONE=${LOCAL_TIMEZONE:-America/Los_Angeles}
       - HTTPSERVER_PORT=${HTTPSERVER_PORT:-8888}
-      - IS_USING_MOCK_ORDER=${IS_USING_MOCK_ORDER:-1} #1 for Ture the order is from dump_order.json and 0 for False for self-generated order
+      - IS_USING_MOCK_ORDER=${IS_USING_MOCK_ORDER:-0} #1 for Ture the order is from dump_order.json and 0 for False for self-generated order
 
     command: >
       sh -c "python ven.py"

@@ -21,6 +21,8 @@ import json
 from helper.guid import guid
 import os
 from .handle_dispatch import handle_dispatch
+from .calculate_power_price_and_quantity import power_price, power_quantity
+import random
 
 
 class ORER_KEYS(Enum):
@@ -97,6 +99,7 @@ async def submit_order_to_vtn(
                 deivce_brand=BATTERY_BRANDS.SONNEN_BATTERY.value,
                 is_using_mock_order=is_using_mock_order,
                 market_index=market_index,
+                market_interval=market_interval
             )
 
             order_id, dispatch_timestamp, quantity = await put_data_to_order_api_of_vtn(
@@ -134,7 +137,8 @@ def convert_device_data_to_order_data(
         deivce_brand: str = None,
         is_using_mock_order: bool = False,
         market_index: int = 0,
-        simulation_oder_json_file='./actions/dump_orders.json'
+        simulation_oder_json_file='./actions/dump_orders.json',
+        market_interval: int = 60
 ):
     if device_data is None:
         raise Exception("device_data cannot be None")
@@ -180,32 +184,47 @@ def convert_device_data_to_order_data(
         if device_type == DEVICE_TYPES.ES.value:
             if deivce_brand == BATTERY_BRANDS.SONNEN_BATTERY.value:
                 if SonnenBatteryAttributeKey.Timestamp.name in device_data:
+                    # TODO: fetch necesary data from TESS API
+                    Pmean = 50      # $/MWh auction
+                    Pstdev = 5       # $/MWh auction
+                    Pmin = 0        # $/MWh resources
+                    Pmax = 100      # $/MWh resources
+                    Kes = 1     # none  participant
+                    Qdesired = 80  # kWh   participant
+                    Qmin = 20       # kWh   participant
+                    Qmax = 95       # kWh   participant
+                    Qcap = 100      # kWh   participant
+                    dQmax = 6       # kW    participant
+                    # Qlast = last state of USOC
+                    Qlast = device_data[SonnenBatteryAttributeKey.USOC.name]
+                    # first get the power quantity
+                    # quantity = "1000"
+                    quantity = power_quantity(
+                        Qdesired=Qdesired,
+                        Qmin=Qmin,
+                        Qmax=Qmax,
+                        Qcap=Qcap,
+                        Qlast=Qlast,
+                        dQmax=dQmax,
+                    )
+                    # Second get the price
+                    price = power_price(
+                        Pmean=Pmean,
+                        Pstdev=Pstdev,
+                        Pmin=Pmin,
+                        Pmax=Pmax,
+                        Qlast=Qlast,
+                        Qdesired=Qdesired,
+                        Qmin=Qmin,
+                        Qmax=Qmax,
+                        Kes=Kes,
 
-                    # we need USOC here , from customer desired USOC random from 40 to 80 percent
-                    # if USOC < desired_USOC and USOC > Qmin:
-                    # quantity is the max charging capacity of battery
-                    # quantity is charging, it's positive.
-                    # Price
-                    # Porder = gussiasn_function(inverer_normal, Pmean = Aution_Table(expected_price), 3*Kes(from customers UI/UX), Pstedev = Aution_Table(expected_stdev), (1- (Qlast = USOC - Qmin = (customer from UI/UX)))/2*(Qdesired = desired_USOC,  Qmin = (customer from UI/UX)))))``
-                    # elif USOC > desired_USOC or USOC < Qmax:
-                    # quantity is the max discharging capacity of battery
-                    # quantity is discharging, it's negative.
-                    # Porder = gussiasn_function(inverer_normal, Pmean = Aution_Table(expected_price), 3*Kes(from customers UI/UX), Pstedev = Aution_Table(expected_stdev), (1- (Qmax = (from customer UI/UX) - Qlast = USOC )/Qmax = (from customer UI/UX) - Qdesided =  desired_USOC))
-                    # qual: do nothing.
+                    )
 
-                    # 1. desied_USOC from customers UI/UX
-                    # 2. Qmin
-                    # 3. Qmax
-                    # 4. Pmean = Aution_Table(expected_price)
-                    # 5. Pstedev = Aution_Table(expected_stdev)
-                    # 6. Kes(from customers UI/UX)
-                    # 7. Qlast = USOC from device
-
-                    quantity = "1000"
                     logging.warning(
-                        "----------- TODO: quantity is hard coded 1000 W, price is hard coded 1.2 -----------")
+                        f"-----------  quantity  {quantity} W, price is {price} -----------")
                     state = device_data[SonnenBatteryAttributeKey.Pac_total_W.name]
-                    price = "1.2"
+                    # price = "1.2"
                     # ? should we generated aution_id here?
                     aution_id = str(guid())
                     order_id = str(guid())

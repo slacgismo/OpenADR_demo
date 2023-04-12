@@ -39,7 +39,8 @@ try:
     HTTPSERVER_PORT = os.environ['HTTPSERVER_PORT']
     IS_USING_MOCK_DEVICE = os.environ['IS_USING_MOCK_DEVICE']
     DEVICE_SETTINGS = os.environ['DEVICE_SETTINGS']
-    IS_USING_MOCK_ORDER = os.environ['IS_USING_MOCK_ORDER']
+    IS_USING_MOCK_ORDER = int(os.environ['IS_USING_MOCK_ORDER'])
+    print(f"IS_USING_MOCK_ORDER {IS_USING_MOCK_ORDER}")
 except Exception as e:
     raise Exception(f"ENV is not set correctly: {e}")
 
