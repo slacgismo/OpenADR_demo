@@ -36,7 +36,7 @@ class SharedVenInfos:
                  agent_id: str = None,
                  vtn_id: str = None,
                  VENs: dict = None,
-                 market_interval_in_seconds: int = None,
+                 market_interval_in_secondss: int = None,
                  is_using_mock_device: bool = None,
                  emulated_device_api_url: str = None
 
@@ -49,7 +49,7 @@ class SharedVenInfos:
         self._VENs = VENs
         self._vtn_id = vtn_id
         self._is_using_mock_device = is_using_mock_device
-        self._market_interval_in_seconds = market_interval_in_seconds
+        self._market_interval_in_secondss = market_interval_in_secondss
         self._emulated_device_api_url = emulated_device_api_url
         SharedVenInfos.__instance = self
 
@@ -123,8 +123,8 @@ class SharedVenInfos:
         else:
             return len(self._VENs)
 
-    def get_market_interval_in_seconds(self):
-        return self._market_interval_in_seconds
+    def get_market_interval_in_secondss(self):
+        return self._market_interval_in_secondss
 
-    def set_market_interval_in_seconds(self, market_interval_in_seconds):
-        self._market_interval_in_seconds = market_interval_in_seconds
+    def set_market_interval_in_secondss(self, market_interval_in_secondss):
+        self._market_interval_in_secondss = market_interval_in_secondss

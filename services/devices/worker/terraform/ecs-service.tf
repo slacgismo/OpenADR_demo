@@ -5,17 +5,12 @@ data "template_file" "agent_container_definitions" {
   template = file("./templates/${var.task_definition_file}")
   vars = {
     environment   = var.environment
-    METER_API_URL = var.METER_API_URL
-    DEVICES_API_URL = var.DEVICES_API_URL
-    DISPATCHES_API_URL = var.DISPATCHES_API_URL
     app_image_vtn = var.app_image_vtn
     app_image_ven = var.app_image_ven
     cloudwatch_name = data.aws_cloudwatch_log_group.openadr_logs.name
     aws_region = var.aws_region
-    EMULATED_DEVICE_API_URL = var.EMULATED_DEVICE_API_URL
     vtn_address = var.vtn_address
     vtn_port = var.vtn_port
-    ORDERS_API_URL = var.ORDERS_API_URL
   }
 }
 
@@ -43,7 +38,6 @@ resource "aws_ecs_service" "agent" {
   name             = "${var.prefix}-agent-${var.agent_id}"
   cluster          = data.aws_ecs_cluster.main.cluster_name
   task_definition  = aws_ecs_task_definition.agent.arn
-#   task_definition  = aws_ecs_task_definition.agent.family
   desired_count    = 1
   launch_type      = "FARGATE"
   platform_version = "1.4.0"

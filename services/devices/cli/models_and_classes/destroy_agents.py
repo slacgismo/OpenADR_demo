@@ -48,7 +48,7 @@ def destroy_all(
 
             "agent_id": agent_id,
             "resource_id": "",
-            "market_interval_in_second": "",
+            "market_interval_in_seconds": "",
             "market_id": "",
             "market_start_time": "",
             "local_timezone": "",
@@ -97,7 +97,7 @@ def destroy_all(
 #     {
 #     "agent_id": "00ccff430c4bcfa1f1186f488b88fc",
 #     "resource_id": "caff6719c24359a155a4d0d2f265a7",
-#     "market_interval_in_second": "300",
+#     "market_interval_in_seconds": "300",
 #     "market_id": "6436a67e184d3694a15886215ae464",
 #     "devices": [
 #         {
@@ -124,11 +124,11 @@ def destroy_all(
 #             print(task_params)
 #             # agent_id = task_params.get("agent_id")
 #             # resource_id = task_params.get("resource_id")
-#             # market_interval_in_second = task_params.get(
-#             #     "market_interval_in_second")
+#             # market_interval_in_seconds = task_params.get(
+#             #     "market_interval_in_seconds")
 #             # market_id = task_params.get("market_id")
 #             # devices = task_params.get("devices")
-#             # return agent_id, resource_id, market_interval_in_second, market_id, devices
+#             # return agent_id, resource_id, market_interval_in_seconds, market_id, devices
 #     except Exception as e:
 #         raise Exception(
 #             f"Error when parsing task definition file {e}")

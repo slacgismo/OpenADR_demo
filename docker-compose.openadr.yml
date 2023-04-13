@@ -8,7 +8,7 @@ services:
       args:
         - DEV=true
     environment:
-      - ENV=${ENV:-LOCAL} # AWS or LOCAL
+      - ENVIRONMENT=${ENVIRONMENT:-LOCAL} # AWS or LOCAL
       - AGENT_ID=${AGENT_ID:-d5f36f77f24d19a2820538f415b0fd}
       - RESOURCE_ID=${RESOURCE_ID:-resource0}
       - METER_API_URL=${METER_API_URL:-https://fw7sh7bkki.execute-api.us-east-2.amazonaws.com/dev/meter}
@@ -37,18 +37,16 @@ services:
       - ./services/openadr/ven:/app
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-LOCAL} #1 for Ture and 0 for False
-      - IS_USING_MOCK_DEVICE=${IS_USING_MOCK_DEVICE:-1} #1 for Ture and 0 for False
+      # - IS_USING_MOCK_DEVICE=${IS_USING_MOCK_DEVICE:-1} #1 for Ture and 0 for False
       - RESOURCE_ID=${RESOURCE_ID:-resource0}
       - METER_ID=${METER_ID:-meter0}
       - DEVICE_ID=${DEVICE_ID:-2b24017403c418d73b4829372f9c5b43}
       - AGENT_ID=${AGENT_ID:-agent-d5f36f77f24d19a2820538f415b0fd}
       - DEVICE_TYPE=${DEVICE_TYPE:-ES}
       - EMULATED_DEVICE_API_URL=${EMULATED_DEVICE_API_URL:-https://i75blw8jig.execute-api.us-east-2.amazonaws.com/dev/battery_api}
-      - 'DEVICE_SETTINGS={"device_brand": "SONNEN_BATTERY", "battery_token": "b51f18cd294592a3777f243287938d", "battery_sn": "40857"}'
-      - MARKET_INTERVAL_IN_SECONDS=${S:-20}
-      - FLEXIBLE=${FLEXIBLE:-1} # 1 for Ture and 0 for False
-      - IS_USING_MOCK_ORDER=${IS_USING_MOCK_ORDER:-0} #1 for Ture the order is from dump_order.json and 0 for False for self-generated order
-
+      - 'DEVICE_SETTINGS={"device_brand": "SONNEN_BATTERY", "battery_token": "b51f18cd294592a3777f243287938d", "battery_sn": "40857","flexible":"1","is_using_mock_device":"True"}'
+      - MARKET_INTERVAL_IN_SECONDS=${MARKET_INTERVAL_IN_SECONDS:-20}
+      # - FLEXIBLE=${FLEXIBLE:-1} # 1 for Ture and 0 for False
     command: >
       sh -c "python ven.py"
     ports:

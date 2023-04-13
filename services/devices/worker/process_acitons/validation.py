@@ -26,7 +26,7 @@ def simulated_message() -> Dict:
     message_body = {
         "agent_id": guid(),
         "resource_id": guid(),
-        "market_interval_in_second": "300",
+        "market_interval_in_seconds": "300",
         "market_id": guid(),
         "devices": [
             {

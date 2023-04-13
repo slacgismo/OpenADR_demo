@@ -19,7 +19,7 @@ class Agent:
         self,
         agent_id: str,
         resource_id: str,
-        market_interval_in_second: str,
+        market_interval_in_seconds: str,
         devices: List,
         backend_s3_bucket_name: str,
         s3_bucket_name_of_task_definition_file: str,
@@ -29,18 +29,25 @@ class Agent:
         task_definition_file_name: str = None,
         backend_s3_state_key: str = None,
         s3_service: S3Service = None,
-        market_start_time: str = None,
-        local_timezone: str = None
 
+        METER_API_URL: str = None,
+        DEVICES_API_URL: str = None,
+        ORDERS_API_URL: str = None,
+        DISPATCHES_API_URL: str = None,
+        EMULATED_DEVICE_API_URL: str = None,
 
     ):
         self.s3_service = s3_service
         self.agent_id = agent_id
         self.resource_id = resource_id
-        self.market_interval_in_second = market_interval_in_second
+        self.market_interval_in_seconds = market_interval_in_seconds
         self.devices = devices
-        self.market_start_time = market_start_time
-        self.local_timezone = local_timezone
+
+        self.METER_API_URL = METER_API_URL
+        self.DEVICES_API_URL = DEVICES_API_URL
+        self.ORDERS_API_URL = ORDERS_API_URL
+        self.DISPATCHES_API_URL = DISPATCHES_API_URL
+        self.EMULATED_DEVICE_API_URL = EMULATED_DEVICE_API_URL
 
         self.s3_bucket_name_of_task_definition_file = (
             s3_bucket_name_of_task_definition_file
@@ -70,29 +77,22 @@ class Agent:
         ) = create_and_export_task_definition(
             agent_id=self.agent_id,
             resource_id=self.resource_id,
-            market_interval_in_second=self.market_interval_in_second,
+            market_interval_in_seconds=self.market_interval_in_seconds,
             devices=self.devices,
             env="${environment}",
-            METER_API_URL="https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/meter",
-            DEVICES_API_URL="https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/device",
-            DISPATCHES_API_URL="https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/dispatch",
-            EMULATED_DEVICE_API_URL="https://l7xxtd4xh9.execute-api.us-east-2.amazonaws.com/dev/battery_api",
-            ORDERS_API_URL="https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/order",
-            # METER_API_URL=f"{{${VTN_TASK_VARIANTS_ENUM.METER_API_URL.value}}}",
-            # DEVICES_API_URL=f"{{${VTN_TASK_VARIANTS_ENUM.DEVICES_API_URL.value}}}",
-            # DISPATCHES_API_URL=f"{{${VTN_TASK_VARIANTS_ENUM.DISPATCHES_API_URL.value}}}",
+            METER_API_URL=self.METER_API_URL,
+            DEVICES_API_URL=self.DEVICES_API_URL,
+            DISPATCHES_API_URL=self.DISPATCHES_API_URL,
+            EMULATED_DEVICE_API_URL=self.EMULATED_DEVICE_API_URL,
+            ORDERS_API_URL=self.ORDERS_API_URL,
             app_image_vtn="${app_image_vtn}",
             app_image_ven="${app_image_ven}",
             log_group_name="${cloudwatch_name}",
             aws_region="${aws_region}",
-            # EMULATED_DEVICE_API_URL=f"{{${VEN_TASK_VARIANTS_ENUM.EMULATED_DEVICE_API_URL.value}}}",
             vtn_address="${vtn_address}",
             vtn_port="${vtn_port}",
-            # ORDERS_API_URL=f"{{${VTN_TASK_VARIANTS_ENUM.ORDERS_API_URL.value}}}",
             file_name=self.task_definition_file_name,
             path=templates_abs_path,
-            market_start_time=self.market_start_time,
-            local_timezone=self.local_timezone,
 
         )
         print(
@@ -143,20 +143,20 @@ class Agent:
         ) = create_and_export_task_definition(
             agent_id=self.agent_id,
             resource_id=self.resource_id,
-            market_interval_in_second=self.market_interval_in_second,
+            market_interval_in_seconds=self.market_interval_in_seconds,
             devices=self.devices,
             env="${environment}",
-            METER_API_URL=f"{{${VTN_TASK_VARIANTS_ENUM.METER_API_URL.value}}}",
-            DEVICES_API_URL=f"{{${VTN_TASK_VARIANTS_ENUM.DEVICES_API_URL.value}}}",
-            DISPATCHES_API_URL=f"{{${VTN_TASK_VARIANTS_ENUM.DISPATCHES_API_URL.value}}}",
+            METER_API_URL=self.METER_API_URL,
+            DEVICES_API_URL=self.DEVICES_API_URL,
+            DISPATCHES_API_URL=self.DISPATCHES_API_URL,
+            EMULATED_DEVICE_API_URL=self.EMULATED_DEVICE_API_URL,
+            ORDERS_API_URL=self.ORDERS_API_URL,
             app_image_vtn="${app_image_vtn}",
             app_image_ven="${app_image_ven}",
             log_group_name="${cloudwatch_name}",
             aws_region="${aws_region}",
-            EMULATED_DEVICE_API_URL=f"{{${VEN_TASK_VARIANTS_ENUM.EMULATED_DEVICE_API_URL.value}}}",
             vtn_address="${vtn_address}",
             vtn_port="${vtn_port}",
-            ORDERS_API_URL=f"{{${VTN_TASK_VARIANTS_ENUM.ORDERS_API_URL.value}}}",
             file_name=self.task_definition_file_name,
             path=templates_abs_path,
         )

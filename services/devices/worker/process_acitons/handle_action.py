@@ -41,20 +41,20 @@ def parse_message_body(message_body: dict):
     if (
         "agent_id" not in message_body
         or "resource_id" not in message_body
-        or "market_interval_in_second" not in message_body
+        or "market_interval_in_seconds" not in message_body
         or "devices" not in message_body
     ):
         raise Exception(
-            f"agent_id is not in the message, or resource_id is not in the message, or market_interval_in_second is not in the message, devices is  not in the message"
+            f"agent_id is not in the message, or resource_id is not in the message, or market_interval_in_seconds is not in the message, devices is  not in the message"
         )
     try:
         agent_id = message_body["agent_id"]
         resource_id = message_body["resource_id"]
-        market_interval_in_second = message_body["market_interval_in_second"]
+        market_interval_in_seconds = message_body["market_interval_in_seconds"]
         devices = message_body["devices"]
         market_start_time = message_body["market_start_time"]
         local_timezone = message_body["local_timezone"]
-        return agent_id, resource_id, market_interval_in_second, devices, market_start_time, local_timezone
+        return agent_id, resource_id, market_interval_in_seconds, devices, market_start_time, local_timezone
     except Exception as e:
         raise Exception(f"Error parsing message body: {e}")
 
@@ -65,6 +65,11 @@ def handle_action(
     BACKEND_S3_BUCKET_NAME: str,
     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME: str,
     AWS_REGION: str,
+    METER_API_URL: str,
+    DEVICES_API_URL: str,
+    ORDERS_API_URL: str,
+    DISPATCHES_API_URL: str,
+    EMULATED_DEVICE_API_URL: str,
 ):
     """
     Handle the action from the message body
@@ -75,7 +80,7 @@ def handle_action(
     params: AWS_REGION: str
     return: None
     """
-    agent_id, resource_id, market_interval_in_second, devices, market_start_time, local_timezone = parse_message_body(
+    agent_id, resource_id, market_interval_in_seconds, devices, market_start_time, local_timezone = parse_message_body(
         message_body
     )
 
@@ -110,7 +115,7 @@ def handle_action(
     agent = Agent(
         agent_id=agent_id,
         resource_id=resource_id,
-        market_interval_in_second=market_interval_in_second,
+        market_interval_in_seconds=market_interval_in_seconds,
         devices=devices,
         backend_s3_bucket_name=BACKEND_S3_BUCKET_NAME,
         s3_bucket_name_of_task_definition_file=BACKEND_S3_BUCKET_NAME,
@@ -120,8 +125,12 @@ def handle_action(
         task_definition_file_name=task_definition_file_name,
         backend_s3_state_key=backend_s3_state_key,
         s3_service=s3_service,
-        market_start_time=market_start_time,
-        local_timezone=local_timezone)
+        METER_API_URL=METER_API_URL,
+        DEVICES_API_URL=DEVICES_API_URL,
+        ORDERS_API_URL=ORDERS_API_URL,
+        DISPATCHES_API_URL=DISPATCHES_API_URL,
+        EMULATED_DEVICE_API_URL=EMULATED_DEVICE_API_URL,
+    )
 
     if action == ECS_ACTIONS_ENUM.CREATE.value:
         logging.info("=============================================")

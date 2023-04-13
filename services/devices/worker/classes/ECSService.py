@@ -13,12 +13,12 @@ class ECSService:
         self,
         agent_id: str = None,
         resource_id: str = None,
-        market_interval_in_second: str = None,
+        market_interval_in_seconds: str = None,
         ecs_cluster_name: str = None,
     ):
         self.agent_id = agent_id
         self.resource_id = resource_id
-        self.market_interval_in_second = market_interval_in_second
+        self.market_interval_in_seconds = market_interval_in_seconds
         self.task_definition_file = None
         self.ecs_cluster_name = ecs_cluster_name
         self.client = boto3.client("ecs")

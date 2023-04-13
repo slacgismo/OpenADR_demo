@@ -62,7 +62,7 @@ class DEVICES_KEY(Enum):
 class AGNET_KEY(Enum):
     AGENT_ID = "agent_id"
     RESOURCE_ID = "resource_id"
-    MARKET_INTERVAL_IN_SECONDS = "market_interval_in_second"
+    MARKET_INTERVAL_IN_SECONDS = "market_interval_in_seconds"
     MARKET_ID = "market_id"
     DEVICES = "devices"
     MARKET_START_TIME = "market_start_time"
@@ -119,10 +119,7 @@ def generate_first_number_agents_from_simulation_csv_file(
     {
     "agent_id": "00ccff430c4bcfa1f1186f488b88fc",
     "resource_id": "caff6719c24359a155a4d0d2f265a7",
-    "market_interval_in_second": "300",
-    "market_id": "6436a67e184d3694a15886215ae464",
-    "market_start_time":  "2020-01-01T00:00:00Z"
-    "local_timezone": "America/New_York"
+    "market_interval_in_seconds": "300",
     "devices": [
         {
             "device_id": "807f8e4a37446e80c5756a74a3598d",
@@ -194,7 +191,7 @@ def generate_first_number_agents_from_simulation_csv_file(
         resouce_agent_dict_list=resouce_agent_dict_list,
         agent_device_dict_list=agent_device_dict_list,
         battery_token_df=battery_token_df,
-        market_interval_in_second=str(market_interval),
+        market_interval_in_seconds=str(market_interval),
         market_start_time=market_start_time,
         local_timezone=locl_timezone,
         is_using_mock_device=is_using_mock_device,
@@ -325,7 +322,7 @@ def make_command_list(
     resouce_agent_dict_list: List[Dict],
     agent_device_dict_list: List[Dict],
     battery_token_df: pd.DataFrame,
-    market_interval_in_second: str,
+    market_interval_in_seconds: str,
     market_start_time: str,
     local_timezone: str,
     is_using_mock_device: bool,
@@ -337,7 +334,7 @@ def make_command_list(
     {
         "agent_id": "00ccff430c4bcfa1f1186f488b88fc",
         "resource_id": "caff6719c24359a155a4d0d2f265a7",
-        "market_interval_in_second": "300",
+        "market_interval_in_seconds": "300",
         market_start_time: "2021-01-01 00:00:00",
         local_timezone: "America/Los_Angeles",
         flexible: true,
@@ -379,7 +376,7 @@ def make_command_list(
         command = {
             AGNET_KEY.AGENT_ID.value: agent_id,
             AGNET_KEY.RESOURCE_ID.value: resource_id,
-            AGNET_KEY.MARKET_INTERVAL_IN_SECONDS.value: market_interval_in_second,
+            AGNET_KEY.MARKET_INTERVAL_IN_SECONDS.value: market_interval_in_seconds,
             AGNET_KEY.MARKET_START_TIME.value: market_start_time,
             AGNET_KEY.LOCAL_TIMEZONE.value: local_timezone,
             AGNET_KEY.DEVICES.value: [{

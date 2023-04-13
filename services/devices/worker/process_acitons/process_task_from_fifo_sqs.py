@@ -11,11 +11,13 @@ def process_task_from_fifo_sqs(
     BACKEND_S3_BUCKET_NAME: str,
     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME: str,
     AWS_REGION: str,
-    ENV: str,
-    SQS_GROUPID: str,
-    MaxNumberOfMessages: int = 1,
-    WaitTimeSeconds: int = 5,
-    VisibilityTimeout: int = 5,
+    ENVIRONMENT: str,
+    METER_API_URL: str = None,
+    DEVICES_API_URL: str = None,
+    ORDERS_API_URL: str = None,
+    DISPATCHES_API_URL: str = None,
+    EMULATED_DEVICE_API_URL: str = None,
+
 ):
     """
     Process the task from the fifo sqs queue
@@ -36,11 +38,14 @@ def process_task_from_fifo_sqs(
 
             sqs_service = SQSService(queue_url=queue_url)
             # try:
+            MaxNumberOfMessages = 1
+            WaitTimeSeconds = 5
+            VisibilityTimeout = 10
             message = sqs_service.receive_message(
                 MaxNumberOfMessages=MaxNumberOfMessages,
                 WaitTimeSeconds=WaitTimeSeconds,
                 VisibilityTimeout=VisibilityTimeout,
-                group_id=SQS_GROUPID,
+                group_id=ENVIRONMENT,
             )
             if message is None:
                 logging.info("Waiting.... %s" % str(int(time.time())))
@@ -65,6 +70,11 @@ def process_task_from_fifo_sqs(
                     BACKEND_S3_BUCKET_NAME=BACKEND_S3_BUCKET_NAME,
                     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
                     AWS_REGION=AWS_REGION,
+                    METER_API_URL=METER_API_URL,
+                    DEVICES_API_URL=DEVICES_API_URL,
+                    ORDERS_API_URL=ORDERS_API_URL,
+                    DISPATCHES_API_URL=DISPATCHES_API_URL,
+                    EMULATED_DEVICE_API_URL=EMULATED_DEVICE_API_URL,
                 )
                 end_process_time = time.time()
                 process_time = int(end_process_time - start_time_process_time)

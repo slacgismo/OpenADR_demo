@@ -42,7 +42,6 @@ async def submit_order_to_vtn(
     market_interval: int = 60,
     market_start_time: str = None,
     advanced_seconds: int = 0,
-    is_using_mock_order: bool = False,  # if True, use mock order data
     # shared_device_info: SharedDeviceInfo = None,
 ):
 
@@ -97,7 +96,6 @@ async def submit_order_to_vtn(
                 device_data=device_data,
                 device_type=DEVICE_TYPES.ES.value,
                 deivce_brand=BATTERY_BRANDS.SONNEN_BATTERY.value,
-                is_using_mock_order=is_using_mock_order,
                 market_index=market_index,
                 market_interval=market_interval
             )
@@ -135,7 +133,6 @@ def convert_device_data_to_order_data(
         device_data: dict = None,
         device_type: str = None,
         deivce_brand: str = None,
-        is_using_mock_order: bool = False,
         market_index: int = 0,
         simulation_oder_json_file='./actions/dump_orders.json',
         market_interval: int = 60
@@ -158,81 +155,60 @@ def convert_device_data_to_order_data(
     aution_id = None
     order_id = None
 
-    if is_using_mock_order:
-        if not os.path.exists(simulation_oder_json_file):
-            raise Exception(
-                f"simulation_oder_json_file {simulation_oder_json_file} does not exist")
-        logging.info("====================================")
-        logging.info("Using mock order data")
-        logging.info("====================================")
-        # read the mock order data from file
-        with open(simulation_oder_json_file, 'r') as f:
-            simulation_oder_json = json.load(f)
+    if device_type == DEVICE_TYPES.ES.value:
+        if deivce_brand == BATTERY_BRANDS.SONNEN_BATTERY.value:
+            if SonnenBatteryAttributeKey.Timestamp.name in device_data:
+                # TODO: fetch necesary data from TESS API
+                Pmean = 50      # $/MWh auction return from lambd APi and get from simulator
+                Pstdev = 5       # $/MWh auction return from lambd APi and get from  simulator
+                Pmin = 0        # $/MWh resources
+                Pmax = 100      # $/MWh resources
+                Kes = 1     # none  participant
+                Qdesired = 80  # kWh   participant
+                Qmin = 20       # kWh   participant # min charging or discharging capacity of battery
+                Qmax = 95       # kWh   participant # max charging or discharging capacity of battery
+                Qcap = 100      # kWh   participant
+                dQmax = 6       # kW    participant
+                # Qlast = last state of USOC
+                Qlast = device_data[SonnenBatteryAttributeKey.USOC.name]
+                # verify the code
+                # Qsoc_last = 55 quantity = 6 price = 52.742611413490486
+                #
+                # first get the power quantity
+                # quantity = "1000"
+                quantity = power_quantity(
+                    Qdesired=Qdesired,
+                    Qmin=Qmin,
+                    Qmax=Qmax,
+                    Qcap=Qcap,
+                    Qlast=Qlast,
+                    dQmax=dQmax,
+                )
+                # Second get the price
+                price = power_price(
+                    Pmean=Pmean,
+                    Pstdev=Pstdev,
+                    Pmin=Pmin,
+                    Pmax=Pmax,
+                    Qlast=Qlast,
+                    Qdesired=Qdesired,
+                    Qmin=Qmin,
+                    Qmax=Qmax,
+                    Kes=Kes,
 
-            if device_id in simulation_oder_json:
-                simulation_order_data = simulation_oder_json[device_id]
-                index_of_order = market_index % len(simulation_order_data)
+                )
 
-                order_id = simulation_order_data[index_of_order][ORER_KEYS.ORDER_ID.value]
-                aution_id = simulation_order_data[index_of_order][ORER_KEYS.AUTION_ID.value]
-                quantity = simulation_order_data[index_of_order][ORER_KEYS.QUANTITY.value]
-                state = simulation_order_data[index_of_order][ORER_KEYS.STATE.value]
-                price = simulation_order_data[index_of_order][ORER_KEYS.PRICE.value]
+                logging.warning(
+                    f"-----------  quantity  {quantity} W, price is {price} -----------")
+                state = device_data[SonnenBatteryAttributeKey.Pac_total_W.name]
+                # price = "1.2"
 
-    else:
-
-        if device_type == DEVICE_TYPES.ES.value:
-            if deivce_brand == BATTERY_BRANDS.SONNEN_BATTERY.value:
-                if SonnenBatteryAttributeKey.Timestamp.name in device_data:
-                    # TODO: fetch necesary data from TESS API
-                    Pmean = 50      # $/MWh auction
-                    Pstdev = 5       # $/MWh auction
-                    Pmin = 0        # $/MWh resources
-                    Pmax = 100      # $/MWh resources
-                    Kes = 1     # none  participant
-                    Qdesired = 80  # kWh   participant
-                    Qmin = 20       # kWh   participant # min charging or discharging capacity of battery
-                    Qmax = 95       # kWh   participant # max charging or discharging capacity of battery
-                    Qcap = 100      # kWh   participant
-                    dQmax = 6       # kW    participant
-                    # Qlast = last state of USOC
-                    Qlast = device_data[SonnenBatteryAttributeKey.USOC.name]
-                    # first get the power quantity
-                    # quantity = "1000"
-                    quantity = power_quantity(
-                        Qdesired=Qdesired,
-                        Qmin=Qmin,
-                        Qmax=Qmax,
-                        Qcap=Qcap,
-                        Qlast=Qlast,
-                        dQmax=dQmax,
-                    )
-                    # Second get the price
-                    price = power_price(
-                        Pmean=Pmean,
-                        Pstdev=Pstdev,
-                        Pmin=Pmin,
-                        Pmax=Pmax,
-                        Qlast=Qlast,
-                        Qdesired=Qdesired,
-                        Qmin=Qmin,
-                        Qmax=Qmax,
-                        Kes=Kes,
-
-                    )
-
-                    logging.warning(
-                        f"-----------  quantity  {quantity} W, price is {price} -----------")
-                    state = device_data[SonnenBatteryAttributeKey.Pac_total_W.name]
-                    # price = "1.2"
-                    # ? should we generated aution_id here?
-                    aution_id = str(guid())
-                    order_id = str(guid())
-                else:
-                    raise Exception("timestamp is not in device_data")
+                order_id = str(guid())
             else:
-                raise Exception(
-                    "device_brand is not supported, please implement it")
+                raise Exception("timestamp is not in device_data")
+        else:
+            raise Exception(
+                "device_brand is not supported, please implement it")
 
     order_data = {
         ORER_KEYS.ORDER_ID.value: order_id,

@@ -15,31 +15,24 @@ from pathlib import Path
 
 class VTN_TASK_VARIANTS_ENUM(Enum):
     # from fifo sqs message
-    ENV = "ENV"
+    ENVIRONMENT = "ENVIRONMENT"
     AGENT_ID = "AGENT_ID"
     RESOURCE_ID = "RESOURCE_ID"
-    VTN_ID = "VTN_ID"
     MARKET_INTERVAL_IN_SECONDS = "MARKET_INTERVAL_IN_SECONDS"
     # from device admin environment variables
     METER_API_URL = "METER_API_URL"
     DEVICES_API_URL = "DEVICES_API_URL"
     ORDERS_API_URL = "ORDERS_API_URL"
     DISPATCHES_API_URL = "DISPATCHES_API_URL"
-    MARKET_START_TIME = "MARKET_START_TIME"
-    LOCAL_TIMEZONE = "LOCAL_TIMEZONE"
 
 
 class VEN_TASK_VARIANTS_ENUM(Enum):
     # from fifo sqs message
-    ENV = "ENV"
-    VEN_ID = "VEN_ID"
+    ENVIRONMENT = "ENVIRONMENT"
     AGENT_ID = "AGENT_ID"
     RESOURCE_ID = "RESOURCE_ID"
     METER_ID = "METER_ID"
     DEVICE_ID = "DEVICE_ID"
-    DEVICE_NAME = "DEVICE_NAME"
-    VTN_ADDRESS = "VTN_ADDRESS"
-    VTN_PORT = "VTN_PORT"
     DEVICE_TYPE = "DEVICE_TYPE"
     DEVICE_SETTINGS = "DEVICE_SETTINGS"
     MARKET_INTERVAL_IN_SECONDS = "MARKET_INTERVAL_IN_SECONDS"
@@ -47,10 +40,6 @@ class VEN_TASK_VARIANTS_ENUM(Enum):
     # from device admin environment variables
     EMULATED_DEVICE_API_URL = "EMULATED_DEVICE_API_URL"
     IS_USING_MOCK_DEVICE = "IS_USING_MOCK_DEVICE"
-    MARKET_START_TIME = "MARKET_START_TIME"
-    LOCAL_TIMEZONE = "LOCAL_TIMEZONE"
-    HTTPSERVER_PORT = "HTTPSERVER_PORT"
-    IS_USING_MOCK_ORDER = "IS_USING_MOCK_ORDER"
 
 
 CONTAINER_DEFINITION_TEMPLATE = ({
@@ -69,47 +58,31 @@ CONTAINER_DEFINITION_TEMPLATE = ({
 
 
 def create_ven_params(
-    ven_id: str,
     env: str,
     device_id: str,
     resource_id: str,
     meter_id: str,
     agent_id: str,
     EMULATED_DEVICE_API_URL: str,
-    device_name: str,
-    vtn_address: str,
-    vtn_port: str,
     device_type: str,
     device_settings: dict,
-    market_interval_in_second: str,
+    market_interval_in_seconds: str,
     flexible: str,
-    market_start_time: str,
-    local_timezone: str,
-    httpserver_port: int,
-    is_using_mock_order: bool,
     is_using_mock_device: bool,
 ) -> dict:
     ven_params = dict()
     for ven_task in VEN_TASK_VARIANTS_ENUM:
         key = ven_task.value
-        if key == VEN_TASK_VARIANTS_ENUM.ENV.value:
+        if key == VEN_TASK_VARIANTS_ENUM.ENVIRONMENT.value:
             ven_params[key] = env
         elif key == VEN_TASK_VARIANTS_ENUM.DEVICE_ID.value:
             ven_params[key] = device_id
-        elif key == VEN_TASK_VARIANTS_ENUM.VEN_ID.value:
-            ven_params[key] = ven_id
         elif key == VEN_TASK_VARIANTS_ENUM.RESOURCE_ID.value:
             ven_params[key] = resource_id
         elif key == VEN_TASK_VARIANTS_ENUM.METER_ID.value:
             ven_params[key] = meter_id
         elif key == VEN_TASK_VARIANTS_ENUM.AGENT_ID.value:
             ven_params[key] = agent_id
-        elif key == VEN_TASK_VARIANTS_ENUM.DEVICE_NAME.value:
-            ven_params[key] = device_name
-        elif key == VEN_TASK_VARIANTS_ENUM.VTN_ADDRESS.value:
-            ven_params[key] = vtn_address
-        elif key == VEN_TASK_VARIANTS_ENUM.VTN_PORT.value:
-            ven_params[key] = vtn_port
         elif key == VEN_TASK_VARIANTS_ENUM.DEVICE_TYPE.value:
             ven_params[key] = device_type
         elif key == VEN_TASK_VARIANTS_ENUM.EMULATED_DEVICE_API_URL.value:
@@ -117,17 +90,9 @@ def create_ven_params(
         elif key == VEN_TASK_VARIANTS_ENUM.DEVICE_SETTINGS.value:
             ven_params[key] = device_settings
         elif key == VEN_TASK_VARIANTS_ENUM.MARKET_INTERVAL_IN_SECONDS.value:
-            ven_params[key] = market_interval_in_second
+            ven_params[key] = market_interval_in_seconds
         elif key == VEN_TASK_VARIANTS_ENUM.FLEXIBLE.value:
             ven_params[key] = flexible
-        elif key == VEN_TASK_VARIANTS_ENUM.MARKET_START_TIME.value:
-            ven_params[key] = market_start_time
-        elif key == VEN_TASK_VARIANTS_ENUM.LOCAL_TIMEZONE.value:
-            ven_params[key] = local_timezone
-        elif key == VEN_TASK_VARIANTS_ENUM.HTTPSERVER_PORT.value:
-            ven_params[key] = httpserver_port
-        elif key == VEN_TASK_VARIANTS_ENUM.IS_USING_MOCK_ORDER.value:
-            ven_params[key] = is_using_mock_order
         elif key == VEN_TASK_VARIANTS_ENUM.IS_USING_MOCK_DEVICE.value:
             ven_params[key] = is_using_mock_device
         else:
@@ -138,8 +103,7 @@ def create_ven_params(
 
 
 def create_vtn_params(
-    market_interval_in_second: str,
-    vtn_id: str,
+    market_interval_in_seconds: str,
     agent_id: str,
     resource_id: str,
     env: str,
@@ -147,8 +111,6 @@ def create_vtn_params(
     DEVICES_API_URL: str,
     ORDERS_API_URL: str,
     DISPATCHES_API_URL: str,
-    market_start_time: str,
-    local_timezone: str,
 ) -> dict:
     vtn_params = dict()
     # for key, value in enumerate(VTN_TASK_VARIANTS_ENUM):
@@ -163,19 +125,13 @@ def create_vtn_params(
         elif key == VTN_TASK_VARIANTS_ENUM.DISPATCHES_API_URL.value:
             vtn_params[key] = DISPATCHES_API_URL
         elif key == VTN_TASK_VARIANTS_ENUM.MARKET_INTERVAL_IN_SECONDS.value:
-            vtn_params[key] = market_interval_in_second
-        elif key == VTN_TASK_VARIANTS_ENUM.VTN_ID.value:
-            vtn_params[key] = vtn_id
+            vtn_params[key] = market_interval_in_seconds
         elif key == VTN_TASK_VARIANTS_ENUM.AGENT_ID.value:
             vtn_params[key] = agent_id
         elif key == VTN_TASK_VARIANTS_ENUM.RESOURCE_ID.value:
             vtn_params[key] = resource_id
-        elif key == VTN_TASK_VARIANTS_ENUM.ENV.value:
+        elif key == VTN_TASK_VARIANTS_ENUM.ENVIRONMENT.value:
             vtn_params[key] = env
-        elif key == VTN_TASK_VARIANTS_ENUM.MARKET_START_TIME.value:
-            vtn_params[key] = market_start_time
-        elif key == VTN_TASK_VARIANTS_ENUM.LOCAL_TIMEZONE.value:
-            vtn_params[key] = local_timezone
         else:
             raise Exception(
                 f"vtn key {key} is not set, please check your code")
@@ -202,17 +158,7 @@ def generate_vtn_task_definition(
     vtn_port: str,
 ) -> dict:
     """
-    environment_variables:[
-        "env": "str",
-        "vtn_id": "str"
-        "agent_id": "str",
-        "resource_id": "str",
-        "save_data_url": "str",
-        "get_vens_url": "str",
-        "market_prices_url": "str",
-        "participated_vens_url": "str",
-        "market_interval_in_second": "str"
-    ]
+
     """
     vtn_template['name'] = vtn_id
     vtn_template['image'] = app_image_vtn
@@ -278,7 +224,7 @@ def generate_ven_task_definition(
         "vtn_port": str,
         "mock_devices_api_url": str,
         "device_settings": dict,
-        "market_interval_in_second": str,
+        "market_interval_in_seconds": str,
         "price_threshold": str
     ]
 
@@ -369,7 +315,7 @@ def parse_message_body_to_vtn_environment_variables(
 
 def create_and_export_task_definition(
     agent_id: str,
-    market_interval_in_second: str,
+    market_interval_in_seconds: str,
     resource_id: str,
     env: str,
     METER_API_URL: str,
@@ -386,8 +332,6 @@ def create_and_export_task_definition(
     EMULATED_DEVICE_API_URL: str,
     file_name: str,
     path: str,
-    market_start_time: str,
-    local_timezone: str,
 
 ) -> bool:
     """
@@ -398,20 +342,17 @@ def create_and_export_task_definition(
     """
     if not os.path.exists(path):
         raise Exception(f"{path} path not found")
-    vtn_id = guid()
+    vtn_id = 'vtn-' + agent_id
 
     vtn_environment_variables = create_vtn_params(
-        market_interval_in_second=market_interval_in_second,
+        market_interval_in_seconds=market_interval_in_seconds,
         agent_id=agent_id,
         resource_id=resource_id,
-        vtn_id=vtn_id,
         env=env,
         METER_API_URL=METER_API_URL,
         DEVICES_API_URL=DEVICES_API_URL,
         ORDERS_API_URL=ORDERS_API_URL,
         DISPATCHES_API_URL=DISPATCHES_API_URL,
-        market_start_time=market_start_time,
-        local_timezone=local_timezone,
     )
 
     vtn_container_definition = generate_vtn_task_definition(
@@ -434,14 +375,10 @@ def create_and_export_task_definition(
     for device in devices:
 
         device_id = device['device_id']
-        ven_id = "ven-" + device_id
         meter_id = device['meter_id']
-        device_name = device['device_name']
         device_type = device['device_type']
         flexible = device['flexible']
-        httpserver_port = device['httpserver_port']
         is_using_mock_device = device['is_using_mock_device']
-        is_using_mock_order = device['is_using_mock_order']
 
         ven_environment_variables = dict()
         for key, value in enumerate(VEN_TASK_VARIANTS_ENUM):
@@ -450,26 +387,19 @@ def create_and_export_task_definition(
             device_settings_str = json.dumps(device["device_settings"])
 
             ven_environment_variables = create_ven_params(
-                ven_id=guid(),
                 env=env,
                 resource_id=resource_id,
                 meter_id=meter_id,
                 device_id=device_id,
                 agent_id=agent_id,
                 EMULATED_DEVICE_API_URL=EMULATED_DEVICE_API_URL,
-                device_name=device_name,
-                vtn_address=vtn_address,
-                vtn_port=vtn_port,
                 device_type=device_type,
                 device_settings=device_settings_str,
-                market_interval_in_second=market_interval_in_second,
+                market_interval_in_seconds=market_interval_in_seconds,
                 flexible=str(flexible),
-                market_start_time=market_start_time,
-                local_timezone=local_timezone,
-                is_using_mock_order=str(is_using_mock_order),
                 is_using_mock_device=str(is_using_mock_device),
-                httpserver_port=str(httpserver_port)
             )
+        ven_id = 'ven-' + device_id
         vens_info.append({
             "ven_id": ven_id,
             "device_id": device_id,

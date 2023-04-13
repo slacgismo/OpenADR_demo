@@ -32,7 +32,7 @@ async def handle_meter(request, METER_API_URL, MARKET_INTERVAL_IN_SECONDS):
         real_energy, reactive_energy, real_power, reactive_power = convert_device_data_to_meter_data(
             device_type=device_type,
             device_brand=device_brand,
-            market_interval_in_seconds=MARKET_INTERVAL_IN_SECONDS,
+            market_interval_in_secondss=MARKET_INTERVAL_IN_SECONDS,
             device_data=device_data)
 
         meter_url = METER_API_URL + "/" + device_id + "/" + meter_id
@@ -73,7 +73,7 @@ async def handle_meter(request, METER_API_URL, MARKET_INTERVAL_IN_SECONDS):
 def convert_device_data_to_meter_data(
         device_type: str = None,
         device_brand: str = None,
-        market_interval_in_seconds: int = None,
+        market_interval_in_secondss: int = None,
         device_data: dict = None):
 
     if device_type == DEVICE_TYPES.ES.value:
@@ -81,7 +81,7 @@ def convert_device_data_to_meter_data(
             # real power
             real_power = device_data['Pac_total_W']
             # real energy
-            market_interval_in_minutes = market_interval_in_seconds/60
+            market_interval_in_minutes = market_interval_in_secondss/60
             market_interval_in_hour = 60/market_interval_in_minutes
             real_energy = real_power/market_interval_in_hour
             # not measured

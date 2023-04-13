@@ -18,23 +18,22 @@ from actions.handle_event import handle_event
 from actions.handle_dispatch import handle_dispatch
 import functools
 from actions.check_vtn import check_vtn_and_retry
+from helper.str2bool import str2bool
 try:
     ENVIRONMENT = os.environ['ENVIRONMENT']
     RESOURCE_ID = os.environ['RESOURCE_ID']
     METER_ID = os.environ['METER_ID']
     DEVICE_ID = os.environ['DEVICE_ID']
     AGENT_ID = os.environ['AGENT_ID']
-    IS_USING_MOCK_DEVICE = os.environ['IS_USING_MOCK_DEVICE']
+
     DEVICE_TYPE = os.environ['DEVICE_TYPE']
     EMULATED_DEVICE_API_URL = os.environ['EMULATED_DEVICE_API_URL']
     MARKET_INTERVAL_IN_SECONDS = os.environ['MARKET_INTERVAL_IN_SECONDS']
-    FLEXIBLE = os.environ['FLEXIBLE']
-    IS_USING_MOCK_DEVICE = os.environ['IS_USING_MOCK_DEVICE']
+    # FLEXIBLE = os.environ['FLEXIBLE']
+    # IS_USING_MOCK_DEVICE = os.environ['IS_USING_MOCK_DEVICE']
     DEVICE_SETTINGS = os.environ['DEVICE_SETTINGS']
-    IS_USING_MOCK_ORDER = int(os.environ['IS_USING_MOCK_ORDER'])
-    print(f"IS_USING_MOCK_ORDER {IS_USING_MOCK_ORDER}")
 except Exception as e:
-    raise Exception(f"ENV is not set correctly: {e}")
+    raise Exception(f"Environment variables is not set correctly: {e}")
 
 # Constant that not change
 VEN_ID = DEVICE_ID
@@ -55,9 +54,7 @@ HTTPSERVER_PORT = "8000"
 logging.basicConfig(
     format="%(asctime)s %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p", level=logging.INFO
 )
-# enable_default_logging(level=logging.DEBUG)
-# logging.basicConfig(level=logging.DEBUG)
-# logger = logging.getLogger('openleadr')
+
 vtn_url = f"http://{VTN_ADDRESS}:{VTN_PORT}/OpenADR2/Simple/2.0b"
 logging.debug(f"VEN START {VEN_ID} {vtn_url} {RESOURCE_ID} {VEN_ID}")
 
@@ -70,13 +67,22 @@ def start_loop(loop):
 def main():
 
     try:
+
         vtn_base_url = f"http://{VTN_ADDRESS}:{VTN_PORT}"
         VTN_METER_URL = vtn_base_url + f"/meter/{VEN_ID}"
         VTN_ORDER_URL = vtn_base_url + f"/order/{VEN_ID}"
         VTN_DISPATCH_URL = vtn_base_url + f"/dispatch/{VEN_ID}"
         VTN_HEALTH_URL = vtn_base_url + f"/health"
         device_settings = json.loads(DEVICE_SETTINGS)
-        is_using_mock_device = int(IS_USING_MOCK_DEVICE)
+        is_using_mock_device_str = device_settings["is_using_mock_device"]
+        is_using_mock_device = str2bool(is_using_mock_device_str)
+        # check is using mock device type
+        if is_using_mock_device:
+            logging.info(f"Using mock device")
+        else:
+            logging.info(f"Using real device")
+
+        flexible = device_settings["flexible"]
         # set shared global variables
         shared_device_info = SharedDeviceInfo.get_instance()
         shared_device_info.set_device_id(DEVICE_ID)
@@ -84,21 +90,19 @@ def main():
         shared_device_info.set_resource_id(RESOURCE_ID)
         shared_device_info.set_ven_id(VEN_ID)
         shared_device_info.set_agent_id(AGENT_ID)
-        shared_device_info.set_flxible(int(FLEXIBLE))
+        shared_device_info.set_flxible(int(flexible))
         shared_device_info.set_device_settings(device_settings)
         shared_device_info.set_device_type(DEVICE_TYPE)
         shared_device_info.set_emulated_device_api_url(EMULATED_DEVICE_API_URL)
         shared_device_info.set_is_using_mock_device(is_using_mock_device)
-        shared_device_info.set_market_interval(int(MARKET_INTERVAL_IN_SECONDS))
+        market_interval = int(MARKET_INTERVAL_IN_SECONDS)
+        shared_device_info.set_market_interval(market_interval)
         shared_device_info.set_market_start_time(MARKET_START_TIME)
-
-        device_settings = json.loads(DEVICE_SETTINGS)
         device_brand = device_settings["device_brand"]
 
     except Exception as e:
-        logging.error(f"Envoronment variables are not dictionary: {e}")
 
-        raise Exception(f"DEVICE_SETTINGS is not set correctly: {e}")
+        raise Exception(f"Envoronment variables is not set correctly: {e}")
 
     if check_vtn_and_retry(url=VTN_HEALTH_URL) is False:
         logging.error(f"VTN is not available: {vtn_url}")
@@ -157,8 +161,7 @@ def main():
             vtn_order_url=VTN_ORDER_URL,
             market_interval=int(MARKET_INTERVAL_IN_SECONDS),
             market_start_time=MARKET_START_TIME,
-            advanced_seconds=0,
-            is_using_mock_order=IS_USING_MOCK_ORDER), loop3
+            advanced_seconds=0), loop3
     )
 
     # ================== start the submit dispatch thread 4 ==================

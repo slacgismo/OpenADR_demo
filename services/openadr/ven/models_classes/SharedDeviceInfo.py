@@ -22,10 +22,6 @@ class SharedDeviceInfo:
                  market_interval: int = None,
                  dispatch_queue: list = None,
                  market_start_time: str = None,
-                 #  dispatch_timestamp: int = None,
-                 #  dispatch_quantity: float = None,
-                 #  price: float = None,
-                 #  order_id: str = None,
                  ):
         if SharedDeviceInfo.__instance is not None:
             raise Exception(

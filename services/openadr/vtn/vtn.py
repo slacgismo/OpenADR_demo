@@ -23,7 +23,7 @@ logging.basicConfig(
 
 
 try:
-    ENV = os.environ['ENV']
+    ENVIRONMENT = os.environ['ENVIRONMENT']
     AGENT_ID = os.environ['AGENT_ID']
     RESOURCE_ID = os.environ['RESOURCE_ID']
     MARKET_INTERVAL_IN_SECONDS = os.environ['MARKET_INTERVAL_IN_SECONDS']
@@ -51,7 +51,7 @@ shared_ven_info = SharedVenInfos.get_instance()
 shared_ven_info.set_anget_id(AGENT_ID)
 shared_ven_info.set_resource_id(RESOURCE_ID)
 shared_ven_info.set_vtn_id(VTN_ID)
-shared_ven_info.set_market_interval_in_seconds(MARKET_INTERVAL_IN_SECONDS)
+shared_ven_info.set_market_interval_in_secondss(MARKET_INTERVAL_IN_SECONDS)
 
 
 async def on_create_party_registration(registration_info, DEVICES_API_URL: str):
