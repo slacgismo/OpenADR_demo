@@ -102,11 +102,6 @@ variable "worker_port" {
   default     = "8000"
 }
 
-# variable "sqs_group_id" {
-#   type        = string
-#   description = "The name of the file containing the devices worker task definition"
-#   default     = "AWS"
-# }
 
 
 variable "device_worker_role_name" {
@@ -138,12 +133,3 @@ variable "app_image_device_cli" {
   description = "The ecr image of deivce cli"
 }
 
-# variable "market_sart_time" {
-#   description = "The start time of market"
-#   default     = "2021-01-01T00:00:00Z"
-# }
-
-# variable "local_timezone" {
-#   description = "The local timezone"
-#   default     = "America/Lo_Angeles"
-# }

@@ -94,7 +94,7 @@ resource "aws_iam_policy" "lambda_dynamodb_sqs_trigger_policy" {
           "sqs:DeleteMessage",
           "sqs:GetQueueAttributes"
           ]
-        Resource = [aws_sqs_queue.device_sqs.arn, ]
+        Resource = [aws_sqs_queue.device_table_event_sqs.arn, ]
       },
       {
         Effect = "Allow"
@@ -129,7 +129,7 @@ resource "aws_lambda_function" "lambda_dynamodb_event_trigger" {
 
   environment {
     variables = {
-        "SQS_QUEUE_URL" = aws_sqs_queue.device_sqs.url
+        "SQS_QUEUE_URL" = aws_sqs_queue.device_table_event_sqs.url
     }
   }
     source_code_hash = data.archive_file.lambda_dynamodb_event_trigger.output_base64sha256

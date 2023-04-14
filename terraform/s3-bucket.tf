@@ -13,6 +13,6 @@ resource "aws_s3_bucket_public_access_block" "agents" {
   restrict_public_buckets = true
 }
 
-output "batteries_bucket_name" {
+output "device_shared_bucket_name" {
   value = aws_s3_bucket.device_shared.bucket
 }

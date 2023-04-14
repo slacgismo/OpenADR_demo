@@ -21,10 +21,9 @@ data "template_file" "devices_worker_container_definitions" {
   template = file("./templates/ecs/worker/devices_worker_task_definition.json.tpl")
   vars = {
     devices_worker_name                                 = "${var.prefix}-devices-worker"
-    FIFO_SQS_URL                                        = "${aws_sqs_queue.opneadr_workers_sqs.url}"
+    FIFO_SQS_URL                                        = "${data.aws_sqs_queue.opneadr_workers_sqs.url}"
     BACKEND_S3_BUCKET_NAME                              = "${aws_s3_bucket.device_shared.bucket}"
     AWS_REGION                                          = "${var.aws_region}"
-    FIFO_DLQ_URL                                        = "${aws_sqs_queue.worker_dlq.url}"
     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME = "${aws_dynamodb_table.agenets_shared_state_lock.name}"
     HEALTH_CHEKC_PORT                                   = "${var.devices_worker_health_check_port}"
     ECS_CLUSTER_NAME                                    = "${aws_ecs_cluster.main.name}"
@@ -32,7 +31,7 @@ data "template_file" "devices_worker_container_definitions" {
     log_group_region                                    = "${var.aws_region}"
     WORKER_PORT                                         = "${var.worker_port}"
     ENV                                                 = "${var.environment}"
-    SQS_GROUPID                                         = "${var.sqs_group_id}"
+
   }
 }
 

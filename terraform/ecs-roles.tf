@@ -107,8 +107,8 @@ resource "aws_iam_role_policy_attachment" "s3_attachment" {
 data "template_file" "workers_sqs_policy_file" {
   template = file("./templates/ecs/worker/sqs_policy.json.tpl")
   vars = {
-    fifo_sqs_arn     = aws_sqs_queue.worker_dlq.arn
-    fifo_dlq_sqs_arn = aws_sqs_queue.opneadr_workers_sqs.arn
+    fifo_sqs_arn     = data.aws_sqs_queue.worker_dlq.arn
+    fifo_dlq_sqs_arn = data.aws_sqs_queue.opneadr_workers_sqs.arn
   }
 }
 

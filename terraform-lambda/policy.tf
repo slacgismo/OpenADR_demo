@@ -68,7 +68,7 @@ resource "aws_iam_policy" "TESS_lambda_s3_access" {
           "s3:PutObject",
         ]
         Effect   = "Allow"
-        Resource = "arn:aws:s3:::${aws_s3_bucket.batteries.id}/*"
+        Resource = "arn:aws:s3:::${aws_s3_bucket.lambda_bucket.id}/*"
       },
     ]
   })

@@ -5,9 +5,18 @@ import time
 from datetime import datetime
 from enum import Enum
 import uuid
-import asyncio
-from_event_queue_url = os.environ['SQS_QUEUE_URL']
-to_trigger_queue_url = os.environ['SQS_TRIGGER_QUEUE_URL']
+try:
+    from_event_queue_url = os.environ['FROM_EVENT_QUEUE_URL']
+    to_trigger_queue_url = os.environ['TO_TRIGGER_QUEUE_URL']
+    meters_table = os.environ['METERS_TABLE']
+    market_table = os.environ['MARKETS_TABLE']
+    agent_table = os.environ['AGENTS_TABLE']
+    settings_table = os.environ['SETTINGS_TABLE']
+
+except Exception as e:
+    print(f"Error getting environment variables: {e}")
+    raise e
+
 sqs = boto3.client('sqs')
 '''
 {'body': '{"eventID": "60edf1b1d52db87046e6ec8ca4c72f2f", "eventName": "MODIFY", "eventVersion": "1.1", "eventSource": "aws:dynamodb", "awsRegion": "us-east-2", "dynamodb": {"ApproximateCreationDateTime": 1681414497.0, "Keys": {"device_id": {"S": "37a6d01bf4009ae512d640ac594856d3"}}, "NewImage": {"agent_id": {"S": "2312"}, "device_id": {"S": "37a6d01bf4009ae512d640ac594856d3"}, "device_type": {"S": "ES"}, "valid_at": {"N": "1681414496"}}, "SequenceNumber": "7220700000000021559578469", "SizeBytes": 121, "StreamViewType": "NEW_IMAGE"}, "eventSourceARN": "arn:aws:dynamodb:us-east-2:041414866712:table/openadr-NHEC-dev-devices/stream/2023-04-12T06:46:05.602"}',
@@ -38,7 +47,7 @@ def handler(event, context):
                     raise Exception("eventName is missing from message body")
 
                 eventName = message_body['eventName']
-
+                print("eventName: ", eventName)
                 handle_event(event_name=eventName, body=message_body,
                              to_trigger_queue_url=to_trigger_queue_url)
                 # Delete the message
@@ -58,21 +67,80 @@ def handler(event, context):
 
 def handle_event(event_name: EventName, body: dict, to_trigger_queue_url: str = None):
     # parse new image
-    if 'dynamodb'not in body or 'NewImage' not in body['dynamodb']:
-        raise Exception("dynamodb or NewImage is missing from message body")
-    new_image = body['dynamodb']['NewImage']
+    print("Handling event: ", event_name)
+    if 'dynamodb'not in body:
+        raise Exception("dynamodb is missing from message body")
 
-    if 'device_id' not in new_image or 'agent_id' not in new_image or 'device_type' not in new_image:
-        raise Exception(
-            "device_id, device_type or agent_id is missing from message body")
-    device_id = new_image['device_id']['S']
-    agent_id = new_image['agent_id']['S']
-    device_type = new_image['device_type']['S']
-    sq_message = create_sqs_message(
-        device_id=device_id, agent_id=agent_id, eventName=event_name, device_type=device_type)
-    response = send_message_to_sqs(
-        message=sq_message, queue_url=to_trigger_queue_url)
-    print(f"sqs response: {response}")
+    if event_name == EventName.INSERT.value:
+        new_image = body['dynamodb']['NewImage']
+
+        if 'device_id' not in new_image or 'agent_id' not in new_image or 'device_type' not in new_image:
+            raise Exception(
+                "device_id, device_type or agent_id is missing from message body")
+        device_id = new_image['device_id']['S']
+        agent_id = new_image['agent_id']['S']
+        device_type = new_image['device_type']['S']
+
+        sq_message = create_sqs_message(
+            device_id=device_id, agent_id=agent_id, eventName=event_name, device_type=device_type)
+        response = send_message_to_sqs(
+            message=sq_message, queue_url=to_trigger_queue_url)
+        print(f"sqs response: {response}")
+
+    elif event_name == EventName.REMOVE.value:
+        print("Handling remove: ========================")
+        if 'OldImage' not in body['dynamodb']:
+            raise Exception("OldImage is missing from message body")
+
+        old_image = body['dynamodb']['OldImage']
+        old_device_id = old_image['device_id']['S']
+        old_agent_id = old_image['agent_id']['S']
+        old_device_type = old_image['device_type']['S']
+        remove_message = create_sqs_message(
+            device_id=old_device_id, agent_id=old_agent_id, eventName=EventName.REMOVE.value, device_type=old_device_type)
+        remove_response = send_message_to_sqs(
+            message=remove_message, queue_url=to_trigger_queue_url)
+        print(f"sqs remove_response: {remove_response}")
+    elif event_name == EventName.MODIFY.value:
+        # break into remove and insert
+        # first check if agent_id is changed or device_type is changed
+        # if none of them is changed, do nothing
+        # if agent_id or device_type is changed, send remove message to trigger queue
+
+        if 'OldImage' not in body['dynamodb']:
+            raise Exception("OldImage is missing from message body")
+
+        if 'NewImage' not in body['dynamodb']:
+            raise Exception("NewImage is missing from message body")
+        old_image = body['dynamodb']['OldImage']
+        old_device_id = old_image['device_id']['S']
+        old_agent_id = old_image['agent_id']['S']
+        old_device_type = old_image['device_type']['S']
+
+        new_image = body['dynamodb']['NewImage']
+        new_device_id = new_image['device_id']['S']
+        new_agent_id = new_image['agent_id']['S']
+        new_device_type = new_image['device_type']['S']
+        if old_agent_id == new_agent_id and old_device_type == new_device_type:
+            print("agenit_id and device_type are the same, do nothing")
+            return
+        else:
+            # remove the old
+            remove_message = create_sqs_message(
+                device_id=old_device_id, agent_id=old_agent_id, eventName=EventName.REMOVE.value, device_type=old_device_type)
+            remove_response = send_message_to_sqs(
+                message=remove_message, queue_url=to_trigger_queue_url)
+            print(f"remove response: {remove_response}")
+            insert_message = create_sqs_message(
+                device_id=new_device_id, agent_id=new_agent_id, eventName=EventName.INSERT.value, device_type=new_device_type)
+            insert_response = send_message_to_sqs(
+                message=insert_message, queue_url=to_trigger_queue_url)
+
+            print(f"insert response: {insert_response}")
+            return
+
+    else:
+        raise Exception("Invalid event name")
 
 
 def create_sqs_message(device_id: str, agent_id: str, eventName: EventName, device_type: str):
@@ -95,8 +163,7 @@ def create_sqs_message(device_id: str, agent_id: str, eventName: EventName, devi
 
     }
     """
-    # get meter_id from the third party
-    # TODO: from the third party API / Use dummy data for now
+    # get meter_id from meter table with device_id and resource_id
     meter_id = "6436a67e184d3694a15886215ae464"
     # get resource id from agent table with agent_id
     resource_id = "caff6719c24359a155a4d0d2f265a7"
@@ -148,46 +215,3 @@ def send_message_to_sqs(message: dict, queue_url: str):
 def guid():
     """Return a globally unique id"""
     return uuid.uuid4().hex[2:]
-
-
-async def get_data_from_dynamodb(id: str, table_name: str, dynamodb_client):
-    try:
-        response = await asyncio.to_thread(dynamodb_client.get_item,
-                                           TableName=table_name,
-                                           KeyConditionExpression='device_id = :val',
-                                           ExpressionAttributeValues={
-                                               ':val': {'S': id}
-                                           }
-                                           )
-        if 'Items' in response:
-            return response['Items']
-            # items = []
-            # for item in response['Items']:
-            #     items.append({
-            #         'device_id': item['device_id']['S'],
-            #         'agent_id': item['agent_id']['S'],
-            #         'device_type': item['device_type']['S'],
-            #         'valid_at': item['valid_at']['N']
-            #     })
-
-            # return {
-            #     'statusCode': 200,
-            #     'headers': {'Content-Type': 'application/json'},
-            #     'body': json.dumps(items)
-            # }
-
-        # If no objects are found, return a failure response
-        else:
-            return {
-                'statusCode': 404,
-                'headers': {'Content-Type': 'application/text'},
-                'body': 'No objects found with device ID: {}'.format(id)
-            }
-
-    # If an error occurs, return an error response
-    except Exception as e:
-        return {
-            'statusCode': 500,
-            'headers': {'Content-Type': 'application/text'},
-            'body': json.dumps({"error": str(e)})
-        }

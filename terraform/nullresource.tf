@@ -49,7 +49,7 @@ resource "null_resource" "export_terrafrom_tfvars_to_devices_admin_worker_terraf
 
 # create .env file for devices_admin worker folder
 resource "null_resource" "export_env_file_for_devices_admin_worker" {
-  depends_on = [aws_sqs_queue.opneadr_workers_sqs]
+  depends_on = [data.aws_sqs_queue.opneadr_workers_sqs]
 
   # always run this resource
   triggers = {
@@ -57,14 +57,12 @@ resource "null_resource" "export_env_file_for_devices_admin_worker" {
   }
   provisioner "local-exec" {
     command = <<-EOT
-      echo 'FIFO_SQS_URL="${aws_sqs_queue.opneadr_workers_sqs.url}"' > .env
+      echo 'FIFO_SQS_URL="${data.aws_sqs_queue.opneadr_workers_sqs.url}"' > .env
       echo 'BACKEND_S3_BUCKET_NAME="${aws_s3_bucket.device_shared.bucket}"' >> .env
       echo 'AWS_REGION="${var.aws_region}"' >> .env
-      echo 'FIFO_DLQ_URL="${aws_sqs_queue.worker_dlq.url}"' >> .env
       echo 'HEALTH_CHEKC_PORT="${var.devices_worker_health_check_port}"' >> .env
       echo 'DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME="${aws_dynamodb_table.agenets_shared_state_lock.name}"' >> .env
       echo 'ECS_CLUSTER_NAME="${aws_ecs_cluster.main.name}"' >> .env
-      echo 'SQS_GROUPID="${var.sqs_group_id}"'>> .env
       echo 'ENV="${var.environment}"'>> .env
       echo 'WORKER_PORT="${var.worker_port}"'>> .env
     EOT
@@ -74,30 +72,26 @@ resource "null_resource" "export_env_file_for_devices_admin_worker" {
 }
 
 # create .env file for devices_admin worker folder
-resource "null_resource" "exports_env_file_for_devices_admin_cli" {
-  depends_on = [aws_sqs_queue.opneadr_workers_sqs]
+# resource "null_resource" "exports_env_file_for_devices_admin_cli" {
+#   depends_on = [data.aws_sqs_queue.opneadr_workers_sqs]
 
-  # always run this resource
+#   # always run this resource
 
-  triggers = {
-    always_run = timestamp()
-  }
-  provisioner "local-exec" {
-    command = <<-EOT
-      echo 'FIFO_SQS_URL="${aws_sqs_queue.opneadr_workers_sqs.url}"' > .env
-      echo 'ECS_CLUSTER_NAME="${aws_ecs_cluster.main.name}"'>> .env
-      echo 'SQS_GROUPID="${var.sqs_group_id}"'>> .env
-      echo 'ENV="${var.environment}"'>> .env
-      echo 'BACKEND_S3_BUCKET_NAME="${aws_s3_bucket.device_shared.bucket}"' >> .env
-      echo 'MARKET_START_TIME="${var.market_sart_time}"' >> .env
-       echo 'LOCAL_TIMEZONE="${var.local_timezone}"' >> .env
+#   triggers = {
+#     always_run = timestamp()
+#   }
+#   provisioner "local-exec" {
+#     command = <<-EOT
+#       echo 'FIFO_SQS_URL="${data.aws_sqs_queue.opneadr_workers_sqs.url}"' > .env
+#       echo 'ECS_CLUSTER_NAME="${aws_ecs_cluster.main.name}"'>> .env
+#       echo 'ENV="${var.environment}"'>> .env
+#       echo 'BACKEND_S3_BUCKET_NAME="${aws_s3_bucket.device_shared.bucket}"' >> .env
+#     EOT
+#     # save to devices admin cli folder
+#     working_dir = "../services/devices/cli"
 
-    EOT
-    # save to devices admin cli folder
-    working_dir = "../services/devices/cli"
-
-  }
-}
+#   }
+# }
 
 
 #================================================================================================
