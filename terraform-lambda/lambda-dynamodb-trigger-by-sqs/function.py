@@ -31,11 +31,13 @@ def handler(event, context):
 
                 # process message
                 message_body = json.loads(record['body'])
+                print("message_body: ", message_body)
                 # Do something with the message body...
                 if 'eventName' not in message_body:
                     raise Exception("eventName is missing from message body")
 
                 eventName = message_body['eventName']
+
                 handle_event(event_name=eventName, body=message_body,
                              to_trigger_queue_url=to_trigger_queue_url)
                 # Delete the message
@@ -75,20 +77,20 @@ def handle_event(event_name: EventName, body: dict, to_trigger_queue_url: str = 
 def create_sqs_message(device_id: str, agent_id: str, eventName: EventName, device_type: str):
     """
     {
-    "eventName": "INSERT",
-    "agent_id": "00ccff430c4bcfa1f1186f488b88fc",
-    "resource_id": "caff6719c24359a155a4d0d2f265a7",
-    "market_interval_in_seconds": "300",
-    "device_id": "807f8e4a37446e80c5756a74a3598d",
-    "device_type": "ES",
-    "meter_id": "6436a67e184d3694a15886215ae464"
-    "device_settings": {
-        "battery_token": "12321321qsd",
-        "battery_sn": "66354",
-        "device_brand": "SONNEN_BATTERY"
-        "is_using_mock_device": true
-        "flexible": "1",
-    }
+        "eventName": "INSERT",
+        "agent_id": "00ccff430c4bcfa1f1186f488b88fc",
+        "resource_id": "caff6719c24359a155a4d0d2f265a7",
+        "market_interval_in_seconds": "300",
+        "device_id": "807f8e4a37446e80c5756a74a3598d",
+        "device_type": "ES",
+        "meter_id": "6436a67e184d3694a15886215ae464"
+        "device_settings": {
+            "battery_token": "12321321qsd",
+            "battery_sn": "66354",
+            "device_brand": "SONNEN_BATTERY"
+            "is_using_mock_device": true
+            "flexible": "1",
+        }
 
     }
     """

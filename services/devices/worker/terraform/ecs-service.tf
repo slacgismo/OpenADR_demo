@@ -11,6 +11,12 @@ data "template_file" "agent_container_definitions" {
     aws_region = var.aws_region
     vtn_address = var.vtn_address
     vtn_port = var.vtn_port
+    meter_api_url = var.meter_api_url
+    dispatches_api_url = var.dispatches_api_url
+    devices_api_url = var.devices_api_url
+    emulated_device_api_url = var.emulated_device_api_url
+    orders_api_url = var.orders_api_url
+
   }
 }
 

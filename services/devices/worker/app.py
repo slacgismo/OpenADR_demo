@@ -31,11 +31,6 @@ try:
     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME = os.environ[
         "DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME"]
     ECS_CLUSTER_NAME = os.environ['ECS_CLUSTER_NAME']
-    METER_API_URL = os.environ['METER_API_URL']
-    DEVICES_API_URL = os.environ['DEVICES_API_URL']
-    ORDERS_API_URL = os.environ['ORDERS_API_URL']
-    DISPATCHES_API_URL = os.environ['DISPATCHES_API_URL']
-    EMULATED_DEVICE_API_URL = os.environ['EMULATED_DEVICE_API_URL']
 except Exception as e:
     raise Exception(f"Error in parise environment variables {e}")
 
@@ -59,11 +54,6 @@ def main():
             DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
             AWS_DEFAULT_REGION,
             ENVIRONMENT,
-            METER_API_URL,
-            DEVICES_API_URL,
-            ORDERS_API_URL,
-            DISPATCHES_API_URL,
-            EMULATED_DEVICE_API_URL,
         ),
     )
 

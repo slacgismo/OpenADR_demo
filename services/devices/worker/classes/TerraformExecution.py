@@ -85,6 +85,9 @@ class TerraformExecution:
                 f"--dynamodb_table = {self.DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME}"
             )
 
+            logging.info(
+
+                f"backend.hcl file created at {backend_hcl_file_path}")
         except Exception as e:
             raise Exception(f"Error creating backend.hcl file: {e}")
 
@@ -169,6 +172,7 @@ class TerraformExecution:
             if self.use_docker_compose:
                 command = self.docker_compose_command + command
             new_command = self._append_var(command)
+            logging.info(f"=== command: {new_command} ==")
             result = subprocess.run(new_command, cwd=self.working_dir)
             if result.returncode == 1:
                 raise Exception(

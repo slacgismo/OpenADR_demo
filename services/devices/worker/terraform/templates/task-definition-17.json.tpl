@@ -1,7 +1,9 @@
 [
     {
-        "name": "vtn-f01919379244308494a9220b0440a2",
-        "image": "${app_image_vtn}",
+        "name": "vtn-17",
+        "image": [
+            "${app_image_vtn}"
+        ],
         "essential": true,
         "memoryReservation": 256,
         "runtimePlatform": {
@@ -17,20 +19,18 @@
         ],
         "environment": [
             {
-                "name": "ENV",
-                "value": "${environment}"
+                "name": "ENVIRONMENT",
+                "value": [
+                    "${environment}"
+                ]
             },
             {
                 "name": "AGENT_ID",
-                "value": "252029dcc6e1b2d11f871ffa386018ec"
+                "value": "17"
             },
             {
                 "name": "RESOURCE_ID",
-                "value": "3b4a58e3cd70cd9c6f781d9267c6c5c0"
-            },
-            {
-                "name": "VTN_ID",
-                "value": "f01919379244308494a9220b0440a2"
+                "value": "caff6719c24359a155a4d0d2f265a7"
             },
             {
                 "name": "MARKET_INTERVAL_IN_SECONDS",
@@ -38,19 +38,27 @@
             },
             {
                 "name": "METER_API_URL",
-                "value": "{$METER_API_URL}"
+                "value": [
+                    "${meter_api_url}"
+                ]
             },
             {
-                "name": "DEVICE_API_URL",
-                "value": "{$DEVICE_API_URL}"
+                "name": "DEVICES_API_URL",
+                "value": [
+                    "${devices_api_url}"
+                ]
             },
             {
-                "name": "ORDER_PAI_URL",
-                "value": "{$ORDER_PAI_URL}"
+                "name": "ORDERS_API_URL",
+                "value": [
+                    "${orders_api_url}"
+                ]
             },
             {
-                "name": "DISPATCH_API_URL",
-                "value": "{$DISPATCH_API_URL}"
+                "name": "DISPATCHES_API_URL",
+                "value": [
+                    "${dispatches_api_url}"
+                ]
             }
         ],
         "portMappings": [
@@ -62,22 +70,37 @@
         "mountPoints": [
             {
                 "readOnly": false,
-                "containerPath": "/vol/f01919379244308494a9220b0440a2",
+                "containerPath": "/vol/vtn-17",
                 "sourceVolume": "agent-volume"
             }
         ],
+        "healthCheck": {
+            "retries": 3,
+            "command": [
+                "CMD-SHELL",
+                "curl -f http://('${vtn_address}',):('${vtn_port}',)/health || exit 1"
+            ],
+            "timeout": 5,
+            "interval": 30
+        },
         "logConfiguration": {
             "logDriver": "awslogs",
             "options": {
-                "awslogs-group": "${cloudwatch_name}",
-                "awslogs-region": "${aws_region}",
-                "awslogs-stream-prefix": "252029dcc6e1b2d11f871ffa386018ec-f01919379244308494a9220b0440a2"
+                "awslogs-group": [
+                    "${cloudwatch_name}"
+                ],
+                "awslogs-region": [
+                    "${aws_region}"
+                ],
+                "awslogs-stream-prefix": "17-vtn-17"
             }
         }
     },
     {
-        "name": "ven-3b8f8a0e4f434686ca0dbd5310921f",
-        "image": "${app_image_ven}",
+        "name": "ven-37a6d01bf4009ae512d640ac594856d3",
+        "image": [
+            "${app_image_ven}"
+        ],
         "essential": true,
         "memoryReservation": 256,
         "runtimePlatform": {
@@ -93,40 +116,26 @@
         ],
         "environment": [
             {
-                "name": "ENV",
-                "value": "${environment}"
-            },
-            {
-                "name": "VEN_ID",
-                "value": "bcf108438c4d81a86ed09ffbe71636"
+                "name": "ENVIRONMENT",
+                "value": [
+                    "${environment}"
+                ]
             },
             {
                 "name": "AGENT_ID",
-                "value": "252029dcc6e1b2d11f871ffa386018ec"
+                "value": "17"
             },
             {
                 "name": "RESOURCE_ID",
-                "value": "3b4a58e3cd70cd9c6f781d9267c6c5c0"
+                "value": "caff6719c24359a155a4d0d2f265a7"
             },
             {
                 "name": "METER_ID",
-                "value": "c65008a53f40048878fd4f9e2b5525"
+                "value": "6436a67e184d3694a15886215ae464"
             },
             {
                 "name": "DEVICE_ID",
-                "value": "25fb1392be789bd0113cb431cbf996f5"
-            },
-            {
-                "name": "DEVICE_NAME",
-                "value": "battery_0"
-            },
-            {
-                "name": "VTN_ADDRESS",
-                "value": "${vtn_address}"
-            },
-            {
-                "name": "VTN_PORT",
-                "value": "${vtn_port}"
+                "value": "37a6d01bf4009ae512d640ac594856d3"
             },
             {
                 "name": "DEVICE_TYPE",
@@ -134,34 +143,36 @@
             },
             {
                 "name": "DEVICE_SETTINGS",
-                "value": "{\"battery_token\": \"057d4f356c44f9a5341877129d5d51\", \"battery_sn\": \"78696\", \"device_brand\": \"SONNEN_BATTERY\"}"
+                "value": "{\"battery_token\": \"12321321qsd\", \"battery_sn\": \"66354\", \"device_brand\": \"SONNEN_BATTERY\", \"is_using_mock_device\": \"true\", \"flexible\": \"1\"}"
             },
             {
                 "name": "MARKET_INTERVAL_IN_SECONDS",
                 "value": "60"
             },
             {
-                "name": "FLEXIBLE",
-                "value": "3.9561627636867183"
-            },
-            {
                 "name": "EMULATED_DEVICE_API_URL",
-                "value": "{$EMULATED_DEVICE_API_URL}"
+                "value": [
+                    "${emulated_device_api_url}"
+                ]
             }
         ],
         "mountPoints": [
             {
                 "readOnly": false,
-                "containerPath": "/vol/3b8f8a0e4f434686ca0dbd5310921f",
+                "containerPath": "/vol/ven-37a6d01bf4009ae512d640ac594856d3",
                 "sourceVolume": "agent-volume"
             }
         ],
         "logConfiguration": {
             "logDriver": "awslogs",
             "options": {
-                "awslogs-group": "${cloudwatch_name}",
-                "awslogs-region": "${aws_region}",
-                "awslogs-stream-prefix": "252029dcc6e1b2d11f871ffa386018ec-3b8f8a0e4f434686ca0dbd5310921f"
+                "awslogs-group": [
+                    "${cloudwatch_name}"
+                ],
+                "awslogs-region": [
+                    "${aws_region}"
+                ],
+                "awslogs-stream-prefix": "17-ven-37a6d01bf4009ae512d640ac594856d3"
             }
         }
     }

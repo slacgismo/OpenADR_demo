@@ -33,7 +33,7 @@ class S3Service:
         try:
             response = self.client.head_object(
                 Bucket=self.bucket_name, Key=file_name)
-            print(f"{file_name} exists in s3")
+            print(f"{file_name} exists in s3 {self.bucket_name}")
             return True
         except Exception as e:
             print(f"{file_name} not exists in s3 {e}")

@@ -11,6 +11,25 @@ import os
 from enum import Enum
 from .guid import guid
 from pathlib import Path
+import logging
+from typing import Tuple
+from classes.ECS_ACTIONS_ENUM import ECS_ACTIONS_ENUM
+
+
+class VariablesDefinedInTerraform(Enum):
+    ENVIRONMENT = "${environment}"
+    APP_IMAGE_VTN = "${app_image_vtn}"
+    APP_IMAGE_VEN = "${app_image_ven}"
+    LOG_GROUP_NAME = "${cloudwatch_name}"
+    AWS_REGION = "${aws_region}"
+    VTN_ADDRESS = "${vtn_address}"
+    VTN_PORT = "${vtn_port}"
+    # routes
+    METER_API_URL = "${meter_api_url}"
+    DEVICES_API_URL = "${devices_api_url}"
+    ORDERS_API_URL = "${orders_api_url}"
+    DISPATCHES_API_URL = "${dispatches_api_url}"
+    EMULATED_DEVICE_API_URL = "${emulated_device_api_url}"
 
 
 class VTN_TASK_VARIANTS_ENUM(Enum):
@@ -36,14 +55,12 @@ class VEN_TASK_VARIANTS_ENUM(Enum):
     DEVICE_TYPE = "DEVICE_TYPE"
     DEVICE_SETTINGS = "DEVICE_SETTINGS"
     MARKET_INTERVAL_IN_SECONDS = "MARKET_INTERVAL_IN_SECONDS"
-    FLEXIBLE = "FLEXIBLE"
     # from device admin environment variables
     EMULATED_DEVICE_API_URL = "EMULATED_DEVICE_API_URL"
-    IS_USING_MOCK_DEVICE = "IS_USING_MOCK_DEVICE"
 
 
 CONTAINER_DEFINITION_TEMPLATE = ({
-    "name": "vtn",
+    "name": "change_me",
     "image": "${app_image_vtn}",
     "essential": True,
     "memoryReservation": 256,
@@ -53,12 +70,11 @@ CONTAINER_DEFINITION_TEMPLATE = ({
     },
     "entryPoint": ["sh", "-c"],
     "command": ["python vtn.py"],
-
 })
 
 
 def create_ven_params(
-    env: str,
+    environment: str,
     device_id: str,
     resource_id: str,
     meter_id: str,
@@ -67,14 +83,13 @@ def create_ven_params(
     device_type: str,
     device_settings: dict,
     market_interval_in_seconds: str,
-    flexible: str,
-    is_using_mock_device: bool,
+
 ) -> dict:
     ven_params = dict()
     for ven_task in VEN_TASK_VARIANTS_ENUM:
         key = ven_task.value
         if key == VEN_TASK_VARIANTS_ENUM.ENVIRONMENT.value:
-            ven_params[key] = env
+            ven_params[key] = environment
         elif key == VEN_TASK_VARIANTS_ENUM.DEVICE_ID.value:
             ven_params[key] = device_id
         elif key == VEN_TASK_VARIANTS_ENUM.RESOURCE_ID.value:
@@ -91,10 +106,6 @@ def create_ven_params(
             ven_params[key] = device_settings
         elif key == VEN_TASK_VARIANTS_ENUM.MARKET_INTERVAL_IN_SECONDS.value:
             ven_params[key] = market_interval_in_seconds
-        elif key == VEN_TASK_VARIANTS_ENUM.FLEXIBLE.value:
-            ven_params[key] = flexible
-        elif key == VEN_TASK_VARIANTS_ENUM.IS_USING_MOCK_DEVICE.value:
-            ven_params[key] = is_using_mock_device
         else:
             raise Exception(
                 f"ven key {key} is not set, please check your code")
@@ -195,7 +206,7 @@ def generate_vtn_task_definition(
         "options": {
             "awslogs-group": log_group_name,
             "awslogs-region": log_group_region,
-            "awslogs-stream-prefix": f"{agent_id}-{vtn_id}"
+            "awslogs-stream-prefix": f"{vtn_id}"
         }
     }
     return vtn_template
@@ -213,19 +224,15 @@ def generate_ven_task_definition(
 ) -> dict:
     """
     environment_variables:[
-        "env": "str",
-        "ven_id": "str"
+        "environment": "str",
         "meter_id": "str"
         "agent_id": "str",
         "device_id": "str",
         "device_name":"str",
         "device_type": str,
-        "vtn_address": str,
-        "vtn_port": str,
         "mock_devices_api_url": str,
         "device_settings": dict,
-        "market_interval_in_seconds": str,
-        "price_threshold": str
+
     ]
 
 
@@ -266,7 +273,7 @@ def generate_ven_task_definition(
         "options": {
             "awslogs-group": log_group_name,
             "awslogs-region": log_group_region,
-            "awslogs-stream-prefix": f"{agent_id}-{ven_id}"
+            "awslogs-stream-prefix": f"{ven_id}"
         }
     }
     return ven_template
@@ -386,19 +393,19 @@ def create_and_export_task_definition(
             # have convet json format to string to pass to ven
             device_settings_str = json.dumps(device["device_settings"])
 
-            ven_environment_variables = create_ven_params(
-                env=env,
-                resource_id=resource_id,
-                meter_id=meter_id,
-                device_id=device_id,
-                agent_id=agent_id,
-                EMULATED_DEVICE_API_URL=EMULATED_DEVICE_API_URL,
-                device_type=device_type,
-                device_settings=device_settings_str,
-                market_interval_in_seconds=market_interval_in_seconds,
-                flexible=str(flexible),
-                is_using_mock_device=str(is_using_mock_device),
-            )
+        ven_environment_variables = create_ven_params(
+            env=env,
+            resource_id=resource_id,
+            meter_id=meter_id,
+            device_id=device_id,
+            agent_id=agent_id,
+            EMULATED_DEVICE_API_URL=EMULATED_DEVICE_API_URL,
+            device_type=device_type,
+            device_settings=device_settings_str,
+            market_interval_in_seconds=market_interval_in_seconds,
+            flexible=str(flexible),
+            is_using_mock_device=str(is_using_mock_device),
+        )
         ven_id = 'ven-' + device_id
         vens_info.append({
             "ven_id": ven_id,
@@ -425,4 +432,183 @@ def create_and_export_task_definition(
     # export to file
     path_file_name = os.path.join(path, file_name)
     export_to_json_tpl(task_definition, path_file_name)
-    return path_file_name, vtn_id, vens_info
+    return vtn_id, vens_info
+
+
+def create_new_task_definition(
+    market_interval_in_seconds: str,
+    agent_id: str,
+    resource_id: str,
+    device_settings: dict,
+    device_id: str,
+    device_type: str,
+    meter_id: str,
+    local_file_destination: str,
+):
+    logging.info("create vtn")
+    vtn_environment_variables = create_vtn_params(
+        market_interval_in_seconds=market_interval_in_seconds,
+        agent_id=agent_id,
+        resource_id=resource_id,
+        env=VariablesDefinedInTerraform.ENVIRONMENT.value[0],
+        METER_API_URL=VariablesDefinedInTerraform.METER_API_URL.value[0],
+        DEVICES_API_URL=VariablesDefinedInTerraform.DEVICES_API_URL.value[0],
+        ORDERS_API_URL=VariablesDefinedInTerraform.ORDERS_API_URL.value[0],
+        DISPATCHES_API_URL=VariablesDefinedInTerraform.DISPATCHES_API_URL.value[0],
+    )
+    logging.info("vtn_environment_variables: %s", vtn_environment_variables)
+    vtn_id = "vtn-" + agent_id
+    vtn_container_definition = generate_vtn_task_definition(
+        vtn_template=CONTAINER_DEFINITION_TEMPLATE.copy(),
+        vtn_id=vtn_id,
+        agent_id=agent_id,
+        app_image_vtn=VariablesDefinedInTerraform.APP_IMAGE_VTN.value,
+        log_group_name=VariablesDefinedInTerraform.LOG_GROUP_NAME.value,
+        log_group_region=VariablesDefinedInTerraform.AWS_REGION.value,
+        environment_variables=vtn_environment_variables,
+        vtn_address=VariablesDefinedInTerraform.VTN_ADDRESS.value,
+        vtn_port=VariablesDefinedInTerraform.VTN_PORT.value,
+    )
+    logging.info("vtn_container_definition: %s", vtn_container_definition)
+    # create ven container
+    logging.info("create ven")
+    device_settings_str = json.dumps(device_settings)
+    ven_environment_variables = create_ven_params(
+        environment=VariablesDefinedInTerraform.ENVIRONMENT.value,
+        device_id=device_id,
+        device_type=device_type,
+        resource_id=resource_id,
+        meter_id=meter_id,
+        agent_id=agent_id,
+        EMULATED_DEVICE_API_URL=VariablesDefinedInTerraform.EMULATED_DEVICE_API_URL.value,
+        device_settings=device_settings_str,
+        market_interval_in_seconds=market_interval_in_seconds,
+    )
+    ven_id = "ven-" + device_id
+    ven_container_definition = generate_ven_task_definition(
+        ven_template=CONTAINER_DEFINITION_TEMPLATE.copy(),
+        ven_id=ven_id,
+        agent_id=agent_id,
+        app_image_ven=VariablesDefinedInTerraform.APP_IMAGE_VEN.value,
+        log_group_name=VariablesDefinedInTerraform.LOG_GROUP_NAME.value,
+        log_group_region=VariablesDefinedInTerraform.AWS_REGION.value,
+        environment_variables=ven_environment_variables,
+    )
+    logging.info("ven container: %s", vtn_container_definition)
+    # create task definition file
+    task_definition_dict = combine_vtn_and_vens_as_task_definition(
+        vtn_definition=vtn_container_definition,
+        vens_definition=[ven_container_definition],
+    )
+    # save to local
+    export_to_json_tpl(task_definition_dict, local_file_destination)
+
+
+def insert_device_to_existing_task_defintion_file(
+    market_interval_in_seconds: str,
+    agent_id: str,
+    resource_id: str,
+    device_settings: dict,
+    device_id: str,
+    device_type: str,
+    meter_id: str,
+    local_file_destination: str,
+):
+    # check if file exists
+    if not os.path.exists(local_file_destination):
+        raise Exception("File does not exist")
+
+    with open(local_file_destination, "r") as f:
+        task_definition_dict = json.load(f)
+    # check if agent_id exists
+    # check if device_id exists
+    for image in task_definition_dict:
+        name = image["name"]
+        container_name, id = break_name_of_container(name)
+        if container_name == "ven":
+            # check if device_id exists
+            if id == device_id:
+                raise Exception(f"Device id:{device_id} already exists ")
+        elif container_name == "vtn":
+            # check if agent_id exists
+            if id != agent_id:
+                raise Exception(
+                    f"new agent id:{agent_id} not match to current agent_id: {id} ")
+    # new device
+    device_settings_str = json.dumps(device_settings)
+    ven_environment_variables = create_ven_params(
+        environment=VariablesDefinedInTerraform.ENVIRONMENT.value,
+        device_id=device_id,
+        device_type=device_type,
+        resource_id=resource_id,
+        meter_id=meter_id,
+        agent_id=agent_id,
+        EMULATED_DEVICE_API_URL=VariablesDefinedInTerraform.EMULATED_DEVICE_API_URL.value,
+        device_settings=device_settings_str,
+        market_interval_in_seconds=market_interval_in_seconds,
+    )
+    ven_id = "ven-" + device_id
+    ven_container_definition = generate_ven_task_definition(
+        ven_template=CONTAINER_DEFINITION_TEMPLATE.copy(),
+        ven_id=ven_id,
+        agent_id=agent_id,
+        app_image_ven=VariablesDefinedInTerraform.APP_IMAGE_VEN.value,
+        log_group_name=VariablesDefinedInTerraform.LOG_GROUP_NAME.value,
+        log_group_region=VariablesDefinedInTerraform.AWS_REGION.value,
+        environment_variables=ven_environment_variables,
+    )
+    task_definition_dict.append(ven_container_definition)
+    # ovrwrite file
+    export_to_json_tpl(task_definition_dict, local_file_destination)
+    return True
+
+
+def remove_device_from_task_definition_file(
+    agent_id: str,
+    device_id: str,
+    local_file_destination: str,
+):
+    # check if file exists
+    if not os.path.exists(local_file_destination):
+        raise Exception("File does not exist")
+    with open(local_file_destination, "r") as f:
+        task_definition_dict = json.load(f)
+    # check if agent_id exists
+    # check if device_id exists
+    for image in task_definition_dict:
+        name = image["name"]
+        container_name, id = break_name_of_container(name)
+        if container_name == "vtn":
+            # check if agent_id exists
+            if id != agent_id:
+                raise Exception(
+                    f"new agent id:{agent_id} not match to current agent_id: {id} ")
+        elif container_name == "ven":
+            # check if device_id exists
+            if id == device_id:
+                task_definition_dict.remove(image)
+                break
+
+    # ovrwrite file
+    export_to_json_tpl(task_definition_dict, local_file_destination)
+    return True
+
+
+def is_any_device_exist_in_task_definition_file(
+    file_path: str,
+) -> bool:
+    if not os.path.exists(file_path):
+        raise Exception("File does not exist")
+    with open(file_path, "r") as f:
+        task_definition_dict = json.load(f)
+    logging.info(f"len of task defintion: {len(task_definition_dict)}")
+    if len(task_definition_dict) > 1:
+        return True
+    return False
+
+
+def break_name_of_container(name: str) -> Tuple[str, str]:
+    name = name.split("-")
+    if len(name) != 2:
+        raise Exception("Name of container is not valid")
+    return name[0], name[1]

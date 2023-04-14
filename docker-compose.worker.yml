@@ -19,12 +19,7 @@ services:
       - BACKEND_S3_BUCKET_NAME=${BACKEND_S3_BUCKET_NAME:-shared.nhec-dev.tf-state}
       - DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME:${DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME:-openadr-NHEC-dev-agent-shared-tf-state-lock}
       - ECS_CLUSTER_NAME=${ECS_CLUSTER_NAME:-openadr-NHEC-dev-agent-cluster}
-      - ENVIRONMENT=${ENVIRONMENT:-LOCAL} # LOCAL,AWS
-      - METER_API_URL=${METER_API_URL:-https://fw7sh7bkki.execute-api.us-east-2.amazonaws.com/dev/meter}
-      - DEVICES_API_URL=${DEVICES_API_URL:-https://fw7sh7bkki.execute-api.us-east-2.amazonaws.com/dev/device}
-      - ORDERS_API_URL=${ORDERS_API_URL:-https://fw7sh7bkki.execute-api.us-east-2.amazonaws.com/dev/order}
-      - DISPATCHES_API_URL=${DISPATCHES_API_URL:-https://fw7sh7bkki.execute-api.us-east-2.amazonaws.com/dev/dispatch}
-      - EMULATED_DEVICE_API_URL=${EMULATED_DEVICE_API_URL:-https://i75blw8jig.execute-api.us-east-2.amazonaws.com/dev/battery_api}
+      - ENVIRONMENT=${ENVIRONMENT:-AWS} # LOCAL,AWS
     volumes:
       - ./services/devices/worker:/app
     command: >

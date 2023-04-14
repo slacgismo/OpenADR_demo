@@ -59,7 +59,7 @@ resource "aws_dynamodb_table" "devices" {
   }
   # enable the dynamondb stream to trigger the event sqs queue
   stream_enabled = true
-  stream_view_type = "NEW_IMAGE"
+  stream_view_type = "NEW_AND_OLD_IMAGES"
 
   hash_key = "device_id"
 }

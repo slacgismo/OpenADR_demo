@@ -1,5 +1,38 @@
 # Input Variables
+
+# API ROUTES
+
+variable "meter_api_url" {
+  description = "Region in which AWS Resources to be created"
+  type        = string
+  # default     = "us-east-2"
+}
+
+variable "dispatches_api_url"  {
+  description = "participated vens url"
+  type        = string
+}
+
+variable "devices_api_url"  {
+  description = "get vens url"
+  type        = string
+}
+
+
+variable "emulated_device_api_url"  {
+  description = "mock devices api url"
+  type        = string
+ 
+}
+variable "orders_api_url"  {
+  description = "market prices url"
+  type        = string
+}
+
+
 # AWS Region
+
+
 variable "aws_region" {
   description = "Region in which AWS Resources to be created"
   type        = string
@@ -37,32 +70,15 @@ variable "managedBy" {
 variable "task_definition_file" {
   description = "task definition file. this variable is import from python script"
   type        = string
-  # default     = "./templates/task-definition-agent.json.tpl"
 }
 
 
 variable "agent_id" {
   description = "The agent id"
+  type        = string
 }
 
-# # variable from terraform.tfvars
-# variable "METER_API_URL"  {
-#   description = "Save data url"
-#   type        = string
-#   default = "https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/meter"
-# }
-
-# variable "DISPATCHES_API_URL"  {
-#   description = "participated vens url"
-#   type        = string
-#   default = "https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/dispatch"
-# }
-
-# variable "DEVICES_API_URL"  {
-#   description = "get vens url"
-#   type        = string
-#   default = "https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/device"
-# }
+# variable from terraform.tfvars
 
 variable "app_image_vtn"  {
   description = "app image vtn"
@@ -75,17 +91,6 @@ variable "app_image_ven"  {
 }
 
 
-# variable "EMULATED_DEVICE_API_URL"  {
-#   description = "mock devices api url"
-#   type        = string
-#   default = "https://l7xxtd4xh9.execute-api.us-east-2.amazonaws.com/dev/battery_api"
-# }
-# variable "ORDERS_API_URL"  {
-#   description = "market prices url"
-#   type        = string
-#   default = "https://w6lgi4v3le.execute-api.us-east-2.amazonaws.com/dev/order"
-# }
-
 variable "vtn_address"  {
   description = "vtn address"
   type        = string
@@ -95,5 +100,4 @@ variable "vtn_port"  {
   description = "vtn port"
   type        = string
 }
-
 

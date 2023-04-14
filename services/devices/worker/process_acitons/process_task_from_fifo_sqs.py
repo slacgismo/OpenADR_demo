@@ -2,8 +2,27 @@ from classes.SQSService import SQSService
 import time
 import logging
 from .handle_action import handle_action
-from .validation import validate_message
 import json
+from enum import Enum
+
+
+class MessageBodyKeys(Enum):
+    EVENTNAME = "eventName"
+    AGENT_ID = "agent_id"
+    RESOURCE_ID = "resource_id"
+    MARKET_INTERVAL_IN_SECONDS = "market_interval_in_seconds"
+    DEVICE_ID = "device_id"
+    DEVICE_TYPE = "device_type"
+    METER_ID = "meter_id"
+    DEVICE_SETTINGS = "device_settings"
+
+
+class DeviceSettingsKeys(Enum):
+    BATTERY_TOKEN = "battery_token"
+    BATTERY_SN = "battery_sn"
+    DEVICE_BRAND = "device_brand"
+    IS_USING_MOCK_DEVICE = "is_using_mock_device"
+    FLEXIBLE = "flexible"
 
 
 def process_task_from_fifo_sqs(
@@ -12,12 +31,6 @@ def process_task_from_fifo_sqs(
     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME: str,
     AWS_REGION: str,
     ENVIRONMENT: str,
-    METER_API_URL: str = None,
-    DEVICES_API_URL: str = None,
-    ORDERS_API_URL: str = None,
-    DISPATCHES_API_URL: str = None,
-    EMULATED_DEVICE_API_URL: str = None,
-
 ):
     """
     Process the task from the fifo sqs queue
@@ -51,30 +64,27 @@ def process_task_from_fifo_sqs(
                 logging.info("Waiting.... %s" % str(int(time.time())))
                 continue
 
-            if validate_message(message) is False:
-                raise Exception("Invalid message received")
-
             else:
                 # Process the message
                 start_time_process_time = time.time()
 
                 logging.info("Received message: %s" % message["Body"])
-                message_attributes = message["MessageAttributes"]
-                action = message_attributes["Action"]["StringValue"]
+
+                # action = message_attributes["Action"]["StringValue"]
                 message_body = json.loads(message["Body"])
 
+                if validate_message_body(message_body) is False:
+                    raise Exception("Invalid message body received")
+
+                action = message_body["eventName"]
                 # delete the message from the queue first to avoid duplicate
+
                 handle_action(
                     action=action,
                     message_body=message_body,
                     BACKEND_S3_BUCKET_NAME=BACKEND_S3_BUCKET_NAME,
                     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME=DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME,
                     AWS_REGION=AWS_REGION,
-                    METER_API_URL=METER_API_URL,
-                    DEVICES_API_URL=DEVICES_API_URL,
-                    ORDERS_API_URL=ORDERS_API_URL,
-                    DISPATCHES_API_URL=DISPATCHES_API_URL,
-                    EMULATED_DEVICE_API_URL=EMULATED_DEVICE_API_URL,
                 )
                 end_process_time = time.time()
                 process_time = int(end_process_time - start_time_process_time)
@@ -85,3 +95,23 @@ def process_task_from_fifo_sqs(
                 # Delete the message from the queue
         except Exception as e:
             logging.error(f"Error : {e}")
+
+
+def validate_message_body(message_body: dict) -> bool:
+    """
+    Validate the message body
+    params: message_body: dict
+    return: bool
+    """
+    for key in MessageBodyKeys:
+        if key.value not in message_body:
+            logging.error(f"Missing key: {key.value}")
+            return False
+        # Validate the device settings
+        if key.value == MessageBodyKeys.DEVICE_SETTINGS.value:
+            device_settings = message_body[key.value]
+            for device_setting_key in DeviceSettingsKeys:
+                if device_setting_key.value not in device_settings:
+                    logging.error(f"Missing key: {device_setting_key.value}")
+                    return False
+    return True

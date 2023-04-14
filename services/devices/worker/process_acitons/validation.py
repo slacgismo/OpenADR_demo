@@ -5,23 +5,6 @@ from classes.ECS_ACTIONS_ENUM import ECS_ACTIONS_ENUM
 from process_acitons.process_task_from_fifo_sqs import handle_action
 
 
-def validate_message(message: dict) -> bool:
-    """
-    Validate the message
-    """
-    # Todo: validate the message
-    if (
-        "MessageAttributes" not in message
-        or "Action" not in message["MessageAttributes"]
-        or "Body" not in message
-    ):
-        print("No Action, or MessageAttributes, or Body  attribute in message")
-        print("delete message from queue,send to d")
-        return False
-
-    return True
-
-
 def simulated_message() -> Dict:
     message_body = {
         "agent_id": guid(),
