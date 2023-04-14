@@ -8,6 +8,8 @@ data "archive_file" "lambda_sqs_event" {
 }
 
 
+
+
 resource "aws_lambda_function" "lambda_sqs_event" {
    
   function_name = "${var.prefix}-${var.client}-${var.environment}-lambda_sqs_event"
@@ -21,6 +23,10 @@ resource "aws_lambda_function" "lambda_sqs_event" {
     variables = {
         "SQS_QUEUE_URL" = data.aws_sqs_queue.openadr_sqs.id,
         "SQS_TRIGGER_QUEUE_URL" = data.aws_sqs_queue.create_event_sqs.id
+        "MARKETS_TABLE" = 
+        "AGENTS_TABLE" =
+        "SETTINGS_TABLE" =
+        "METERS_TABLE" =
     }
   }
   source_code_hash = data.archive_file.lambda_sqs_event.output_base64sha256

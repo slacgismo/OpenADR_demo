@@ -95,11 +95,12 @@ def create_sqs_message(device_id: str, agent_id: str, eventName: EventName, devi
 
     }
     """
-    # get meter_id from meter table
+    # get meter_id from the third party
+    # TODO: from the third party API / Use dummy data for now
     meter_id = "6436a67e184d3694a15886215ae464"
-    # get resource id from resource table
+    # get resource id from agent table with agent_id
     resource_id = "caff6719c24359a155a4d0d2f265a7"
-    # get market interval from market table
+    # get market interval from market table with resource_id
     market_interval_in_seconds = "60"
     # get device flexible  from setting table
     battery_token = "12321321qsd"
@@ -151,35 +152,36 @@ def guid():
 
 async def get_data_from_dynamodb(id: str, table_name: str, dynamodb_client):
     try:
-        response = await asyncio.to_thread(dynamodb_client.query,
+        response = await asyncio.to_thread(dynamodb_client.get_item,
                                            TableName=table_name,
                                            KeyConditionExpression='device_id = :val',
                                            ExpressionAttributeValues={
-                                               ':val': {'S': device_id}
+                                               ':val': {'S': id}
                                            }
                                            )
         if 'Items' in response:
-            items = []
-            for item in response['Items']:
-                items.append({
-                    'device_id': item['device_id']['S'],
-                    'agent_id': item['agent_id']['S'],
-                    'device_type': item['device_type']['S'],
-                    'valid_at': item['valid_at']['N']
-                })
+            return response['Items']
+            # items = []
+            # for item in response['Items']:
+            #     items.append({
+            #         'device_id': item['device_id']['S'],
+            #         'agent_id': item['agent_id']['S'],
+            #         'device_type': item['device_type']['S'],
+            #         'valid_at': item['valid_at']['N']
+            #     })
 
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json'},
-                'body': json.dumps(items)
-            }
+            # return {
+            #     'statusCode': 200,
+            #     'headers': {'Content-Type': 'application/json'},
+            #     'body': json.dumps(items)
+            # }
 
         # If no objects are found, return a failure response
         else:
             return {
                 'statusCode': 404,
                 'headers': {'Content-Type': 'application/text'},
-                'body': 'No objects found with device ID: {}'.format(device_id)
+                'body': 'No objects found with device ID: {}'.format(id)
             }
 
     # If an error occurs, return an error response

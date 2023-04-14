@@ -10,8 +10,21 @@ resource "aws_dynamodb_table" "markets" {
     name = "market_id"
     type = "S"
   }
+  attribute {
+    name = "resource_id"
+    type = "S"
+  }
 
   hash_key = "market_id"
+
+  global_secondary_index {
+    name            = "resource_id-index"
+    hash_key        = "resource_id"
+    projection_type = "ALL"
+    read_capacity   = 1
+    write_capacity  = 1
+  }
+  tags = local.common_tags
 }
 
 
@@ -119,18 +132,70 @@ resource "aws_dynamodb_table" "dispatches" {
   tags = local.common_tags
 }
 
-
+# Meters
 resource "aws_dynamodb_table" "meters" {
-  # name           = "battery-table"
   name           = "${var.prefix}-${var.client}-${var.environment}-meters"
   billing_mode   = "PROVISIONED"
   read_capacity  = 1
   write_capacity = 1
-  hash_key       = "meter_id"
+
+  hash_key = "meter_id"
 
   attribute {
     name = "meter_id"
     type = "S"
+  }
+
+  attribute {
+    name = "device_id"
+    type = "S"
+  }
+
+  attribute {
+    name = "resource_id"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name               = "resource-device-index"
+    hash_key           = "resource_id"
+    range_key          = "device_id"
+    projection_type    = "ALL"
+
+
+    write_capacity     = 1
+    read_capacity      = 1
+  }
+  tags = local.common_tags
+}
+
+# Settings
+resource "aws_dynamodb_table" "settings" {
+  name           = "${var.prefix}-${var.client}-${var.environment}-settings"
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 1
+  write_capacity = 1
+  hash_key       = "setting_id"
+
+  attribute {
+    name = "setting_id"
+    type = "S"
+  }
+
+  attribute {
+    name = "device_id"
+    type = "S"
+  }
+
+
+
+  global_secondary_index {
+    name            = "device_id-index"
+    hash_key        = "setting_id"
+    range_key       = "device_id"
+    projection_type = "ALL"
+    read_capacity   = 1
+    write_capacity  = 1
   }
 
   tags = local.common_tags

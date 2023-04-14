@@ -8,10 +8,11 @@ import uuid
 try:
     from_event_queue_url = os.environ['SQS_QUEUE_URL']
     to_trigger_queue_url = os.environ['SQS_TRIGGER_QUEUE_URL']
-    meter_table = os.environ['METER_TABLE']
-    market_table = os.environ['MARKET_TABLE']
-    resource_table = os.environ['RESOURCE_TABLE']
-    setting_table = os.environ['SETTING_TABLE']
+    meters_table = os.environ['METERS_TABLE']
+    market_table = os.environ['MARKETS_TABLE']
+    agent_table = os.environ['AGENTS_TABLE']
+    settings_table = os.environ['SETTINGS_TABLE']
+
 except Exception as e:
     print(f"Error getting environment variables: {e}")
     raise e
@@ -162,7 +163,7 @@ def create_sqs_message(device_id: str, agent_id: str, eventName: EventName, devi
 
     }
     """
-    # get meter_id from meter table
+    # get meter_id from meter table with device_id and resource_id
     meter_id = "6436a67e184d3694a15886215ae464"
     # get resource id from resource table
     resource_id = "caff6719c24359a155a4d0d2f265a7"
