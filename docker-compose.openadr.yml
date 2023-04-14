@@ -51,5 +51,14 @@ services:
       - "8888:8888"
     depends_on:
       - vtn
+  # tess_sim1:
+  #   platform: linux/amd64
+  #   build:
+  #     context: ./services/simulation
+  #   # image: slacgismo/gridlabd:develop
+  #   command: >
+  #     sh -c "./start.sh"
+  #   networks:
+  #     - adrnet
 networks:
   adrnet:

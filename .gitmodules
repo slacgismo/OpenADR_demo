@@ -1,0 +1,3 @@
+[submodule "services/simulation"]
+	path = services/simulation
+	url = https://github.com/postroad-energy/simulation.git
