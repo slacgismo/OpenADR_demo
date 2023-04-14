@@ -5,6 +5,7 @@ import time
 from datetime import datetime
 from enum import Enum
 import uuid
+import asyncio
 from_event_queue_url = os.environ['SQS_QUEUE_URL']
 to_trigger_queue_url = os.environ['SQS_TRIGGER_QUEUE_URL']
 sqs = boto3.client('sqs')
@@ -146,3 +147,45 @@ def send_message_to_sqs(message: dict, queue_url: str):
 def guid():
     """Return a globally unique id"""
     return uuid.uuid4().hex[2:]
+
+
+async def get_data_from_dynamodb(id: str, table_name: str, dynamodb_client):
+    try:
+        response = await asyncio.to_thread(dynamodb_client.query,
+                                           TableName=table_name,
+                                           KeyConditionExpression='device_id = :val',
+                                           ExpressionAttributeValues={
+                                               ':val': {'S': device_id}
+                                           }
+                                           )
+        if 'Items' in response:
+            items = []
+            for item in response['Items']:
+                items.append({
+                    'device_id': item['device_id']['S'],
+                    'agent_id': item['agent_id']['S'],
+                    'device_type': item['device_type']['S'],
+                    'valid_at': item['valid_at']['N']
+                })
+
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps(items)
+            }
+
+        # If no objects are found, return a failure response
+        else:
+            return {
+                'statusCode': 404,
+                'headers': {'Content-Type': 'application/text'},
+                'body': 'No objects found with device ID: {}'.format(device_id)
+            }
+
+    # If an error occurs, return an error response
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/text'},
+            'body': json.dumps({"error": str(e)})
+        }

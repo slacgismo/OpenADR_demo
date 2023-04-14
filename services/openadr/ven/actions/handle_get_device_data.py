@@ -38,11 +38,7 @@ async def handle_get_device_data(
             funciton_name="get_device_data"
         )
         current_time = int(time.time())
-        # makret_start_time = current_market_start_timestamp(
-        #     market_start_time=market_start_time,
-        #     market_interval=market_interval
-        # )
-        # time_diff = makret_start_time - int(time.time())
+
         logging.info(
             "-------------- get device data ----------------------")
         logging.info(
@@ -74,6 +70,7 @@ async def handle_get_device_data(
             # logging.info(f"Put data to meter api: {response}")
 
         except Exception as e:
+            logging.error(f"Error get device data {e}")
             raise Exception(f"Error get device data: {e}")
 
 
@@ -100,9 +97,11 @@ async def get_devices_data(
                     battery_sn = value
                 elif key == SONNEN_BATTERY_DEVICE_SETTINGS.BATTERY_TOKEN.value:
                     battery_token = value
+                elif key == SONNEN_BATTERY_DEVICE_SETTINGS.FLEXIBLE.value:
+                    pass
+                elif key == SONNEN_BATTERY_DEVICE_SETTINGS.IS_USING_MOCK_DEVICE.value:
+                    pass
                 else:
-                    # logging.info(
-                    #     f"device_settings {key} is unknown: {device_settings}")
                     raise Exception(
                         f"device_settings {key} is unknown: {device_settings}")
 
@@ -133,7 +132,6 @@ async def get_sonnen_battery_data(
         battery_sn: str = None,
         battery_token: str = None,
         emulated_device_api_url: str = None):
-
     if is_using_mock_device:
         logging.info(
             "=========  GET Mock battery data ==================")

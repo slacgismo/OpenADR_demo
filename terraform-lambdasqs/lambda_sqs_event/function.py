@@ -5,8 +5,17 @@ import time
 from datetime import datetime
 from enum import Enum
 import uuid
-from_event_queue_url = os.environ['SQS_QUEUE_URL']
-to_trigger_queue_url = os.environ['SQS_TRIGGER_QUEUE_URL']
+try:
+    from_event_queue_url = os.environ['SQS_QUEUE_URL']
+    to_trigger_queue_url = os.environ['SQS_TRIGGER_QUEUE_URL']
+    meter_table = os.environ['METER_TABLE']
+    market_table = os.environ['MARKET_TABLE']
+    resource_table = os.environ['RESOURCE_TABLE']
+    setting_table = os.environ['SETTING_TABLE']
+except Exception as e:
+    print(f"Error getting environment variables: {e}")
+    raise e
+
 sqs = boto3.client('sqs')
 '''
 {'body': '{"eventID": "60edf1b1d52db87046e6ec8ca4c72f2f", "eventName": "MODIFY", "eventVersion": "1.1", "eventSource": "aws:dynamodb", "awsRegion": "us-east-2", "dynamodb": {"ApproximateCreationDateTime": 1681414497.0, "Keys": {"device_id": {"S": "37a6d01bf4009ae512d640ac594856d3"}}, "NewImage": {"agent_id": {"S": "2312"}, "device_id": {"S": "37a6d01bf4009ae512d640ac594856d3"}, "device_type": {"S": "ES"}, "valid_at": {"N": "1681414496"}}, "SequenceNumber": "7220700000000021559578469", "SizeBytes": 121, "StreamViewType": "NEW_IMAGE"}, "eventSourceARN": "arn:aws:dynamodb:us-east-2:041414866712:table/openadr-NHEC-dev-devices/stream/2023-04-12T06:46:05.602"}',

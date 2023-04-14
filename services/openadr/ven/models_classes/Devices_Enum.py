@@ -17,3 +17,5 @@ class SONNEN_BATTERY_DEVICE_SETTINGS(Enum):
     BATTERY_SN = 'battery_sn'
     BATTERY_TOKEN = 'battery_token'
     DEVICE_BRAND = 'device_brand'
+    FLEXIBLE = 'flexible'
+    IS_USING_MOCK_DEVICE = 'is_using_mock_device'

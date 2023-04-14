@@ -94,7 +94,7 @@ resource "aws_iam_policy" "lambda_dynamodb_sqs_trigger_policy" {
           "sqs:DeleteMessage",
           "sqs:GetQueueAttributes"
           ]
-        Resource = aws_sqs_queue.device_sqs.arn
+        Resource = [aws_sqs_queue.device_sqs.arn, ]
       },
       {
         Effect = "Allow"
