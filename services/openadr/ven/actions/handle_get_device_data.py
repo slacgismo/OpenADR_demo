@@ -12,6 +12,23 @@ import time
 from helper.conver_date_to_timestamp import wait_till_next_market_start_time, current_market_start_timestamp
 from models_classes.SharedDeviceData import SharedDeviceData
 import aiohttp
+from enum import Enum
+import json
+from api.sonnen_battery.Sonnen_Battery_Enum import SonnenBatteryAttributeKey, SonnenBatterySystemStatus
+
+
+class ReadingsTableAttributes(Enum):
+    READING_ID = "reading_id"
+    METER_ID = "meter_id"
+    NAME = "name"
+    VALUE = "value"
+
+
+class MetersTableAttributes(Enum):
+    DEVICE_ID = "device_id"
+    METER_ID = "meter_id"
+    RESOURCE_ID = "resource_id"
+    STATUS = "status"
 
 
 async def handle_get_device_data(
@@ -55,19 +72,27 @@ async def handle_get_device_data(
             logging.info(f"device_data: {device_data}")
             shared_device_data = SharedDeviceData.get_instance()
             shared_device_data.set(device_data)
-            # TODO: refactor this to a new function
+            logging.warning(f"put data to meter api need to be verified")
+            status = device_data[SonnenBatteryAttributeKey.SystemStatus.name]
+            if status == SonnenBatterySystemStatus.OnGrid.name:
+                status = "1"
+            elif status == SonnenBatterySystemStatus.OffGrid.name:
+                status = "0"
+            else:
+                raise Exception(f"status {status} is not supported yet")
+
             data = {
-                "device_data": device_data,
-                "device_type": device_type,
+                "readings": device_data,
                 "device_id": device_id,
                 "meter_id": meter_id,
                 "resource_id": resource_id,
-                "device_brand": device_brand
+                "device_brand": device_brand,
+                "status": status,
             }
             response = await put_data_to_meter_api(
                 data=data,
                 vtn_measurement_url=vtn_measurement_url)
-            # logging.info(f"Put data to meter api: {response}")
+            logging.info(f"Put data to vtn meter: {response}")
 
         except Exception as e:
             logging.error(f"Error get device data {e}")
@@ -78,11 +103,12 @@ async def get_devices_data(
     device_type: str = None,
     is_using_mock_device: bool = False,
     device_settings: dict = None,
-    emulated_device_api_url: str = None
+    emulated_device_api_url: str = None,
 ) -> Dict:
     """
     Get devices data.
     """
+
     if device_type == DEVICE_TYPES.ES.value:
         try:
             for key, value in device_settings.items():
@@ -115,7 +141,8 @@ async def get_devices_data(
                     is_using_mock_device=is_using_mock_device,
                     battery_sn=battery_sn,
                     battery_token=battery_token,
-                    emulated_device_api_url=emulated_device_api_url
+                    emulated_device_api_url=emulated_device_api_url,
+                    device_brand=device_brand
                 )
                 return filter_data
             else:
@@ -131,12 +158,13 @@ async def get_sonnen_battery_data(
         is_using_mock_device: bool = False,
         battery_sn: str = None,
         battery_token: str = None,
+        device_brand: str = None,
         emulated_device_api_url: str = None):
     if is_using_mock_device:
         logging.info(
             "=========  GET Mock battery data ==================")
         mock_battery_interface = MockSonnenInterface(
-            serial=battery_sn, auth_token=battery_token, url_ini=emulated_device_api_url)
+            serial=battery_sn, auth_token=battery_token, url_ini=emulated_device_api_url, device_brand=device_brand)
         # get battery data from mock device
         batter_data = await mock_battery_interface.get_mock_battery_status()
         filter_data = await filter_battery_data(batter_data)
@@ -175,7 +203,7 @@ async def put_data_to_meter_api(
                 if response.status != 200:
                     # TODO: handle 400, 401, 403, 404, 500
                     raise Exception(
-                        f"Submit measurements to Meter API response status code: {response.status}")
+                        f"Submit measurements to VTN Meter API response status code: {response.status}")
                 else:
                     logging.info(
                         "*********** Send to VTN Meter API success ***********")

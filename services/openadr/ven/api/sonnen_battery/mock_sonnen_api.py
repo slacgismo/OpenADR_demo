@@ -1,80 +1,82 @@
-import datetime
-from xml.etree import ElementTree as ET
+
 import requests
-from requests.auth import HTTPDigestAuth
+import json
 # import numpy as np
 
 # import pandas as pd
-import time as t
-import os
-import logging
-
-import types
 from .sonnen_data_converter import convert_sonnen_data_to_openadr_report_format
 # from dataclasses import dataclass
 
 
 class MockSonnenInterface():
 
-    def __init__(self, serial=None, auth_token=None, url_ini=None):
+    def __init__(self, serial: str = None, auth_token: str = None, url_ini=None, device_brand: str = None):
         self.serial = serial
         self.token = auth_token
         self.url_ini = url_ini
+        self.device_brand = device_brand
         self.headers = {'Accept': 'application/vnd.sonnenbatterie.api.core.v1+json',
+                        'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + self.token, }
 
     async def get_mock_battery_status(self):
 
         try:
-            resp = requests.get(self.url_ini + f"/{self.serial}",
-                                headers=self.headers)
+
+            # Encode the payload data as UTF-8 encoded JSON
+
+            resp = requests.get(
+                self.url_ini + f"/{self.serial}?device_brand={ self.device_brand}")
 
             batt_staus = resp.json()
+            print("======   get_mock_battery_status   ======")
+            print(batt_staus)
+            print("------------------------------------------")
             return batt_staus
 
         except requests.exceptions.HTTPError as err:
             print(err)
             return requests.exceptions.HTTPError
 
-    async def get_status_and_convert_to_openleadr_report(self):
-        """
-        Get battery status and convert to the openADR historical report format
-        Since openADR protocol not allow to pass json format, we have to pass the
-        data in an array with [(datetime, value)] format. The value is float type.
-        It's important to keep the same sequence, then the VTN can parse correctly.
-        Otherwise, VTN may get wrong data.
-        Original json format
+    # async def get_status_and_convert_to_openleadr_report(self):
+    #     """
+    #     Get battery status and convert to the openADR historical report format
+    #     Since openADR protocol not allow to pass json format, we have to pass the
+    #     data in an array with [(datetime, value)] format. The value is float type.
+    #     It's important to keep the same sequence, then the VTN can parse correctly.
+    #     Otherwise, VTN may get wrong data.
+    #     Original json format
 
-        {
-            "BackupBuffer": "10", "BatteryCharging": true, "BatteryDischarging": false,
-            "Consumption_Avg": 0, "Consumption_W": 0, "Fac": 60, "FlowConsumptionBattery": false,
-            "FlowConsumptionGrid": false, "FlowConsumptionProduction": false, "FlowGridBattery": true,
-            "FlowProductionBattery": true, "FlowProductionGrid": true, "GridFeedIn_W": 196,
-            "IsSystemInstalled": 1, "OperatingMode": "2", "Pac_total_W": -1800,
-            "Production_W": 1792, "RSOC": 52, "RemainingCapacity_W": 5432, "SystemStatus": "OnGrid",
-            "Timestamp": "2023-02-09 14:50:32", "USOC": 49, "Uac": 237, "Ubat": 54
-        }
+    #     {
+    #         "BackupBuffer": "10", "BatteryCharging": true, "BatteryDischarging": false,
+    #         "Consumption_Avg": 0, "Consumption_W": 0, "Fac": 60, "FlowConsumptionBattery": false,
+    #         "FlowConsumptionGrid": false, "FlowConsumptionProduction": false, "FlowGridBattery": true,
+    #         "FlowProductionBattery": true, "FlowProductionGrid": true, "GridFeedIn_W": 196,
+    #         "IsSystemInstalled": 1, "OperatingMode": "2", "Pac_total_W": -1800,
+    #         "Production_W": 1792, "RSOC": 52, "RemainingCapacity_W": 5432, "SystemStatus": "OnGrid",
+    #         "Timestamp": "2023-02-09 14:50:32", "USOC": 49, "Uac": 237, "Ubat": 54
+    #     }
 
-        """
-        params = {"serial": self.serial}
+    #     """
+    #     params = {"serial": self.serial}
 
-        try:
-            resp = requests.get(self.url_ini, params=params,
-                                headers=self.headers)
-            resp.raise_for_status()
-        except requests.exceptions.HTTPError as err:
-            print(err)
-            return requests.exceptions.HTTPError
+    #     try:
+    #         resp = requests.get(self.url_ini, params=params,
+    #                             headers=self.headers)
+    #         resp.raise_for_status()
+    #     except requests.exceptions.HTTPError as err:
+    #         print(err)
+    #         return requests.exceptions.HTTPError
 
-        try:
-            batt_staus = resp.json()
+    #     try:
+    #         batt_staus = resp.json()
 
-            # convert to openADR report format
-            battery_data = convert_sonnen_data_to_openadr_report_format(
-                batt_staus)
-            return battery_data
-        except ValueError as e:
-            raise (f"convert to openADR report error:{e} ")
+    #         # convert to openADR report format
+    #         battery_data = convert_sonnen_data_to_openadr_report_format(
+    #             batt_staus)
+    #         return battery_data
+    #     except ValueError as e:
+    #         raise (f"convert to openADR report error:{e} ")
 
     # Backup:
     # Intended to maintain an energy reserve for situations where the Grid is no longer available. During the off-grid
@@ -127,11 +129,35 @@ class MockSonnenInterface():
 
     # Enabled by default
     async def enable_manual_mode(self):
-        return {"status": "0"}
+        try:
+
+            resp = requests.get(
+                self.url_ini + f"/{self.serial}?device_brand={self.device_brand}&enable_manual_mode=1", headers=self.headers)
+
+            body = resp.json()
+            if 'status' in body:
+                return body['status']
+            else:
+                return {'status': '1'}
+
+        except requests.exceptions.HTTPError as err:
+            print(err)
+            return requests.exceptions.HTTPError
 
     async def manual_mode_control(self, mode='charge', value='0'):
+        try:
+            resp = requests.get(
+                self.url_ini + f"/{self.serial}?device_brand={self.device_brand}&manual_mode_control=1", headers=self.headers)
 
-        return {"ReturnCode": "0"}
+            body = resp.json()
+            if 'ReturnCode' in body:
+                return body['ReturnCode']
+            else:
+                return {'ReturnCode': '1'}
+
+        except requests.exceptions.HTTPError as err:
+            print(err)
+            return requests.exceptions.HTTPError
 
     async def enable_self_consumption(self):
         return {"status": "0"}

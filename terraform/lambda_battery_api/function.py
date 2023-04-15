@@ -1,6 +1,6 @@
 import boto3
 import json
-
+from enum import Enum
 dynamodb = boto3.client('dynamodb')
 table_name = 'openadr-NHEC-dev-mock-battery'
 
@@ -32,48 +32,78 @@ get_battery_data = {
 }
 
 
+class DeviceBrand(Enum):
+    SONNEN_BATTERY = 'sonnen_battery'
+    EGAUGE = 'egauge'
+    THEROMSTAT = 'thermostat'
+    SOLAR = 'solar'
+    WATER_HEATER = 'water_heater'
+
+
 def handler(event, context):
     try:
         http_method = event['httpMethod']
         if http_method == 'GET':
             serial = event['pathParameters']['serial']
-            return get_battery_info_from_dynamodb(
-                serial=serial,
-                table_name=table_name,
-                dynamodb_client=dynamodb
-            )
+            query_params = event['queryStringParameters']
+            if 'device_brand' not in query_params:
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json'},
+                    'body': json.dumps({'error ': 'query_params is missing'})
+                }
+            device_brand = query_params.get('device_brand', None)
+            if device_brand is None:
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json'},
+                    'body': json.dumps({'error ': 'device_brand is missing'})
+                }
+            if device_brand.lower() == DeviceBrand.SONNEN_BATTERY.value:
+                # control mode
+                enable_manual_mode = query_params.get(
+                    'enable_manual_mode', None)
+                if enable_manual_mode is not None:
+                    return {
+                        'statusCode': 200,
+                        'status': 0,
+                        'headers': {'Content-Type': 'application/json'},
+                        'body': json.dumps({'enable_manual_mode': enable_manual_mode})
+                    }
+                manual_mode_control = query_params.get(
+                    'manual_mode_control', None)
+                if manual_mode_control is not None:
+                    return {
+                        'statusCode': 200,
+                        'ReturnCode': 0,
+                        'headers': {'Content-Type': 'application/json'},
+                        'body': json.dumps({'manual_mode_control': manual_mode_control})
+                    }
 
-        elif http_method == 'POST':
-            return {
-                'statusCode': 200,
-                'body': json.dumps({'serial': "post serial id"})
-            }
-    except Exception as e:
-        return {
-            'statusCode': 500,
-            'headers': {'Content-Type': 'application/json'},
-            'body': json.dumps({'error ': str(e)})
-        }
-
-
-def get_battery_info_from_dynamodb(serial: str, table_name: str, dynamodb_client):
-    try:
-
-        response = dynamodb_client.query(
-            TableName=table_name,
-            KeyConditionExpression='serial = :val',
-            ExpressionAttributeValues={
-                ':val': {'S': serial}
-            }
-        )
-        if 'Items' in response:
-            items = []
-            if len(response['Items']) > 0:
-                for item in response['Items']:
-                    items.append({
-                        'serial': item['serial']['S'],
-                        'token': item['token']['S']
-                    })
+                # return battery data
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json'},
+                    'body': json.dumps(get_battery_data)
+                }
+            else:
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json'},
+                    'body': json.dumps({'error ': f'device brand{device_brand} not supported'})
+                }
+        elif http_method == 'PUT':
+            serial = event['pathParameters']['serial']
+            request_body = json.loads(event['body'])
+            if 'device_brand' not in request_body:
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json'},
+                    'body': json.dumps({'error ': 'device_brand is missing'})
+                }
+            device_brand = request_body['device_brand']
+            if device_brand == DeviceBrand.SONNEN_BATTERY.value:
+                # control battery
 
                 return {
                     'statusCode': 200,
@@ -82,20 +112,13 @@ def get_battery_info_from_dynamodb(serial: str, table_name: str, dynamodb_client
                 }
             else:
                 return {
-                    'statusCode': 404,
-                    'body': 'No objects found with serial: {}'.format(serial)
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json'},
+                    'body': json.dumps({'error ': f'device brand{device_brand} not supported'})
                 }
-
-        # If no objects are found, return a failure response
-        else:
-            return {
-                'statusCode': 404,
-                'body': 'No objects found with serial: {}'.format(serial)
-            }
-
-    # If an error occurs, return an error response
     except Exception as e:
         return {
             'statusCode': 500,
-            'body': 'Error retrieving object: {}'.format(str(e))
+            'headers': {'Content-Type': 'application/json'},
+            'body': json.dumps({'error ': str(e)})
         }

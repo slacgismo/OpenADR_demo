@@ -11,10 +11,10 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-LOCAL} # AWS or LOCAL
       - AGENT_ID=${AGENT_ID:-d5f36f77f24d19a2820538f415b0fd}
       - RESOURCE_ID=${RESOURCE_ID:-resource0}
-      - METER_API_URL=${METER_API_URL:-https://ojw7mhmbpd.execute-api.us-east-2.amazonaws.com/dev/meter}
-      - DEVICES_API_URL=${DEVICES_API_URL:-https://ojw7mhmbpd.execute-api.us-east-2.amazonaws.com/dev/device}
-      - ORDERS_API_URL=${ORDERS_API_URL:-https://ojw7mhmbpd.execute-api.us-east-2.amazonaws.com/dev/order}
-      - DISPATCHES_API_URL=${DISPATCHES_API_URL:-https://ojw7mhmbpd.execute-api.us-east-2.amazonaws.com/dev/dispatch}
+      - METER_API_URL=${METER_API_URL:-https://mn8htmbur2.execute-api.us-east-2.amazonaws.com/dev/meter}
+      - DEVICES_API_URL=${DEVICES_API_URL:-https://mn8htmbur2.execute-api.us-east-2.amazonaws.com/dev/device}
+      - ORDERS_API_URL=${ORDERS_API_URL:-https://mn8htmbur2.execute-api.us-east-2.amazonaws.com/dev/order}
+      - DISPATCHES_API_URL=${DISPATCHES_API_URL:-https://mn8htmbur2.execute-api.us-east-2.amazonaws.com/dev/dispatch}
       - MARKET_INTERVAL_IN_SECONDS=${MARKET_INTERVAL_IN_SECONDS:-20}
     networks:
       - adrnet
@@ -42,7 +42,7 @@ services:
       - DEVICE_ID=${DEVICE_ID:-2b24017403c418d73b4829372f9c5b43}
       - AGENT_ID=${AGENT_ID:-agent-d5f36f77f24d19a2820538f415b0fd}
       - DEVICE_TYPE=${DEVICE_TYPE:-ES}
-      - EMULATED_DEVICE_API_URL=${EMULATED_DEVICE_API_URL:-https://i75blw8jig.execute-api.us-east-2.amazonaws.com/dev/battery_api}
+      - EMULATED_DEVICE_API_URL=${EMULATED_DEVICE_API_URL:-https://dimv3a4ze9.execute-api.us-east-2.amazonaws.com/dev/battery_api}
       - 'DEVICE_SETTINGS={"device_brand": "SONNEN_BATTERY", "battery_token": "b51f18cd294592a3777f243287938d", "battery_sn": "40857","flexible":"1","is_using_mock_device":"True"}'
       - MARKET_INTERVAL_IN_SECONDS=${MARKET_INTERVAL_IN_SECONDS:-20}
     command: >

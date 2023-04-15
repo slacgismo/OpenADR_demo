@@ -23,30 +23,30 @@ resource "aws_iam_role_policy_attachment" "battery_api_lambda_policy" {
 }
 
 
-resource "aws_iam_policy" "dyanmodb_lambda_access" {
+# resource "aws_iam_policy" "dyanmodb_lambda_access" {
   
-  depends_on = [aws_dynamodb_table.mock_battery_table]
-  # name = "dyanmodb_lambda_access"
-  name           = "${var.prefix}-${var.client}-${var.environment}-dynamodb-lambda-access-ploicy"
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "dynamodb:BatchGetItem",
-          "dynamodb:GetItem",
-          "dynamodb:Query",
-          "dynamodb:Scan",
-          "dynamodb:BatchWriteItem",
-          "dynamodb:PutItem",
-          "dynamodb:UpdateItem",
-        ]
-        Effect   = "Allow"
-        "Resource": "${aws_dynamodb_table.mock_battery_table.arn}"
-      },
-    ]
-  })
-}
+#   depends_on = [aws_dynamodb_table.mock_battery_table]
+#   # name = "dyanmodb_lambda_access"
+#   name           = "${var.prefix}-${var.client}-${var.environment}-dynamodb-lambda-access-ploicy"
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Action = [
+#           "dynamodb:BatchGetItem",
+#           "dynamodb:GetItem",
+#           "dynamodb:Query",
+#           "dynamodb:Scan",
+#           "dynamodb:BatchWriteItem",
+#           "dynamodb:PutItem",
+#           "dynamodb:UpdateItem",
+#         ]
+#         Effect   = "Allow"
+#         "Resource": "${aws_dynamodb_table.mock_battery_table.arn}"
+#       },
+#     ]
+#   })
+# }
 
 resource "aws_iam_policy" "s3_bucket_access" {
   name = "${var.prefix}-${var.client}-${var.environment}-s3-bucket-ploicy"
@@ -69,10 +69,10 @@ resource "aws_iam_policy" "s3_bucket_access" {
 
 
 
-resource "aws_iam_role_policy_attachment" "dyanmodb_lambda_access_attach" {
-  role       = aws_iam_role.battery_api_lambda_exec.name
-  policy_arn = aws_iam_policy.dyanmodb_lambda_access.arn
-}
+# resource "aws_iam_role_policy_attachment" "dyanmodb_lambda_access_attach" {
+#   role       = aws_iam_role.battery_api_lambda_exec.name
+#   policy_arn = aws_iam_policy.dyanmodb_lambda_access.arn
+# }
 
 
 

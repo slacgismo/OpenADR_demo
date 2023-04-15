@@ -236,12 +236,13 @@ async def submit_dispatch_to_vtn(
     dispatch_data = {
         "order_id": order_id,
         "record_time": int(time.time()),
-        "quantity": quantity
+        "quantity": str(quantity)
     }
     logging.info(
         f"send dispatch request to TESS dispatch api: {url}")
+    headers = {'Content-Type': 'application/json'}
     async with aiohttp.ClientSession() as session:
-        async with session.put(vtn_dispatch_url, json=dispatch_data, timeout=timeout) as response:
+        async with session.put(vtn_dispatch_url, json=dispatch_data, timeout=timeout, headers=headers) as response:
             content_type = response.headers.get('Content-Type', '')
             if 'application/json' not in content_type:
                 text = await response.text()

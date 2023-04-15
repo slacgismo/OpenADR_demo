@@ -30,7 +30,7 @@ data "template_file" "devices_worker_container_definitions" {
     log_group_name                                      = "${aws_cloudwatch_log_group.worker_task_logs.name}"
     log_group_region                                    = "${var.aws_region}"
     WORKER_PORT                                         = "${var.worker_port}"
-    ENV                                                 = "${var.environment}"
+    ENVIRONMENT                                                 = "${var.environment}"
 
   }
 }

@@ -6,12 +6,20 @@ import aiohttp
 from classes.Devices_Enum import DEVICE_TYPES, BATTERY_BRANDS
 from .handle_order import sumbit_oder_to_oder_api
 import time
+from enum import Enum
 
 
 async def handle_meter(request, METER_API_URL, MARKET_INTERVAL_IN_SECONDS):
     """
     Handle a meter.
+    "readings": device_data,
+    "device_id": device_id,
+    "meter_id": meter_id,
+    "resource_id": resource_id,
+    "device_brand": device_brand,
+    "status": status
     """
+
     status = None
     response_obj = {'status': status}
     try:
@@ -20,30 +28,26 @@ async def handle_meter(request, METER_API_URL, MARKET_INTERVAL_IN_SECONDS):
         logging.info("=====================================")
         logging.info(f"handle_meter: {ven_id}")
         logging.info("=====================================")
-        if 'device_id' not in data or 'meter_id' not in data or 'resource_id' not in data or 'device_data' not in data or 'device_type' not in data or 'device_brand' not in data:
+        if 'device_id' not in data or 'meter_id' not in data or 'resource_id' not in data or 'readings' not in data or 'device_brand' not in data:
             raise Exception(f"Error parse meter data: {data}")
         logging.info("Convert device data to meter data")
-        device_data = data['device_data']
+        readings = data['readings']
         device_id = data['device_id']
         meter_id = data['meter_id']
-        device_type = data['device_type']
         resource_id = data['resource_id']
         device_brand = data['device_brand']
-        real_energy, reactive_energy, real_power, reactive_power = convert_device_data_to_meter_data(
-            device_type=device_type,
-            device_brand=device_brand,
-            market_interval_in_secondss=MARKET_INTERVAL_IN_SECONDS,
-            device_data=device_data)
-
+        status = data['status']
         meter_url = METER_API_URL + "/" + device_id + "/" + meter_id
-
         meter_data = {
             "resource_id": resource_id,
-            "real_energy": real_energy,
-            "reactive_energy": reactive_energy,
-            "real_power": real_power,
-            "reactive_power": reactive_power,
-        }
+            "readings": readings,
+            "device_id": device_id,
+            "device_brand": device_brand,
+            "status": status}
+        logging.info("=====================================")
+        logging.info(f"send to meter url: {meter_url}")
+        logging.info(f"send to meter data: {meter_data}")
+        logging.info("=====================================")
 
         async with aiohttp.ClientSession() as session:
             async with session.put(meter_url, json=meter_data) as meter_response:
@@ -65,6 +69,7 @@ async def handle_meter(request, METER_API_URL, MARKET_INTERVAL_IN_SECONDS):
 
     except Exception as e:
         # Bad path where name is not set
+        logging.error(f"get meter data failed {e}")
         response_obj = {'status': 'failed', 'info': str(e)}
         # return failed with a status code of 500 i.e. 'Server Error'
         return web.json_response(response_obj, status=500)

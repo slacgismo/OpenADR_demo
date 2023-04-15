@@ -29,10 +29,6 @@
                 "value": "${AWS_REGION}"
             },
             {
-                "name": "FIFO_DLQ_URL",
-                "value": "${FIFO_DLQ_URL}"
-            },
-            {
                 "name": "HEALTH_CHEKC_PORT",
                 "value": "${HEALTH_CHEKC_PORT}"
             },
@@ -49,12 +45,8 @@
                 "value": "${WORKER_PORT}"
             },
             {
-                "name": "ENV",
-                "value": "${ENV}"
-            },
-            {
-                "name": "SQS_GROUPID",
-                "value": "${SQS_GROUPID}"
+                "name": "ENVIRONMENT",
+                "value": "${ENVIRONMENT}"
             }
         ],
         "HealthCheck":{
