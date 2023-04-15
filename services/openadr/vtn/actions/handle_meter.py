@@ -37,13 +37,16 @@ async def handle_meter(request, METER_API_URL, MARKET_INTERVAL_IN_SECONDS):
         resource_id = data['resource_id']
         device_brand = data['device_brand']
         status = data['status']
+        timestamp = data['timestamp']
         meter_url = METER_API_URL + "/" + device_id + "/" + meter_id
         meter_data = {
             "resource_id": resource_id,
             "readings": readings,
             "device_id": device_id,
             "device_brand": device_brand,
-            "status": status}
+            "status": status,
+            "timestamp": timestamp
+        }
         logging.info("=====================================")
         logging.info(f"send to meter url: {meter_url}")
         logging.info(f"send to meter data: {meter_data}")

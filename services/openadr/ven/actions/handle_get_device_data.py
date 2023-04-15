@@ -82,12 +82,13 @@ async def handle_get_device_data(
                 raise Exception(f"status {status} is not supported yet")
 
             data = {
-                "readings": device_data,
+                "readings": json.dumps(device_data),
                 "device_id": device_id,
                 "meter_id": meter_id,
                 "resource_id": resource_id,
                 "device_brand": device_brand,
                 "status": status,
+                "timestamp": int(time.time())
             }
             response = await put_data_to_meter_api(
                 data=data,

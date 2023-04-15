@@ -50,7 +50,8 @@ resource "aws_lambda_function" "lambda_meters" {
   source_code_hash = data.archive_file.lambda_meters.output_base64sha256
   environment {
     variables = {
-      "METERS_TABLE_NAME" = aws_dynamodb_table.meters.name
+      "METERS_TABLE_NAME" = aws_dynamodb_table.meters.name,
+      "READINGS_TABLE_NAME" = aws_timestreamwrite_table.readings.name
     }
   }
   role = aws_iam_role.lambda_meters_lambda_exec.arn
