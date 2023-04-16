@@ -42,6 +42,8 @@ async def submit_order_to_vtn(
     market_interval: int = 60,
     market_start_time: str = None,
     advanced_seconds: int = 0,
+    price_floor: float = None,
+    price_ceiling: float = None
     # shared_device_info: SharedDeviceInfo = None,
 ):
 
@@ -97,7 +99,9 @@ async def submit_order_to_vtn(
                 device_type=DEVICE_TYPES.ES.value,
                 deivce_brand=BATTERY_BRANDS.SONNEN_BATTERY.value,
                 market_index=market_index,
-                market_interval=market_interval
+                market_interval=market_interval,
+                price_floor=price_floor,
+                price_ceiling=price_ceiling
             )
 
             order_id, dispatch_timestamp, quantity = await put_data_to_order_api_of_vtn(
@@ -135,7 +139,9 @@ def convert_device_data_to_order_data(
         deivce_brand: str = None,
         market_index: int = 0,
         simulation_oder_json_file='./actions/dump_orders.json',
-        market_interval: int = 60
+        market_interval: int = 60,
+        price_floor: float = 0.0,
+        price_ceiling: float = 100.0
 ):
     if device_data is None:
         raise Exception("device_data cannot be None")

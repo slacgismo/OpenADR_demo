@@ -15,6 +15,8 @@ class MessageBodyKeys(Enum):
     DEVICE_TYPE = "device_type"
     METER_ID = "meter_id"
     DEVICE_SETTINGS = "device_settings"
+    PRICE_FLOOR = "price_floor"
+    PRICE_CEILING = "price_ceiling"
 
 
 class DeviceSettingsKeys(Enum):

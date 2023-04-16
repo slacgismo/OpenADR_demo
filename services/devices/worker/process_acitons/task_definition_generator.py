@@ -57,6 +57,8 @@ class VEN_TASK_VARIANTS_ENUM(Enum):
     MARKET_INTERVAL_IN_SECONDS = "MARKET_INTERVAL_IN_SECONDS"
     # from device admin environment variables
     EMULATED_DEVICE_API_URL = "EMULATED_DEVICE_API_URL"
+    PRICE_FLOOR = "PRICE_FLOOR"
+    PRICE_CEILING = "PRICE_CEILING"
 
 
 CONTAINER_DEFINITION_TEMPLATE = ({
@@ -83,6 +85,8 @@ def create_ven_params(
     device_type: str,
     device_settings: dict,
     market_interval_in_seconds: str,
+    price_floor: str,
+    price_ceiling: str,
 
 ) -> dict:
     ven_params = dict()
@@ -106,6 +110,10 @@ def create_ven_params(
             ven_params[key] = device_settings
         elif key == VEN_TASK_VARIANTS_ENUM.MARKET_INTERVAL_IN_SECONDS.value:
             ven_params[key] = market_interval_in_seconds
+        elif key == VEN_TASK_VARIANTS_ENUM.PRICE_FLOOR.value:
+            ven_params[key] = price_floor
+        elif key == VEN_TASK_VARIANTS_ENUM.PRICE_CEILING.value:
+            ven_params[key] = price_ceiling
         else:
             raise Exception(
                 f"ven key {key} is not set, please check your code")
@@ -320,123 +328,125 @@ def parse_message_body_to_vtn_environment_variables(
     return variables
 
 
-def create_and_export_task_definition(
-    agent_id: str,
-    market_interval_in_seconds: str,
-    resource_id: str,
-    env: str,
-    METER_API_URL: str,
-    DEVICES_API_URL: str,
-    ORDERS_API_URL: str,
-    DISPATCHES_API_URL: str,
-    devices: list,
-    app_image_vtn: str,
-    log_group_name: str,
-    aws_region: str,
-    vtn_address: str,
-    vtn_port: str,
-    app_image_ven: str,
-    EMULATED_DEVICE_API_URL: str,
-    file_name: str,
-    path: str,
+# def create_and_export_task_definition(
+#     agent_id: str,
+#     market_interval_in_seconds: str,
+#     resource_id: str,
+#     env: str,
+#     METER_API_URL: str,
+#     DEVICES_API_URL: str,
+#     ORDERS_API_URL: str,
+#     DISPATCHES_API_URL: str,
+#     devices: list,
+#     app_image_vtn: str,
+#     log_group_name: str,
+#     aws_region: str,
+#     vtn_address: str,
+#     vtn_port: str,
+#     app_image_ven: str,
+#     EMULATED_DEVICE_API_URL: str,
+#     file_name: str,
+#     path: str,
 
-) -> bool:
-    """
-    parse message body and create task definition
-    params: message_body: dict
-    params: file_name:
-    params: path:
-    """
-    if not os.path.exists(path):
-        raise Exception(f"{path} path not found")
-    vtn_id = 'vtn-' + agent_id
+# ) -> bool:
+#     """
+#     parse message body and create task definition
+#     params: message_body: dict
+#     params: file_name:
+#     params: path:
+#     """
+#     if not os.path.exists(path):
+#         raise Exception(f"{path} path not found")
+#     vtn_id = 'vtn-' + agent_id
 
-    vtn_environment_variables = create_vtn_params(
-        market_interval_in_seconds=market_interval_in_seconds,
-        agent_id=agent_id,
-        resource_id=resource_id,
-        env=env,
-        METER_API_URL=METER_API_URL,
-        DEVICES_API_URL=DEVICES_API_URL,
-        ORDERS_API_URL=ORDERS_API_URL,
-        DISPATCHES_API_URL=DISPATCHES_API_URL,
-    )
+#     vtn_environment_variables = create_vtn_params(
+#         market_interval_in_seconds=market_interval_in_seconds,
+#         agent_id=agent_id,
+#         resource_id=resource_id,
+#         env=env,
+#         METER_API_URL=METER_API_URL,
+#         DEVICES_API_URL=DEVICES_API_URL,
+#         ORDERS_API_URL=ORDERS_API_URL,
+#         DISPATCHES_API_URL=DISPATCHES_API_URL,
+#     )
 
-    vtn_container_definition = generate_vtn_task_definition(
-        vtn_template=CONTAINER_DEFINITION_TEMPLATE.copy(),
-        vtn_id=vtn_id,
-        agent_id=agent_id,
-        app_image_vtn=app_image_vtn,
-        log_group_name=log_group_name,
-        log_group_region=aws_region,
-        environment_variables=vtn_environment_variables,
-        vtn_address=vtn_address,
-        vtn_port=vtn_port,
-    )
-    # if "devices" not in message_body:
-    #     raise Exception("devices not found in message body")
-    # devices = message_body['devices']
-    ven_container_definition_list = list()
-    vens_info = list()
+#     vtn_container_definition = generate_vtn_task_definition(
+#         vtn_template=CONTAINER_DEFINITION_TEMPLATE.copy(),
+#         vtn_id=vtn_id,
+#         agent_id=agent_id,
+#         app_image_vtn=app_image_vtn,
+#         log_group_name=log_group_name,
+#         log_group_region=aws_region,
+#         environment_variables=vtn_environment_variables,
+#         vtn_address=vtn_address,
+#         vtn_port=vtn_port,
+#     )
+#     # if "devices" not in message_body:
+#     #     raise Exception("devices not found in message body")
+#     # devices = message_body['devices']
+#     ven_container_definition_list = list()
+#     vens_info = list()
 
-    for device in devices:
+#     for device in devices:
 
-        device_id = device['device_id']
-        meter_id = device['meter_id']
-        device_type = device['device_type']
-        flexible = device['flexible']
-        is_using_mock_device = device['is_using_mock_device']
+#         device_id = device['device_id']
+#         meter_id = device['meter_id']
+#         device_type = device['device_type']
+#         flexible = device['flexible']
+#         is_using_mock_device = device['is_using_mock_device']
 
-        ven_environment_variables = dict()
-        for key, value in enumerate(VEN_TASK_VARIANTS_ENUM):
+#         ven_environment_variables = dict()
+#         for key, value in enumerate(VEN_TASK_VARIANTS_ENUM):
 
-            # have convet json format to string to pass to ven
-            device_settings_str = json.dumps(device["device_settings"])
+#             # have convet json format to string to pass to ven
+#             device_settings_str = json.dumps(device["device_settings"])
 
-        ven_environment_variables = create_ven_params(
-            env=env,
-            resource_id=resource_id,
-            meter_id=meter_id,
-            device_id=device_id,
-            agent_id=agent_id,
-            EMULATED_DEVICE_API_URL=EMULATED_DEVICE_API_URL,
-            device_type=device_type,
-            device_settings=device_settings_str,
-            market_interval_in_seconds=market_interval_in_seconds,
-            flexible=str(flexible),
-            is_using_mock_device=str(is_using_mock_device),
-        )
-        ven_id = 'ven-' + device_id
-        vens_info.append({
-            "ven_id": ven_id,
-            "device_id": device_id,
-            "meter_id": meter_id
-        })
-        ven_container_definition = generate_ven_task_definition(
-            ven_template=CONTAINER_DEFINITION_TEMPLATE.copy(),
-            ven_id=ven_id,
-            agent_id=agent_id,
-            app_image_ven=app_image_ven,
-            log_group_name=log_group_name,
-            log_group_region=aws_region,
-            environment_variables=ven_environment_variables,
-        )
+#         ven_environment_variables = create_ven_params(
+#             env=env,
+#             resource_id=resource_id,
+#             meter_id=meter_id,
+#             device_id=device_id,
+#             agent_id=agent_id,
+#             EMULATED_DEVICE_API_URL=EMULATED_DEVICE_API_URL,
+#             device_type=device_type,
+#             device_settings=device_settings_str,
+#             market_interval_in_seconds=market_interval_in_seconds,
+#             flexible=str(flexible),
+#             is_using_mock_device=str(is_using_mock_device),
+#             price_floor=price_ceiling=)
+#         ven_id = 'ven-' + device_id
+#         vens_info.append({
+#             "ven_id": ven_id,
+#             "device_id": device_id,
+#             "meter_id": meter_id
+#         })
+#         ven_container_definition = generate_ven_task_definition(
+#             ven_template=CONTAINER_DEFINITION_TEMPLATE.copy(),
+#             ven_id=ven_id,
+#             agent_id=agent_id,
+#             app_image_ven=app_image_ven,
+#             log_group_name=log_group_name,
+#             log_group_region=aws_region,
+#             environment_variables=ven_environment_variables,
+#         )
 
-        ven_container_definition_list.append(ven_container_definition)
-    # combine vtn and ven definition
-    task_definition = combine_vtn_and_vens_as_task_definition(
-        vtn_definition=vtn_container_definition,
-        vens_definition=ven_container_definition_list
-    )
-    # print("task_definition: ", task_definition)
-    # export to file
-    path_file_name = os.path.join(path, file_name)
-    export_to_json_tpl(task_definition, path_file_name)
-    return vtn_id, vens_info
+#         ven_container_definition_list.append(ven_container_definition)
+#     # combine vtn and ven definition
+#     task_definition = combine_vtn_and_vens_as_task_definition(
+#         vtn_definition=vtn_container_definition,
+#         vens_definition=ven_container_definition_list
+#     )
+#     # print("task_definition: ", task_definition)
+#     # export to file
+#     path_file_name = os.path.join(path, file_name)
+#     export_to_json_tpl(task_definition, path_file_name)
+#     return vtn_id, vens_info
 
 
 def create_new_task_definition(
     market_interval_in_seconds: str,
+    price_floor: str,
+    price_ceiling: str,
     agent_id: str,
     resource_id: str,
     device_settings: dict,
@@ -483,6 +493,8 @@ def create_new_task_definition(
         EMULATED_DEVICE_API_URL=VariablesDefinedInTerraform.EMULATED_DEVICE_API_URL.value,
         device_settings=device_settings_str,
         market_interval_in_seconds=market_interval_in_seconds,
+        price_floor=price_floor,
+        price_ceiling=price_ceiling,
     )
     ven_id = "ven-" + device_id
     ven_container_definition = generate_ven_task_definition(

@@ -21,16 +21,25 @@ from actions.check_vtn import check_vtn_and_retry
 from helper.str2bool import str2bool
 try:
     ENVIRONMENT = os.environ['ENVIRONMENT']
-    RESOURCE_ID = os.environ['RESOURCE_ID']
-    METER_ID = os.environ['METER_ID']
-    DEVICE_ID = os.environ['DEVICE_ID']
-    AGENT_ID = os.environ['AGENT_ID']
 
-    DEVICE_TYPE = os.environ['DEVICE_TYPE']
+    # Terraform
     EMULATED_DEVICE_API_URL = os.environ['EMULATED_DEVICE_API_URL']
+
+    # from devices table
+    DEVICE_TYPE = os.environ['DEVICE_TYPE']
+    DEVICE_ID = os.environ['DEVICE_ID']
+
+    # from agent table
+    AGENT_ID = os.environ['AGENT_ID']
+    RESOURCE_ID = os.environ['RESOURCE_ID']
+    # from meters table
+    METER_ID = os.environ['METER_ID']
+
+    # from markets table
     MARKET_INTERVAL_IN_SECONDS = os.environ['MARKET_INTERVAL_IN_SECONDS']
-    # FLEXIBLE = os.environ['FLEXIBLE']
-    # IS_USING_MOCK_DEVICE = os.environ['IS_USING_MOCK_DEVICE']
+    PRICE_FLOOR = os.environ['PRICE_FLOOR']
+    PRICE_CEILING = os.environ['PRICE_CEILING']
+    # from settings table
     DEVICE_SETTINGS = os.environ['DEVICE_SETTINGS']
 except Exception as e:
     raise Exception(f"Environment variables is not set correctly: {e}")
@@ -99,6 +108,8 @@ def main():
         shared_device_info.set_market_interval(market_interval)
         shared_device_info.set_market_start_time(MARKET_START_TIME)
         device_brand = device_settings["device_brand"]
+        shared_device_info.set_price_ceiling(float(PRICE_CEILING))
+        shared_device_info.set_price_floor(float(PRICE_FLOOR))
 
     except Exception as e:
 
@@ -161,7 +172,10 @@ def main():
             vtn_order_url=VTN_ORDER_URL,
             market_interval=int(MARKET_INTERVAL_IN_SECONDS),
             market_start_time=MARKET_START_TIME,
-            advanced_seconds=0), loop3
+            advanced_seconds=0,
+            price_ceiling=float(PRICE_CEILING),
+            price_floor=float(PRICE_FLOOR)
+        ), loop3
     )
 
     # ================== start the submit dispatch thread 4 ==================

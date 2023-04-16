@@ -45,6 +45,8 @@ services:
       - EMULATED_DEVICE_API_URL=${EMULATED_DEVICE_API_URL:-https://dimv3a4ze9.execute-api.us-east-2.amazonaws.com/dev/battery_api}
       - 'DEVICE_SETTINGS={"device_brand": "SONNEN_BATTERY", "battery_token": "b51f18cd294592a3777f243287938d", "battery_sn": "40857","flexible":"1","is_using_mock_device":"True"}'
       - MARKET_INTERVAL_IN_SECONDS=${MARKET_INTERVAL_IN_SECONDS:-20}
+      - PRICE_FLOOR=${PRICE_FLOOR:-0.0}
+      - PRICE_CEILING=${PRICE_CEILING:-100.0}
     command: >
       sh -c "python ven.py"
     ports:
