@@ -12,7 +12,10 @@ try:
     market_table = os.environ['MARKETS_TABLE']
     agent_table = os.environ['AGENTS_TABLE']
     settings_table = os.environ['SETTINGS_TABLE']
-
+    # os.environ['METERS_TABLE_GLOBAL_INDEX']
+    meters_table_global_index = "resource-device-index"
+    markets_table_global_index = "resource_id-index"
+    settings_table_global_index = "device_id-index"
 except Exception as e:
     print(f"Error getting environment variables: {e}")
     raise e
@@ -28,6 +31,46 @@ class EventName (Enum):
     INSERT = "INSERT"
     MODIFY = "MODIFY"
     REMOVE = "REMOVE"
+
+
+class DevicesTableAttribute (Enum):
+    DEVICE_ID = "device_id"
+    AGENT_ID = "agent_id"
+    DEVICE_TYPE = "device_type"
+    VALID_AT = "valid_at"
+
+
+class AgentsTableAttribute (Enum):
+    AGENT_ID = "agent_id"
+    RESOURCE_ID = "resource_id"
+    VALID_AT = "valid_at"
+
+
+class MetersTableAttribute (Enum):
+    METER_ID = "meter_id"
+    DEVICE_ID = "device_id"
+    RESOURCE_ID = "resource_id"
+    STATUS = "status"
+    VALID_AT = "valid_at"
+
+
+class MarketsTableAttribute (Enum):
+    MARKET_ID = "market_id"
+    NAME = "name"
+    RESOURCE_ID = "resource_id"
+    UNITS = "units"
+    PRICE_FLOOR = "price_floor"
+    PRICE_CEILING = "price_ceiling"
+    INTERVAL = "interval"
+    VALID_AT = "valid_at"
+
+# NEED TO CHECK WITH JOHN ABOUT THIS
+# class SETTINGS_TABLE_ATTRIBUTE (Enum):
+#     SETTING_ID = "setting_id"
+#     DEVICE_ID = "device_id"
+#     NAME = "name"
+#     VALUE = "value"
+#     VALID_AT = "valid_at"
 
 
 def handler(event, context):
@@ -93,9 +136,9 @@ def handle_event(event_name: EventName, body: dict, to_trigger_queue_url: str = 
             raise Exception("OldImage is missing from message body")
 
         old_image = body['dynamodb']['OldImage']
-        old_device_id = old_image['device_id']['S']
-        old_agent_id = old_image['agent_id']['S']
-        old_device_type = old_image['device_type']['S']
+        old_device_id = old_image[DevicesTableAttribute.DEVICE_ID.value]['S']
+        old_agent_id = old_image[DevicesTableAttribute.AGENT_ID.value]['S']
+        old_device_type = old_image[DevicesTableAttribute.DEVICE_TYPE.value]['S']
         remove_message = create_sqs_message(
             device_id=old_device_id, agent_id=old_agent_id, eventName=EventName.REMOVE.value, device_type=old_device_type)
         remove_response = send_message_to_sqs(
@@ -113,14 +156,14 @@ def handle_event(event_name: EventName, body: dict, to_trigger_queue_url: str = 
         if 'NewImage' not in body['dynamodb']:
             raise Exception("NewImage is missing from message body")
         old_image = body['dynamodb']['OldImage']
-        old_device_id = old_image['device_id']['S']
-        old_agent_id = old_image['agent_id']['S']
-        old_device_type = old_image['device_type']['S']
+        old_device_id = old_image[DevicesTableAttribute.DEVICE_ID.value]['S']
+        old_agent_id = old_image[DevicesTableAttribute.AGENT_ID.value]['S']
+        old_device_type = old_image[DevicesTableAttribute.DEVICE_TYPE.value]['S']
 
         new_image = body['dynamodb']['NewImage']
-        new_device_id = new_image['device_id']['S']
-        new_agent_id = new_image['agent_id']['S']
-        new_device_type = new_image['device_type']['S']
+        new_device_id = new_image[DevicesTableAttribute.DEVICE_ID.value]['S']
+        new_agent_id = new_image[DevicesTableAttribute.AGENT_ID.value]['S']
+        new_device_type = new_image[DevicesTableAttribute.DEVICE_TYPE.value]['S']
         if old_agent_id == new_agent_id and old_device_type == new_device_type:
             print("agenit_id and device_type are the same, do nothing")
             return
@@ -153,6 +196,8 @@ def create_sqs_message(device_id: str, agent_id: str, eventName: EventName, devi
         "device_id": "807f8e4a37446e80c5756a74a3598d",
         "device_type": "ES",
         "meter_id": "6436a67e184d3694a15886215ae464"
+        "price_floor": 0,
+        "price_ceiling": 100,
         "device_settings": {
             "battery_token": "12321321qsd",
             "battery_sn": "66354",
@@ -164,17 +209,45 @@ def create_sqs_message(device_id: str, agent_id: str, eventName: EventName, devi
     }
     """
     # get meter_id from meter table with device_id and resource_id
-    meter_id = "6436a67e184d3694a15886215ae464"
+    dynamodb_client = boto3.client('dynamodb')
+    meters_table_global_index_value = device_id + resource_id
+    meter_item = get_item_from_table(
+        table_name=meters_table, key=meters_table_global_index, value=meters_table_global_index_value, dynamodb_client=dynamodb_client)
+
+    meter_id = meter_item[MetersTableAttribute.METER_ID.value]['S']
+    print("meter_item: ", meter_item)
     # get resource id from agent table with agent_id
-    resource_id = "caff6719c24359a155a4d0d2f265a7"
+    agent_item = get_item_from_table(
+        table_name=agent_table, key=AgentsTableAttribute.AGENT_ID.value, value=agent_id, dynamodb_client=dynamodb_client)
+
+    print("agent item: ", agent_item)
+    resource_id = agent_item[AgentsTableAttribute.RESOURCE_ID.value]['S']
+
+    # resource_id = "caff6719c24359a155a4d0d2f265a7"
     # get market interval from market table with resource_id
-    market_interval_in_seconds = "60"
+    market_item = get_item_from_table(
+        table_name=market_table, key=markets_table_global_index, value=resource_id, dynamodb_client=dynamodb_client)
+    print("market item: ", market_item)
+    market_interval_in_seconds = market_item[MarketsTableAttribute.INTERVAL.value]['N']
+    price_floor = market_item[MarketsTableAttribute.PRICE_FLOOR.value]['N']
+    price_ceiling = market_item[MarketsTableAttribute.PRICE_CEILING.value]['N']
+
+    # market_interval_in_seconds = "60"
+    settings_item = get_item_from_table(
+        table_name=settings_table, key="device_id", value=settings_table_global_index, dynamodb_client=dynamodb_client)
     # get device flexible  from setting table
-    battery_token = "12321321qsd"
-    battery_sn = "66354"
-    device_brand = "SONNEN_BATTERY"
-    is_using_mock_device = "true"
-    flexible = "1"
+    print("settings item: ", settings_item)
+    flexible = settings_item['flexible']['S']
+    battery_token = settings_item['battery_token']['S']
+    battery_sn = settings_item['battery_sn']['S']
+    device_brand = settings_item['device_brand']['S']
+    is_using_mock_device = settings_item['is_using_mock_device']['S']
+
+    # battery_token = "12321321qsd"
+    # battery_sn = "66354"
+    # device_brand = "SONNEN_BATTERY"
+    # is_using_mock_device = "true"
+    # flexible = "1"
 
     message = {
         "eventName": eventName,
@@ -184,6 +257,8 @@ def create_sqs_message(device_id: str, agent_id: str, eventName: EventName, devi
         "device_id": device_id,
         "device_type": device_type,
         "meter_id": meter_id,
+        "price_floor": price_floor,
+        "price_ceiling": price_ceiling,
         "device_settings": {
             "battery_token": battery_token,
             "battery_sn": battery_sn,
@@ -215,3 +290,18 @@ def send_message_to_sqs(message: dict, queue_url: str):
 def guid():
     """Return a globally unique id"""
     return uuid.uuid4().hex[2:]
+
+
+def get_item_from_table(table_name: str, key: str, value: str, dynamodb_client) -> dict:
+    try:
+        table = dynamodb_client.Table(table_name)
+        response = table.get_item(
+            Key={
+                key: value
+            }
+        )
+        print(f"response: {response}")
+        return response
+    except Exception as e:
+        print(f"Error getting item from table: {e}")
+        raise e
