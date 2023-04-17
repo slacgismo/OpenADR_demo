@@ -30,6 +30,11 @@ async def handle_dispatch(
     logging.info("========================================")
     ven_id = shared_device_info.get_ven_id()
     while True:
+        error = shared_device_info.get_error()
+        if error:
+            # if there is an error from oher thread, stop the program
+            logging.error(f"critical error: {error}")
+            return
         try:
             dispatch_info = shared_device_info.get_first_dispatch()
             if dispatch_info is None:
@@ -86,8 +91,9 @@ async def handle_dispatch(
                         f"Submit dispatch to VTN failed {response_message}, no quantity in response. Do nothing.")
                     logging.info("========================================")
         except Exception as e:
-            raise Exception(
-                f" ========= Error in dispatch loop: {e} ========= ")
+            error_messge = f" handle dispatch error: {e}"
+            shared_device_info.set_error(error=error_messge)
+            break
 
 
 async def send_dispatch_quantity_to_device(

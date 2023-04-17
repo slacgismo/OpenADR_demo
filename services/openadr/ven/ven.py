@@ -161,6 +161,7 @@ def main():
             device_settings=device_settings,
             advanced_seconds_of_market_startime=5,
             vtn_measurement_url=VTN_METER_URL,
+            shared_device_info=shared_device_info
         ), loop2)
 
     # ================== start the submit order thread 3 ==================
@@ -174,7 +175,8 @@ def main():
             market_start_time=MARKET_START_TIME,
             advanced_seconds=0,
             price_ceiling=float(PRICE_CEILING),
-            price_floor=float(PRICE_FLOOR)
+            price_floor=float(PRICE_FLOOR),
+            shared_device_info=shared_device_info
         ), loop3
     )
 

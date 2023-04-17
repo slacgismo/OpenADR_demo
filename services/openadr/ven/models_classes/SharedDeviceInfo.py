@@ -24,6 +24,7 @@ class SharedDeviceInfo:
                  market_start_time: str = None,
                  price_floor: float = None,
                  price_ceiling: float = None,
+                 error: str = None,
                  ):
         if SharedDeviceInfo.__instance is not None:
             raise Exception(
@@ -44,6 +45,7 @@ class SharedDeviceInfo:
         self._price_floor = price_floor
         self._price_ceiling = price_ceiling
         self._dispatch_queue = dispatch_queue
+        self._error = error
         # self._dispatch_timestamp = dispatch_timestamp
         # self._dispatch_quantity = dispatch_quantity
         # self._price = price
@@ -168,3 +170,9 @@ class SharedDeviceInfo:
 
     def set_price_ceiling(self, price_ceiling):
         self._price_ceiling = price_ceiling
+
+    def get_error(self):
+        return self._error
+
+    def set_error(self, error):
+        self._error = error

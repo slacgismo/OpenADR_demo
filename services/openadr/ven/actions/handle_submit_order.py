@@ -43,13 +43,21 @@ async def submit_order_to_vtn(
     market_start_time: str = None,
     advanced_seconds: int = 0,
     price_floor: float = None,
-    price_ceiling: float = None
+    price_ceiling: float = None,
+    shared_device_info: SharedDeviceInfo = None,
     # shared_device_info: SharedDeviceInfo = None,
 ):
 
     logging.info("Submit order at market start time")
 
     while True:
+
+        error = shared_device_info.get_error()
+        if error:
+            # if there is an error from other thread, stop the program
+            logging.error(f"critical error: {error}")
+            return
+
         market_start_timestamp = convert_datetime_to_timsestamp(
             time_str=market_start_time)
         # get the current time
@@ -77,7 +85,6 @@ async def submit_order_to_vtn(
 
             shared_device_data = SharedDeviceData.get_instance()
             device_data = shared_device_data.get()
-
             if device_data is None:
                 logging.info("====================================")
                 logging.info(
@@ -132,7 +139,8 @@ async def submit_order_to_vtn(
 
                 shared_device_data.clear()
         except Exception as e:
-            logging.error(f"Error submit order: {e}")
+            error_message = f"Error submit order: {e}"
+            shared_device_info.set_error(error=error_message)
             break
 
 

@@ -15,6 +15,7 @@ import aiohttp
 from enum import Enum
 import json
 from api.sonnen_battery.Sonnen_Battery_Enum import SonnenBatteryAttributeKey, SonnenBatterySystemStatus
+from models_classes.SharedDeviceInfo import SharedDeviceInfo
 
 
 class ReadingsTableAttributes(Enum):
@@ -43,11 +44,18 @@ async def handle_get_device_data(
     emulated_device_api_url: str = None,
     device_settings: dict = None,
     advanced_seconds_of_market_startime: int = 0,
-    vtn_measurement_url: str = None
+    vtn_measurement_url: str = None,
+    shared_device_info: SharedDeviceInfo = None,
 ):
     logging.info(
         f"Get device before {advanced_seconds_of_market_startime} market start time")
     while True:
+        error = shared_device_info.get_error()
+        if error:
+            # if there is an error from other thread, stop the program
+            logging.error(f"critical error: {error}")
+            return
+
         await wait_till_next_market_start_time(
             market_start_time=market_start_time,
             market_interval=market_interval,
@@ -96,8 +104,11 @@ async def handle_get_device_data(
             logging.info(f"Put data to vtn meter: {response}")
 
         except Exception as e:
-            logging.error(f"Error get device data {e}")
-            raise Exception(f"Error get device data: {e}")
+            error_message = f"Error get device data: {e}"
+            shared_device_data.set_error(error=error_message)
+            break
+            # logging.error(f"Error get device data {e}")
+            # raise Exception(f"Error get device data: {e}")
 
 
 async def get_devices_data(
