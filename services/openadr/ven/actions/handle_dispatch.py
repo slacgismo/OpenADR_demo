@@ -2,7 +2,6 @@
 from models_classes.SharedDeviceInfo import SharedDeviceInfo
 import logging
 from models_classes.Devices_Enum import DEVICE_TYPES, BATTERY_BRANDS, SONNEN_BATTERY_DEVICE_SETTINGS
-from api.sonnen_battery.Sonnen_Battery_Enum import SonnenBatteryAttributeKey
 from api.sonnen_battery.sonnen_api import SonnenInterface
 from api.sonnen_battery.mock_sonnen_api import MockSonnenInterface
 import time
@@ -13,20 +12,11 @@ from api.sonnen_battery.mock_sonnen_api import MockSonnenInterface
 from models_classes.Devices_Enum import DEVICE_TYPES, BATTERY_BRANDS, SONNEN_BATTERY_DEVICE_SETTINGS
 from models_classes.SharedDeviceInfo import SharedDeviceInfo
 from models_classes.Devices_Enum import DEVICE_TYPES, BATTERY_BRANDS, SONNEN_BATTERY_DEVICE_SETTINGS
-from api.sonnen_battery.Sonnen_Battery_Enum import SonnenBatteryAttributeKey
-from typing import Dict
 import logging
 import time
 import logging
 import time
-from helper.conver_date_to_timestamp import wait_till_next_market_start_time, current_market_start_timestamp, convert_datetime_to_timsestamp
-from models_classes.SharedDeviceData import SharedDeviceData
 import aiohttp
-from enum import Enum
-import json
-from helper.guid import guid
-import os
-from .putdata import put_data
 
 
 async def handle_dispatch(
@@ -42,7 +32,6 @@ async def handle_dispatch(
     while True:
         try:
             dispatch_info = shared_device_info.get_first_dispatch()
-            market_start_time = shared_device_info.get_market_start_time()
             if dispatch_info is None:
                 # logging.info("No dispatch request")
                 await asyncio.sleep(1)
