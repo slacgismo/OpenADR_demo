@@ -68,7 +68,6 @@ async def handle_order(request, ORDERS_API_URL):
             quantity=quantity,
             ORDERS_API_URL=ORDERS_API_URL
         )
-
         # wait till market interval end
         if order_body:
             logging.info(f" order body :{order_body}")
@@ -99,7 +98,7 @@ async def handle_order(request, ORDERS_API_URL):
             }
             return web.json_response(payload, status=200)
         else:
-            return web.json_response("fail", status=400)
+            return web.json_response({"error": "vtn faile to submit order"}, status=400)
 
     except Exception as e:
         raise Exception(f"Error handle order: {e}")
@@ -140,11 +139,12 @@ async def sumbit_oder_to_oder_api(
                     message = await response.text()
 
                     raise Exception(
-                        f"******** Unexpected content type: {content_type} message: {message} ********")
+                        f"******** Unexpected content type: {content_type} message: {message}")
 
                 if response.status != 200:
-                    raise Exception(
-                        f"Error submit order to TESS: {response.status}")
+                    return None
+                    # raise Exception(
+                    #     f"Error submit order to TESS: {response.status}")
                 else:
                     body = await response.json()
                     return body

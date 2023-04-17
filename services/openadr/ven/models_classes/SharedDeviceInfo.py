@@ -123,6 +123,9 @@ class SharedDeviceInfo:
     def set_market_interval(self, market_interval):
         self._market_interval = market_interval
 
+    def clear_dispatch_queue(self):
+        self._dispatch_queue = None
+
     def get_first_dispatch(self):
         if self._dispatch_queue is not None and len(self._dispatch_queue) > 0:
             return self._dispatch_queue.pop(0)

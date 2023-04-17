@@ -243,6 +243,7 @@ async def submit_dispatch_to_vtn(
     }
 
     headers = {'Content-Type': 'application/json'}
+    logging.info("submit_dispatch_to_lambda ")
     async with aiohttp.ClientSession() as session:
         async with session.put(vtn_dispatch_url, json=dispatch_data, timeout=2, headers=headers) as response:
             content_type = response.headers.get('Content-Type', '')
@@ -252,6 +253,7 @@ async def submit_dispatch_to_vtn(
                     f"Unexpected content type: {content_type} {text}")
                 raise Exception(f"Unexpected content type: {content_type}")
             if response.status != 200:
+                logging.info(f"Error submit order to TESS:{response} ")
                 raise Exception(
                     f"Error submit order to TESS: {response.status}")
             return await response.json()

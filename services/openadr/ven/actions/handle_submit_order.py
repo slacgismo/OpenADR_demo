@@ -21,7 +21,7 @@ import json
 from helper.guid import guid
 import os
 from .handle_dispatch import handle_dispatch
-from .battery_heursitic_strategy import power_price, power_quantity
+from .battery_heursitic_strategy import convert_device_data_to_order_data
 import random
 
 
@@ -98,6 +98,7 @@ async def submit_order_to_vtn(
                 device_data=device_data,
                 device_type=DEVICE_TYPES.ES.value,
                 deivce_brand=BATTERY_BRANDS.SONNEN_BATTERY.value,
+
                 market_interval=market_interval,
                 price_floor=price_floor,
                 price_ceiling=price_ceiling
@@ -107,125 +108,32 @@ async def submit_order_to_vtn(
                 device_data=order_data,
                 vtn_order_url=vtn_order_url
             )
+            if order_id is None or quantity is None:
+                logging.warning(
+                    "Error submit order, order_id or quantity is None, skip this market interval. clear dispatch queue")
+                shared_device_info = SharedDeviceInfo.get_instance()
+                shared_device_info.clear_dispatch_queue()
+            else:
+                # calculate the dispatch timestamp from local here not from TESS.
+                # we can also to use local calculated dispatch timestamp to submit order to TESS
+                local_calculated_dispatch_timestamp = next_market_start_timestamp(
+                    market_start_timestamp=market_start_timestamp,
+                    market_interval=market_interval,
+                )
+                logging.info("====================================")
+                logging.info(
+                    f" local_calculated_dispatch_timestamp: {local_calculated_dispatch_timestamp}")
+                shared_device_info = SharedDeviceInfo.get_instance()
+                shared_device_info.set_dispatch_queue(
+                    dispatch_timestamp=local_calculated_dispatch_timestamp,
+                    order_id=order_id,
+                    quantity=quantity
+                )
 
-            # calculate the dispatch timestamp from local here not from TESS.
-            # we can also to use local calculated dispatch timestamp to submit order to TESS
-
-            local_calculated_dispatch_timestamp = next_market_start_timestamp(
-                market_start_timestamp=market_start_timestamp,
-                market_interval=market_interval,
-            )
-            logging.info("====================================")
-            logging.info(
-                f" local_calculated_dispatch_timestamp: {local_calculated_dispatch_timestamp}")
-            shared_device_info = SharedDeviceInfo.get_instance()
-            shared_device_info.set_dispatch_queue(
-                dispatch_timestamp=local_calculated_dispatch_timestamp,
-                order_id=order_id,
-                quantity=quantity
-            )
-
-            shared_device_data.clear()
+                shared_device_data.clear()
         except Exception as e:
             logging.error(f"Error submit order: {e}")
             break
-
-
-def convert_device_data_to_order_data(
-        device_data: dict = None,
-        device_type: str = None,
-        deivce_brand: str = None,
-        simulation_oder_json_file='./actions/dump_orders.json',
-        market_interval: int = 60,
-        price_floor: float = 0.0,
-        price_ceiling: float = 100.0
-):
-    if device_data is None:
-        raise Exception("device_data cannot be None")
-
-    if device_type is None:
-        raise Exception("device_type cannot be None")
-
-    shared_device_info = SharedDeviceInfo.get_instance()
-    device_id = shared_device_info.get_device_id()
-    resource_id = shared_device_info.get_resource_id()
-    flexible = shared_device_info.get_flexible()
-    # find the recod time
-    record_time = None
-    state = None
-    quantity = None
-    price = None
-    aution_id = None
-    order_id = None
-
-    if device_type == DEVICE_TYPES.ES.value:
-        if deivce_brand == BATTERY_BRANDS.SONNEN_BATTERY.value:
-            if SonnenBatteryAttributeKey.Timestamp.name in device_data:
-                # TODO: fetch necesary data from TESS API
-                Pmean = 50      # $/MWh auction return from lambd APi and get from simulator
-                Pstdev = 5       # $/MWh auction return from lambd APi and get from  simulator
-                Pmin = 0        # $/MWh resources
-                Pmax = 100      # $/MWh resources
-                Kes = 1     # none  participant
-                Qdesired = 80  # kWh   participant
-                Qmin = 20       # kWh   participant # min charging or discharging capacity of battery
-                Qmax = 95       # kWh   participant # max charging or discharging capacity of battery
-                Qcap = 100      # kWh   participant
-                dQmax = 6       # kW    participant
-                # Qlast = last state of USOC
-                Qlast = device_data[SonnenBatteryAttributeKey.USOC.name]
-                # verify the code
-                # Qsoc_last = 55 quantity = 6 price = 52.742611413490486
-                #
-                # first get the power quantity
-                # quantity = "1000"
-                quantity = power_quantity(
-                    Qdesired=Qdesired,
-                    Qmin=Qmin,
-                    Qmax=Qmax,
-                    Qcap=Qcap,
-                    Qlast=Qlast,
-                    dQmax=dQmax,
-                )
-                # Second get the price
-                price = power_price(
-                    Pmean=Pmean,
-                    Pstdev=Pstdev,
-                    Pmin=Pmin,
-                    Pmax=Pmax,
-                    Qlast=Qlast,
-                    Qdesired=Qdesired,
-                    Qmin=Qmin,
-                    Qmax=Qmax,
-                    Kes=Kes,
-
-                )
-
-                logging.warning(
-                    f"-----------  quantity  {quantity} W, price is {price} -----------")
-                state = device_data[SonnenBatteryAttributeKey.Pac_total_W.name]
-                # price = "1.2"
-
-                order_id = str(guid())
-            else:
-                raise Exception("timestamp is not in device_data")
-        else:
-            raise Exception(
-                "device_brand is not supported, please implement it")
-
-    order_data = {
-        ORER_KEYS.ORDER_ID.value: order_id,
-        ORER_KEYS.DEVICE_ID.value: device_id,
-        ORER_KEYS.RESOURCE_ID.value: resource_id,
-        ORER_KEYS.RECORD_TIME.value: record_time,
-        ORER_KEYS.FLEXIBLE.value: flexible,
-        ORER_KEYS.STATE.value: state,
-        ORER_KEYS.QUANTITY.value: quantity,
-        ORER_KEYS.PRICE.value: price,
-        ORER_KEYS.AUTION_ID.value: aution_id
-    }
-
-    return order_data
 
 
 async def put_data_to_order_api_of_vtn(
@@ -241,8 +149,11 @@ async def put_data_to_order_api_of_vtn(
             async with session.put(vtn_order_url, json=device_data) as response:
                 if response.status != 200:
                     # TODO: handle 400, 401, 403, 404, 500
-                    raise Exception(
-                        f"Submit order to Order API response status code: {response.status}")
+                    logging.error(
+                        f"-------- VEN Submit order to Order API response status code: {response.status} --------")
+                    return None, None
+                    # raise Exception(
+                    #     f"-------- Submit order to Order API response status code: {response.status} --------")
                 else:
                     body = await response.json()
                     logging.info(
