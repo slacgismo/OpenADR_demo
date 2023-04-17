@@ -17,7 +17,7 @@ from aiohttp import web
 import logging
 
 
-class HttpServer:
+class HealthServer:
     def __init__(self, host='localhost', port=8888, path='/health'):
         self.host = host
         self.port = port
@@ -33,7 +33,8 @@ class HttpServer:
         site = web.TCPSite(runner, self.host, self.port)
         await site.start()
         print("===================================")
-        print(f'Server started at http://{self.host}:{self.port}/health')
+        print(
+            f'VEN Health Server at http://{self.host}:{self.port}/health')
         print("===================================")
 
     async def stop(self):

@@ -11,7 +11,7 @@ import threading
 from models_classes.SharedDeviceInfo import SharedDeviceInfo
 from actions.handle_get_device_data import handle_get_device_data
 from models_classes.SharedDeviceData import SharedDeviceData
-from models_classes.HttpServer import HttpServer
+from models_classes.HealthServer import HealthServer
 from helper.conver_date_to_timestamp import current_market_start_timestamp
 from actions.handle_submit_order import submit_order_to_vtn
 from actions.handle_event import handle_event
@@ -45,6 +45,8 @@ except Exception as e:
     raise Exception(f"Environment variables is not set correctly: {e}")
 
 # Constant that not change
+VEN_HEALTH_CHECK_PORT = 8000
+VEN_HEALTH_CHECK_SEVER = "0.0.0.0"
 VEN_ID = DEVICE_ID
 if ENVIRONMENT == "LOCAL":
     VTN_ADDRESS = 'vtn'
@@ -132,11 +134,9 @@ def main():
     loop4 = asyncio.new_event_loop()
     # == == == == == == == == == start healthcheck server and openadr client in thread 1 == == == == == == == == ==
     # not work in container but work in local
-    logging.warning("VEN health check is not working in container")
-    server = HttpServer(
-        host="localhost", port=int(HTTPSERVER_PORT), path="/health"
-    )
-    server = HttpServer(host='localhost', port=8000, path='/health')
+
+    server = HealthServer(
+        host=VEN_HEALTH_CHECK_SEVER, port=VEN_HEALTH_CHECK_PORT, path='/health')
 
     t1 = threading.Thread(target=start_loop, args=(loop1,))
     t1.start()
@@ -193,6 +193,11 @@ def main():
         t1.join()
     finally:
         asyncio.run_coroutine_threadsafe(server.stop(), loop1)
+
+
+def start_loop(loop):
+    asyncio.set_event_loop(loop)
+    loop.run_forever()
 
 
 if __name__ == "__main__":

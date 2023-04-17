@@ -49,8 +49,7 @@ services:
       - PRICE_CEILING=${PRICE_CEILING:-100.0}
     command: >
       sh -c "python ven.py"
-    ports:
-      - "8888:8888"
+
     depends_on:
       - vtn
   # tess_sim1:
