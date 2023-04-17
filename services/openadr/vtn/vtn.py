@@ -12,7 +12,7 @@ from actions.handle_order import handle_order
 from actions.handle_meter import handle_meter
 from actions.handle_health_check import handle_health_check
 from actions.handle_all_ven_info import handle_all_ven_info
-from actions.handle_device import check_device_id_from_tess_device_api
+# from actions.handle_device import check_device_id_from_tess_device_api
 from actions.handle_dispatch import handle_dispatch
 from utils.guid import guid
 from classes.SharedVenInfos import SharedVenInfos

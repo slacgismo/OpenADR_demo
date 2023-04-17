@@ -71,19 +71,17 @@ async def handle_order(request, ORDERS_API_URL):
 
         # wait till market interval end
         if order_body:
-            logging.info(
-                "=====================================get order success")
             logging.info(f" order body :{order_body}")
-            if 'order_id' not in order_body or 'device_id' not in order_body or 'dispatch_timestamp' not in order_body:
+            if 'order_id' not in order_body or 'device_id' not in order_body:
                 raise Exception(
                     f"Error parse order data: {order_body}")
 
             order_id = order_body['order_id']
             device_id = order_body['device_id']
-            dispatch_timestamp = order_body['dispatch_timestamp']
-            time_to_wait = dispatch_timestamp - int(time.time())
-            logging.info(
-                f"device_id: {device_id}:  time_to_wait: {time_to_wait} dispatch_timestamp: {dispatch_timestamp}")
+            # dispatch_timestamp = order_body['dispatch_timestamp']
+            # time_to_wait = dispatch_timestamp - int(time.time())
+            # logging.info(
+            #     f"device_id: {device_id}:  time_to_wait: {time_to_wait} dispatch_timestamp: {dispatch_timestamp}")
 
             if price:
                 await send_price_to_ven_through_openadr_event(
@@ -96,7 +94,7 @@ async def handle_order(request, ORDERS_API_URL):
             payload = {
                 "order_id": order_id,
                 "device_id": device_id,
-                "dispatch_timestamp": dispatch_timestamp,
+                # "dispatch_timestamp": dispatch_timestamp,
                 "quantity": quantity
             }
             return web.json_response(payload, status=200)
@@ -105,11 +103,6 @@ async def handle_order(request, ORDERS_API_URL):
 
     except Exception as e:
         raise Exception(f"Error handle order: {e}")
-        # Bad path where name is not set
-        # logging.error(f"Submit order to TESS failed {e}")
-        # response_obj = {'status': 'failed', 'info': str(e)}
-        # # return failed with a status code of 500 i.e. 'Server Error'
-        # return web.json_response(response_obj, status=500)
 
 
 async def sumbit_oder_to_oder_api(
@@ -144,7 +137,11 @@ async def sumbit_oder_to_oder_api(
             async with session.put(order_url, json=data) as response:
                 content_type = response.headers.get('Content-Type', '')
                 if 'application/json' not in content_type:
-                    raise Exception(f"Unexpected content type: {content_type}")
+                    message = await response.text()
+
+                    raise Exception(
+                        f"******** Unexpected content type: {content_type} message: {message} ********")
+
                 if response.status != 200:
                     raise Exception(
                         f"Error submit order to TESS: {response.status}")

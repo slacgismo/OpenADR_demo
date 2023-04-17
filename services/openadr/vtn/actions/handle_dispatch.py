@@ -15,13 +15,14 @@ async def handle_dispatch(
         body = await request.json()
         order_id = body['order_id']
         logging.info(
-            "handle_dispatch: =========================================")
+            " =================== handle_dispatch: =========================================")
         async with aiohttp.ClientSession() as session:
             async with session.get(DISPATCHES_API_URL+f"/{order_id}") as response:
                 content_type = response.headers.get('Content-Type', '')
                 if 'application/json' not in content_type:
-                    logging.error(f"Unexpected content type: {content_type}")
-                    raise Exception(f"Unexpected content type: {content_type}")
+                    message = response.text()
+                    raise Exception(
+                        f"Unexpected content type: {content_type} message {message}")
                 try:
                     logging.info(
                         f"Check device id from tess device api: {await response.json()}")

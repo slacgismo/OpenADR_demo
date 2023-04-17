@@ -48,7 +48,7 @@ async def submit_order_to_vtn(
 ):
 
     logging.info("Submit order at market start time")
-    market_index = 0  # this market_index is used to get mapping order dat from mock order data , not used in real order data
+
     while True:
         market_start_timestamp = convert_datetime_to_timsestamp(
             time_str=market_start_time)
@@ -98,13 +98,12 @@ async def submit_order_to_vtn(
                 device_data=device_data,
                 device_type=DEVICE_TYPES.ES.value,
                 deivce_brand=BATTERY_BRANDS.SONNEN_BATTERY.value,
-                market_index=market_index,
                 market_interval=market_interval,
                 price_floor=price_floor,
                 price_ceiling=price_ceiling
             )
 
-            order_id, dispatch_timestamp, quantity = await put_data_to_order_api_of_vtn(
+            order_id, quantity = await put_data_to_order_api_of_vtn(
                 device_data=order_data,
                 vtn_order_url=vtn_order_url
             )
@@ -118,7 +117,7 @@ async def submit_order_to_vtn(
             )
             logging.info("====================================")
             logging.info(
-                f"dispatch_timestamp: {dispatch_timestamp} local_calculated_dispatch_timestamp: {local_calculated_dispatch_timestamp}")
+                f" local_calculated_dispatch_timestamp: {local_calculated_dispatch_timestamp}")
             shared_device_info = SharedDeviceInfo.get_instance()
             shared_device_info.set_dispatch_queue(
                 dispatch_timestamp=local_calculated_dispatch_timestamp,
@@ -127,7 +126,6 @@ async def submit_order_to_vtn(
             )
 
             shared_device_data.clear()
-            market_index += 1
         except Exception as e:
             logging.error(f"Error submit order: {e}")
             break
@@ -137,7 +135,6 @@ def convert_device_data_to_order_data(
         device_data: dict = None,
         device_type: str = None,
         deivce_brand: str = None,
-        market_index: int = 0,
         simulation_oder_json_file='./actions/dump_orders.json',
         market_interval: int = 60,
         price_floor: float = 0.0,
@@ -253,9 +250,9 @@ async def put_data_to_order_api_of_vtn(
                     # for key in body:
                     #     logging.info(f"key: {key}, value: {body[key]}")
                     order_id = body['order_id']
-                    dispatch_timestamp = body['dispatch_timestamp']
+                    # dispatch_timestamp = body['dispatch_timestamp']
                     quantity = body['quantity']
-                    return order_id, dispatch_timestamp, quantity
+                    return order_id, quantity
     except Exception as e:
         logging.error(f"Error submit order to Order API: {e}")
         raise Exception(f"Error checking Order API: {e}")

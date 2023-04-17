@@ -68,7 +68,7 @@ data "archive_file" "lambda_meters" {
   type = "zip"
 
   source_dir  = "${path.module}/meters"
-  output_path = "${path.module}templates/lambda_meters.zip"
+  output_path = "${path.module}/templates/lambda_meters.zip"
 }
 
 resource "aws_s3_object" "lambda_meters" {

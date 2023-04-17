@@ -34,39 +34,42 @@ def handler(event, context):
 def get_dispatch_info_from_dynamodb(order_id: str, table_name: str, dynamodb_client):
     try:
 
-        response = dynamodb_client.query(
-            TableName=table_name,
-            KeyConditionExpression='order_id = :val',
-            ExpressionAttributeValues={
-                ':val': {'S': order_id}
+        response = dynamodb_client.get_item(
+            TableName=dispatches_table_name,
+            Key={
+                'order_id': {'S': order_id}
             }
         )
-        if 'Items' in response:
-            items = []
-            for item in response['Items']:
-                items.append({
+
+        if 'Item' in response:
+            item = response['Item']
+
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps({
                     'order_id': item['order_id']['S'],
                     'quantity': item['quantity']['N'],
                     'record_time': item['record_time']['N'],
                     'valid_at': item['valid_at']['N']
                 })
-
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json'},
-                'body': json.dumps(items[0])
             }
 
         # If no objects are found, return a failure response
         else:
+            message = {"error": "No objects found with order ID: {}".format(order_id)
+                       }
             return {
                 'statusCode': 404,
-                'body': 'No objects found with order ID: {}'.format(order_id)
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps(message)
             }
 
     # If an error occurs, return an error response
     except Exception as e:
+        message = {"error": f"Error retrieving object: {e}"}
         return {
             'statusCode': 500,
-            'body': 'Error retrieving object: {}'.format(str(e))
+            'headers': {'Content-Type': 'application/json'},
+            'body': json.dumps(message)
         }

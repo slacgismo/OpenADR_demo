@@ -26,6 +26,7 @@ from enum import Enum
 import json
 from helper.guid import guid
 import os
+from .putdata import put_data
 
 
 async def handle_dispatch(
@@ -75,26 +76,29 @@ async def handle_dispatch(
                     quantity=quantity,
 
                 )
-                if 'quantity' not in response_message:
-                    raise Exception(
-                        f"Dispatch response does not contain quantity: {response_message}")
-                quantity = response_message['quantity']
-                logging.info(f"Dispatch response: {response_message}")
-                await send_dispatch_quantity_to_device(
-                    device_settings=shared_device_info.get_device_settings(),
-                    device_type=shared_device_info.get_device_type(),
-                    dispatch_quantity=float(quantity),
-                    is_using_mock_device=shared_device_info.get_is_using_mock_device(),
-                    emulated_device_api_url=shared_device_info.get_emulated_device_api_url(),
 
-                    enable_self_consumption=enable_self_consumption,
+                if 'quantity' in response_message:
+                    logging.info("======= Start to control devices ======")
+                    quantity = response_message['quantity']
+                    logging.info(f"Dispatch response: {response_message}")
+                    await send_dispatch_quantity_to_device(
+                        device_settings=shared_device_info.get_device_settings(),
+                        device_type=shared_device_info.get_device_type(),
+                        dispatch_quantity=float(quantity),
+                        is_using_mock_device=shared_device_info.get_is_using_mock_device(),
+                        emulated_device_api_url=shared_device_info.get_emulated_device_api_url(),
 
-                )
+                        enable_self_consumption=enable_self_consumption,
+
+                    )
+                else:
+                    logging.info("========================================")
+                    logging.info(
+                        f"Submit dispatch to VTN failed {response_message}, no quantity in response. Do nothing.")
+                    logging.info("========================================")
         except Exception as e:
-            logging.error("========================================")
-            logging.error(f"Error in dispatch loop: {e}")
-            logging.error("========================================")
-            raise Exception(f"Error in dispatch loop: {e}")
+            raise Exception(
+                f" ========= Error in dispatch loop: {e} ========= ")
 
 
 async def send_dispatch_quantity_to_device(
@@ -179,7 +183,7 @@ async def send_dispatch_quantity_to_device(
 async def control_sonnen_battery(battery_interface, quantity: float, enable_self_consumption: bool = False):
     """
     battery_interface is the interface to the battery. It can be a real battery or a mock battery.
-    Mock battery interface is for test only. 
+    Mock battery interface is for test only.
 
     """
     if enable_self_consumption is True:
@@ -229,7 +233,6 @@ async def control_sonnen_battery(battery_interface, quantity: float, enable_self
 async def submit_dispatch_to_vtn(
     vtn_dispatch_url: str = None,
     order_id: str = None,
-    timeout: int = 5,
     quantity: float = None,
 ):
     url = vtn_dispatch_url
@@ -238,11 +241,10 @@ async def submit_dispatch_to_vtn(
         "record_time": int(time.time()),
         "quantity": str(quantity)
     }
-    logging.info(
-        f"send dispatch request to TESS dispatch api: {url}")
+
     headers = {'Content-Type': 'application/json'}
     async with aiohttp.ClientSession() as session:
-        async with session.put(vtn_dispatch_url, json=dispatch_data, timeout=timeout, headers=headers) as response:
+        async with session.put(vtn_dispatch_url, json=dispatch_data, timeout=2, headers=headers) as response:
             content_type = response.headers.get('Content-Type', '')
             if 'application/json' not in content_type:
                 text = await response.text()
