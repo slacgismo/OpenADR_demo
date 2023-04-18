@@ -10,15 +10,15 @@ import json
 import threading
 from models_classes.SharedDeviceInfo import SharedDeviceInfo
 from actions.handle_get_device_data import handle_get_device_data
-from models_classes.SharedDeviceData import SharedDeviceData
 from models_classes.HealthServer import HealthServer
-from helper.conver_date_to_timestamp import current_market_start_timestamp
 from actions.handle_submit_order import submit_order_to_vtn
 from actions.handle_event import handle_event
 from actions.handle_dispatch import handle_dispatch
 import functools
 from actions.check_vtn import check_vtn_and_retry
 from helper.str2bool import str2bool
+from helper.setup_global_variables import setup_global_variables
+
 try:
     ENVIRONMENT = os.environ['ENVIRONMENT']
 
@@ -37,8 +37,6 @@ try:
 
     # from markets table
     MARKET_INTERVAL_IN_SECONDS = os.environ['MARKET_INTERVAL_IN_SECONDS']
-    PRICE_FLOOR = os.environ['PRICE_FLOOR']
-    PRICE_CEILING = os.environ['PRICE_CEILING']
     # from settings table
     DEVICE_SETTINGS = os.environ['DEVICE_SETTINGS']
 except Exception as e:
@@ -47,7 +45,7 @@ except Exception as e:
 # Constant that not change
 VEN_HEALTH_CHECK_PORT = 8000
 VEN_HEALTH_CHECK_SEVER = "0.0.0.0"
-VEN_ID = DEVICE_ID
+VEN_ID = 'ven-' + DEVICE_ID
 if ENVIRONMENT == "LOCAL":
     VTN_ADDRESS = 'vtn'
 elif ENVIRONMENT == "AWS":
@@ -80,9 +78,9 @@ def main():
     try:
 
         vtn_base_url = f"http://{VTN_ADDRESS}:{VTN_PORT}"
-        VTN_METER_URL = vtn_base_url + f"/meter/{VEN_ID}"
-        VTN_ORDER_URL = vtn_base_url + f"/order/{VEN_ID}"
-        VTN_DISPATCH_URL = vtn_base_url + f"/dispatch/{VEN_ID}"
+        VTN_METER_URL = vtn_base_url + f"/meter/{DEVICE_ID}"
+        VTN_ORDER_URL = vtn_base_url + f"/order/{DEVICE_ID}"
+        VTN_DISPATCH_URL = vtn_base_url + f"/dispatch/{DEVICE_ID}"
         VTN_HEALTH_URL = vtn_base_url + f"/health"
         device_settings = json.loads(DEVICE_SETTINGS)
         is_using_mock_device_str = device_settings["is_using_mock_device"]
@@ -94,24 +92,24 @@ def main():
             logging.info(f"Using real device")
 
         flexible = device_settings["flexible"]
-        # set shared global variables
-        shared_device_info = SharedDeviceInfo.get_instance()
-        shared_device_info.set_device_id(DEVICE_ID)
-        shared_device_info.set_meter_id(METER_ID)
-        shared_device_info.set_resource_id(RESOURCE_ID)
-        shared_device_info.set_ven_id(VEN_ID)
-        shared_device_info.set_agent_id(AGENT_ID)
-        shared_device_info.set_flxible(int(flexible))
-        shared_device_info.set_device_settings(device_settings)
-        shared_device_info.set_device_type(DEVICE_TYPE)
-        shared_device_info.set_emulated_device_api_url(EMULATED_DEVICE_API_URL)
-        shared_device_info.set_is_using_mock_device(is_using_mock_device)
-        market_interval = int(MARKET_INTERVAL_IN_SECONDS)
-        shared_device_info.set_market_interval(market_interval)
-        shared_device_info.set_market_start_time(MARKET_START_TIME)
         device_brand = device_settings["device_brand"]
-        shared_device_info.set_price_ceiling(float(PRICE_CEILING))
-        shared_device_info.set_price_floor(float(PRICE_FLOOR))
+        market_interval_in_seconds = int(MARKET_INTERVAL_IN_SECONDS)
+        shared_device_info = SharedDeviceInfo.get_instance()
+        setup_global_variables(
+            shared_device_info=shared_device_info,
+            device_id=DEVICE_ID,
+            meter_id=METER_ID,
+            resource_id=RESOURCE_ID,
+            ven_id=VEN_ID,
+            agent_id=AGENT_ID,
+            flexible=int(flexible),
+            device_settings=device_settings,
+            device_type=DEVICE_TYPE,
+            emulated_device_api_url=EMULATED_DEVICE_API_URL,
+            is_using_mock_device=is_using_mock_device,
+            market_interval_in_seconds=market_interval_in_seconds,
+            market_start_time=MARKET_START_TIME
+        )
 
     except Exception as e:
 
@@ -174,8 +172,6 @@ def main():
             market_interval=int(MARKET_INTERVAL_IN_SECONDS),
             market_start_time=MARKET_START_TIME,
             advanced_seconds=0,
-            price_ceiling=float(PRICE_CEILING),
-            price_floor=float(PRICE_FLOOR),
             shared_device_info=shared_device_info
         ), loop3
     )

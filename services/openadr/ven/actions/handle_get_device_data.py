@@ -9,27 +9,13 @@ import logging
 import time
 import logging
 import time
-from helper.conver_date_to_timestamp import wait_till_next_market_start_time, current_market_start_timestamp
-from models_classes.SharedDeviceData import SharedDeviceData
+from helper.conver_date_to_timestamp import wait_till_next_market_start_time
+
 import aiohttp
 from enum import Enum
 import json
 from api.sonnen_battery.Sonnen_Battery_Enum import SonnenBatteryAttributeKey, SonnenBatterySystemStatus
 from models_classes.SharedDeviceInfo import SharedDeviceInfo
-
-
-class ReadingsTableAttributes(Enum):
-    READING_ID = "reading_id"
-    METER_ID = "meter_id"
-    NAME = "name"
-    VALUE = "value"
-
-
-class MetersTableAttributes(Enum):
-    DEVICE_ID = "device_id"
-    METER_ID = "meter_id"
-    RESOURCE_ID = "resource_id"
-    STATUS = "status"
 
 
 async def handle_get_device_data(
@@ -53,7 +39,9 @@ async def handle_get_device_data(
         error = shared_device_info.get_error()
         if error:
             # if there is an error from other thread, stop the program
+            logging.error(f"====================")
             logging.error(f"critical error: {error}")
+            logging.error(f"====================")
             return
 
         await wait_till_next_market_start_time(
@@ -78,8 +66,14 @@ async def handle_get_device_data(
             )
             # save the device data to the shared memory for other thread to use
             logging.info(f"device_data: {device_data}")
-            shared_device_data = SharedDeviceData.get_instance()
-            shared_device_data.set(device_data)
+
+            # save device data to a queue
+            # always clear the queue before put new data
+            shared_device_info.clear_device_data_queue()
+            shared_device_info.put_device_data_to_queue(device_data)
+
+            # shared_device_data = SharedDeviceData.get_instance()
+            # shared_device_data.set(device_data)
             logging.warning(f"put data to meter api need to be verified")
             status = device_data[SonnenBatteryAttributeKey.SystemStatus.name]
             if status == SonnenBatterySystemStatus.OnGrid.name:

@@ -25,6 +25,7 @@ class SharedDeviceInfo:
                  price_floor: float = None,
                  price_ceiling: float = None,
                  error: str = None,
+                 device_data_queue: list = None,
                  ):
         if SharedDeviceInfo.__instance is not None:
             raise Exception(
@@ -45,6 +46,7 @@ class SharedDeviceInfo:
         self._price_floor = price_floor
         self._price_ceiling = price_ceiling
         self._dispatch_queue = dispatch_queue
+        self._device_data_queue = device_data_queue
         self._error = error
         # self._dispatch_timestamp = dispatch_timestamp
         # self._dispatch_quantity = dispatch_quantity
@@ -176,3 +178,20 @@ class SharedDeviceInfo:
 
     def set_error(self, error):
         self._error = error
+
+    def get_first_item_from_device_data_queue(self):
+        if self._device_data_queue is not None and len(self._device_data_queue) > 0:
+            return self._device_data_queue.pop(0)
+        else:
+            return None
+
+    def clear_device_data_queue(self):
+        self._device_data_queue = None
+
+    def len_device_data_queue(self):
+        return len(self._device_data_queue)
+
+    def append_device_data_queue(self, data):
+        if self._device_data_queue is None:
+            self._device_data_queue = []
+        self._device_data_queue.append(data)

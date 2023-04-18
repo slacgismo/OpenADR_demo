@@ -11,7 +11,8 @@ try:
     meters_table = os.environ['METERS_TABLE']
     market_table = os.environ['MARKETS_TABLE']
     agent_table = os.environ['AGENTS_TABLE']
-    settings_table = os.environ['SETTINGS_TABLE']
+    settings_timestream_table_name = os.environ['SETTINGS_TIMESTREAM_TABLE_NAME']
+    timestream_db_name = os.environ['TIMESTREAM_DB_NAME']
     # os.environ['METERS_TABLE_GLOBAL_INDEX']
     meters_table_global_index = "resource-device-index"
     markets_table_global_index = "resource_id-index"
@@ -33,20 +34,20 @@ class EventName (Enum):
     REMOVE = "REMOVE"
 
 
-class DevicesTableAttribute (Enum):
+class DevicesTableAttributes (Enum):
     DEVICE_ID = "device_id"
     AGENT_ID = "agent_id"
     DEVICE_TYPE = "device_type"
     VALID_AT = "valid_at"
 
 
-class AgentsTableAttribute (Enum):
+class AgentsTableAttributes (Enum):
     AGENT_ID = "agent_id"
     RESOURCE_ID = "resource_id"
     VALID_AT = "valid_at"
 
 
-class MetersTableAttribute (Enum):
+class MetersTableAttributes (Enum):
     METER_ID = "meter_id"
     DEVICE_ID = "device_id"
     RESOURCE_ID = "resource_id"
@@ -54,7 +55,7 @@ class MetersTableAttribute (Enum):
     VALID_AT = "valid_at"
 
 
-class MarketsTableAttribute (Enum):
+class MarketsTableAttributes (Enum):
     MARKET_ID = "market_id"
     NAME = "name"
     RESOURCE_ID = "resource_id"
@@ -136,9 +137,9 @@ def handle_event(event_name: EventName, body: dict, to_trigger_queue_url: str = 
             raise Exception("OldImage is missing from message body")
 
         old_image = body['dynamodb']['OldImage']
-        old_device_id = old_image[DevicesTableAttribute.DEVICE_ID.value]['S']
-        old_agent_id = old_image[DevicesTableAttribute.AGENT_ID.value]['S']
-        old_device_type = old_image[DevicesTableAttribute.DEVICE_TYPE.value]['S']
+        old_device_id = old_image[DevicesTableAttributes.DEVICE_ID.value]['S']
+        old_agent_id = old_image[DevicesTableAttributes.AGENT_ID.value]['S']
+        old_device_type = old_image[DevicesTableAttributes.DEVICE_TYPE.value]['S']
         remove_message = create_sqs_message(
             device_id=old_device_id, agent_id=old_agent_id, eventName=EventName.REMOVE.value, device_type=old_device_type)
         remove_response = send_message_to_sqs(
@@ -156,14 +157,14 @@ def handle_event(event_name: EventName, body: dict, to_trigger_queue_url: str = 
         if 'NewImage' not in body['dynamodb']:
             raise Exception("NewImage is missing from message body")
         old_image = body['dynamodb']['OldImage']
-        old_device_id = old_image[DevicesTableAttribute.DEVICE_ID.value]['S']
-        old_agent_id = old_image[DevicesTableAttribute.AGENT_ID.value]['S']
-        old_device_type = old_image[DevicesTableAttribute.DEVICE_TYPE.value]['S']
+        old_device_id = old_image[DevicesTableAttributes.DEVICE_ID.value]['S']
+        old_agent_id = old_image[DevicesTableAttributes.AGENT_ID.value]['S']
+        old_device_type = old_image[DevicesTableAttributes.DEVICE_TYPE.value]['S']
 
         new_image = body['dynamodb']['NewImage']
-        new_device_id = new_image[DevicesTableAttribute.DEVICE_ID.value]['S']
-        new_agent_id = new_image[DevicesTableAttribute.AGENT_ID.value]['S']
-        new_device_type = new_image[DevicesTableAttribute.DEVICE_TYPE.value]['S']
+        new_device_id = new_image[DevicesTableAttributes.DEVICE_ID.value]['S']
+        new_agent_id = new_image[DevicesTableAttributes.AGENT_ID.value]['S']
+        new_device_type = new_image[DevicesTableAttributes.DEVICE_TYPE.value]['S']
         if old_agent_id == new_agent_id and old_device_type == new_device_type:
             print("agenit_id and device_type are the same, do nothing")
             return
@@ -214,40 +215,40 @@ def create_sqs_message(device_id: str, agent_id: str, eventName: EventName, devi
     meter_item = get_item_from_table(
         table_name=meters_table, key=meters_table_global_index, value=meters_table_global_index_value, dynamodb_client=dynamodb_client)
 
-    meter_id = meter_item[MetersTableAttribute.METER_ID.value]['S']
+    meter_id = meter_item[MetersTableAttributes.METER_ID.value]['S']
     print("meter_item: ", meter_item)
     # get resource id from agent table with agent_id
     agent_item = get_item_from_table(
-        table_name=agent_table, key=AgentsTableAttribute.AGENT_ID.value, value=agent_id, dynamodb_client=dynamodb_client)
+        table_name=agent_table, key=AgentsTableAttributes.AGENT_ID.value, value=agent_id, dynamodb_client=dynamodb_client)
 
     print("agent item: ", agent_item)
-    resource_id = agent_item[AgentsTableAttribute.RESOURCE_ID.value]['S']
+    resource_id = agent_item[AgentsTableAttributes.RESOURCE_ID.value]['S']
 
     # resource_id = "caff6719c24359a155a4d0d2f265a7"
     # get market interval from market table with resource_id
     market_item = get_item_from_table(
         table_name=market_table, key=markets_table_global_index, value=resource_id, dynamodb_client=dynamodb_client)
     print("market item: ", market_item)
-    market_interval_in_seconds = market_item[MarketsTableAttribute.INTERVAL.value]['N']
-    price_floor = market_item[MarketsTableAttribute.PRICE_FLOOR.value]['N']
-    price_ceiling = market_item[MarketsTableAttribute.PRICE_CEILING.value]['N']
+    market_interval_in_seconds = market_item[MarketsTableAttributes.INTERVAL.value]['N']
+    price_floor = market_item[MarketsTableAttributes.PRICE_FLOOR.value]['N']
+    price_ceiling = market_item[MarketsTableAttributes.PRICE_CEILING.value]['N']
 
     # market_interval_in_seconds = "60"
-    settings_item = get_item_from_table(
-        table_name=settings_table, key="device_id", value=settings_table_global_index, dynamodb_client=dynamodb_client)
-    # get device flexible  from setting table
-    print("settings item: ", settings_item)
-    flexible = settings_item['flexible']['S']
-    battery_token = settings_item['battery_token']['S']
-    battery_sn = settings_item['battery_sn']['S']
-    device_brand = settings_item['device_brand']['S']
-    is_using_mock_device = settings_item['is_using_mock_device']['S']
-
-    # battery_token = "12321321qsd"
-    # battery_sn = "66354"
-    # device_brand = "SONNEN_BATTERY"
-    # is_using_mock_device = "true"
-    # flexible = "1"
+    # settings_item = get_item_from_table(
+    #     table_name=settings_table, key="device_id", value=settings_table_global_index, dynamodb_client=dynamodb_client)
+    # # get device flexible  from setting table
+    # print("settings item: ", settings_item)
+    # flexible = settings_item['flexible']['S']
+    # battery_token = settings_item['battery_token']['S']
+    # battery_sn = settings_item['battery_sn']['S']
+    # device_brand = settings_item['device_brand']['S']
+    # is_using_mock_device = settings_item['is_using_mock_device']['S']
+    # TODO get device settings from settings timestream table
+    battery_token = "12321321qsd"
+    battery_sn = "66354"
+    device_brand = "SONNEN_BATTERY"
+    is_using_mock_device = "true"
+    flexible = "1"
 
     message = {
         "eventName": eventName,

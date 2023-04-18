@@ -4,8 +4,10 @@ import os
 dynamodb = boto3.client('dynamodb')
 
 # table_name = 'openadr-NHEC-dev-dispatches'
-dispatches_table_name = os.environ["DISPATCHES_TABLE_NAME"]
+timestream_db_name = os.environ["TIMESTREAM_DB_NAME"]
+dispatches_timestream_table_name = os.environ["DISPATCHES_TIMESTREAM_TABLE_NAME"]
 # GET /dispatch/{order_id}
+timestream_db_name = os.environ["TIMESTREAM_DB_NAME"]
 
 
 def handler(event, context):
@@ -15,7 +17,7 @@ def handler(event, context):
             order_id = event['pathParameters']['order_id']
             return get_dispatch_info_from_dynamodb(
                 order_id=order_id,
-                table_name=dispatches_table_name,
+                table_name=dispatches_timestream_table_name,
                 dynamodb_client=dynamodb
             )
 

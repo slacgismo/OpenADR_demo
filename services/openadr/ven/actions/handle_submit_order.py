@@ -1,40 +1,19 @@
 
 
 import asyncio
-from api.sonnen_battery.filter_battery_data import filter_battery_data
-from api.sonnen_battery.sonnen_api import SonnenInterface
-from api.sonnen_battery.mock_sonnen_api import MockSonnenInterface
-from models_classes.Devices_Enum import DEVICE_TYPES, BATTERY_BRANDS, SONNEN_BATTERY_DEVICE_SETTINGS
+
+from models_classes.Devices_Enum import DEVICE_TYPES, BATTERY_BRANDS
 from models_classes.SharedDeviceInfo import SharedDeviceInfo
-from models_classes.Devices_Enum import DEVICE_TYPES, BATTERY_BRANDS, SONNEN_BATTERY_DEVICE_SETTINGS
+
 from api.sonnen_battery.Sonnen_Battery_Enum import SonnenBatteryAttributeKey
-from typing import Dict
+
 import logging
 import time
 import logging
 import time
-from helper.conver_date_to_timestamp import wait_till_next_market_start_time, current_market_start_timestamp, convert_datetime_to_timsestamp, next_market_start_timestamp
-from models_classes.SharedDeviceData import SharedDeviceData
-import aiohttp
-from enum import Enum
-import json
-from helper.guid import guid
-import os
-from .handle_dispatch import handle_dispatch
-from .battery_heursitic_strategy import convert_device_data_to_order_data
-import random
+from helper.conver_date_to_timestamp import convert_datetime_to_timsestamp, next_market_start_timestamp
 
-
-class ORER_KEYS(Enum):
-    ORDER_ID = 'order_id'
-    PRICE = 'price'
-    AUTION_ID = 'auction_id'
-    QUANTITY = 'quantity'
-    DEVICE_ID = 'device_id'
-    RESOURCE_ID = 'resource_id'
-    RECORD_TIME = 'record_time'
-    FLEXIBLE = 'flexible'
-    STATE = 'state'
+from .vtn_api import put_data_to_order_api_of_vtn
 
 
 async def submit_order_to_vtn(
@@ -42,8 +21,6 @@ async def submit_order_to_vtn(
     market_interval: int = 60,
     market_start_time: str = None,
     advanced_seconds: int = 0,
-    price_floor: float = None,
-    price_ceiling: float = None,
     shared_device_info: SharedDeviceInfo = None,
     # shared_device_info: SharedDeviceInfo = None,
 ):
@@ -55,7 +32,9 @@ async def submit_order_to_vtn(
         error = shared_device_info.get_error()
         if error:
             # if there is an error from other thread, stop the program
+            logging.error(f"====================")
             logging.error(f"critical error: {error}")
+            logging.error(f"====================")
             return
 
         market_start_timestamp = convert_datetime_to_timsestamp(
@@ -82,9 +61,9 @@ async def submit_order_to_vtn(
         logging.info("====================================")
 
         try:
-
-            shared_device_data = SharedDeviceData.get_instance()
-            device_data = shared_device_data.get()
+            device_data = shared_device_info.get_first_item_from_device_data_queue()
+            # shared_device_data = SharedDeviceData.get_instance()
+            # device_data = shared_device_data.get()
             if device_data is None:
                 logging.info("====================================")
                 logging.info(
@@ -101,21 +80,21 @@ async def submit_order_to_vtn(
                 logging.info("====================================")
                 continue
 
-            order_data = convert_device_data_to_order_data(
-                device_data=device_data,
-                device_type=DEVICE_TYPES.ES.value,
-                deivce_brand=BATTERY_BRANDS.SONNEN_BATTERY.value,
-
-                market_interval=market_interval,
-                price_floor=price_floor,
-                price_ceiling=price_ceiling
-            )
-
-            order_id, quantity = await put_data_to_order_api_of_vtn(
-                device_data=order_data,
+            resource_id = shared_device_info.get_resource_id()
+            flexible = shared_device_info.get_flexible()
+            # state is the USOC value of battery
+            state = device_data[SonnenBatteryAttributeKey.USOC.name]
+            order_payload = {
+                'resource_id': resource_id,
+                'flexible': flexible,
+                'state': state,
+                'record_time': int(time.time()),
+            }
+            order_id, quantity, price = await put_data_to_order_api_of_vtn(
+                order_payload=order_payload,
                 vtn_order_url=vtn_order_url
             )
-            if order_id is None or quantity is None:
+            if order_id is None or quantity is None or price is None:
                 logging.warning(
                     "Error submit order, order_id or quantity is None, skip this market interval. clear dispatch queue")
                 shared_device_info = SharedDeviceInfo.get_instance()
@@ -136,42 +115,10 @@ async def submit_order_to_vtn(
                     order_id=order_id,
                     quantity=quantity
                 )
+                # clear the device data queue
+                shared_device_info.clear_device_data_queue()
 
-                shared_device_data.clear()
         except Exception as e:
             error_message = f"Error submit order: {e}"
             shared_device_info.set_error(error=error_message)
             break
-
-
-async def put_data_to_order_api_of_vtn(
-    device_data: dict = None,
-    vtn_order_url: str = None,
-):
-    if device_data is None or vtn_order_url is None:
-        raise Exception(
-            "data, vtn order cannot be None")
-
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.put(vtn_order_url, json=device_data) as response:
-                if response.status != 200:
-                    # TODO: handle 400, 401, 403, 404, 500
-                    logging.error(
-                        f"-------- VEN Submit order to Order API response status code: {response.status} --------")
-                    return None, None
-                    # raise Exception(
-                    #     f"-------- Submit order to Order API response status code: {response.status} --------")
-                else:
-                    body = await response.json()
-                    logging.info(
-                        f"************ Submit to VTN Order API response body: {body} ************")
-                    # for key in body:
-                    #     logging.info(f"key: {key}, value: {body[key]}")
-                    order_id = body['order_id']
-                    # dispatch_timestamp = body['dispatch_timestamp']
-                    quantity = body['quantity']
-                    return order_id, quantity
-    except Exception as e:
-        logging.error(f"Error submit order to Order API: {e}")
-        raise Exception(f"Error checking Order API: {e}")

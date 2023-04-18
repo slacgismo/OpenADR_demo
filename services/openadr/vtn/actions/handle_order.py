@@ -10,6 +10,7 @@ from enum import Enum
 from .handle_dispatch import handle_dispatch
 import time
 import json
+from utils.parse_device_id_from_ven_id import parse_device_id_from_ven_id
 
 
 class ORER_KEYS(Enum):
@@ -43,60 +44,52 @@ def parse_order_data(data: dict):
 async def handle_order(request, ORDERS_API_URL):
     """
     Handle a order.
+    return {
+        "order_id": order_id,
+        'quantity': quantity,
+        'price': price,
+    }
     """
 
     try:
-        ven_id = request.match_info['ven_id']
-        data = await request.json()
-        order_id, aution_id, device_id, resource_id, flexible, state, price, quantity = parse_order_data(
-            data)
+        device_id = request.match_info['device_id']
+        order_payload = await request.json()
 
         logging.info("=====================================")
         logging.info(
-            f"handle order order_id: {order_id} device_id:{device_id}")
+            f"handle order with device_id:{device_id}")
         logging.info("=====================================")
         # call tess order api to submit the order
-        response_obj = {'status': 'success'}
-        order_body = await sumbit_oder_to_oder_api(
-            order_id=order_id,
+        order_body = await sumbit_order_to_order_api(
             device_id=device_id,
-            resource_id=resource_id,
-            aution_id=aution_id,
-            flexible=flexible,
-            state=state,
-            price=price,
-            quantity=quantity,
+            order_payload=order_payload,
             ORDERS_API_URL=ORDERS_API_URL
         )
         # wait till market interval end
         if order_body:
             logging.info(f" order body :{order_body}")
-            if 'order_id' not in order_body or 'device_id' not in order_body:
-                raise Exception(
-                    f"Error parse order data: {order_body}")
 
-            order_id = order_body['order_id']
-            device_id = order_body['device_id']
-            # dispatch_timestamp = order_body['dispatch_timestamp']
-            # time_to_wait = dispatch_timestamp - int(time.time())
-            # logging.info(
-            #     f"device_id: {device_id}:  time_to_wait: {time_to_wait} dispatch_timestamp: {dispatch_timestamp}")
-
-            if price:
+            order_id = order_body.get('order_id')
+            price = order_body.get('price')
+            quantity = order_body.get('quantity')
+            if order_id is None or price is None or quantity is None:
+                return web.json_response({"error": "vtn faile to submit order"}, status=400)
+            else:
+                # send down price to ven by openadr event
                 await send_price_to_ven_through_openadr_event(
                     request=request,
-                    ven_id=ven_id,
+                    ven_id=device_id,
                     duration=1,
                     timezone=timezone.utc,
                     price=price,
                 )
-            payload = {
-                "order_id": order_id,
-                "device_id": device_id,
-                # "dispatch_timestamp": dispatch_timestamp,
-                "quantity": quantity
-            }
-            return web.json_response(payload, status=200)
+                payload = {
+                    "order_id": order_id,
+                    "device_id": device_id,
+                    "quantity": quantity,
+                    "price": price,
+                }
+                return web.json_response(payload, status=200)
         else:
             return web.json_response({"error": "vtn faile to submit order"}, status=400)
 
@@ -104,36 +97,27 @@ async def handle_order(request, ORDERS_API_URL):
         raise Exception(f"Error handle order: {e}")
 
 
-async def sumbit_oder_to_oder_api(
-    order_id: str = None,
-    aution_id: str = None,
+async def sumbit_order_to_order_api(
+
     device_id: str = None,
-    resource_id: str = None,
-    quantity: str = None,
-    flexible: str = None,
-    state: str = None,
-    price: str = None,
+    order_payload: dict = None,
     ORDERS_API_URL: str = None,
 ):
     """
     PUT /order/{device_id}
+
+    response: {
+        "order_id": "string",
+        'quantity': float,
+        'price': float
+    }
     """
 
-    data = {
-        'device_id': device_id,
-        'aution_id': aution_id,
-        'resource_id': resource_id,
-        'quantity': quantity,
-        'flexible': flexible,
-        'state': state,
-        'price': price
-
-    }
-    order_url = ORDERS_API_URL+f"/{order_id}"
+    order_url = ORDERS_API_URL+f"/{device_id}"
     try:
-        logging.info(f"order_url:{order_url}")
+        logging.info(f"order_url:{order_url}, payload: {order_payload}")
         async with aiohttp.ClientSession() as session:
-            async with session.put(order_url, json=data) as response:
+            async with session.put(order_url, json=order_payload) as response:
                 content_type = response.headers.get('Content-Type', '')
                 if 'application/json' not in content_type:
                     message = await response.text()

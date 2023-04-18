@@ -47,7 +47,8 @@ resource "aws_lambda_function" "dispatches" {
   source_code_hash = data.archive_file.dispatch_vens.output_base64sha256
   environment {
       variables = {
-          "DISPATCHES_TABLE_NAME" = aws_dynamodb_table.dispatches.name
+          "DISPATCHES_TIMESTREAM_TABLE_NAME" = aws_timestreamwrite_table.dispatches.name
+          "TIMESTREAM_DB_NAME"= aws_timestreamwrite_database.measurements.name
     }
   }
   role = aws_iam_role.dispatch_exec.arn

@@ -51,7 +51,8 @@ resource "aws_lambda_function" "lambda_meters" {
   environment {
     variables = {
       "METERS_TABLE_NAME" = aws_dynamodb_table.meters.name,
-      "READINGS_TABLE_NAME" = aws_timestreamwrite_table.readings.name
+      "READINGS_TIMESTREAM_TABLE_NAME" = aws_timestreamwrite_table.readings.name
+      "TIMESTREAM_DB_NAME" = aws_timestreamwrite_database.measurements.name
     }
   }
   role = aws_iam_role.lambda_meters_lambda_exec.arn

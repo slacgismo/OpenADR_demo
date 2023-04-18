@@ -33,7 +33,9 @@ async def handle_dispatch(
         error = shared_device_info.get_error()
         if error:
             # if there is an error from oher thread, stop the program
+            logging.error(f"====================")
             logging.error(f"critical error: {error}")
+            logging.error(f"====================")
             return
         try:
             dispatch_info = shared_device_info.get_first_dispatch()

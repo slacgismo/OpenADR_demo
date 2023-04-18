@@ -49,7 +49,8 @@ resource "aws_lambda_function" "lambda_orders" {
 
   environment {
     variables = {
-      "ORDERS_TABLE_NAME" = aws_dynamodb_table.orders.name
+      "ORDERS_TIMESTEAM_TABLE_NAME" = aws_timestreamwrite_table.orders.name
+      "TIMESTREAM_DB_NAME" = aws_timestreamwrite_database.measurements.name
     }
   }
 

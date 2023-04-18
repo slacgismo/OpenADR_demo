@@ -3,13 +3,13 @@ import logging
 from aiohttp import web
 import logging
 import aiohttp
-from classes.Devices_Enum import DEVICE_TYPES, BATTERY_BRANDS
-from .handle_order import sumbit_oder_to_oder_api
+
+
 import time
 from enum import Enum
 
 
-async def handle_meter(request, METER_API_URL, MARKET_INTERVAL_IN_SECONDS):
+async def handle_meter(request, METER_API_URL):
     """
     Handle a meter.
     "readings": device_data,
@@ -76,67 +76,3 @@ async def handle_meter(request, METER_API_URL, MARKET_INTERVAL_IN_SECONDS):
         response_obj = {'status': 'failed', 'info': str(e)}
         # return failed with a status code of 500 i.e. 'Server Error'
         return web.json_response(response_obj, status=500)
-
-
-def convert_device_data_to_meter_data(
-        device_type: str = None,
-        device_brand: str = None,
-        market_interval_in_secondss: int = None,
-        device_data: dict = None):
-
-    if device_type == DEVICE_TYPES.ES.value:
-        if device_brand == BATTERY_BRANDS.SONNEN_BATTERY.value:
-            # real power
-            real_power = device_data['Pac_total_W']
-            # real energy
-            market_interval_in_minutes = market_interval_in_secondss/60
-            market_interval_in_hour = 60/market_interval_in_minutes
-            real_energy = real_power/market_interval_in_hour
-            # not measured
-            reactive_energy = None
-            reactive_power = None
-        else:
-            logging.error(f"Not supported device brand: {device_brand}")
-    else:
-        logging.error(f"Not supported device type: {device_type}")
-    return real_energy, reactive_energy, real_power, reactive_power
-
-
-# async def submit_meter_to_meter_url(
-#     device_id: str = None,
-#     meter_id: str = None,
-#     resource_id: str = None,
-#     real_energy: str = None,
-#     reactive_energy: str = None,
-#     real_power: str = None,
-#     reactive_power: str = None,
-#     METER_API_URL: str = None,
-# ):
-#     """
-#     Submit the oder_id to dispatch and await for the response
-#     The response will be a quantity of the POWER
-#     PUT /meter/{device_id}/{meter_id}
-#     """
-
-#     meter_url = METER_API_URL + "/" + device_id + "/" + meter_id
-#     print(f"send device data to TESS meter  api: {device_id}/{meter_id}")
-#     data = {
-#         "resource_id": resource_id,
-#         "real_energy": real_energy,
-#         "reactive_energy": reactive_energy,
-#         "real_power": real_power,
-#         "reactive_power": reactive_power,
-#     }
-#     print(
-#         f"send device data to TESS meter  api: {device_id}/{meter_id}")
-#     async with aiohttp.ClientSession() as session:
-#         async with session.put(meter_url, json=data) as response:
-#             content_type = response.headers.get('Content-Type', '')
-#             if 'application/json' not in content_type:
-#                 raise Exception(f"Unexpected content type: {content_type}")
-#             try:
-#                 body = await response.json()
-#                 print(f"meter response: {body}")
-#             except Exception as e:
-#                 raise Exception(f"Error parse response: {e}")
-#             return response

@@ -87,50 +87,50 @@ resource "aws_lambda_event_source_mapping" "dynamodb_event_source_mapping" {
 
 # Orders
 # Define second DynamoDB table
-resource "aws_dynamodb_table" "orders" {
-  name           = "${var.prefix}-${var.client}-${var.environment}-orders"
-  billing_mode   = "PROVISIONED"
-  read_capacity  = 1
-  write_capacity = 1
+# resource "aws_dynamodb_table" "orders" {
+#   name           = "${var.prefix}-${var.client}-${var.environment}-orders"
+#   billing_mode   = "PROVISIONED"
+#   read_capacity  = 1
+#   write_capacity = 1
 
-  attribute {
-    name = "order_id"
-    type = "S"
-  }
+#   attribute {
+#     name = "order_id"
+#     type = "S"
+#   }
 
-  attribute {
-    name = "device_id"
-    type = "S"
-  }
+#   attribute {
+#     name = "device_id"
+#     type = "S"
+#   }
 
-  hash_key = "order_id"
+#   hash_key = "order_id"
 
-  global_secondary_index {
-    name            = "device_id-index"
-    hash_key        = "device_id"
-    range_key       = "order_id"
-    projection_type = "ALL"
-    read_capacity   = 1
-    write_capacity  = 1
-  }
-}
+#   global_secondary_index {
+#     name            = "device_id-index"
+#     hash_key        = "device_id"
+#     range_key       = "order_id"
+#     projection_type = "ALL"
+#     read_capacity   = 1
+#     write_capacity  = 1
+#   }
+# }
 # Dispatches
 
-resource "aws_dynamodb_table" "dispatches" {
-  # name           = "battery-table"
-  name           = "${var.prefix}-${var.client}-${var.environment}-dispatches"
-  billing_mode   = "PROVISIONED"
-  read_capacity  = 1
-  write_capacity = 1
-  hash_key       = "order_id"
+# resource "aws_dynamodb_table" "dispatches" {
+#   # name           = "battery-table"
+#   name           = "${var.prefix}-${var.client}-${var.environment}-dispatches"
+#   billing_mode   = "PROVISIONED"
+#   read_capacity  = 1
+#   write_capacity = 1
+#   hash_key       = "order_id"
 
-  attribute {
-    name = "order_id"
-    type = "S"
-  }
+#   attribute {
+#     name = "order_id"
+#     type = "S"
+#   }
 
-  tags = local.common_tags
-}
+#   tags = local.common_tags
+# }
 
 # Meters
 resource "aws_dynamodb_table" "meters" {
@@ -170,36 +170,36 @@ resource "aws_dynamodb_table" "meters" {
 }
 
 # Settings
-resource "aws_dynamodb_table" "settings" {
-  name           = "${var.prefix}-${var.client}-${var.environment}-settings"
-  billing_mode   = "PROVISIONED"
-  read_capacity  = 1
-  write_capacity = 1
-  hash_key       = "setting_id"
+# resource "aws_dynamodb_table" "settings" {
+#   name           = "${var.prefix}-${var.client}-${var.environment}-settings"
+#   billing_mode   = "PROVISIONED"
+#   read_capacity  = 1
+#   write_capacity = 1
+#   hash_key       = "setting_id"
 
-  attribute {
-    name = "setting_id"
-    type = "S"
-  }
+#   attribute {
+#     name = "setting_id"
+#     type = "S"
+#   }
 
-  attribute {
-    name = "device_id"
-    type = "S"
-  }
+#   attribute {
+#     name = "device_id"
+#     type = "S"
+#   }
 
 
 
-  global_secondary_index {
-    name            = "device_id-index"
-    hash_key        = "setting_id"
-    range_key       = "device_id"
-    projection_type = "ALL"
-    read_capacity   = 1
-    write_capacity  = 1
-  }
+#   global_secondary_index {
+#     name            = "device_id-index"
+#     hash_key        = "setting_id"
+#     range_key       = "device_id"
+#     projection_type = "ALL"
+#     read_capacity   = 1
+#     write_capacity  = 1
+#   }
 
-  tags = local.common_tags
-}
+#   tags = local.common_tags
+# }
 
 
 # locals {
