@@ -1,4 +1,4 @@
-from models_classes.Devices_Enum import DEVICE_TYPES, BATTERY_BRANDS, SONNEN_BATTERY_DEVICE_SETTINGS
+from models_classes.Constants import DEVICE_TYPES, BATTERY_BRANDS, SONNEN_BATTERY_DEVICE_SETTINGS
 from api.sonnen_battery.sonnen_api import SonnenInterface
 from api.sonnen_battery.mock_sonnen_api import MockSonnenInterface
 import logging
@@ -123,8 +123,6 @@ async def control_sonnen_battery(battery_interface, quantity: float, enable_self
 
         manul_mode_control_response = await battery_interface.manual_mode_control(
             mode=mode, value=str(abs(quantity)))  # remmeber to use absouute value since we already check the mode
-        logging.info(
-            f"manul_mode_control_response : {manul_mode_control_response}")
         if 'ReturnCode' in manul_mode_control_response:
             if str(manul_mode_control_response['ReturnCode']) == "0":
                 logging.info(

@@ -88,7 +88,7 @@ async def write_to_timestream(records,
     ]
     measures = []
     for key, value in records['readings'].items():
-        if key in SonnenBatteryAttributeKey.__members__:
+        if key in SonnenBatteryAttributes.__members__:
             measures.append({'Name': key, 'Value': str(value)})
     if len(measures) > 0:
         response = await timestream_write_client.write_records(DatabaseName=timestream_db_name,
@@ -102,7 +102,7 @@ async def write_to_timestream(records,
         return response
 
 
-class SonnenBatteryAttributeKey(Enum):
+class SonnenBatteryAttributes(Enum):
     BackupBuffer = 'BackupBuffer'
     BatteryCharging = 'BatteryCharging'
     BatteryDischarging = 'BatteryDischarging'

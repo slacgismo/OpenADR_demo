@@ -3,7 +3,7 @@
 from api.sonnen_battery.filter_battery_data import filter_battery_data
 from api.sonnen_battery.sonnen_api import SonnenInterface
 from api.sonnen_battery.mock_sonnen_api import MockSonnenInterface
-from models_classes.Devices_Enum import DEVICE_TYPES, BATTERY_BRANDS, SONNEN_BATTERY_DEVICE_SETTINGS
+from models_classes.Constants import DEVICE_TYPES, BATTERY_BRANDS, SONNEN_BATTERY_DEVICE_SETTINGS
 from typing import Dict
 import logging
 import time
@@ -14,7 +14,7 @@ from helper.conver_date_to_timestamp import wait_till_next_market_start_time
 import aiohttp
 from enum import Enum
 import json
-from api.sonnen_battery.Sonnen_Battery_Enum import SonnenBatteryAttributeKey, SonnenBatterySystemStatus
+from api.sonnen_battery.Sonnen_Battery_Enum import SonnenBatteryAttributes, SonnenBatterySystemStatus
 from models_classes.SharedDeviceInfo import SharedDeviceInfo
 from .vtn_api import put_data_to_meter_api
 
@@ -76,7 +76,7 @@ async def handle_get_device_data(
             # shared_device_data = SharedDeviceData.get_instance()
             # shared_device_data.set(device_data)
             logging.warning(f"put data to meter api need to be verified")
-            status = device_data[SonnenBatteryAttributeKey.SystemStatus.name]
+            status = device_data[SonnenBatteryAttributes.SystemStatus.name]
             if status == SonnenBatterySystemStatus.OnGrid.name:
                 status = "1"
             elif status == SonnenBatterySystemStatus.OffGrid.name:

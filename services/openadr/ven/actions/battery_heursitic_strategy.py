@@ -6,9 +6,8 @@ from statistics import NormalDist
 from enum import Enum
 import logging
 from models_classes.SharedDeviceInfo import SharedDeviceInfo
-from models_classes.Devices_Enum import DEVICE_TYPES, BATTERY_BRANDS, SONNEN_BATTERY_DEVICE_SETTINGS
-from models_classes.Devices_Enum import DEVICE_TYPES, BATTERY_BRANDS, SONNEN_BATTERY_DEVICE_SETTINGS
-from api.sonnen_battery.Sonnen_Battery_Enum import SonnenBatteryAttributeKey
+from models_classes.Constants import DEVICE_TYPES, BATTERY_BRANDS, SONNEN_BATTERY_DEVICE_SETTINGS
+from api.sonnen_battery.Sonnen_Battery_Enum import SonnenBatteryAttributes
 
 from helper.guid import guid
 
@@ -121,7 +120,7 @@ def convert_device_data_to_order_data(
 
     if device_type == DEVICE_TYPES.ES.value:
         if deivce_brand == BATTERY_BRANDS.SONNEN_BATTERY.value:
-            if SonnenBatteryAttributeKey.Timestamp.name in device_data:
+            if SonnenBatteryAttributes.Timestamp.name in device_data:
                 # TODO: fetch necesary data from TESS API
                 Pmean = 50      # $/MWh auction return from lambd APi and get from simulator
                 Pstdev = 5       # $/MWh auction return from lambd APi and get from  simulator
@@ -134,7 +133,7 @@ def convert_device_data_to_order_data(
                 Qcap = 100      # kWh   participant
                 dQmax = 6       # kW    participant
                 # Qlast = last state of USOC
-                Qlast = device_data[SonnenBatteryAttributeKey.USOC.name]
+                Qlast = device_data[SonnenBatteryAttributes.USOC.name]
                 # verify the code
                 # Qsoc_last = 55 quantity = 6 price = 52.742611413490486
                 #
@@ -164,7 +163,7 @@ def convert_device_data_to_order_data(
 
                 logging.warning(
                     f"-----------  quantity  {quantity} W, price is {price} -----------")
-                state = device_data[SonnenBatteryAttributeKey.Pac_total_W.name]
+                state = device_data[SonnenBatteryAttributes.Pac_total_W.name]
                 # price = "1.2"
 
                 order_id = str(guid())

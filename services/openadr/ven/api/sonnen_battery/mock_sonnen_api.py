@@ -4,8 +4,8 @@ import json
 # import numpy as np
 
 # import pandas as pd
-from .sonnen_data_converter import convert_sonnen_data_to_openadr_report_format
 # from dataclasses import dataclass
+from models_classes.Constants import BATTERY_BRANDS
 
 
 class MockSonnenInterface():
@@ -15,6 +15,10 @@ class MockSonnenInterface():
         self.token = auth_token
         self.url_ini = url_ini
         self.device_brand = device_brand
+        if self.device_brand != BATTERY_BRANDS.SONNEN_BATTERY.value:
+            raise Exception(
+                f"device_brand {self.device_brand} is not compatible with MockSonnenInterface class")
+
         self.headers = {'Accept': 'application/vnd.sonnenbatterie.api.core.v1+json',
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + self.token, }

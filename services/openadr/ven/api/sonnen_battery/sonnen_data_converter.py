@@ -1,4 +1,4 @@
-from .Sonnen_Battery_Enum import SonnenBatteryAttributeKey, SonnenBatterySystemStatus
+from .Sonnen_Battery_Enum import SonnenBatteryAttributes, SonnenBatterySystemStatus
 from enum import Enum
 from datetime import datetime
 
@@ -30,30 +30,30 @@ def convert_sonnen_data_to_openadr_report_format(batt_staus: dict) -> list:
         index = 0
         report_data = []
         print("batt_staus", batt_staus)
-        # check if length of data is larger than length of SonnenBatteryAttributeKey
-        if len(batt_staus) < len(SonnenBatteryAttributeKey):
+        # check if length of data is larger than length of SonnenBatteryAttributes
+        if len(batt_staus) < len(SonnenBatteryAttributes):
             raise ValueError(
-                f"length of data is smaller than length of SonnenBatteryAttributeKey")
+                f"length of data is smaller than length of SonnenBatteryAttributes")
 
         # check if Timestamp is in the data
-        if SonnenBatteryAttributeKey.Timestamp.name not in batt_staus:
+        if SonnenBatteryAttributes.Timestamp.name not in batt_staus:
             raise ValueError(
                 f"Timestamp is not in the data")
-        timestamp_str = batt_staus[SonnenBatteryAttributeKey.Timestamp.name]
+        timestamp_str = batt_staus[SonnenBatteryAttributes.Timestamp.name]
         datetime_object = datetime.strptime(
             timestamp_str, "%Y-%m-%d %H:%M:%S")
 
-        # loop through the SonnenBatteryAttributeKey
-        # in the loop, we only preserve the data that is defined in SonnenBatteryAttributeKey
-        for key in SonnenBatteryAttributeKey:
+        # loop through the SonnenBatteryAttributes
+        # in the loop, we only preserve the data that is defined in SonnenBatteryAttributes
+        for key in SonnenBatteryAttributes:
             # check if the key is in the data
             if key.name in batt_staus:
                 # if yes, get the value
                 value = batt_staus[key.name]
-                # check if key.name is SonnenBatteryAttributeKey.Timestamp.name then pass:
-                if key.name == SonnenBatteryAttributeKey.Timestamp.name:
+                # check if key.name is SonnenBatteryAttributes.Timestamp.name then pass:
+                if key.name == SonnenBatteryAttributes.Timestamp.name:
                     pass
-                elif key.name == SonnenBatteryAttributeKey.SystemStatus.name:
+                elif key.name == SonnenBatteryAttributes.SystemStatus.name:
                     # the value of SystemStatus is SonnenBatterySystemStatus is OnGrid or OffGrid
                     # convert the value to 1 or 0
                     if value == SonnenBatterySystemStatus.OnGrid.name:

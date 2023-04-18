@@ -13,7 +13,7 @@ class SonnenBatterySystemStatus(Enum):
     OffGrid = 0
 
 
-class SonnenBatteryAttributeKey(Enum):
+class SonnenBatteryAttributes(Enum):
     BackupBuffer = 'BackupBuffer'
     BatteryCharging = 'BatteryCharging'
     BatteryDischarging = 'BatteryDischarging'

@@ -1,19 +1,12 @@
 
 
-import asyncio
-
-from models_classes.Devices_Enum import DEVICE_TYPES, BATTERY_BRANDS
-from models_classes.SharedDeviceInfo import SharedDeviceInfo
-
-from api.sonnen_battery.Sonnen_Battery_Enum import SonnenBatteryAttributeKey
-
-import logging
-import time
-import logging
-import time
-from helper.conver_date_to_timestamp import convert_datetime_to_timsestamp, next_market_start_timestamp
-
 from .vtn_api import put_data_to_order_api_of_vtn
+from helper.conver_date_to_timestamp import convert_datetime_to_timsestamp, next_market_start_timestamp
+import time
+import logging
+from api.sonnen_battery.Sonnen_Battery_Enum import SonnenBatteryAttributes
+from models_classes.SharedDeviceInfo import SharedDeviceInfo
+import asyncio
 
 
 async def submit_order_to_vtn(
@@ -72,7 +65,7 @@ async def submit_order_to_vtn(
                 continue
 
             # check the Uac value, if it is 0, skip this market interval
-            Uac = device_data[SonnenBatteryAttributeKey.Uac.name]
+            Uac = device_data[SonnenBatteryAttributes.Uac.name]
             if Uac == 0:
                 logging.info("====================================")
                 logging.info(
@@ -83,7 +76,7 @@ async def submit_order_to_vtn(
             resource_id = shared_device_info.get_resource_id()
             flexible = shared_device_info.get_flexible()
             # state is the USOC value of battery
-            state = device_data[SonnenBatteryAttributeKey.USOC.name]
+            state = device_data[SonnenBatteryAttributes.USOC.name]
             order_payload = {
                 'resource_id': resource_id,
                 'flexible': flexible,

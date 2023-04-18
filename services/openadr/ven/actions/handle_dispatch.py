@@ -4,17 +4,13 @@ import logging
 
 import time
 import asyncio
-import aiohttp
-from api.sonnen_battery.sonnen_api import SonnenInterface
-from api.sonnen_battery.mock_sonnen_api import MockSonnenInterface
-from models_classes.Devices_Enum import DEVICE_TYPES, BATTERY_BRANDS, SONNEN_BATTERY_DEVICE_SETTINGS
+
 from models_classes.SharedDeviceInfo import SharedDeviceInfo
-from models_classes.Devices_Enum import DEVICE_TYPES, BATTERY_BRANDS, SONNEN_BATTERY_DEVICE_SETTINGS
+
 import logging
 import time
 import logging
 import time
-import aiohttp
 from .vtn_api import submit_dispatch_to_vtn
 from .control_devices import send_dispatch_quantity_to_devices
 
