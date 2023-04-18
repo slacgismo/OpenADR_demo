@@ -8,7 +8,7 @@ services:
       args:
         - DEV=true
     environment:
-      - ENVIRONMENT=${ENVIRONMENT:-LOCAL} # AWS or LOCAL
+      - ENVIRONMENT=${ENVIRONMENT:-LOCAL} # PROD , STAGING or LOCAL
       - AGENT_ID=${AGENT_ID:-d5f36f77f24d19a2820538f415b0fd}
       - RESOURCE_ID=${RESOURCE_ID:-resource0}
       - METER_API_URL=${METER_API_URL:-https://mn8htmbur2.execute-api.us-east-2.amazonaws.com/dev/meter}
@@ -36,7 +36,7 @@ services:
     volumes:
       - ./services/openadr/ven:/app
     environment:
-      - ENVIRONMENT=${ENVIRONMENT:-LOCAL} #1 for Ture and 0 for False
+      - ENVIRONMENT=${ENVIRONMENT:-LOCAL} # PROD , STAGING or LOCAL
       - RESOURCE_ID=${RESOURCE_ID:-resource0}
       - METER_ID=${METER_ID:-meter0}
       - DEVICE_ID=${DEVICE_ID:-2b24017403c418d73b4829372f9c5b43}
@@ -45,8 +45,6 @@ services:
       - EMULATED_DEVICE_API_URL=${EMULATED_DEVICE_API_URL:-https://dimv3a4ze9.execute-api.us-east-2.amazonaws.com/dev/battery_api}
       - 'DEVICE_SETTINGS={"device_brand": "SONNEN_BATTERY", "battery_token": "b51f18cd294592a3777f243287938d", "battery_sn": "40857","flexible":"1","is_using_mock_device":"True"}'
       - MARKET_INTERVAL_IN_SECONDS=${MARKET_INTERVAL_IN_SECONDS:-20}
-      - PRICE_FLOOR=${PRICE_FLOOR:-0.0}
-      - PRICE_CEILING=${PRICE_CEILING:-100.0}
     command: >
       sh -c "python ven.py"
 

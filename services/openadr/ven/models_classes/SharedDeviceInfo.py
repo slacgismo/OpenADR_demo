@@ -22,8 +22,6 @@ class SharedDeviceInfo:
                  market_interval: int = None,
                  dispatch_queue: list = None,
                  market_start_time: str = None,
-                 price_floor: float = None,
-                 price_ceiling: float = None,
                  error: str = None,
                  device_data_queue: list = None,
                  ):
@@ -43,8 +41,6 @@ class SharedDeviceInfo:
         self._market_start_time = market_start_time
 
         self._market_interval = market_interval
-        self._price_floor = price_floor
-        self._price_ceiling = price_ceiling
         self._dispatch_queue = dispatch_queue
         self._device_data_queue = device_data_queue
         self._error = error
@@ -160,18 +156,6 @@ class SharedDeviceInfo:
 
     def set_market_start_time(self, market_start_time):
         self._market_start_time = market_start_time
-
-    def get_price_floor(self):
-        return self._price_floor
-
-    def set_price_floor(self, price_floor):
-        self._price_floor = price_floor
-
-    def get_price_ceiling(self):
-        return self._price_ceiling
-
-    def set_price_ceiling(self, price_ceiling):
-        self._price_ceiling = price_ceiling
 
     def get_error(self):
         return self._error

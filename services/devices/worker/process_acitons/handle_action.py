@@ -49,8 +49,6 @@ def parse_message_body(message_body: dict):
     "device_id": "807f8e4a37446e80c5756a74a3598d",
     "device_type": "ES",
     "meter_id": "6436a67e184d3694a15886215ae464"
-    "price_floor": "0.1",
-    "price_ceiling": "100",
     "device_settings": {
         "battery_token": "12321321qsd",
         "battery_sn": "66354",
@@ -69,9 +67,7 @@ def parse_message_body(message_body: dict):
         device_type = message_body["device_type"]
         meter_id = message_body["meter_id"]
         device_settings = message_body["device_settings"]
-        price_floor = message_body["price_floor"]
-        price_ceiling = message_body["price_ceiling"]
-        return agent_id, resource_id, market_interval_in_seconds, device_id, device_type, meter_id, price_floor, price_ceiling, device_settings
+        return agent_id, resource_id, market_interval_in_seconds, device_id, device_type, meter_id, device_settings
     except Exception as e:
         raise Exception(f"Error parsing message body: {e}")
 
@@ -97,7 +93,7 @@ def handle_action(
     params: AWS_REGION: str
     return: None
     """
-    agent_id, resource_id, market_interval_in_seconds, device_id, device_type, meter_id, price_floor, price_ceiling, device_settings = parse_message_body(
+    agent_id, resource_id, market_interval_in_seconds, device_id, device_type, meter_id, device_settings = parse_message_body(
         message_body
     )
 
@@ -144,8 +140,6 @@ def handle_action(
             # create vtn container
             create_new_task_definition(
                 market_interval_in_seconds=market_interval_in_seconds,
-                price_floor=price_floor,
-                price_ceiling=price_ceiling,
                 agent_id=agent_id,
                 resource_id=resource_id,
                 device_id=device_id,
@@ -161,8 +155,6 @@ def handle_action(
             #  modeify existing task definition file
             insert_device_to_existing_task_defintion_file(
                 market_interval_in_seconds=market_interval_in_seconds,
-                price_floor=price_floor,
-                price_ceiling=price_ceiling,
                 agent_id=agent_id,
                 resource_id=resource_id,
                 device_id=device_id,

@@ -48,7 +48,7 @@ VEN_HEALTH_CHECK_SEVER = "0.0.0.0"
 VEN_ID = 'ven-' + DEVICE_ID
 if ENVIRONMENT == "LOCAL":
     VTN_ADDRESS = 'vtn'
-elif ENVIRONMENT == "AWS":
+elif ENVIRONMENT != "LOCAL":
     # AWS ECS service always use the private ip 127.0.0.1
     VTN_ADDRESS = '127.0.0.1'
 else:

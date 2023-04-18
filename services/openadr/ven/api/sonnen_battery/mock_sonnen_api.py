@@ -33,9 +33,9 @@ class MockSonnenInterface():
                 self.url_ini + f"/{self.serial}?device_brand={ self.device_brand}")
 
             batt_staus = resp.json()
-            print("======   get_mock_battery_status   ======")
-            print(batt_staus)
-            print("------------------------------------------")
+            # print("======   get_mock_battery_status   ======")
+            # print("length of batt_staus: ", len(batt_staus))
+            # print("------------------------------------------")
             return batt_staus
 
         except requests.exceptions.HTTPError as err:

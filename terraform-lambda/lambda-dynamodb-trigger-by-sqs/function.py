@@ -60,8 +60,6 @@ class MarketsTableAttributes (Enum):
     NAME = "name"
     RESOURCE_ID = "resource_id"
     UNITS = "units"
-    PRICE_FLOOR = "price_floor"
-    PRICE_CEILING = "price_ceiling"
     INTERVAL = "interval"
     VALID_AT = "valid_at"
 
@@ -197,8 +195,6 @@ def create_sqs_message(device_id: str, agent_id: str, eventName: EventName, devi
         "device_id": "807f8e4a37446e80c5756a74a3598d",
         "device_type": "ES",
         "meter_id": "6436a67e184d3694a15886215ae464"
-        "price_floor": 0,
-        "price_ceiling": 100,
         "device_settings": {
             "battery_token": "12321321qsd",
             "battery_sn": "66354",
@@ -230,8 +226,6 @@ def create_sqs_message(device_id: str, agent_id: str, eventName: EventName, devi
         table_name=market_table, key=markets_table_global_index, value=resource_id, dynamodb_client=dynamodb_client)
     print("market item: ", market_item)
     market_interval_in_seconds = market_item[MarketsTableAttributes.INTERVAL.value]['N']
-    price_floor = market_item[MarketsTableAttributes.PRICE_FLOOR.value]['N']
-    price_ceiling = market_item[MarketsTableAttributes.PRICE_CEILING.value]['N']
 
     # market_interval_in_seconds = "60"
     # settings_item = get_item_from_table(
@@ -258,8 +252,6 @@ def create_sqs_message(device_id: str, agent_id: str, eventName: EventName, devi
         "device_id": device_id,
         "device_type": device_type,
         "meter_id": meter_id,
-        "price_floor": price_floor,
-        "price_ceiling": price_ceiling,
         "device_settings": {
             "battery_token": battery_token,
             "battery_sn": battery_sn,

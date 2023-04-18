@@ -66,7 +66,7 @@ async def handle_get_device_data(
                 device_settings=device_settings
             )
             # save the device data to the shared memory for other thread to use
-            logging.info(f"device_data: {device_data}")
+            # logging.info(f"device_data: {device_data}")
 
             # save device data to a queue
             # always clear the queue before put new data
@@ -178,7 +178,7 @@ async def get_sonnen_battery_data(
         batter_data = await mock_battery_interface.get_mock_battery_status()
         filter_data = await filter_battery_data(batter_data)
         logging.info(
-            f"=========  filter_data {filter_data} ==================")
+            f"=========  length of filter_data {len(filter_data)} ==================")
         return filter_data
     else:
         logging.info(
