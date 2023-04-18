@@ -82,7 +82,6 @@ def handler(event, context):
                     }
                     return {
                         'statusCode': 200,
-                        'ReturnCode': 0,
                         'headers': {'Content-Type': 'application/json'},
                         'body': json.dumps(payload)
                     }

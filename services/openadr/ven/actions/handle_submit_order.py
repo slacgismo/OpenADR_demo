@@ -77,14 +77,11 @@ async def submit_order_to_vtn(
             flexible = shared_device_info.get_flexible()
             # state is the USOC value of battery
             state = device_data[SonnenBatteryAttributes.USOC.name]
-            order_payload = {
-                'resource_id': resource_id,
-                'flexible': flexible,
-                'state': state,
-                'record_time': int(time.time()),
-            }
+
             order_id, quantity, price = await put_data_to_order_api_of_vtn(
-                order_payload=order_payload,
+                resource_id=resource_id,
+                flexible=flexible,
+                state=state,
                 vtn_order_url=vtn_order_url
             )
             if order_id is None or quantity is None or price is None:

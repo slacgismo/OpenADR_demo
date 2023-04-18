@@ -76,6 +76,7 @@ async def handle_get_device_data(
             # shared_device_data = SharedDeviceData.get_instance()
             # shared_device_data.set(device_data)
             logging.warning(f"put data to meter api need to be verified")
+
             status = device_data[SonnenBatteryAttributes.SystemStatus.name]
             if status == SonnenBatterySystemStatus.OnGrid.name:
                 status = "1"
@@ -84,19 +85,20 @@ async def handle_get_device_data(
             else:
                 raise Exception(f"status {status} is not supported yet")
 
-            data = {
-                "readings": json.dumps(device_data),
-                "device_id": device_id,
-                "meter_id": meter_id,
-                "resource_id": resource_id,
-                "device_brand": device_brand,
-                "status": status,
-                "timestamp": int(time.time())
-            }
-            response = await put_data_to_meter_api(
-                data=data,
+            timestamp = device_data[SonnenBatteryAttributes.Timestamp.name]
+
+            is_submit_data_to_vtn_success = put_data_to_meter_api(
+                readings=json.dumps(device_data),
+                device_id=device_id,
+                meter_id=meter_id,
+                resource_id=resource_id,
+                device_brand=device_brand,
+                status=status,
+                timestamp=timestamp,
                 vtn_measurement_url=vtn_measurement_url)
-            logging.info(f"Put data to vtn meter: {response}")
+
+            if is_submit_data_to_vtn_success is False:
+                raise Exception(f"Error put data to vtn meter")
 
         except Exception as e:
             error_message = f"Error get device data: {e}"
