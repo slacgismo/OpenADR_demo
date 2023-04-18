@@ -113,11 +113,11 @@ async def submit_order_to_vtn(
                 shared_device_info.set_dispatch_queue(
                     dispatch_timestamp=local_calculated_dispatch_timestamp,
                     order_id=order_id,
-                    quantity=quantity
+                    quantity=quantity,
+                    price=price,
                 )
-                # clear the device data queue
-                shared_device_info.clear_device_data_queue()
 
+                shared_device_info.clear_device_data_queue()
         except Exception as e:
             error_message = f"Error submit order: {e}"
             shared_device_info.set_error(error=error_message)

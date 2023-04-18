@@ -83,13 +83,14 @@ async def handle_order(request, ORDERS_API_URL):
                     timezone=timezone.utc,
                     price=price,
                 )
-                payload = {
-                    "order_id": order_id,
-                    "device_id": device_id,
-                    "quantity": quantity,
-                    "price": price,
-                }
-                return web.json_response(payload, status=200)
+
+            payload = {
+                "order_id": order_id,
+                "device_id": device_id,
+                "quantity": quantity,
+                "price": price,
+            }
+            return web.json_response(payload, status=200)
         else:
             return web.json_response({"error": "vtn faile to submit order"}, status=400)
 
@@ -117,7 +118,7 @@ async def sumbit_order_to_order_api(
     try:
         logging.info(f"order_url:{order_url}, payload: {order_payload}")
         async with aiohttp.ClientSession() as session:
-            async with session.put(order_url, json=order_payload) as response:
+            async with session.put(order_url, json=None) as response:
                 content_type = response.headers.get('Content-Type', '')
                 if 'application/json' not in content_type:
                     message = await response.text()
@@ -126,6 +127,10 @@ async def sumbit_order_to_order_api(
                         f"******** Unexpected content type: {content_type} message: {message}")
 
                 if response.status != 200:
+
+                    message = await response.text()
+                    logging.error(
+                        f"Error VTN submit order to TESS {response}: message:    {message}")
                     return None
                     # raise Exception(
                     #     f"Error submit order to TESS: {response.status}")

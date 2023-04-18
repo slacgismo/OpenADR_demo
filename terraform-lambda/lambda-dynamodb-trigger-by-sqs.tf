@@ -38,8 +38,8 @@ resource "aws_lambda_function" "lambda_sqs_event" {
         "TO_TRIGGER_QUEUE_URL" = aws_sqs_queue.opneadr_workers_sqs.id
         "MARKETS_TABLE" = aws_dynamodb_table.markets.name
         "AGENTS_TABLE" = aws_dynamodb_table.agents.name
-        "SETTINGS_TIMESTREAM_TABLE_NAME" =aws_timestreamwrite_table.settings.name
-        "TIMESTREAM_DB_NAME" = aws_timestreamwrite_database.measurements.name
+        "SETTINGS_TIMESTREAM_TABLE_NAME" =aws_timestreamwrite_table.settings.table_name
+        "TIMESTREAM_DB_NAME" = aws_timestreamwrite_database.measurements.database_name
         "METERS_TABLE" =aws_dynamodb_table.meters.name
     }
   }

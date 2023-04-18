@@ -64,20 +64,27 @@ def handler(event, context):
                 enable_manual_mode = query_params.get(
                     'enable_manual_mode', None)
                 if enable_manual_mode is not None:
+                    payload = {
+                        'enable_manual_mode': 1,
+                        'status': 0
+                    }
                     return {
                         'statusCode': 200,
-                        'status': 0,
                         'headers': {'Content-Type': 'application/json'},
-                        'body': json.dumps({'enable_manual_mode': enable_manual_mode})
+                        'body': json.dumps(payload)
                     }
                 manual_mode_control = query_params.get(
                     'manual_mode_control', None)
                 if manual_mode_control is not None:
+                    payload = {
+                        'manual_mode_control': 1,
+                        'ReturnCode': 0
+                    }
                     return {
                         'statusCode': 200,
                         'ReturnCode': 0,
                         'headers': {'Content-Type': 'application/json'},
-                        'body': json.dumps({'manual_mode_control': manual_mode_control})
+                        'body': json.dumps(payload)
                     }
 
                 # return battery data

@@ -16,6 +16,7 @@ from enum import Enum
 import json
 from api.sonnen_battery.Sonnen_Battery_Enum import SonnenBatteryAttributeKey, SonnenBatterySystemStatus
 from models_classes.SharedDeviceInfo import SharedDeviceInfo
+from .vtn_api import put_data_to_meter_api
 
 
 async def handle_get_device_data(
@@ -70,7 +71,7 @@ async def handle_get_device_data(
             # save device data to a queue
             # always clear the queue before put new data
             shared_device_info.clear_device_data_queue()
-            shared_device_info.put_device_data_to_queue(device_data)
+            shared_device_info.append_device_data_queue(device_data)
 
             # shared_device_data = SharedDeviceData.get_instance()
             # shared_device_data.set(device_data)
@@ -99,7 +100,7 @@ async def handle_get_device_data(
 
         except Exception as e:
             error_message = f"Error get device data: {e}"
-            shared_device_data.set_error(error=error_message)
+            shared_device_info.set_error(error=error_message)
             break
             # logging.error(f"Error get device data {e}")
             # raise Exception(f"Error get device data: {e}")
@@ -192,28 +193,3 @@ async def get_sonnen_battery_data(
         filter_data = await filter_battery_data(batter_data)
         # logging.info(filter_data)
         return filter_data
-
-
-async def put_data_to_meter_api(
-    data: dict = None,
-    vtn_measurement_url: str = None,
-):
-    if data is None or vtn_measurement_url is None:
-        raise Exception(
-            "data, vtn_measurement_endpoint cannot be None")
-
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.put(vtn_measurement_url, json=data) as response:
-                response_text = await response.text()
-                if response.status != 200:
-                    # TODO: handle 400, 401, 403, 404, 500
-                    raise Exception(
-                        f"Submit measurements to VTN Meter API response status code: {response.status}")
-                else:
-                    logging.info(
-                        "*********** Send to VTN Meter API success ***********")
-
-    except Exception as e:
-        raise Exception(f"Error checking Meter API: {e}")
-    return response_text

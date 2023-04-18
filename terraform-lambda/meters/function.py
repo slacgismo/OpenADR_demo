@@ -36,18 +36,19 @@ def handler(event, context):
             device_brand = request_body[MetersDataKeys.DEVICE_BRAND.value]
             status = request_body[MetersDataKeys.STATUS.value]
             timestamp = request_body[MetersDataKeys.TIMESTAMP.value]
-            response = write_to_timestream(
-                records=readings,
-                meter_id=meter_id,
-                device_id=device_id,
-                resource_id=resource_id,
-                device_brand=device_brand,
-                timestamp=timestamp
-            )
+            # response = write_to_timestream(
+            #     records=readings,
+            #     meter_id=meter_id,
+            #     device_id=device_id,
+            #     resource_id=resource_id,
+            #     device_brand=device_brand,
+            #     status=status,
+            #     timestamp=timestamp
+            # )
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json'},
-                'body': json.dumps({'response': response})
+                'body': json.dumps({'message': 'success'})
             }
         elif http_method == 'PUT':
             device_id = event['pathParameters']['device_id']

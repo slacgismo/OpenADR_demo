@@ -11,7 +11,7 @@ async def handle_dispatch(
 ):
     try:
 
-        ven_id = request.match_info['ven_id']
+        device_id = request.match_info['device_id']
         body = await request.json()
         order_id = body['order_id']
         logging.info(

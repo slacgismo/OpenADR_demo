@@ -27,7 +27,7 @@
 
 
 resource "aws_iam_policy" "TESS_lambda_dyanmodb_access" {
-  depends_on = [aws_dynamodb_table.devices, aws_dynamodb_table.orders, aws_dynamodb_table.dispatches]
+  depends_on = [aws_dynamodb_table.devices]
   # name = "dyanmodb_lambda_access"
   name = "${var.prefix}-${var.client}-${var.environment}-lambda-dynamodb-limit-access-ploicy"
   policy = jsonencode({
@@ -43,6 +43,8 @@ resource "aws_iam_policy" "TESS_lambda_dyanmodb_access" {
           "dynamodb:BatchWriteItem",
           "dynamodb:PutItem",
           "dynamodb:UpdateItem",
+          "timestream:DeleteRecords",
+          "timestream:ReadRecords",
           "timestream:WriteRecords",
           "timestream:DescribeTable",
           "timestream:ListMeasures",

@@ -38,51 +38,6 @@ class MockSonnenInterface():
             print(err)
             return requests.exceptions.HTTPError
 
-    # async def get_status_and_convert_to_openleadr_report(self):
-    #     """
-    #     Get battery status and convert to the openADR historical report format
-    #     Since openADR protocol not allow to pass json format, we have to pass the
-    #     data in an array with [(datetime, value)] format. The value is float type.
-    #     It's important to keep the same sequence, then the VTN can parse correctly.
-    #     Otherwise, VTN may get wrong data.
-    #     Original json format
-
-    #     {
-    #         "BackupBuffer": "10", "BatteryCharging": true, "BatteryDischarging": false,
-    #         "Consumption_Avg": 0, "Consumption_W": 0, "Fac": 60, "FlowConsumptionBattery": false,
-    #         "FlowConsumptionGrid": false, "FlowConsumptionProduction": false, "FlowGridBattery": true,
-    #         "FlowProductionBattery": true, "FlowProductionGrid": true, "GridFeedIn_W": 196,
-    #         "IsSystemInstalled": 1, "OperatingMode": "2", "Pac_total_W": -1800,
-    #         "Production_W": 1792, "RSOC": 52, "RemainingCapacity_W": 5432, "SystemStatus": "OnGrid",
-    #         "Timestamp": "2023-02-09 14:50:32", "USOC": 49, "Uac": 237, "Ubat": 54
-    #     }
-
-    #     """
-    #     params = {"serial": self.serial}
-
-    #     try:
-    #         resp = requests.get(self.url_ini, params=params,
-    #                             headers=self.headers)
-    #         resp.raise_for_status()
-    #     except requests.exceptions.HTTPError as err:
-    #         print(err)
-    #         return requests.exceptions.HTTPError
-
-    #     try:
-    #         batt_staus = resp.json()
-
-    #         # convert to openADR report format
-    #         battery_data = convert_sonnen_data_to_openadr_report_format(
-    #             batt_staus)
-    #         return battery_data
-    #     except ValueError as e:
-    #         raise (f"convert to openADR report error:{e} ")
-
-    # Backup:
-    # Intended to maintain an energy reserve for situations where the Grid is no longer available. During the off-grid
-    # period the energy would be dispensed to supply the demand of power from all the essential loads.
-    # Load management can be enabled to further extend the life of the batteries by the Developers.
-
     async def enable_backup_mode(self):
 
         return "enable backup mode"
@@ -129,31 +84,44 @@ class MockSonnenInterface():
 
     # Enabled by default
     async def enable_manual_mode(self):
+        '''
+        response {
+            "enable_manual_mode": 1,
+            "status": 0
+        }
+        '''
         try:
 
             resp = requests.get(
                 self.url_ini + f"/{self.serial}?device_brand={self.device_brand}&enable_manual_mode=1", headers=self.headers)
 
-            body = resp.json()
-            if 'status' in body:
-                return body['status']
-            else:
-                return {'status': '1'}
+            return resp.json()
+            # if 'status' in body:
+            #     return body['status']
+            # else:
+            #     return {'status': '1'}
 
         except requests.exceptions.HTTPError as err:
             print(err)
             return requests.exceptions.HTTPError
 
     async def manual_mode_control(self, mode='charge', value='0'):
+        '''
+        response {
+            "manual_mode_control": 1,
+            "ReturnCode": 0
+        }
+        '''
         try:
             resp = requests.get(
                 self.url_ini + f"/{self.serial}?device_brand={self.device_brand}&manual_mode_control=1", headers=self.headers)
 
-            body = resp.json()
-            if 'ReturnCode' in body:
-                return body['ReturnCode']
-            else:
-                return {'ReturnCode': '1'}
+            return resp.json()
+            # body = resp.json()
+            # if 'ReturnCode' in body:
+            #     return body['ReturnCode']
+            # else:
+            #     return {'ReturnCode': '1'}
 
         except requests.exceptions.HTTPError as err:
             print(err)

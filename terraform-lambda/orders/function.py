@@ -4,6 +4,7 @@ import logging
 import datetime
 import time
 import os
+import uuid
 dynamodb = boto3.client('dynamodb')
 # table_name = 'openadr-NHEC-dev-orders'
 orders_timestream_table_name = os.environ["ORDERS_TIMESTEAM_TABLE_NAME"]
@@ -28,53 +29,73 @@ def handler(event, context):
                 'body': json.dumps({'device_id': "get device id"})
             }
         elif http_method == 'PUT':
-            if 'order_id' not in event['pathParameters']:
+            if 'device_id' not in event['pathParameters']:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json'},
-                    'body': json.dumps({'error': 'Missing order_id'})
+                    'body': json.dumps({'error': 'Missing device_id'})
                 }
-            order_id = event['pathParameters']['order_id']
-            request_body = json.loads(event['body'])
-            device_id = request_body.get('device_id', None)
-            if device_id is None:
-                logger.error("No device_id")
-            resource_id = request_body.get('resource_id', None)
-            if resource_id is None:
-                logger.error("No resource_id")
-            quantity = request_body.get('quantity', None)
-            if quantity is None:
-                logger.error("No quantity")
-            flexible = request_body.get('flexible', 0)
-            state = request_body.get('state', None)
-            if state is None:
-                logger.error("No state")
-            price = request_body.get('price', None)
-            if price is None:
-                logger.error("price")
-            order_info = dict()
-            order_info['order_id'] = order_id
-            order_info['resource_id'] = resource_id
-            order_info['quantity'] = quantity
-            order_info['flexible'] = flexible
-            order_info['state'] = state
-            order_info['price'] = price
+            else:
+                device_id = event['pathParameters']['device_id']
+                order_id = str(guid())
+                quantity = 1
+                price = 1
+                payload = {
+                    'order_id': order_id,
+                    'quantity': quantity,
+                    'price': price
+                }
+
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json'},
+                    'body': json.dumps(payload)
+                }
+
+            # order_id = event['pathParameters']['order_id']
+            # request_body = json.loads(event['body'])
+            # device_id = request_body.get('device_id', None)
+            # if device_id is None:
+            #     logger.error("No device_id")
+            # resource_id = request_body.get('resource_id', None)
+            # if resource_id is None:
+            #     logger.error("No resource_id")
+            # quantity = request_body.get('quantity', None)
+            # if quantity is None:
+            #     logger.error("No quantity")
+            # flexible = request_body.get('flexible', 0)
+            # state = request_body.get('state', None)
+            # if state is None:
+            #     logger.error("No state")
+            # price = request_body.get('price', None)
+            # if price is None:
+            #     logger.error("price")
+            # order_info = dict()
+            # order_info['order_id'] = order_id
+            # order_info['resource_id'] = resource_id
+            # order_info['quantity'] = quantity
+            # order_info['flexible'] = flexible
+            # order_info['state'] = state
+            # order_info['price'] = price
             # aution id  from device or generate here?
-            order_info['auction_id'] = "12321"
+            # order_info['auction_id'] = "12321"
             # retrun current market end time. (same as next market start time)
 
-            market_start_timestamp = convert_datetime_to_timsestamp(
-                time_str=MARKET_START_TIME)
-            # get the current time
-            current_time = int(time.time())
-            time_since_start = current_time - market_start_timestamp
-            time_to_next_start = MARKET_INTERVAL_IN_SECONDS - \
-                (time_since_start % MARKET_INTERVAL_IN_SECONDS)
-            global_time_to_next_start = current_time + time_to_next_start
+            # market_start_timestamp = convert_datetime_to_timsestamp(
+            #     time_str=MARKET_START_TIME)
+            # # get the current time
+            # current_time = int(time.time())
+            # time_since_start = current_time - market_start_timestamp
+            # time_to_next_start = MARKET_INTERVAL_IN_SECONDS - \
+            #     (time_since_start % MARKET_INTERVAL_IN_SECONDS)
+            # global_time_to_next_start = current_time + time_to_next_start
+            order_id = str(guid())
+            quantity = 1
+            price = 1
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json'},
-                'body': json.dumps({'order_id': order_id, "device_id": device_id, "dispatch_timestamp": global_time_to_next_start})
+                'body': json.dumps({'order_id': order_id, "quantity": quantity, "price": price})
             }
             # put_order_info_into_dynamodb(
             #     order_info = order_info,
@@ -198,3 +219,8 @@ def get_order_info_from_dynamodb(order_id: str, table_name: str, dynamodb_client
 
             'body': 'Error retrieving orders: {}'.format(str(e))
         }
+
+
+def guid():
+    """Return a globally unique id"""
+    return uuid.uuid4().hex[2:]

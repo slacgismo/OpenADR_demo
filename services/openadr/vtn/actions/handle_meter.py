@@ -23,10 +23,10 @@ async def handle_meter(request, METER_API_URL):
     status = None
     response_obj = {'status': status}
     try:
-        ven_id = request.match_info['ven_id']
+        device_id = request.match_info['device_id']
         data = await request.json()
         logging.info("=====================================")
-        logging.info(f"handle_meter: {ven_id}")
+        logging.info(f"handle_meter: {device_id}")
         logging.info("=====================================")
         if 'device_id' not in data or 'meter_id' not in data or 'resource_id' not in data or 'readings' not in data or 'device_brand' not in data:
             raise Exception(f"Error parse meter data: {data}")
