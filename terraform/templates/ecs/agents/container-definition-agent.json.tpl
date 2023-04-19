@@ -33,7 +33,7 @@
                 "value": "vtn0"
             },
             {
-                "name": "METER_API_URL",
+                "name": "METERS_API_URL",
                 "value": "https://l19grkzsyk.execute-api.us-east-2.amazonaws.com/dev/openadr_devices"
             },
             {

@@ -1,5 +1,5 @@
 #TESS API
-meter_api_url           = ""
+meters_api_url           = ""
 order_api_url           = ""
 dispatch_api_url        = ""
 emulated_device_api_url = ""

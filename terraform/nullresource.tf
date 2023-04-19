@@ -30,7 +30,7 @@ resource "null_resource" "export_terrafrom_tfvars_to_devices_admin_worker_terraf
       echo 'ecs_task_role_name="${aws_iam_role.app_iam_role.name}"' >> terraform.tfvars
       echo 'ecs_agent_sg="${aws_security_group.ecs_agent_sg.name}"' >> terraform.tfvars
       echo 'private_vpc_id="${module.vpc.vpc_id}"' >> terraform.tfvars
-      echo 'meter_api_url="${var.meter_api_url}"' >> terraform.tfvars
+      echo 'meters_api_url="${var.meters_api_url}"' >> terraform.tfvars
       echo 'devices_api_url="${var.device_api_url}"' >> terraform.tfvars
       echo 'orders_api_url="${var.order_api_url}"' >> terraform.tfvars
       echo 'dispatches_api_url="${var.dispatch_api_url}"' >> terraform.tfvars

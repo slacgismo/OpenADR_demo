@@ -37,8 +37,8 @@
                 "value": "60"
             },
             {
-                "name": "METER_API_URL",
-                "value": "{$METER_API_URL}"
+                "name": "METERS_API_URL",
+                "value": "{$METERS_API_URL}"
             },
             {
                 "name": "DEVICE_API_URL",

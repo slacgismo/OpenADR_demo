@@ -16,10 +16,10 @@ services:
       - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
 
       - FIFO_SQS_URL=${FIFO_SQS_URL:-https://sqs.us-east-2.amazonaws.com/041414866712/openadr-NHEC-dev-workers-sqs.fifo}
-      - BACKEND_S3_BUCKET_NAME=${BACKEND_S3_BUCKET_NAME:-shared.nhec-dev.tf-state}
+      - BACKEND_S3_BUCKET_NAME=${BACKEND_S3_BUCKET_NAME:-shared.nhec-staging.tf-state}
       - DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME:${DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME:-openadr-NHEC-dev-agent-shared-tf-state-lock}
-      - ECS_CLUSTER_NAME=${ECS_CLUSTER_NAME:-openadr-NHEC-dev-agent-cluster}
-      - ENVIRONMENT=${ENVIRONMENT:-AWS} # LOCAL,AWS
+      - ECS_CLUSTER_NAME=${ECS_CLUSTER_NAME:-openadr-NHEC-STAGING-agent-cluster}
+      - ENVIRONMENT=${ENVIRONMENT:-STAGING} # LOCAL,PROD,STAGING
     volumes:
       - ./services/devices/worker:/app
     command: >

@@ -2,7 +2,7 @@
 
 # API ROUTES
 
-variable "meter_api_url" {
+variable "meters_api_url" {
   description = "Region in which AWS Resources to be created"
   type        = string
   # default     = "us-east-2"

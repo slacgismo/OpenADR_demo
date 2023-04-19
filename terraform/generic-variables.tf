@@ -46,8 +46,9 @@ variable "project_pa_number" {
 }
 
 
+
 # from terraform.tfvars
-variable "meter_api_url" {
+variable "meters_api_url" {
   description = "save data url"
   type        = string
 }

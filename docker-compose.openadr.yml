@@ -11,7 +11,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-LOCAL} # PROD , STAGING or LOCAL
       - AGENT_ID=${AGENT_ID:-d5f36f77f24d19a2820538f415b0fd}
       - RESOURCE_ID=${RESOURCE_ID:-resource0}
-      - METER_API_URL=${METER_API_URL:-https://mn8htmbur2.execute-api.us-east-2.amazonaws.com/dev/meter}
+      - METERS_API_URL=${METERS_API_URL:-https://mn8htmbur2.execute-api.us-east-2.amazonaws.com/dev/meter}
       - DEVICES_API_URL=${DEVICES_API_URL:-https://mn8htmbur2.execute-api.us-east-2.amazonaws.com/dev/device}
       - ORDERS_API_URL=${ORDERS_API_URL:-https://mn8htmbur2.execute-api.us-east-2.amazonaws.com/dev/order}
       - DISPATCHES_API_URL=${DISPATCHES_API_URL:-https://mn8htmbur2.execute-api.us-east-2.amazonaws.com/dev/dispatch}

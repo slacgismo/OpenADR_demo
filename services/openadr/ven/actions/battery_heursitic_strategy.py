@@ -97,6 +97,8 @@ def convert_device_data_to_order_data(
         deivce_brand: str = None,
         simulation_oder_json_file='./actions/dump_orders.json',
         market_interval: int = 60,
+        price_floor: float = 0.0,
+        price_ceiling: float = 100.0
 ):
     if device_data is None:
         raise Exception("device_data cannot be None")

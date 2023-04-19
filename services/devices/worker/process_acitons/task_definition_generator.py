@@ -25,7 +25,7 @@ class VariablesDefinedInTerraform(Enum):
     VTN_ADDRESS = "${vtn_address}"
     VTN_PORT = "${vtn_port}"
     # routes
-    METER_API_URL = "${meter_api_url}"
+    METERS_API_URL = "${meters_api_url}"
     DEVICES_API_URL = "${devices_api_url}"
     ORDERS_API_URL = "${orders_api_url}"
     DISPATCHES_API_URL = "${dispatches_api_url}"
@@ -39,7 +39,7 @@ class VTN_TASK_VARIANTS_ENUM(Enum):
     RESOURCE_ID = "RESOURCE_ID"
     MARKET_INTERVAL_IN_SECONDS = "MARKET_INTERVAL_IN_SECONDS"
     # from device admin environment variables
-    METER_API_URL = "METER_API_URL"
+    METERS_API_URL = "METERS_API_URL"
     DEVICES_API_URL = "DEVICES_API_URL"
     ORDERS_API_URL = "ORDERS_API_URL"
     DISPATCHES_API_URL = "DISPATCHES_API_URL"
@@ -118,7 +118,7 @@ def create_vtn_params(
     agent_id: str,
     resource_id: str,
     env: str,
-    METER_API_URL: str,
+    METERS_API_URL: str,
     DEVICES_API_URL: str,
     ORDERS_API_URL: str,
     DISPATCHES_API_URL: str,
@@ -127,8 +127,8 @@ def create_vtn_params(
     # for key, value in enumerate(VTN_TASK_VARIANTS_ENUM):
     for vtn_task in VTN_TASK_VARIANTS_ENUM:
         key = vtn_task.value
-        if key == VTN_TASK_VARIANTS_ENUM.METER_API_URL.value:
-            vtn_params[key] = METER_API_URL
+        if key == VTN_TASK_VARIANTS_ENUM.METERS_API_URL.value:
+            vtn_params[key] = METERS_API_URL
         elif key == VTN_TASK_VARIANTS_ENUM.DEVICES_API_URL.value:
             vtn_params[key] = DEVICES_API_URL
         elif key == VTN_TASK_VARIANTS_ENUM.ORDERS_API_URL.value:
@@ -335,13 +335,15 @@ def create_new_task_definition(
         market_interval_in_seconds=market_interval_in_seconds,
         agent_id=agent_id,
         resource_id=resource_id,
-        env=VariablesDefinedInTerraform.ENVIRONMENT.value[0],
-        METER_API_URL=VariablesDefinedInTerraform.METER_API_URL.value[0],
-        DEVICES_API_URL=VariablesDefinedInTerraform.DEVICES_API_URL.value[0],
-        ORDERS_API_URL=VariablesDefinedInTerraform.ORDERS_API_URL.value[0],
-        DISPATCHES_API_URL=VariablesDefinedInTerraform.DISPATCHES_API_URL.value[0],
+        env=VariablesDefinedInTerraform.ENVIRONMENT.value,
+        METERS_API_URL=VariablesDefinedInTerraform.METERS_API_URL.value,
+        DEVICES_API_URL=VariablesDefinedInTerraform.DEVICES_API_URL.value,
+        ORDERS_API_URL=VariablesDefinedInTerraform.ORDERS_API_URL.value,
+        DISPATCHES_API_URL=VariablesDefinedInTerraform.DISPATCHES_API_URL.value,
     )
+    logging.info("======================================================")
     logging.info("vtn_environment_variables: %s", vtn_environment_variables)
+    logging.info("======================================================")
     vtn_id = "vtn-" + agent_id
     vtn_container_definition = generate_vtn_task_definition(
         vtn_template=CONTAINER_DEFINITION_TEMPLATE.copy(),
@@ -354,7 +356,9 @@ def create_new_task_definition(
         vtn_address=VariablesDefinedInTerraform.VTN_ADDRESS.value,
         vtn_port=VariablesDefinedInTerraform.VTN_PORT.value,
     )
+    logging.info("======================================================")
     logging.info("vtn_container_definition: %s", vtn_container_definition)
+    logging.info("======================================================")
     # create ven container
     logging.info("create ven")
     device_settings_str = json.dumps(device_settings)
@@ -444,6 +448,9 @@ def insert_device_to_existing_task_defintion_file(
     )
     task_definition_dict.append(ven_container_definition)
     # ovrwrite file
+    # logging.info("======================================================")
+    # logging.info("task_definition_dict: %s", task_definition_dict)
+    # logging.info("======================================================")
     export_to_json_tpl(task_definition_dict, local_file_destination)
     return True
 

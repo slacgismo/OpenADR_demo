@@ -46,13 +46,14 @@ except Exception as e:
 VEN_HEALTH_CHECK_PORT = 8000
 VEN_HEALTH_CHECK_SEVER = "0.0.0.0"
 VEN_ID = 'ven-' + DEVICE_ID
+
 if ENVIRONMENT == "LOCAL":
     VTN_ADDRESS = 'vtn'
 elif ENVIRONMENT != "LOCAL":
     # AWS ECS service always use the private ip 127.0.0.1
     VTN_ADDRESS = '127.0.0.1'
 else:
-    raise Exception(f"ENV:{ENVIRONMENT} is not set correctly")
+    raise Exception(f"ENVIRONMENT:{ENVIRONMENT} is not set correctly")
 
 VTN_PORT = '8080'
 MARKET_START_TIME = "2020-01-01T00:00:00Z"

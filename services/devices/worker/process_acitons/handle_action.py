@@ -78,7 +78,7 @@ def handle_action(
     BACKEND_S3_BUCKET_NAME: str,
     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME: str,
     AWS_REGION: str,
-    # METER_API_URL: str,
+    # METERS_API_URL: str,
     # DEVICES_API_URL: str,
     # ORDERS_API_URL: str,
     # DISPATCHES_API_URL: str,
@@ -192,8 +192,10 @@ def handle_action(
 
         ecs_terraform.terraform_init()
         ecs_terraform.terraform_destroy()
+        s3_service.remove_file(file_name=s3_source)
         logging.info("========================================")
         logging.info(f"ECS service destroied: {agent_id}")
+        logging.info(f"Remove task definition on S3: {s3_source}")
         logging.info("========================================")
 
     else:
@@ -202,11 +204,11 @@ def handle_action(
         ecs_terraform.terraform_init()
         # ecs_terraform.terraform_plan()
         ecs_terraform.terraform_apply()
+        s3_service.upload_file(source=destination, destination=s3_source)
         logging.info("========================================")
         logging.info(f"ECS service updated: {agent_id}")
+        logging.info(f"Upload task definition on S3: {s3_source}")
         logging.info("========================================")
 
-    s3_service.upload_file(source=destination, destination=s3_source)
-    logging.info(f"=== Upload the task definition file to S3 :{s3_source} ===")
     # remove local task definition file
     os.remove(destination)

@@ -206,28 +206,28 @@ def create_sqs_message(device_id: str, agent_id: str, eventName: EventName, devi
     }
     """
     # get meter_id from meter table with device_id and resource_id
-    dynamodb_client = boto3.client('dynamodb')
-    meters_table_global_index_value = device_id + resource_id
-    meter_item = get_item_from_table(
-        table_name=meters_table, key=meters_table_global_index, value=meters_table_global_index_value, dynamodb_client=dynamodb_client)
+    # dynamodb_client = boto3.client('dynamodb')
+    # meters_table_global_index_value = device_id + resource_id
+    # meter_item = get_item_from_table(
+    #     table_name=meters_table, key=meters_table_global_index, value=meters_table_global_index_value, dynamodb_client=dynamodb_client)
 
-    meter_id = meter_item[MetersTableAttributes.METER_ID.value]['S']
-    print("meter_item: ", meter_item)
+    # meter_id = meter_item[MetersTableAttributes.METER_ID.value]['S']
+    # print("meter_item: ", meter_item)
     # get resource id from agent table with agent_id
-    agent_item = get_item_from_table(
-        table_name=agent_table, key=AgentsTableAttributes.AGENT_ID.value, value=agent_id, dynamodb_client=dynamodb_client)
+    # agent_item = get_item_from_table(
+    #     table_name=agent_table, key=AgentsTableAttributes.AGENT_ID.value, value=agent_id, dynamodb_client=dynamodb_client)
 
-    print("agent item: ", agent_item)
-    resource_id = agent_item[AgentsTableAttributes.RESOURCE_ID.value]['S']
-
-    # resource_id = "caff6719c24359a155a4d0d2f265a7"
+    # print("agent item: ", agent_item)
+    # resource_id = agent_item[AgentsTableAttributes.RESOURCE_ID.value]['S']
+    meter_id = "6436a67e184d3694a15886215ae464"
+    resource_id = "caff6719c24359a155a4d0d2f265a7"
     # get market interval from market table with resource_id
-    market_item = get_item_from_table(
-        table_name=market_table, key=markets_table_global_index, value=resource_id, dynamodb_client=dynamodb_client)
-    print("market item: ", market_item)
-    market_interval_in_seconds = market_item[MarketsTableAttributes.INTERVAL.value]['N']
+    # market_item = get_item_from_table(
+    #     table_name=market_table, key=markets_table_global_index, value=resource_id, dynamodb_client=dynamodb_client)
+    # print("market item: ", market_item)
+    # market_interval_in_seconds = market_item[MarketsTableAttributes.INTERVAL.value]['N']
 
-    # market_interval_in_seconds = "60"
+    market_interval_in_seconds = "60"
     # settings_item = get_item_from_table(
     #     table_name=settings_table, key="device_id", value=settings_table_global_index, dynamodb_client=dynamodb_client)
     # # get device flexible  from setting table

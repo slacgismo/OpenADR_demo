@@ -31,6 +31,7 @@ try:
     DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME = os.environ[
         "DYNAMODB_AGENTS_SHARED_REMOTE_STATE_LOCK_TABLE_NAME"]
     ECS_CLUSTER_NAME = os.environ['ECS_CLUSTER_NAME']
+    print("ENVIRONMENT: ", ENVIRONMENT)
 except Exception as e:
     raise Exception(f"Error in parise environment variables {e}")
 

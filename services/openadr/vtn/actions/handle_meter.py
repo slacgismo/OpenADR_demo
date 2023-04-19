@@ -9,7 +9,7 @@ import time
 from enum import Enum
 
 
-async def handle_meter(request, METER_API_URL):
+async def handle_meter(request, METERS_API_URL):
     """
     Handle a meter.
     "readings": device_data,
@@ -38,7 +38,7 @@ async def handle_meter(request, METER_API_URL):
         device_brand = data['device_brand']
         status = data['status']
         timestamp = data['timestamp']
-        meter_url = METER_API_URL + "/" + device_id + "/" + meter_id
+        meter_url = METERS_API_URL + "/" + device_id + "/" + meter_id
         meter_data = {
             "resource_id": resource_id,
             "readings": readings,
