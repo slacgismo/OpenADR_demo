@@ -1,12 +1,13 @@
 resource "aws_apigatewayv2_api" "main" {
-  name          = "openadr-device"
+  name          ="${var.prefix}-${var.client}-${var.environment}-main-api-gateway"
   protocol_type = "HTTP"
+  version       = "v1"
 }
 
-resource "aws_apigatewayv2_stage" "dev" {
+resource "aws_apigatewayv2_stage" "environment" {
   api_id = aws_apigatewayv2_api.main.id
 
-  name        = "dev"
+  name        = var.environment
   auto_deploy = true
 
   access_log_settings {

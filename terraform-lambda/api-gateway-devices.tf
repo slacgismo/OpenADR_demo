@@ -10,14 +10,14 @@ resource "aws_apigatewayv2_integration" "lambda_devices" {
 resource "aws_apigatewayv2_route" "get_lambda_devices" {
   api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "GET /device/{device_id}"
+  route_key = "GET /db/device/{device_id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_devices.id}"
 }
 
 resource "aws_apigatewayv2_route" "put_lambda_devices" {
   api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "PUT /device/{device_id}"
+  route_key = "PUT /db/device/{device_id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_devices.id}"
 }
 
@@ -26,12 +26,12 @@ resource "aws_apigatewayv2_route" "put_lambda_devices" {
 resource "aws_apigatewayv2_route" "delete_lambda_devices" {
   api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "DELETE /device/{device_id}"
+  route_key = "DELETE /db/device/{device_id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_devices.id}"
 }
 
-resource "aws_lambda_permission" "api_gw" {
-  statement_id  = "AllowExecutionFromAPIGateway"
+resource "aws_lambda_permission" "api_gw_devices" {
+  statement_id  = "AllowExecutionFromAPIGateway-devicces"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.lambda_devices.function_name
   principal     = "apigateway.amazonaws.com"
@@ -39,7 +39,7 @@ resource "aws_lambda_permission" "api_gw" {
   source_arn = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
 }
 
-output "devices_devices_base_url" {
-  value = "${aws_apigatewayv2_stage.dev.invoke_url}/${aws_apigatewayv2_route.put_lambda_devices.route_key}"
+# output "devices_devices_base_url" {
+#   value = "${aws_apigatewayv2_stage.dev.invoke_url}/${aws_apigatewayv2_route.put_lambda_devices.route_key}"
 
-}
+# }

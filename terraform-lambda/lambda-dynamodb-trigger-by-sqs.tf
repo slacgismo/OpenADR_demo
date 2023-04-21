@@ -6,7 +6,7 @@
 data "archive_file" "lambda_sqs_event" {
   type = "zip"
 
-  source_dir  = "${path.module}/lambda-dynamodb-trigger-by-sqs"
+  source_dir  = "${path.module}/lambda_functions/lambda-dynamodb-trigger-by-sqs"
   output_path = "${path.module}/templates/lambda-dynamodb-trigger-by-sqs.zip"
 }
 
@@ -36,11 +36,12 @@ resource "aws_lambda_function" "lambda_sqs_event" {
     variables = {
         "FROM_EVENT_QUEUE_URL" = aws_sqs_queue.device_table_event_sqs.id,
         "TO_TRIGGER_QUEUE_URL" = aws_sqs_queue.opneadr_workers_sqs.id
-        "MARKETS_TABLE" = aws_dynamodb_table.markets.name
-        "AGENTS_TABLE" = aws_dynamodb_table.agents.name
-        "SETTINGS_TIMESTREAM_TABLE_NAME" =aws_timestreamwrite_table.settings.table_name
-        "TIMESTREAM_DB_NAME" = aws_timestreamwrite_database.measurements.database_name
-        "METERS_TABLE" =aws_dynamodb_table.meters.name
+        "MARKETS_TABLE_NAME" = aws_dynamodb_table.markets.name
+        "AGENTS_TABLE_NAME" = aws_dynamodb_table.agents.name
+        "SETTINGS_TABLE_NAME" = aws_dynamodb_table.settings.name
+        # "SETTINGS_TIMESTREAM_TABLE_NAME" =aws_timestreamwrite_table.settings.table_name
+        # "TIMESTREAM_DB_NAME" = aws_timestreamwrite_database.measurements.database_name
+        "METERS_TABLE_NAME" =aws_dynamodb_table.meters.name
     }
   }
   # local file
@@ -56,7 +57,7 @@ resource "aws_lambda_function" "lambda_sqs_event" {
 }
 
 resource "aws_iam_role" "lambda_sqs_event" {
-  name = "lambda_sqs_event_role"
+  name = "${var.prefix}-${var.client}-${var.environment}-lambda-sqs-event-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -99,7 +100,7 @@ resource "aws_lambda_event_source_mapping" "lambda_sqs_event_source_mapping" {
 }
 
 resource "aws_iam_policy" "lambda_sqs_policy" {
-  name        = "lambda-sqs-policy"
+  name        = "${var.prefix}-${var.client}-${var.environment}-lambda-sqs-event-policy"
   policy      = jsonencode({
     Version = "2012-10-17"
     Statement = [

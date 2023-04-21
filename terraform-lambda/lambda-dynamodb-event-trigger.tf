@@ -2,7 +2,7 @@
 data "archive_file" "lambda_dynamodb_event_trigger" {
   type = "zip"
 
-  source_dir  = "${path.module}/lambda-dynamodb-event-trigger"
+  source_dir  = "${path.module}/lambda_functions/lambda-dynamodb-event-trigger"
   output_path = "${path.module}/templates/lambda-dynamodb-event-trigger.zip"
 }
 

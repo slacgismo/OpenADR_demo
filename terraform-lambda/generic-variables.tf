@@ -45,3 +45,10 @@ variable "project_pa_number" {
   type        = string
   default     = "20813-H2002"
 }
+
+
+variable "api_version" {
+  description = "api version"
+  type        = string
+  default     = "v1"
+}

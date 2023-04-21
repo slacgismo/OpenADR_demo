@@ -26,7 +26,7 @@
 # }
 
 
-resource "aws_iam_policy" "TESS_lambda_dyanmodb_access" {
+resource "aws_iam_policy" "tess_lambda_dyanmodb_access" {
   depends_on = [aws_dynamodb_table.devices]
   # name = "dyanmodb_lambda_access"
   name = "${var.prefix}-${var.client}-${var.environment}-lambda-dynamodb-limit-access-ploicy"
@@ -43,6 +43,23 @@ resource "aws_iam_policy" "TESS_lambda_dyanmodb_access" {
           "dynamodb:BatchWriteItem",
           "dynamodb:PutItem",
           "dynamodb:UpdateItem",
+        ]
+        Effect = "Allow"
+        "Resource" : "*"
+      },
+    ]
+  })
+}
+
+resource "aws_iam_policy" "tess_lambda_timestream_access" {
+  depends_on = [aws_dynamodb_table.devices]
+  # name = "dyanmodb_lambda_access"
+  name = "${var.prefix}-${var.client}-${var.environment}-lambda-timestream-limit-access-ploicy"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
           "timestream:DeleteRecords",
           "timestream:ReadRecords",
           "timestream:WriteRecords",
@@ -58,7 +75,8 @@ resource "aws_iam_policy" "TESS_lambda_dyanmodb_access" {
 }
 
 
-resource "aws_iam_policy" "TESS_lambda_s3_access" {
+
+resource "aws_iam_policy" "tess_lambda_s3_access" {
   name = "${var.prefix}-${var.client}-${var.environment}-lambda-s3-limit-access-ploicy"
 
   policy = jsonencode({
@@ -76,5 +94,6 @@ resource "aws_iam_policy" "TESS_lambda_s3_access" {
   })
 
 }
+
 
 
