@@ -5,15 +5,27 @@ import json
 import time
 import os
 from enum import Enum
+from decimal import Decimal
+import common_utils
+
+
 dynamodb_client = boto3.client('dynamodb')
 agents_table_name = os.environ["AGENTS_TABLE_NAME"]
+boto3.resource('dynamodb')
+
+
+class AgentsAttributesReturnType(Enum):
+    agent_id = 'string'
+    resource_id = 'string'
+    status = 'integer'
+    valid_at = 'integer'
 
 
 class AgentsTableAttributes(Enum):
-    AGENT_ID = 'agent_id'
-    RESOURCE_ID = 'resource_id'
-    STATUS = 'status'
-    VALID_AT = 'valid_at'
+    agent_id = 'S'
+    resource_id = 'S'
+    status = 'N'
+    valid_at = 'N'
 
 
 """
@@ -35,24 +47,25 @@ def handler(event, context):
             if 'agent_id' in event['pathParameters']:
                 agent_id = event['pathParameters']['agent_id']
                 # return asyncio.run(get_item_from_dynamodb(id=agent_id, key=AgentsTableAttributes.AGENT_ID.value, table_name=agents_table_name, dynamodb_client=dynamodb_client))
-                return asyncio.run(
-                    get_agent_item_from_dynamodb(
-                        agent_id=agent_id, table_name=agents_table_name, dynamodb_client=dynamodb_client
+                response = asyncio.run(
+                    common_utils.get_item_from_dynamodb(
+                        id=agent_id,
+                        key=AgentsTableAttributes.agent_id.name,
+                        table_name=agents_table_name,
+                        dynamodb_client=dynamodb_client
                     )
                 )
+                item = response.get('Item', None)
+                if item is None:
+                    return common_utils.respond(err=common_utils.TESSError("no object is found"), res=None)
+                else:
+                    # Lazy-eval the dynamodb attribute (boto3 is dynamic!)
+                    agent_data = parse_agent_data(item)
+
+                    return common_utils.respond(err=None, res=agent_data)
+
             else:
-                error_message = {
-                    'error': 'agent_id is not in body'
-                }
-                return create_json_message(
-                    statusCode=404,
-                    body_payload=error_message
-                )
-                # return {
-                #     'statusCode': 404,
-                #     'headers': {'Content-Type': 'application/json'},
-                #     'body': json.dumps({'message': "agent_id is not in path"})
-                # }
+                return common_utils.respond(err=common_utils.TESSError("agent_id is missing"), res=None)
 
         elif http_method == 'PUT':
 
@@ -66,31 +79,23 @@ def handler(event, context):
                 resource_id = request_body.get('resource_id', None)
                 status = request_body.get('status', None)
                 if resource_id is None or status is None:
-                    error_message = {
-                        'error': 'resource_id or status not in body'
-                    }
-                    return create_json_message(
-                        statusCode=404,
-                        body_payload=error_message
-                    )
-                    # return {
-                    #     'statusCode': 404,
-                    #     'headers': {'Content-Type': 'application/json'},
-                    #     'body': json.dumps({'message': "resource_id or status is not in body"})
-                    # }
+                    return common_utils.respond(err=common_utils.TESSError("resource_id or status is missing"), res=None)
 
                 valid_at = int(time.time())
-
+                # create item
+                item = {
+                    'agent_id': {'S': agent_id},
+                    'resource_id': {'S': resource_id},
+                    'status': {'N': str(status)},
+                    'valid_at': {'N': str(valid_at)}
+                }
                 # save data to dynamodb
-                return asyncio.run(put_agent_info_to_dynamodb(
-                    agent_id=agent_id,
-                    resource_id=resource_id,
-                    status=status,
-                    valid_at=valid_at,
+                response = asyncio.run(common_utils.put_item_to_dynamodb(
+                    item=item,
                     table_name=agents_table_name,
                     dynamodb_client=dynamodb_client,
                 ))
-
+                return common_utils.respond(err=None, res="pud data to dynamodb success")
         elif http_method == "DELETE":
             """
             Delete /db/agent/{agent_id}
@@ -98,138 +103,45 @@ def handler(event, context):
             """
             if 'agent_id' in event['pathParameters']:
                 agent_id = event['pathParameters']['agent_id']
-                return asyncio.run(delete_item_from_dynamodb(id=agent_id, key=AgentsTableAttributes.AGENT_ID.value, table_name=agents_table_name, dynamodb_client=dynamodb_client))
-            else:
-                error_message = {
-                    'error': 'agent_id is not in path'
-                }
-                return create_json_message(
-                    statusCode=404,
-                    body_payload=error_message
+                # chec if agent_id exist
+                response = asyncio.run(
+                    common_utils.get_item_from_dynamodb(
+                        id=agent_id,
+                        key=AgentsTableAttributes.agent_id.name,
+                        table_name=agents_table_name,
+                        dynamodb_client=dynamodb_client
+                    )
                 )
-        # return {
-        #     'statusCode': 404,
-        #     'headers': {'Content-Type': 'application/json'},
-        #     'body': json.dumps({'message': "agent_id is not in path"})
-        # }
+                item = response.get('Item', None)
+                if item is None:
+                    return common_utils.respond(err=common_utils.TESSError(f"agent_id {agent_id} does not exist"), res=None)
+
+                return asyncio.run(common_utils.delete_item_from_dynamodb(id=agent_id, key=AgentsTableAttributes.agent_id.name, table_name=agents_table_name, dynamodb_client=dynamodb_client))
+            else:
+                return common_utils.respond(err=common_utils.TESSError("agent_id is missing"), res=None)
+
     except Exception as e:
-        error_message = {
-            'error': str(e)
-        }
-        return create_json_message(
-            statusCode=500,
-            body_payload=error_message
-        )
+        return common_utils.respond(err=common_utils.TESSError(str(e)), res=None, status_code=500)
 
 
-async def put_agent_info_to_dynamodb(agent_id: str,
-                                     resource_id: str,
-                                     status: str,
-                                     valid_at: int,
-                                     table_name: str,
-                                     dynamodb_client):
-    try:
-        response = await asyncio.to_thread(dynamodb_client.put_item,
-                                           TableName=table_name,
-                                           Item={
-                                               'agent_id': {'S': agent_id},
-                                               'resource_id': {'S': resource_id},
-                                               'status': {'N': status},
-                                               'valid_at': {'N': str(valid_at)}
-                                           }
-                                           )
-        return create_json_message(
-            statusCode=200,
-            body_payload=response
-        )
-    except Exception as e:
-        error_message = {
-            'error': str(e)
-        }
-        return create_json_message(
-            statusCode=500,
-            body_payload=error_message
-        )
+def parse_agent_data(item: dict):
+    deserializer = boto3.dynamodb.types.TypeDeserializer()
+    decimal_data = {k: deserializer.deserialize(
+        v) for k, v in item.items()}
+    # covert decimal to float
+    str_data = json.dumps(
+        decimal_data, default=common_utils.decimal_default)
+    json_data = json.loads(str_data)
+    # convert the value to correct type
+    for attribute in AgentsAttributesReturnType:
+        key = attribute.name
+        type = attribute.value
+        if key not in json_data.keys():
+            raise common_utils.TESSError(
+                f"{key} is not in the response")
 
+        if type == 'integer':
+            json_data[key] = int(json_data[key])
+            # print(f"integet: {json_data[key]} type: {type}")
 
-async def get_agent_item_from_dynamodb(
-        agent_id: str,
-        table_name: str,
-        dynamodb_client,
-) -> dict:
-    try:
-        response = await asyncio.to_thread(get_item_from_dynamodb(id=agent_id, key=AgentsTableAttributes.AGENT_ID.value, table_name=table_name, dynamodb_client=dynamodb_client))
-        # if faild to get item from dynamodb
-        # return {
-        #     'statusCode': 200,
-        #     'headers': {'Content-Type': 'application/json'},
-        #     'body': json.dumps(response)
-        # }
-        return create_json_message(
-            statusCode=200,
-            body_payload=response
-        )
-    except Exception as e:
-        error_message = {
-            'error': str(e)
-        }
-        return create_json_message(
-            statusCode=500,
-            body_payload=error_message
-        )
-        # return {
-        #     'statusCode': 500,
-        #     'headers': {'Content-Type': 'application/json'},
-        #     'body': json.dumps(error_message)
-        # }
-
-
-# shared layer function
-
-async def get_item_from_dynamodb(id: str, key: str, table_name: str, dynamodb_client):
-    try:
-        response = await asyncio.to_thread(
-            dynamodb_client.get_item,
-            TableName=table_name,
-            Key={
-                key: {'S': id}
-            }
-        )
-        return response
-    except Exception as e:
-        raise Exception(e)
-
-
-def create_json_message(
-    body_payload: dict,
-    statusCode: int,
-    headers: dict =
-    {'Content-Type': 'application/json'}
-):
-    return {
-        'statusCode': statusCode,
-        'headers': headers,
-        'body': json.dumps(body_payload)
-    }
-
-
-async def delete_item_from_dynamodb(key: str, id: str, table_name: str, dynamodb_client):
-    try:
-        response = await asyncio.to_thread(dynamodb_client.delete_item,
-                                           TableName=table_name,
-                                           Key={
-                                               key: {'S': id}
-                                           }
-                                           )
-        return create_json_message(
-            statusCode=200,
-            body_payload=response
-        )
-    except Exception as e:
-        error_message = {
-            'error': str(e)
-        }
-        return create_json_message(
-            statusCode=500,
-            body_payload=error_message
-        )
+    return json_data
