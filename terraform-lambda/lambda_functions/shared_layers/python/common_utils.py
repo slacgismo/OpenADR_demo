@@ -4,6 +4,8 @@ import json
 from decimal import Decimal
 import asyncio
 # Convert Decimal objects to float
+import boto3
+from enum import Enum
 
 
 def decimal_default(obj):
@@ -93,3 +95,26 @@ async def delete_item_from_dynamodb(key: str, id: str, table_name: str, dynamodb
 
     except Exception as e:
         return respond(err=TESSError(str(e), None), res=None)
+
+
+def deserializer_dynamodb_data_to_json_format(item: dict, return_attributes: Enum):
+    boto3.resource('dynamodb')
+    deserializer = boto3.dynamodb.types.TypeDeserializer()
+    decimal_data = {k: deserializer.deserialize(
+        v) for k, v in item.items()}
+    # covert decimal to float
+    str_data = json.dumps(
+        decimal_data, default=decimal_default)
+    json_data = json.loads(str_data)
+    # convert the value to correct type
+    for attribute in return_attributes:
+        key = attribute.name
+        type = attribute.value
+        if key not in json_data.keys():
+            raise TESSError(
+                f"{key} is not in the response")
+
+        if type == 'integer':
+            json_data[key] = int(json_data[key])
+
+    return json_data
