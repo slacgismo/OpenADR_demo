@@ -14,6 +14,7 @@ resource "aws_lambda_function" "lambda_meters" {
   environment {
     variables = {
       "METERS_TABLE_NAME" = aws_dynamodb_table.meters.name,
+      "METERS_TABLE_RESOURCE_ID_DEVICE_ID_GSI" =  element(tolist(aws_dynamodb_table.meters.global_secondary_index), 0).name
       # "READINGS_TIMESTREAM_TABLE_NAME" = aws_timestreamwrite_table.readings.table_name
       # "TIMESTREAM_DB_NAME" = aws_timestreamwrite_database.measurements.database_name
     }
@@ -31,7 +32,7 @@ resource "aws_cloudwatch_log_group" "lambda_meters" {
 data "archive_file" "lambda_meters" {
   type = "zip"
 
-  source_dir  = "${path.module}/lambda_functions/meters"
+  source_dir  = "${path.module}/api/meters"
   output_path = "${path.module}/templates/meters.zip"
 }
 

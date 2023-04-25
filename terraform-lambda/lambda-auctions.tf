@@ -17,6 +17,7 @@ resource "aws_lambda_function" "lambda_auctions" {
   environment {
     variables = {
       "AUCTIONS_TABLE_NAME" = aws_dynamodb_table.auctions.name
+      "AUCTIONS_TABLE_MARKET_ID_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.auctions.global_secondary_index), 0).name
     }
   }
 
@@ -33,7 +34,7 @@ resource "aws_cloudwatch_log_group" "lambda_auctions" {
 data "archive_file" "lambda_auctions" {
   type = "zip"
 
-  source_dir  = "${path.module}/lambda_functions/auctions"
+  source_dir  = "${path.module}/api/auctions"
   output_path = "${path.module}/templates/auctions.zip"
 }
 

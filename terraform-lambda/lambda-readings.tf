@@ -16,7 +16,8 @@ resource "aws_lambda_function" "lambda_readings" {
   environment {
     variables = {
       "READINGS_TABLE_NAME" = aws_dynamodb_table.readings.name
-      "READINGS_GLOBAL_SECONDARY_INDEX" = element(tolist(aws_dynamodb_table.readings.global_secondary_index), 0).name
+      "ORDERS_TABLE_METER_ID_GSI" = element(tolist(aws_dynamodb_table.readings.global_secondary_index), 0).name
+      "ORDERS_TABLE_METER_ID_VALID_AT_GSI" = element(tolist(aws_dynamodb_table.readings.global_secondary_index), 1).name
       # "ORDERS_TIMESTEAM_TABLE_NAME" = aws_timestreamwrite_table.orders.table_name
       # "TIMESTREAM_DB_NAME" = aws_timestreamwrite_database.measurements.database_name
     }
@@ -35,7 +36,7 @@ resource "aws_cloudwatch_log_group" "lambda_readings" {
 data "archive_file" "lambda_readings" {
   type = "zip"
 
-  source_dir  = "${path.module}/lambda_functions/readings"
+  source_dir  = "${path.module}/api/readings"
   output_path = "${path.module}/templates/readings.zip"
 }
 

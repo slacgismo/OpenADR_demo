@@ -7,22 +7,65 @@ resource "aws_apigatewayv2_integration" "lambda_settlements" {
   integration_method = "POST"
 }
 
-# resource "aws_apigatewayv2_route" "get_list_of_settlements_from_order_id" {
-#   api_id = aws_apigatewayv2_api.main.id
+# --------------------------------------------
+#  SETTLEMENT "GET /db/settlements"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "get_settlements" {
+  api_id = aws_apigatewayv2_api.main.id
 
-#   route_key = "GET /db/settlements/{order_id}"
-#   target    = "integrations/${aws_apigatewayv2_integration.lambda_settlements.id}"
-# }
+  route_key = "GET /db/settlements"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_settlements.id}"
+}
 
-resource "aws_apigatewayv2_route" "put_settlement_from_order_id" {
+# --------------------------------------------
+#  SETTLEMENT "DELETE /db/settlements"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "delete_settlements" {
+  api_id = aws_apigatewayv2_api.main.id
+
+  route_key = "DELETE /db/settlements"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_settlements.id}"
+}
+
+
+
+# --------------------------------------------
+#  SETTLEMENT "GET /db/settlement/{order_id}"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "get_a_settlement" {
+  api_id = aws_apigatewayv2_api.main.id
+
+  route_key = "GET /db/settlement/{order_id}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_settlements.id}"
+}
+
+# --------------------------------------------
+#  SETTLEMENT "POST /db/settlement"
+# --------------------------------------------
+
+resource "aws_apigatewayv2_route" "post_a_settlement" {
+  api_id = aws_apigatewayv2_api.main.id
+  # Get one agent from agent_id
+  route_key = "POST /db/settlement"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_settlements.id}"
+}
+
+
+# --------------------------------------------
+#  SETTLEMENT "PUT /db/settlement/{order_id}"
+# --------------------------------------------
+
+resource "aws_apigatewayv2_route" "put_a_settlement" {
   api_id = aws_apigatewayv2_api.main.id
   # Get one agent from agent_id
   route_key = "PUT /db/settlement/{order_id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_settlements.id}"
 }
 
-
-resource "aws_apigatewayv2_route" "delete_lambda_settlements" {
+# --------------------------------------------
+#  DELETE "DELETE /db/settlement/{order_id}"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "delete_a_settlement" {
   api_id    = aws_apigatewayv2_api.main.id
   route_key = "DELETE /db/settlement/{order_id}"
   # route_key = "POST /orders"

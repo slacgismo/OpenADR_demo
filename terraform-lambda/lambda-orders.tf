@@ -16,6 +16,8 @@ resource "aws_lambda_function" "lambda_orders" {
   environment {
     variables = {
        "ORDERS_TABLE_NAME" = aws_dynamodb_table.orders.name
+        "ORDERS_TABLE_DEVICE_ID_ORDER_ID_GSI" =  element(tolist(aws_dynamodb_table.orders.global_secondary_index), 0).name
+        "ORDERS_TABLE_DEVICE_ID_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.orders.global_secondary_index), 1).name
       # "ORDERS_TIMESTEAM_TABLE_NAME" = aws_timestreamwrite_table.orders.table_name
       # "TIMESTREAM_DB_NAME" = aws_timestreamwrite_database.measurements.database_name
     }
@@ -34,7 +36,7 @@ resource "aws_cloudwatch_log_group" "lambda_orders" {
 data "archive_file" "lambda_orders" {
   type = "zip"
 
-  source_dir  = "${path.module}/lambda_functions/orders"
+  source_dir  = "${path.module}/api/orders"
   output_path = "${path.module}/templates/orders.zip"
 }
 

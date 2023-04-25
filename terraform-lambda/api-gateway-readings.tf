@@ -6,22 +6,63 @@ resource "aws_apigatewayv2_integration" "lambda_readings" {
   integration_type   = "AWS_PROXY"
   integration_method = "POST"
 }
+# --------------------------------------------
+#  READINGS "GET /db/readings"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "get_readings" {
+  # GET /db/reading/{reading_id}
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "GET /db/readings"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_readings.id}"
+}
 
-# resource "aws_apigatewayv2_route" "get_lists_of_readings_from_meter_id" {
-#   # GET /db/reading/{reading_id}
-#   api_id = aws_apigatewayv2_api.main.id
+# --------------------------------------------
+#  READINGS "POST /db/readings"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "post_readings" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "POST /db/readings"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_readings.id}"
+}
+# --------------------------------------------
+#  READINGS "PUT /db/readings"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "put_readings" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "PUT /db/readings"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_readings.id}"
+}
+# --------------------------------------------
+#  READINGS "DELETE /db/readings"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "delete_readings" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "DELETE /db/readings"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_readings.id}"
+}
 
-#   route_key = "GET /db/readings/{meter_id}"
-#   target    = "integrations/${aws_apigatewayv2_integration.lambda_readings.id}"
-# }
+# --------------------------------------------
+#  READING "POST /db/reading"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "post_a_reading_from_meter_id" {
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "POST /db/reading"
+  # route_key = "POST /orders"
+  target = "integrations/${aws_apigatewayv2_integration.lambda_readings.id}"
+}
 
+# --------------------------------------------
+#  READING "PUT /db/reading/{meter_id}"
+# --------------------------------------------
 resource "aws_apigatewayv2_route" "put_a_reading_from_meter_id" {
   api_id    = aws_apigatewayv2_api.main.id
   route_key = "PUT /db/reading/{meter_id}"
   # route_key = "POST /orders"
   target = "integrations/${aws_apigatewayv2_integration.lambda_readings.id}"
 }
-
+# --------------------------------------------
+#  READING "DELETE /db/reading/{meter_id}"
+# --------------------------------------------
 resource "aws_apigatewayv2_route" "delete_a_reading" {
   api_id    = aws_apigatewayv2_api.main.id
   route_key = "DELETE /db/reading/{reading_id}"

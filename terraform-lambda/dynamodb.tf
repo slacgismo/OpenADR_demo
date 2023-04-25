@@ -6,6 +6,8 @@ resource "aws_dynamodb_table" "markets" {
   billing_mode   = "PROVISIONED"
   read_capacity  = 1
   write_capacity = 1
+  hash_key = "market_id"
+
   attribute {
     name = "market_id"
     type = "S"
@@ -15,11 +17,16 @@ resource "aws_dynamodb_table" "markets" {
     type = "S"
   }
 
-  hash_key = "market_id"
+  attribute {
+    name = "valid_at"
+    type = "N"
+  }
 
+  # query market_id from resource_id and valid_at > timestampe
   global_secondary_index {
-    name            = "resource_id-index"
+    name            = "resource_id_valid_at_index"
     hash_key        = "resource_id"
+    range_key       = "valid_at"
     projection_type = "ALL"
     read_capacity   = 1
     write_capacity  = 1
@@ -35,12 +42,13 @@ resource "aws_dynamodb_table" "resources" {
   billing_mode   = "PROVISIONED"
   read_capacity  = 1
   write_capacity = 1
+  hash_key = "resource_id"
   attribute {
     name = "resource_id"
     type = "S"
   }
 
-  hash_key = "resource_id"
+
 }
 
 
@@ -51,12 +59,32 @@ resource "aws_dynamodb_table" "agents" {
   billing_mode   = "PROVISIONED"
   read_capacity  = 1
   write_capacity = 1
+  hash_key = "agent_id"
+  
   attribute {
     name = "agent_id"
     type = "S"
   }
 
-  hash_key = "agent_id"
+  attribute {
+    name = "resource_id"
+    type = "S"
+  }
+
+  attribute {
+    name = "valid_at"
+    type = "N"
+  }
+
+  # query agent_id from resource_id and valid_at > timestampe
+  global_secondary_index {
+    name            = "resource_id_valid_at_index"
+    hash_key        = "resource_id"
+    range_key       = "valid_at"
+    projection_type = "ALL"
+    read_capacity   = 1
+    write_capacity  = 1
+  }
 }
 
 
@@ -66,6 +94,8 @@ resource "aws_dynamodb_table" "devices" {
   billing_mode   = "PROVISIONED"
   read_capacity  = 1
   write_capacity = 1
+  hash_key = "device_id"
+
   attribute {
     name = "device_id"
     type = "S"
@@ -74,7 +104,26 @@ resource "aws_dynamodb_table" "devices" {
   stream_enabled = true
   stream_view_type = "NEW_AND_OLD_IMAGES"
 
-  hash_key = "device_id"
+ 
+  attribute {
+    name = "valid_at"
+    type = "N"
+  }
+  
+  attribute {
+    name = "agent_id"
+    type = "N"
+  }
+
+  # query device_id from agent_id and valid_at > timestampe
+  global_secondary_index {
+    name            = "agent_id_valid_at_index"
+    hash_key        = "agent_id"
+    range_key       = "valid_at"
+    projection_type = "ALL"
+    read_capacity   = 1
+    write_capacity  = 1
+  }
 }
 
 # Define Lambda function event trigger for DynamoDB
@@ -104,11 +153,16 @@ resource "aws_dynamodb_table" "auctions" {
     type = "S"
   }
 
+  attribute {
+    name = "valid_at"
+    type = "N"
+  }
 
-
+  # query auction_id from market_id and valid_at > timestampe
   global_secondary_index {
-    name            = "market_id-index"
+    name            = "market_id_valid_at_index"
     hash_key        = "market_id"
+    range_key       = "valid_at"
     projection_type = "ALL"
     read_capacity   = 1
     write_capacity  = 1
@@ -133,13 +187,25 @@ resource "aws_dynamodb_table" "orders" {
     name = "device_id"
     type = "S"
   }
-
-
+  
+  attribute {
+    name = "valid_at"
+    type = "N"
+  }
 
   global_secondary_index {
-    name            = "device_id-index"
+    name            = "device_id_order_id_index"
     hash_key        = "device_id"
     range_key       = "order_id"
+    projection_type = "ALL"
+    read_capacity   = 1
+    write_capacity  = 1
+  }
+
+  global_secondary_index {
+    name            = "device_id_valid_at_index"
+    hash_key        = "order_id"
+    range_key       = "valid_at"
     projection_type = "ALL"
     read_capacity   = 1
     write_capacity  = 1
@@ -160,6 +226,19 @@ resource "aws_dynamodb_table" "dispatches" {
     type = "S"
   }
 
+  attribute {
+    name = "valid_at"
+    type = "N"
+  }
+
+  global_secondary_index {
+    name            = "order_id_valid_at_index"
+    hash_key        = "order_id"
+    range_key       = "valid_at"
+    projection_type = "ALL"
+    read_capacity   = 1
+    write_capacity  = 1
+  }
   tags = local.common_tags
 }
 
@@ -192,8 +271,6 @@ resource "aws_dynamodb_table" "meters" {
     hash_key           = "resource_id"
     range_key          = "device_id"
     projection_type    = "ALL"
-
-
     write_capacity     = 1
     read_capacity      = 1
   }
@@ -250,11 +327,25 @@ resource "aws_dynamodb_table" "readings" {
     type = "S"
   }
 
+  attribute {
+    name = "valid_at"
+    type = "N"
+  }
+
 
 
   global_secondary_index {
-    name            = "meter_id-index"
+    name            = "meter_id_index"
     hash_key        = "meter_id"
+    projection_type = "ALL"
+    read_capacity   = 1
+    write_capacity  = 1
+  }
+
+  global_secondary_index {
+    name            = "meter_id_valid_at_index"
+    hash_key        = "meter_id"
+    range_key       = "valid_at"
     projection_type = "ALL"
     read_capacity   = 1
     write_capacity  = 1
@@ -285,12 +376,31 @@ resource "aws_dynamodb_table" "weather" {
   billing_mode   = "PROVISIONED"
   read_capacity  = 1
   write_capacity = 1
-  hash_key       = "location"
+  hash_key       = "weather_id"
 
   attribute {
-    name = "location"
+    name = "weather_id"
     type = "S"
   }
+
+  attribute {
+    name = "zipcode"
+    type = "S"
+  }
+  attribute {
+    name = "valid_at"
+    type = "N"
+  }
+
+  global_secondary_index {
+    name            = "location_valid_at_index"
+    hash_key        = "zipcode"
+    range_key       = "valid_at"
+    projection_type = "ALL"
+    read_capacity   = 1
+    write_capacity  = 1
+  }
+
 
   tags = local.common_tags
 }

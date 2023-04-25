@@ -7,39 +7,70 @@ resource "aws_apigatewayv2_integration" "lambda_meters" {
   integration_method = "POST"
 }
 
-# resource "aws_apigatewayv2_route" "get_list_of_meters" {
-#   api_id = aws_apigatewayv2_api.main.id
 
-#   #Get /db/meters, Get a list of meter readings.
-
-#   route_key = "GET /db/meters"
-#   target    = "integrations/${aws_apigatewayv2_integration.lambda_meters.id}"
-# }
-
-resource "aws_apigatewayv2_route" "get_a_meter_from_device_id" {
+# --------------------------------------------
+#  METER "GET /db/meters"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "get_meters" {
   api_id = aws_apigatewayv2_api.main.id
+  route_key = "GET /db/meters"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_meters.id}"
+}
 
-  #Get /db/meter/{device_id}, Get a meter from device id.
-
-  route_key = "GET /db/meter/{device_id}"
+# --------------------------------------------
+#  METER "PUT /db/meters"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "put_meters" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "PUT /db/meters"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_meters.id}"
+}
+# --------------------------------------------
+#  METER "DELETE /db/meters"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "delete_meters" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "DELETE /db/meters"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_meters.id}"
 }
 
 
+
+# --------------------------------------------
+#  METER "GET /db/meter/{meter_id}"
+# --------------------------------------------
+
+resource "aws_apigatewayv2_route" "get_a_meter_from_device_id" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "GET /db/meter/{device_id}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_meters.id}"
+}
+# --------------------------------------------
+#  METER "POST /db/meter"
+# --------------------------------------------
+
+resource "aws_apigatewayv2_route" "post_a_meter" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "PUT /db/meter"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_meters.id}"
+}
+
+# --------------------------------------------
+#  METER "PUT /db/meter/{meter_id}"
+# --------------------------------------------
+
 resource "aws_apigatewayv2_route" "put_a_meter" {
   api_id = aws_apigatewayv2_api.main.id
-
-  #PUT /db/meter/<meter_id>
-
   route_key = "PUT /db/meter/{metere_id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_meters.id}"
 }
 
+# --------------------------------------------
+#  METER "DELETE /db/meter/{meter_id}"
+# --------------------------------------------
+
 resource "aws_apigatewayv2_route" "delete_a_meter" {
   api_id = aws_apigatewayv2_api.main.id
-
-  #Delete /db/meter/<meter_id>
-
   route_key = "DELETE /db/meter/{meter_id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_meters.id}"
 }

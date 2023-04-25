@@ -34,3 +34,8 @@ resource "aws_cloudwatch_log_group" "main_api_gw" {
 
   retention_in_days = 14
 }
+
+
+output "api_gateway_url" {
+  value = aws_apigatewayv2_api.main.api_endpoint
+}

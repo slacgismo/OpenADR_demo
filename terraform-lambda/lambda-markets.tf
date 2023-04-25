@@ -6,15 +6,15 @@ resource "aws_lambda_function" "lambda_markets" {
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_markets.key
   runtime   = "python3.9"
-  # runtime = "nodejs16.x"
   handler = "function.handler"
-
+  timeout       = 60
+  memory_size   = 128
   source_code_hash = data.archive_file.lambda_markets.output_base64sha256
 
   environment {
     variables = {
       "MARKETS_TABLE_NAME" = aws_dynamodb_table.markets.name
-      "MARKETS_GLOBAL_SECONDARY_INDEX" =  element(tolist(aws_dynamodb_table.markets.global_secondary_index), 0).name
+      "MARKETS_TABLE_RESOURCE_ID_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.markets.global_secondary_index), 0).name
 
     }
   }
@@ -32,7 +32,7 @@ resource "aws_cloudwatch_log_group" "lambda_markets" {
 data "archive_file" "lambda_markets" {
   type = "zip"
 
-  source_dir  = "${path.module}/lambda_functions/markets"
+  source_dir  = "${path.module}/api/markets"
   output_path = "${path.module}/templates/markets.zip"
 }
 

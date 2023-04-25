@@ -15,6 +15,7 @@ resource "aws_lambda_function" "lambda_weather" {
   environment {
     variables = {
       "WEATHER_TABLE_NAME" = aws_dynamodb_table.weather.name
+      "WEATHER_TABLE_LOCATION_VALID_AT_GSI" = element(tolist(aws_dynamodb_table.weather.global_secondary_index), 0).name
     }
   }
 
@@ -31,7 +32,7 @@ resource "aws_cloudwatch_log_group" "lambda_weather" {
 data "archive_file" "lambda_weather" {
   type = "zip"
 
-  source_dir  = "${path.module}/lambda_functions/weather"
+  source_dir  = "${path.module}/api/weather"
   output_path = "${path.module}/templates/weather.zip"
 }
 

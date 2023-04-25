@@ -31,7 +31,7 @@ resource "aws_cloudwatch_log_group" "lambda_settlements" {
 data "archive_file" "lambda_settlements" {
   type = "zip"
 
-  source_dir  = "${path.module}/lambda_functions/settlements"
+  source_dir  = "${path.module}/api/settlements"
   output_path = "${path.module}/templates/settlements.zip"
 }
 

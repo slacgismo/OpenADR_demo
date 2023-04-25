@@ -7,31 +7,77 @@ resource "aws_apigatewayv2_integration" "lambda_resources" {
   integration_method = "POST"
 }
 
-# resource "aws_apigatewayv2_route" "get_a_list_of_resources" {
-#   api_id = aws_apigatewayv2_api.main.id
-#   #GET /db/resources?<args...>, Get a list of resource ids
-  
-#   route_key = "GET /db/resources"
-#   target    = "integrations/${aws_apigatewayv2_integration.lambda_resources.id}"
-# }
+# --------------------------------------------
+#  RESOURCES "GET /db/resources"
+# --------------------------------------------
 
+resource "aws_apigatewayv2_route" "get_resources" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "GET /db/resources"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_resources.id}"
+}
+# --------------------------------------------
+#  RESOURCES "POST /db/resources"
+# --------------------------------------------
 
+resource "aws_apigatewayv2_route" "post_resources" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "POST /db/resources"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_resources.id}"
+}
+
+# --------------------------------------------
+#  RESOURCES "PUT /db/resources"
+# --------------------------------------------
+
+resource "aws_apigatewayv2_route" "put_resources" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "PUT /db/resources"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_resources.id}"
+}
+# --------------------------------------------
+#  RESOURCES "DELETE /db/resources"
+# --------------------------------------------
+
+resource "aws_apigatewayv2_route" "delete_resources" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "DELETE /db/resources"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_resources.id}"
+}
+
+# --------------------------------------------
+#  RESOURCE "GET /db/resource/{resource_id}"
+# --------------------------------------------
 resource "aws_apigatewayv2_route" "get_a_resource" {
   api_id = aws_apigatewayv2_api.main.id
-  #GET /db/resource/<resource_id> -- Gets data about a system resource.
-  
   route_key = "GET /db/resource/{resource_id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_resources.id}"
 }
 
+# --------------------------------------------
+#  RESOURCE "POST /db/resource/{resource_id}"
+# --------------------------------------------
 
+resource "aws_apigatewayv2_route" "post_a_resource" {
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "POST /db/resource/{resource_id}"
+  target = "integrations/${aws_apigatewayv2_integration.lambda_resources.id}"
+}
+
+
+# --------------------------------------------
+#  RESOURCE "PUT /db/resource/{resource_id}"
+# --------------------------------------------
 
 resource "aws_apigatewayv2_route" "put_a_resource" {
- # PUT /db/resource/<resource_id>
   api_id    = aws_apigatewayv2_api.main.id
   route_key = "PUT /db/resource/{resource_id}"
   target = "integrations/${aws_apigatewayv2_integration.lambda_resources.id}"
 }
+
+# --------------------------------------------
+#  RESOURCE "DELETE /db/resource/{resource_id}"
+# --------------------------------------------
 
 resource "aws_apigatewayv2_route" "delete_a_resource" {
   api_id    = aws_apigatewayv2_api.main.id
@@ -42,7 +88,7 @@ resource "aws_apigatewayv2_route" "delete_a_resource" {
 resource "aws_lambda_permission" "api_gw_lambda_resources" {
   statement_id  = "AllowExecutionFromAPIGateway-resources"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.lambda_agents.function_name
+  function_name = aws_lambda_function.lambda_resources.function_name
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_apigatewayv2_api.main.execution_arn}/*/*"

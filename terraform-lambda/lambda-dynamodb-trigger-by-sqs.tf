@@ -6,7 +6,7 @@
 data "archive_file" "lambda_sqs_event" {
   type = "zip"
 
-  source_dir  = "${path.module}/lambda_functions/lambda-dynamodb-trigger-by-sqs"
+  source_dir  = "${path.module}/api/lambda-dynamodb-trigger-by-sqs"
   output_path = "${path.module}/templates/lambda-dynamodb-trigger-by-sqs.zip"
 }
 

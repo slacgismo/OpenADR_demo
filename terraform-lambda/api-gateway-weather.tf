@@ -7,24 +7,85 @@ resource "aws_apigatewayv2_integration" "lambda_weather" {
   integration_method = "POST"
 }
 
-resource "aws_apigatewayv2_route" "get_weather_from_location" {
+
+# --------------------------------------------
+#  WEATHERS "GET /db/weathers"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "get_a_list_of_weather" {
   api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "GET /db/weather/{location}"
+  route_key = "GET /db/weathers"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_weather.id}"
+}
+# --------------------------------------------
+#  WEATHERS "POST /db/weathers"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "post_a_list_of_weather" {
+  api_id = aws_apigatewayv2_api.main.id
+
+  route_key = "POST /db/weathers"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_weather.id}"
 }
 
-resource "aws_apigatewayv2_route" "put_weather_from_location" {
+# --------------------------------------------
+#  WEATHERS "PUT /db/weathers"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "put_a_list_of_weather" {
   api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "PUT /db/weather/{location}"
+  route_key = "PUT /db/weathers"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_weather.id}"
+}
+
+# --------------------------------------------
+#  WEATHERS "DELETE /db/weathers"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "delete_weathers" {
+  api_id = aws_apigatewayv2_api.main.id
+
+  route_key = "DELETE /db/weathers"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_weather.id}"
 }
 
 
-resource "aws_apigatewayv2_route" "delete_lambda_weather" {
+
+# --------------------------------------------
+#  WEATHER "GET /db/weather"
+#  query weather from location (zip code)
+#  payload start_from (timestamp), end_at(timsstamp)
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "get_a_weather" {
+  api_id = aws_apigatewayv2_api.main.id
+
+  route_key = "GET /db/weather"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_weather.id}"
+}
+# --------------------------------------------
+#  WEATHER "POST /db/weather"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "post_a_weather" {
+  api_id = aws_apigatewayv2_api.main.id
+
+  route_key = "POST /db/weather"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_weather.id}"
+}
+
+# --------------------------------------------
+#  WEATHER "PUT /db/weather/{zipcode}"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "put_a_weather" {
+  api_id = aws_apigatewayv2_api.main.id
+
+  route_key = "PUT /db/weather/{weather_id}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_weather.id}"
+}
+
+# --------------------------------------------
+#  WEATHER "DELETE /db/weather/{weather_id}"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "delete_a_weather" {
   api_id    = aws_apigatewayv2_api.main.id
-  route_key = "DELETE /db/weather/{location}"
+  route_key = "DELETE /db/weather/{weather_id}"
   target = "integrations/${aws_apigatewayv2_integration.lambda_weather.id}"
 }
 

@@ -7,20 +7,47 @@ resource "aws_apigatewayv2_integration" "lambda_markets" {
   integration_method = "POST"
 }
 
-# resource "aws_apigatewayv2_route" "get_lambda_markets" {
-#   api_id = aws_apigatewayv2_api.main.id
+# --------------------------------------------
+#  MARKET "GET /db/markets"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "get_markets" {
+  api_id = aws_apigatewayv2_api.main.id
 
-#   route_key = "GET /db/all-markets-status"
-#   target    = "integrations/${aws_apigatewayv2_integration.lambda_markets.id}"
-# }
+  route_key = "GET /db/markets"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_markets.id}"
+}
+# --------------------------------------------
+#  MARKETS "POST /db/markets"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "post_markets" {
+  api_id = aws_apigatewayv2_api.main.id
 
-# resource "aws_apigatewayv2_route" "get_lambda_agents_from_resources" {
-#   api_id = aws_apigatewayv2_api.main.id
+  route_key = "POST /db/markets"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_markets.id}"
+}
+# --------------------------------------------
+#  MARKETS "PUT /db/markets"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "put_markets" {
+  api_id = aws_apigatewayv2_api.main.id
 
-#   route_key = "GET /db/markets"
-#   target    = "integrations/${aws_apigatewayv2_integration.lambda_markets.id}"
-# }
+  route_key = "PUT /db/markets"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_markets.id}"
+}
+# --------------------------------------------
+#  MARKETS "DELETE /db/markets"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "delete_markets" {
+  api_id = aws_apigatewayv2_api.main.id
 
+  route_key = "DELETE /db/markets"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_markets.id}"
+}
+
+
+# --------------------------------------------
+#  MARKETS "GET /db/market/{market_id}"
+# --------------------------------------------
 
 resource "aws_apigatewayv2_route" "get_one_market" {
   api_id = aws_apigatewayv2_api.main.id
@@ -28,14 +55,27 @@ resource "aws_apigatewayv2_route" "get_one_market" {
   route_key = "GET /db/market/{market_id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_markets.id}"
 }
-
+# --------------------------------------------
+#  MARKET "POST /db/market"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "post_market" {
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "POST /db/market/{market_id}"
+  # route_key = "POST /orders"
+  target = "integrations/${aws_apigatewayv2_integration.lambda_markets.id}"
+}
+# --------------------------------------------
+#  MARKET "PUT /db/market/{market_id}"
+# --------------------------------------------
 resource "aws_apigatewayv2_route" "put_market" {
   api_id    = aws_apigatewayv2_api.main.id
   route_key = "PUT /db/market/{market_id}"
   # route_key = "POST /orders"
   target = "integrations/${aws_apigatewayv2_integration.lambda_markets.id}"
 }
-
+# --------------------------------------------
+#  MARKET "DELETE /db/market/{market_id}"
+# --------------------------------------------
 resource "aws_apigatewayv2_route" "delete_lambda_markets" {
   api_id    = aws_apigatewayv2_api.main.id
   route_key = "DELETE /db/market/{market_id}"

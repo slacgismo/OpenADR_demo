@@ -14,12 +14,6 @@ resource "aws_lambda_function" "lambda_mock_devices" {
 
   source_code_hash = data.archive_file.lambda_mock_devices.output_base64sha256
 
-  # environment {
-  #   variables = {
-  #     "MOCK_DEVICES_TABLE_NAME" = aws_dynamodb_table.mock_devices.name
-  #   }
-  # }
-
   role = aws_iam_role.lambda_generic_exec_role.arn
   tags = local.common_tags
 }
@@ -33,7 +27,7 @@ resource "aws_cloudwatch_log_group" "lambda_mock_devices" {
 data "archive_file" "lambda_mock_devices" {
   type = "zip"
 
-  source_dir  = "${path.module}/lambda_functions/mock_devices"
+  source_dir  = "${path.module}/api/mock_devices"
   output_path = "${path.module}/templates/mock_devices.zip"
 }
 

@@ -6,15 +6,23 @@ resource "aws_apigatewayv2_integration" "lambda_mock_devices" {
   integration_type   = "AWS_PROXY"
   integration_method = "POST"
 }
-
+# --------------------------------------------
+#  MOCK_DEVICE "GET /db/mock_device"
+# --------------------------------------------
 resource "aws_apigatewayv2_route" "get_mock_device_data" {
   api_id = aws_apigatewayv2_api.main.id
-  # Get a list of agents ids from resource_id
-  # send payload {resource_id: "1234"}
-  route_key = "GET /db/mock_device/{device_brand}"
+  route_key = "GET /db/mock_device"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_mock_devices.id}"
 }
 
+# --------------------------------------------
+#  MOCK_DEVICE "PUT /db/mock_device"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "put_mock_device_data" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "PUT /db/mock_device"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_mock_devices.id}"
+}
 
 
 resource "aws_lambda_permission" "api_gw_lambda_mock_devices" {

@@ -1,45 +1,108 @@
 
-resource "aws_apigatewayv2_integration" "lambda_devices" {
+
+# --------------------------------------------
+#  LAMNDA DEVICES
+# --------------------------------------------
+
+resource "aws_apigatewayv2_integration" "lamdba_devices" {
   api_id = aws_apigatewayv2_api.main.id
 
-  integration_uri    = aws_lambda_function.lambda_devices.invoke_arn
+  integration_uri    = aws_lambda_function.lamdba_devices.invoke_arn
   integration_type   = "AWS_PROXY"
   integration_method = "POST"
 }
 
-resource "aws_apigatewayv2_route" "get_lambda_devices" {
+
+# --------------------------------------------
+#  DEVICES "GET /db/devices/{agent_id}"
+# --------------------------------------------
+
+resource "aws_apigatewayv2_route" "get_list_of_devices_from_agent_id" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "GET /db/devices/{agent_id}"
+  target    = "integrations/${aws_apigatewayv2_integration.lamdba_devices.id}"
+}
+# --------------------------------------------
+#  DEVICES "POST /db/devices"
+# --------------------------------------------
+
+resource "aws_apigatewayv2_route" "post_list_of_devices_from_agent_id" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "POST /db/devices"
+  target    = "integrations/${aws_apigatewayv2_integration.lamdba_devices.id}"
+}
+
+# --------------------------------------------
+#  DEVICES "PUT /db/devices"
+# --------------------------------------------
+
+resource "aws_apigatewayv2_route" "put_list_of_devices_from_agent_id" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "GET /db/devices"
+  target    = "integrations/${aws_apigatewayv2_integration.lamdba_devices.id}"
+}
+
+# --------------------------------------------
+#  DEVICES "DELETE /db/devices"
+# --------------------------------------------
+
+resource "aws_apigatewayv2_route" "delete_list_of_devices_from_agent_id" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "DELETE /db/devices"
+  target    = "integrations/${aws_apigatewayv2_integration.lamdba_devices.id}"
+}
+
+# --------------------------------------------
+#  DEVICE "GET /db/device/{device_id}"
+# --------------------------------------------
+
+resource "aws_apigatewayv2_route" "get_a_device" {
   api_id = aws_apigatewayv2_api.main.id
 
   route_key = "GET /db/device/{device_id}"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_devices.id}"
+  target    = "integrations/${aws_apigatewayv2_integration.lamdba_devices.id}"
 }
 
-resource "aws_apigatewayv2_route" "put_lambda_devices" {
+# --------------------------------------------
+#  DEVICE "POST /db/device/{device_id}"
+# --------------------------------------------
+
+resource "aws_apigatewayv2_route" "post_a_device" {
+  api_id = aws_apigatewayv2_api.main.id
+
+  route_key = "POST /db/device"
+  target    = "integrations/${aws_apigatewayv2_integration.lamdba_devices.id}"
+}
+
+# --------------------------------------------
+#  DEVICE "PUT /db/device/{device_id}"
+# --------------------------------------------
+
+resource "aws_apigatewayv2_route" "put_a_device" {
   api_id = aws_apigatewayv2_api.main.id
 
   route_key = "PUT /db/device/{device_id}"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_devices.id}"
+  target    = "integrations/${aws_apigatewayv2_integration.lamdba_devices.id}"
 }
 
+# --------------------------------------------
+#  DEVICE "DELETE /db/device/{device_id}"
+# --------------------------------------------
 
 
-resource "aws_apigatewayv2_route" "delete_lambda_devices" {
+resource "aws_apigatewayv2_route" "delete_a_device" {
   api_id = aws_apigatewayv2_api.main.id
 
   route_key = "DELETE /db/device/{device_id}"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_devices.id}"
+  target    = "integrations/${aws_apigatewayv2_integration.lamdba_devices.id}"
 }
 
-resource "aws_lambda_permission" "api_gw_devices" {
+resource "aws_lambda_permission" "api_gw_device" {
   statement_id  = "AllowExecutionFromAPIGateway-devicces"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.lambda_devices.function_name
+  function_name = aws_lambda_function.lamdba_devices.function_name
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
 }
 
-# output "devices_devices_base_url" {
-#   value = "${aws_apigatewayv2_stage.dev.invoke_url}/${aws_apigatewayv2_route.put_lambda_devices.route_key}"
-
-# }

@@ -1,17 +1,29 @@
 
 
-resource "aws_lambda_function" "lambda_devices" {
+
+
+# ---------------------------------------------- #
+# ------  Lambda Function for Devices API  ------ #
+# "GET /db/devices" Get a list of devices
+# Get /db/devices/{<device_id>}, Get a device by id readings.
+# Put /db/device/<device_id>
+# DELETE /db/device/<device_id>
+# ---------------------------------------------- #
+
+resource "aws_lambda_function" "lamdba_devices" {
 
   function_name = "${var.prefix}-${var.client}-${var.environment}-devices-api"
   s3_bucket     = aws_s3_bucket.lambda_bucket.id
-  s3_key        = aws_s3_object.lambda_devices.key
+  s3_key        = aws_s3_object.lamdba_devices.key
   runtime       = "python3.9"
   handler = "function.handler"
-
-  source_code_hash = data.archive_file.lambda_devices.output_base64sha256
+  timeout       = 60
+  memory_size   = 128
+  source_code_hash = data.archive_file.lamdba_devices.output_base64sha256
   environment {
       variables = {
           "DEVICES_TABLE_NAME" = aws_dynamodb_table.devices.name
+          "DEVICES_TABLE_AGENT_ID_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.devices.global_secondary_index), 0).name
     }
   }
 
@@ -19,38 +31,28 @@ resource "aws_lambda_function" "lambda_devices" {
   role = aws_iam_role.lambda_generic_exec_role.arn
   tags = local.common_tags
 }
-
-resource "aws_cloudwatch_log_group" "lambda_devices" {
-  name = "/aws/lambda/${aws_lambda_function.lambda_devices.function_name}"
+# ---------------------------------------------- #
+# DEVICES and DEVICE API LAMBDA SHARE RESOURCES
+# ---------------------------------------------- #
+resource "aws_cloudwatch_log_group" "lamdba_devices" {
+  name = "/aws/lambda/${aws_lambda_function.lamdba_devices.function_name}"
 
   retention_in_days = 14
 }
 
-data "archive_file" "lambda_devices" {
+data "archive_file" "lamdba_devices" {
   type = "zip"
 
-  source_dir  = "${path.module}/lambda_functions/devices"
+  source_dir  = "${path.module}/api/devices"
   output_path = "${path.module}/templates/devices.zip"
 }
 
-resource "aws_s3_object" "lambda_devices" {
+resource "aws_s3_object" "lamdba_devices" {
   bucket = aws_s3_bucket.lambda_bucket.id
 
   key    = "devices.zip"
-  source = data.archive_file.lambda_devices.output_path
+  source = data.archive_file.lamdba_devices.output_path
 
-  etag = filemd5(data.archive_file.lambda_devices.output_path)
+  etag = filemd5(data.archive_file.lamdba_devices.output_path)
 }
 
-
-# # S3 policy access
-# resource "aws_iam_role_policy_attachment" "lambda_devices_s3_access" {
-#   role       = aws_iam_role.lambda_devices.name
-#   policy_arn = aws_iam_policy.TESS_lambda_s3_access.arn
-# }
-
-# # Dynamodb policy access
-# resource "aws_iam_role_policy_attachment" "lambda_devices_dynamodb_access" {
-#   role       = aws_iam_role.lambda_devices.name
-#   policy_arn = aws_iam_policy.TESS_lambda_dyanmodb_access.arn
-# }

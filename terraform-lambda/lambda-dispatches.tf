@@ -7,11 +7,13 @@ resource "aws_lambda_function" "dispatches" {
   s3_key        = aws_s3_object.dispatch_vens.key
   runtime       = "python3.9"
   handler = "function.handler"
-
+  timeout       = 60
+  memory_size   = 128
   source_code_hash = data.archive_file.dispatch_vens.output_base64sha256
   environment {
       variables = {
         "DISPATCHED_TABLE_NAME" = aws_dynamodb_table.dispatches.name
+        "DISPATCHED_TABLE_ORDER_ID_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.dispatches.global_secondary_index), 0).name
           # "DISPATCHES_TIMESTREAM_TABLE_NAME" = aws_timestreamwrite_table.dispatches.table_name
           # "TIMESTREAM_DB_NAME"= aws_timestreamwrite_database.measurements.database_name
     }
@@ -29,7 +31,7 @@ resource "aws_cloudwatch_log_group" "participated_vens" {
 data "archive_file" "dispatch_vens" {
   type = "zip"
 
-  source_dir  = "${path.module}/lambda_functions/dispatches"
+  source_dir  = "${path.module}/api/dispatches"
   output_path = "${path.module}/templates/dispatches.zip"
 }
 
