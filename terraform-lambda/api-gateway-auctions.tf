@@ -7,11 +7,41 @@ resource "aws_apigatewayv2_integration" "lambda_auctions" {
   integration_method = "POST"
 }
 
+# --------------------------------------------
+# AUCTION "GET /db/auctions/{market_id}"
+# --------------------------------------------
+
 resource "aws_apigatewayv2_route" "get_list_of_auctions_from_market_id" {
   api_id = aws_apigatewayv2_api.main.id
   route_key = "GET /db/auctions/{market_id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_auctions.id}"
 }
+# --------------------------------------------
+# AUCTION "POST /db/auctions"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "post_list_of_auctions_from_market_id" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "POST /db/auctions"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_auctions.id}"
+}
+# --------------------------------------------
+# AUCTION "PUT /db/auctions"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "put_list_of_auctions_from_market_id" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "PUT /db/auctions"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_auctions.id}"
+}
+# --------------------------------------------
+# AUCTION "DELETE /db/auctions"
+# --------------------------------------------
+
+resource "aws_apigatewayv2_route" "delete_list_of_auctions_from_market_id" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "DELETE /db/auctions"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_auctions.id}"
+}
+
 
 
 # --------------------------------------------

@@ -17,8 +17,10 @@ resource "aws_lambda_function" "lamdba_devices" {
   s3_key        = aws_s3_object.lamdba_devices.key
   runtime       = "python3.9"
   handler = "function.handler"
+  layers        = [aws_lambda_layer_version.shared_layers.arn]
   timeout       = 60
   memory_size   = 128
+ 
   source_code_hash = data.archive_file.lamdba_devices.output_base64sha256
   environment {
       variables = {

@@ -8,6 +8,7 @@ import boto3
 from botocore.exceptions import ClientError
 from enum import Enum
 # from .constants import DynamodbTypes, AttributeTypes, ReturnTypes
+import time
 
 
 class HTTPMethods(Enum):
@@ -153,3 +154,32 @@ def deserializer_dynamodb_data_to_json_format(item: dict, attributesTypes: dict)
             json_data[key] = int(json_data[key])
 
     return json_data
+
+
+def create_item(
+        primary_key_name: str,
+        primary_key_value: str,
+        request_body: dict = None,
+        attributeType: dict = None,
+        attributes: Enum = None,
+):
+    item = {}
+
+    valid_at = str(int(time.time()))
+    for attribute_name, attribute_info in attributeType.items():
+        if attribute_name == attributes.valid_at.name:
+            item[attribute_name] = {
+                attribute_info['dynamodb_type']: valid_at
+            }
+        elif attribute_name == primary_key_name:
+            item[attribute_name] = {
+                attribute_info['dynamodb_type']: primary_key_value
+            }
+        else:
+            value = request_body.get(attribute_name, None)
+            if value is None:
+                raise TESSError(f"{attribute_name} is missing in request body")
+            item[attribute_name] = {
+                attribute_info['dynamodb_type']: value
+            }
+    return item

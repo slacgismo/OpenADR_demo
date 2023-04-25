@@ -60,7 +60,7 @@ resource "aws_apigatewayv2_route" "get_a_resource" {
 
 resource "aws_apigatewayv2_route" "post_a_resource" {
   api_id    = aws_apigatewayv2_api.main.id
-  route_key = "POST /db/resource/{resource_id}"
+  route_key = "POST /db/resource"
   target = "integrations/${aws_apigatewayv2_integration.lambda_resources.id}"
 }
 

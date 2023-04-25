@@ -10,14 +10,14 @@ resource "aws_lambda_function" "lambda_readings" {
     timeout       = 60
   memory_size   = 128
   handler = "function.handler"
-
+  layers        = [aws_lambda_layer_version.shared_layers.arn]
   source_code_hash = data.archive_file.lambda_readings.output_base64sha256
 
   environment {
     variables = {
       "READINGS_TABLE_NAME" = aws_dynamodb_table.readings.name
-      "ORDERS_TABLE_METER_ID_GSI" = element(tolist(aws_dynamodb_table.readings.global_secondary_index), 0).name
-      "ORDERS_TABLE_METER_ID_VALID_AT_GSI" = element(tolist(aws_dynamodb_table.readings.global_secondary_index), 1).name
+      "READINGS_TABLE_METER_ID_GSI" = element(tolist(aws_dynamodb_table.readings.global_secondary_index), 0).name
+      "READINGS_TABLE_METER_ID_VALID_AT_GSI" = element(tolist(aws_dynamodb_table.readings.global_secondary_index), 1).name
       # "ORDERS_TIMESTEAM_TABLE_NAME" = aws_timestreamwrite_table.orders.table_name
       # "TIMESTREAM_DB_NAME" = aws_timestreamwrite_database.measurements.database_name
     }

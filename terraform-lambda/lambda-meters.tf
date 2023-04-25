@@ -9,7 +9,7 @@ resource "aws_lambda_function" "lambda_meters" {
   timeout       = 60
   memory_size   = 128
   handler = "function.handler"
-
+  layers        = [aws_lambda_layer_version.shared_layers.arn]
   source_code_hash = data.archive_file.lambda_meters.output_base64sha256
   environment {
     variables = {

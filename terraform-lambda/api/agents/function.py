@@ -10,7 +10,7 @@ from boto3.dynamodb.conditions import Key
 import uuid
 import re
 # cmmmon_utils, constants is from shared layer
-from common_utils import respond, TESSError, put_item_to_dynamodb, get_item_from_dynamodb, delete_item_from_dynamodb, deserializer_dynamodb_data_to_json_format, get_path, HTTPMethods
+from common_utils import respond, TESSError, put_item_to_dynamodb, get_item_from_dynamodb, delete_item_from_dynamodb, deserializer_dynamodb_data_to_json_format, get_path, HTTPMethods, guid, create_item
 
 dynamodb_client = boto3.client('dynamodb')
 agents_table_name = os.environ["AGENTS_TABLE_NAME"]
@@ -120,23 +120,6 @@ def handle_agents_route(event, context):
         raise Exception("http method is not supported")
 
 
-# def get_list_of_agents_from_reource_id_with_pagination(
-#         resource_id: str,
-#         dynamodb_client,
-#         table_name: str,
-#         table_GSI: str,
-#         request_body: dict,
-
-# ):
-#     # TODO: implement pagination
-#     # limit_items: int,
-#     #     from_timestamp: int,
-#     #     to_timestamp: int,
-#     #     last_evaluated_key: str
-#     # last_evaluated_key = response.get('LastEvaluatedKey')
-#     return respond(err=None, res="get list of agents from resource id")
-
-
 def post_list_of_agents_to_dynamodb(request_body: dict = None, dynamodb_client: boto3.client = None, table_name: str = None, limit_items: int = None):
     return respond(err=None, res="post list of agents to dynamodb")
 
@@ -216,41 +199,30 @@ def handle_get_agent_from_agent_id(agent_id: str, dynamodb_client: boto3.client,
 # ========================= #
 
 def handle_post_agent(request_body: dict, table_name: str = None, dynamodb_client: boto3.client = None):
-    agent_id = request_body.get('agent_id', None)
-    resource_id = request_body.get('resource_id', None)
-    status = request_body.get('status', None)
-    if agent_id is None or resource_id is None or status is None:
-        raise TESSError("agent_id or resource_id or status is missing in body")
 
     try:
-        # check if agent_id exists
-        response = asyncio.run(
-            get_item_from_dynamodb(
-                id=agent_id,
-                key=AgentsAttributes.agent_id.name,
-                table_name=agents_table_name,
-                dynamodb_client=dynamodb_client
-            )
+        # create a new agent
+        agent_id = str(guid())
+        item = create_item(
+            primary_key_name=AgentsAttributes.agent_id.name,
+            primary_key_value=agent_id,
+            request_body=request_body,
+            attributeType=AgentsAttributesTypes,
+            attributes=AgentsAttributes
         )
-        item = response.get('Item', None)
-        if item is not None:
-            return respond(err=TESSError(f"agent_id {agent_id} exist, please use put method"), res=None)
-        else:
-            # create item
-            valid_at = int(time.time())
-            item = create_item(
-                agent_id=agent_id,
-                resource_id=resource_id,
-                status=status,
-                valid_at=valid_at
-            )
-            # if not exist, put data in it
-            response = asyncio.run(put_item_to_dynamodb(
-                item=item,
-                table_name=table_name,
-                dynamodb_client=dynamodb_client,
-            ))
-            return respond(err=None, res="post data to dynamodb success")
+        # item = create_item(
+        #     agent_id=agent_id,
+        #     resource_id=resource_id,
+        #     status=status,
+        #     valid_at=valid_at
+        # )
+        # if not exist, put data in it
+        response = asyncio.run(put_item_to_dynamodb(
+            item=item,
+            table_name=table_name,
+            dynamodb_client=dynamodb_client,
+        ))
+        return respond(err=None, res="post an agent to dynamodb success")
     except Exception as e:
         raise Exception(str(e))
 
@@ -282,12 +254,13 @@ def handle_put_agent(agent_id: str, request_body: dict, table_name: str = agents
             return respond(err=TESSError(f"agent_id {agent_id} is not exist, please use post method to create a new"), res=None)
         else:
             # update item
-            valid_at = int(time.time())
+
             item = create_item(
-                agent_id=agent_id,
-                resource_id=resource_id,
-                status=status,
-                valid_at=valid_at
+                primary_key_name=AgentsAttributes.agent_id.name,
+                primary_key_value=agent_id,
+                request_body=request_body,
+                attributeType=AgentsAttributesTypes,
+                attributes=AgentsAttributes
             )
             # if not exist, put data in it
             response = asyncio.run(put_item_to_dynamodb(
@@ -295,7 +268,7 @@ def handle_put_agent(agent_id: str, request_body: dict, table_name: str = agents
                 table_name=table_name,
                 dynamodb_client=dynamodb_client,
             ))
-            return respond(err=None, res="put data to dynamodb success")
+            return respond(err=None, res="put an agent to dynamodb success")
     except Exception as e:
         raise Exception(str(e))
 
@@ -331,25 +304,3 @@ def handle_delete_agent(agent_id: str):
             return respond(err=None, res="delete data from dynamodb success")
     except Exception as e:
         raise Exception(str(e))
-
-
-def create_item(agent_id: str, resource_id: str, status: str, valid_at: str):
-    item = {}
-    for attribute_name, attribute_info in AgentsAttributesTypes.items():
-        if attribute_name == AgentsAttributes.agent_id.name:
-            item[attribute_name] = {
-                attribute_info['dynamodb_type']: agent_id
-            }
-        elif attribute_name == AgentsAttributes.resource_id.name:
-            item[attribute_name] = {
-                attribute_info['dynamodb_type']: resource_id
-            }
-        elif attribute_name == AgentsAttributes.status.name:
-            item[attribute_name] = {
-                attribute_info['dynamodb_type']: status
-            }
-        elif attribute_name == AgentsAttributes.valid_at.name:
-            item[attribute_name] = {
-                attribute_info['dynamodb_type']: str(valid_at)
-            }
-    return item

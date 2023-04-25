@@ -112,7 +112,7 @@ resource "aws_dynamodb_table" "devices" {
   
   attribute {
     name = "agent_id"
-    type = "N"
+    type = "S"
   }
 
   # query device_id from agent_id and valid_at > timestampe
@@ -393,7 +393,7 @@ resource "aws_dynamodb_table" "weather" {
   }
 
   global_secondary_index {
-    name            = "location_valid_at_index"
+    name            = "zipcode_valid_at_index"
     hash_key        = "zipcode"
     range_key       = "valid_at"
     projection_type = "ALL"

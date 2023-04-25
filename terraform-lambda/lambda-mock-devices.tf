@@ -1,6 +1,4 @@
 
-
-
 resource "aws_lambda_function" "lambda_mock_devices" {
   function_name = "${var.prefix}-${var.client}-${var.environment}-mock-devices-api"
 

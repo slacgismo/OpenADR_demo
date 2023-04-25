@@ -7,8 +7,10 @@ resource "aws_lambda_function" "dispatches" {
   s3_key        = aws_s3_object.dispatch_vens.key
   runtime       = "python3.9"
   handler = "function.handler"
+  layers        = [aws_lambda_layer_version.shared_layers.arn]
   timeout       = 60
   memory_size   = 128
+ 
   source_code_hash = data.archive_file.dispatch_vens.output_base64sha256
   environment {
       variables = {

@@ -42,7 +42,7 @@ resource "aws_apigatewayv2_route" "delete_meters" {
 
 resource "aws_apigatewayv2_route" "get_a_meter_from_device_id" {
   api_id = aws_apigatewayv2_api.main.id
-  route_key = "GET /db/meter/{device_id}"
+  route_key = "GET /db/meter/{meter_id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_meters.id}"
 }
 # --------------------------------------------
@@ -51,7 +51,7 @@ resource "aws_apigatewayv2_route" "get_a_meter_from_device_id" {
 
 resource "aws_apigatewayv2_route" "post_a_meter" {
   api_id = aws_apigatewayv2_api.main.id
-  route_key = "PUT /db/meter"
+  route_key = "POST /db/meter"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_meters.id}"
 }
 

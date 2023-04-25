@@ -10,7 +10,7 @@ resource "aws_lambda_function" "lambda_orders" {
   timeout       = 60
   memory_size   = 128
   handler = "function.handler"
-
+  layers        = [aws_lambda_layer_version.shared_layers.arn]
   source_code_hash = data.archive_file.lambda_orders.output_base64sha256
 
   environment {

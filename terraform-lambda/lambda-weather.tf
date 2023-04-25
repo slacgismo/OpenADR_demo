@@ -9,13 +9,13 @@ resource "aws_lambda_function" "lambda_weather" {
   timeout       = 60
   memory_size   = 128
   handler = "function.handler"
-
+ layers        = [aws_lambda_layer_version.shared_layers.arn]
   source_code_hash = data.archive_file.lambda_weather.output_base64sha256
 
   environment {
     variables = {
       "WEATHER_TABLE_NAME" = aws_dynamodb_table.weather.name
-      "WEATHER_TABLE_LOCATION_VALID_AT_GSI" = element(tolist(aws_dynamodb_table.weather.global_secondary_index), 0).name
+      "WEATHER_TABLE_ZIPCODE_VALID_AT_GSI" = element(tolist(aws_dynamodb_table.weather.global_secondary_index), 0).name
     }
   }
 

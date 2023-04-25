@@ -60,7 +60,7 @@ resource "aws_apigatewayv2_route" "get_one_market" {
 # --------------------------------------------
 resource "aws_apigatewayv2_route" "post_market" {
   api_id    = aws_apigatewayv2_api.main.id
-  route_key = "POST /db/market/{market_id}"
+  route_key = "POST /db/market"
   # route_key = "POST /orders"
   target = "integrations/${aws_apigatewayv2_integration.lambda_markets.id}"
 }
