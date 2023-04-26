@@ -36,11 +36,7 @@ resource "aws_apigatewayv2_route" "post_list_of_devices_from_agent_id" {
 #  DEVICES "PUT /db/devices"
 # --------------------------------------------
 
-resource "aws_apigatewayv2_route" "put_list_of_devices_from_agent_id" {
-  api_id = aws_apigatewayv2_api.main.id
-  route_key = "GET /db/devices"
-  target    = "integrations/${aws_apigatewayv2_integration.lamdba_devices.id}"
-}
+
 
 # --------------------------------------------
 #  DEVICES "DELETE /db/devices"

@@ -15,7 +15,7 @@ resource "aws_lambda_function" "lambda_weather" {
   environment {
     variables = {
       "WEATHER_TABLE_NAME" = aws_dynamodb_table.weather.name
-      "WEATHER_TABLE_ZIPCODE_VALID_AT_GSI" = element(tolist(aws_dynamodb_table.weather.global_secondary_index), 0).name
+      "WEATHER_TABLE_ZIP_CODE_VALID_AT_GSI" = element(tolist(aws_dynamodb_table.weather.global_secondary_index), 0).name
     }
   }
 

@@ -30,12 +30,6 @@ resource "aws_apigatewayv2_route" "post_list_of_dispatches" {
 #  DISPATCHES "PUT /db/dispatches" 
 # --------------------------------------------
 
-resource "aws_apigatewayv2_route" "put_list_of_dispatches" {
-  api_id    = aws_apigatewayv2_api.main.id
-  route_key = "PUT /db/dispatches"
-  target = "integrations/${aws_apigatewayv2_integration.lambda_dispatches.id}"
-}
-
 # --------------------------------------------
 #  DISPATCHES "DELETE /db/dispatches" 
 # --------------------------------------------

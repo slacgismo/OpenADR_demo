@@ -19,7 +19,7 @@ resource "aws_apigatewayv2_integration" "lambda_agents" {
 # --------------------------------------------
 resource "aws_apigatewayv2_route" "get_list_agents_from_resource_id" {
   api_id = aws_apigatewayv2_api.main.id
-  route_key = "GET /db/agents/{resource_id}"
+  route_key = "GET /db/agents"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_agents.id}"
 }
 # --------------------------------------------
@@ -32,12 +32,9 @@ resource "aws_apigatewayv2_route" "post_list_agents" {
 }
 # --------------------------------------------
 # AGENTS "PUT /db/agents"
+# No need to update all agents
 # --------------------------------------------
-resource "aws_apigatewayv2_route" "put_list_agents" {
-  api_id = aws_apigatewayv2_api.main.id
-  route_key = "PUT /db/agents"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_agents.id}"
-}
+
 # --------------------------------------------
 # AGENTS "GET /db/agents"
 # --------------------------------------------

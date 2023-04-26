@@ -384,7 +384,7 @@ resource "aws_dynamodb_table" "weather" {
   }
 
   attribute {
-    name = "zipcode"
+    name = "zip_code"
     type = "S"
   }
   attribute {
@@ -393,8 +393,8 @@ resource "aws_dynamodb_table" "weather" {
   }
 
   global_secondary_index {
-    name            = "zipcode_valid_at_index"
-    hash_key        = "zipcode"
+    name            = "zip_code_valid_at_index"
+    hash_key        = "zip_code"
     range_key       = "valid_at"
     projection_type = "ALL"
     read_capacity   = 1

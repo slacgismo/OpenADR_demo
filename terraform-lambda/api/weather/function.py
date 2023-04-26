@@ -14,13 +14,13 @@ from common_utils import respond, TESSError, put_item_to_dynamodb, get_item_from
 
 dynamodb_client = boto3.client('dynamodb')
 weather_table_name = os.environ["WEATHER_TABLE_NAME"]
-weather_table_zipcode_valid_at_gsi = os.environ["WEATHER_TABLE_ZIPCODE_VALID_AT_GSI"]
+weather_table_zip_code_valid_at_gsi = os.environ["WEATHER_TABLE_ZIP_CODE_VALID_AT_GSI"]
 boto3.resource('dynamodb')
 
 
 class WeathersAttributes(Enum):
     weather_id = 'weather_id'
-    zipcode = 'zipcode'
+    zip_code = 'zip_code'
     temperature = 'temperature'
     humidity = 'humidity'
     solar = 'solar'
@@ -34,7 +34,7 @@ WeathersAttributesTypes = {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    WeathersAttributes.zipcode.name: {
+    WeathersAttributes.zip_code.name: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
@@ -300,6 +300,37 @@ def handle_delete_weather(weather_id: str):
                 key=WeathersAttributes.weather_id.name,
                 id=weather_id,
                 table_name=weather_table_name,
+                dynamodb_client=dynamodb_client
+            ))
+            return respond(err=None, res="delete data from dynamodb success")
+    except Exception as e:
+        raise Exception(str(e))
+
+
+def handle_delete_agent(
+        hash_key_value: str = None,
+        hash_key_name: str = None,
+        table_name: str = None,
+        dynamodb_client: boto3.client = dynamodb_client):
+    try:
+        # check if agent_id exists
+        response = asyncio.run(
+            get_item_from_dynamodb(
+                id=hash_key_value,
+                key=hash_key_name
+                table_name=table_name,
+                dynamodb_client=dynamodb_client
+            )
+        )
+        item = response.get('Item', None)
+        if item is None:
+            return respond(err=TESSError("no object is found"), res=None)
+        else:
+            # if exists, delete it
+            response = asyncio.run(delete_item_from_dynamodb(
+                key=AgentsAttributes.agent_id.name,
+                id=hash_key_value,
+                table_name=table_name,
                 dynamodb_client=dynamodb_client
             ))
             return respond(err=None, res="delete data from dynamodb success")

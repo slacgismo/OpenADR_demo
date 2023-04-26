@@ -26,12 +26,9 @@ resource "aws_apigatewayv2_route" "post_list_of_auctions_from_market_id" {
 }
 # --------------------------------------------
 # AUCTION "PUT /db/auctions"
+# no need for put multiple auctions
 # --------------------------------------------
-resource "aws_apigatewayv2_route" "put_list_of_auctions_from_market_id" {
-  api_id = aws_apigatewayv2_api.main.id
-  route_key = "PUT /db/auctions"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_auctions.id}"
-}
+
 # --------------------------------------------
 # AUCTION "DELETE /db/auctions"
 # --------------------------------------------

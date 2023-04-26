@@ -10,8 +10,7 @@ from boto3.dynamodb.conditions import Key
 import uuid
 import re
 # cmmmon_utils, constants is from shared layer
-from common_utils import respond, TESSError, put_item_to_dynamodb, get_item_from_dynamodb, delete_item_from_dynamodb, deserializer_dynamodb_data_to_json_format, get_path, HTTPMethods, guid, create_item
-
+from common_utils import respond, TESSError, put_item_to_dynamodb, get_item_from_dynamodb, delete_item_from_dynamodb, deserializer_dynamodb_data_to_json_format, get_path, HTTPMethods, guid, create_item, conver_josn_to_dynamodb_format, write_batch_items_to_dynamodb, delete_batch_items_from_dynamodb, validate_delete_data_payload
 dynamodb_client = boto3.client('dynamodb')
 dispatches_table_name = os.environ["DISPATCHED_TABLE_NAME"]
 dispatches_table_order_id_valid_at_gsi = os.environ["DISPATCHED_TABLE_ORDER_ID_VALID_AT_GSI"]
@@ -89,15 +88,6 @@ def handle_dispatches_route(event, context):
         return post_list_of_dispatches_to_dynamodb(
             request_body=request_body, dynamodb_client=dynamodb_client, table_name=dispatches_table_name
         )
-    elif http_method == HTTPMethods.PUT.value:
-
-        if 'body' not in event:
-            raise KeyError("body is missing")
-        request_body = json.loads(event['body'])
-
-        return put_list_of_dispatches_to_dynamodb(
-            request_body=request_body, dynamodb_client=dynamodb_client, table_name=dispatches_table_name
-        )
 
     elif http_method == HTTPMethods.DELETE.value:
         if 'body' not in event:
@@ -111,15 +101,38 @@ def handle_dispatches_route(event, context):
 
 
 def post_list_of_dispatches_to_dynamodb(request_body: dict = None, dynamodb_client: boto3.client = None, table_name: str = None, limit_items: int = None):
-    return respond(err=None, res="post list of dispatches to dynamodb")
+    try:
+        if 'data' not in request_body:
+            raise KeyError("data is missing")
+        json_data = request_body['data']
+        # convert json data to dynamodb format
+        dynamodb_items, created_hash_key_values = conver_josn_to_dynamodb_format(
+            hash_key=DispatchesAttributes.order_id.name,
+            items=json_data,
+            attributesType=DispatchesAttributesTypes,)
+        # put data to dynamodb
+        response = asyncio.run(write_batch_items_to_dynamodb(
+            chunks=dynamodb_items, table_name=table_name, dynamodb_client=dynamodb_client))
 
-
-def put_list_of_dispatches_to_dynamodb(request_body: dict = None, dynamodb_client: boto3.client = None, table_name: str = None, limit_items: int = None):
-    return respond(err=None, res="put list of dispatches to dynamodb")
+        return respond(err=None, res=json.dumps(created_hash_key_values))
+    except Exception as e:
+        return respond(err=TESSError(str(e)), res=None, status_code=500)
 
 
 def delete_list_of_dispatches_from_dynamodb(request_body: str, dynamodb_client, table_name: str):
-    return respond(err=None, res="delete list of dispatches from dynamodb")
+    try:
+        if 'data' not in request_body:
+            raise KeyError("data is missing")
+        delete_data_list = request_body['data']
+        # validate data
+        validate_delete_data_payload(
+            data_list=delete_data_list, hash_key=DispatchesAttributes.order_id.name)
+        # delete data from dynamodb
+        response = asyncio.run(delete_batch_items_from_dynamodb(
+            chunks=delete_data_list, table_name=table_name, dynamodb_client=dynamodb_client))
+        return respond(err=None, res="delete devices success")
+    except Exception as e:
+        return respond(err=TESSError(str(e)), res=None, status_code=500)
     # =================================================================================================
     # Agent /db/dispatch/{order_id}
     # =================================================================================================
