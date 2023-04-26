@@ -20,17 +20,6 @@ resource "aws_apigatewayv2_route" "get_orders" {
 
 
 # --------------------------------------------
-#  ORDER "PUT /db/orders" We don't need this features
-# --------------------------------------------
-# resource "aws_apigatewayv2_route" "put_orders" {
-#   api_id = aws_apigatewayv2_api.main.id
-
-#   route_key = "PUT /db/orders"
-#   target    = "integrations/${aws_apigatewayv2_integration.lambda_orders.id}"
-# }
-
-
-# --------------------------------------------
 #  ORDER "DELETE /db/orders"
 # --------------------------------------------
 resource "aws_apigatewayv2_route" "delete_orders" {

@@ -17,14 +17,7 @@ resource "aws_apigatewayv2_route" "get_meters" {
   target    = "integrations/${aws_apigatewayv2_integration.lambda_meters.id}"
 }
 
-# --------------------------------------------
-#  METER "PUT /db/meters"
-# --------------------------------------------
-resource "aws_apigatewayv2_route" "put_meters" {
-  api_id = aws_apigatewayv2_api.main.id
-  route_key = "PUT /db/meters"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_meters.id}"
-}
+
 # --------------------------------------------
 #  METER "DELETE /db/meters"
 # --------------------------------------------

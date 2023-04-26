@@ -34,6 +34,7 @@ resource "aws_apigatewayv2_route" "post_list_of_devices_from_agent_id" {
 
 # --------------------------------------------
 #  DEVICES "PUT /db/devices"
+#  
 # --------------------------------------------
 
 

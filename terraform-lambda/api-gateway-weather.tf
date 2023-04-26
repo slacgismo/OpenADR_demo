@@ -27,15 +27,7 @@ resource "aws_apigatewayv2_route" "post_a_list_of_weather" {
   target    = "integrations/${aws_apigatewayv2_integration.lambda_weather.id}"
 }
 
-# --------------------------------------------
-#  WEATHERS "PUT /db/weathers"
-# --------------------------------------------
-resource "aws_apigatewayv2_route" "put_a_list_of_weather" {
-  api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "PUT /db/weathers"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_weather.id}"
-}
 
 # --------------------------------------------
 #  WEATHERS "DELETE /db/weathers"

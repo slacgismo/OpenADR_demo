@@ -10,8 +10,7 @@ from boto3.dynamodb.conditions import Key
 import uuid
 import re
 # cmmmon_utils, constants is from shared layer
-from common_utils import respond, TESSError, put_item_to_dynamodb, get_item_from_dynamodb, delete_item_from_dynamodb, deserializer_dynamodb_data_to_json_format, get_path, HTTPMethods, guid, create_item
-
+from common_utils import respond, TESSError, get_path, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_create_item_to_dynamodb, handle_get_item_from_dynamodb_with_hash_key, create_items_to_dynamodb, delete_items_from_dynamodb
 dynamodb_client = boto3.client('dynamodb')
 resources_table_name = os.environ["RESOURCES_TABLE_NAME"]
 
@@ -86,43 +85,26 @@ def handle_resources_route(event, context):
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
 
-        return post_list_of_resources_to_dynamodb(
-            request_body=request_body, dynamodb_client=dynamodb_client, table_name=resources_table_name
-        )
-    elif http_method == HTTPMethods.PUT.value:
-
-        if 'body' not in event:
-            raise KeyError("body is missing")
-        request_body = json.loads(event['body'])
-
-        return put_list_of_resources_to_dynamodb(
-            request_body=request_body, dynamodb_client=dynamodb_client, table_name=resources_table_name
+        return create_items_to_dynamodb(
+            request_body=request_body,
+            dynamodb_client=dynamodb_client,
+            table_name=resources_table_name,
+            hash_key_name=ResourcesAttributes.resource_id.name,
+            attributesTypeDict=ResourcesAttributesTypes,
         )
 
     elif http_method == HTTPMethods.DELETE.value:
         if 'body' not in event:
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
-        return delete_list_of_resources_from_dynamodb(
-            request_body=request_body, dynamodb_client=dynamodb_client, table_name=resources_table_name
+        return delete_items_from_dynamodb(
+            request_body=request_body,
+            dynamodb_client=dynamodb_client,
+            table_name=resources_table_name,
+            hash_key_name=ResourcesAttributes.resource_id.name,
         )
     else:
         raise Exception("http method is not supported")
-
-
-def post_list_of_resources_to_dynamodb(request_body: dict = None, dynamodb_client: boto3.client = None, table_name: str = None, limit_items: int = None):
-    return respond(err=None, res="post list of resources to dynamodb")
-
-
-def put_list_of_resources_to_dynamodb(request_body: dict = None, dynamodb_client: boto3.client = None, table_name: str = None, limit_items: int = None):
-    return respond(err=None, res="put list of resources to dynamodb")
-
-
-def delete_list_of_resources_from_dynamodb(request_body: str, dynamodb_client, table_name: str):
-    return respond(err=None, res="delete list of resources from dynamodb")
-    # =================================================================================================
-    # Agent /db/resource/{resource_id}
-    # =================================================================================================
 
 
 def handle_resource_route(event, context):
@@ -131,14 +113,34 @@ def handle_resource_route(event, context):
         if 'resource_id' not in event['pathParameters']:
             raise KeyError("resource_id is missing")
         resource_id = event['pathParameters']['resource_id']
-        return handle_get_resource_from_resource_id(
-            resource_id=resource_id, dynamodb_client=dynamodb_client, table_name=resources_table_name
+        # ========================= #
+        # GET /db/resource/{resource_id}
+        # ========================= #
+        return handle_get_item_from_dynamodb_with_hash_key(
+            hash_key_name=ResourcesAttributes.resource_id.name,
+            hash_key_value=resource_id,
+            table_name=resources_table_name,
+            attributesTypesDict=ResourcesAttributesTypes,
+            dynamodb_client=dynamodb_client
         )
+
     elif http_method == HTTPMethods.POST.value:
         if 'body' not in event:
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
-        return handle_post_resource(request_body=request_body, table_name=resources_table_name, dynamodb_client=dynamodb_client)
+        # ========================= #
+        # POST /db/resource/{resource_id}
+        # ========================= #
+        return handle_create_item_to_dynamodb(
+            hash_key_name=ResourcesAttributes.resource_id.name,
+            hash_key_value=str(guid()),
+            request_body=request_body,
+            table_name=resources_table_name,
+            attributeTypeDice=ResourcesAttributesTypes,
+            attributesEnum=ResourcesAttributes,
+            dynamodb_client=dynamodb_client
+
+        )
     elif http_method == HTTPMethods.PUT.value:
         if 'resource_id' not in event['pathParameters']:
             raise KeyError("resource_id is missing")
@@ -147,141 +149,31 @@ def handle_resource_route(event, context):
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
 
-        return handle_put_resource(resource_id=resource_id, request_body=request_body)
+        # ========================= #
+        # PUT /db/resource/{resource_id}
+        # ========================= #
+
+        return handle_put_item_to_dynamodb_with_hash_key(
+            hash_key_name=ResourcesAttributes.resource_id.name,
+            hash_key_value=resource_id,
+            request_body=request_body,
+            table_name=resources_table_name,
+            attributesTypeDict=ResourcesAttributesTypes,
+            attributesEnum=ResourcesAttributes,
+            dynamodb_client=dynamodb_client
+        )
     elif http_method == HTTPMethods.DELETE.value:
         if 'resource_id' not in event['pathParameters']:
             raise KeyError("resource_id is missing")
         resource_id = event['pathParameters']['resource_id']
-        return handle_delete_resource(resource_id=resource_id)
+        # ========================= #
+        # DELETE /db/resource/{resource_id}
+        # ========================= #
+        return handle_delete_item_from_dynamodb_with_hash_key(
+            hash_key_name=ResourcesAttributes.resource_id.name,
+            hash_key_value=resource_id,
+            table_name=resources_table_name,
+            dynamodb_client=dynamodb_client
+        )
     else:
         return respond(err=TESSError("http method is not supported"), res=None)
-
-# ========================= #
-# GET /db/resource/{resource_id}
-# ========================= #
-
-
-def handle_get_resource_from_resource_id(resource_id: str, dynamodb_client: boto3.client, table_name: str):
-    try:
-        response = asyncio.run(
-            get_item_from_dynamodb(
-                id=resource_id,
-                key=ResourcesAttributes.resource_id.name,
-                table_name=resources_table_name,
-                dynamodb_client=dynamodb_client
-            )
-        )
-        item = response.get('Item', None)
-        if item is None:
-            return respond(err=TESSError("no object is found"), res=None)
-        else:
-            # Lazy-eval the dynamodb attribute (boto3 is dynamic!)
-            resource_data = deserializer_dynamodb_data_to_json_format(
-                item=item, attributesTypes=ResourcesAttributesTypes)
-            return respond(err=None, res=resource_data)
-    except Exception as e:
-        raise Exception(str(e))
-
-
-# ========================= #
-# create a new resource
-# POST /db/resource/{resource_id}
-# ========================= #
-
-def handle_post_resource(request_body: dict, table_name: str = None, dynamodb_client: boto3.client = None):
-
-    try:
-        # create a new resource
-        resource_id = str(guid())
-        item = create_item(
-            primary_key_name=ResourcesAttributes.resource_id.name,
-            primary_key_value=resource_id,
-            request_body=request_body,
-            attributeType=ResourcesAttributesTypes,
-            attributes=ResourcesAttributes
-        )
-        # if not exist, put data in it
-        response = asyncio.run(put_item_to_dynamodb(
-            item=item,
-            table_name=table_name,
-            dynamodb_client=dynamodb_client,
-        ))
-        return respond(err=None, res="post an resource to dynamodb success")
-    except Exception as e:
-        raise Exception(str(e))
-
-
-# ========================= #
-# update an resource
-# PUT /db/resource/{resource_id}
-# ========================= #
-
-
-def handle_put_resource(resource_id: str, request_body: dict, table_name: str = resources_table_name, dynamodb_client: boto3.client = dynamodb_client):
-    if resource_id is None:
-        raise KeyError("resource_id is missing")
-    try:
-        # check if resource_id exists
-        response = asyncio.run(
-            get_item_from_dynamodb(
-                id=resource_id,
-                key=ResourcesAttributes.resource_id.name,
-                table_name=resources_table_name,
-                dynamodb_client=dynamodb_client
-            )
-        )
-        item = response.get('Item', None)
-        if item is None:
-            return respond(err=TESSError(f"resource_id {resource_id} is not exist, please use post method to create a new"), res=None)
-        else:
-            # update item
-
-            item = create_item(
-                primary_key_name=ResourcesAttributes.resource_id.name,
-                primary_key_value=resource_id,
-                request_body=request_body,
-                attributeType=ResourcesAttributesTypes,
-                attributes=ResourcesAttributes
-            )
-            # if not exist, put data in it
-            response = asyncio.run(put_item_to_dynamodb(
-                item=item,
-                table_name=table_name,
-                dynamodb_client=dynamodb_client,
-            ))
-            return respond(err=None, res="put an resource to dynamodb success")
-    except Exception as e:
-        raise Exception(str(e))
-
-
-# ========================= #
-# delete an resource
-# DELETE /db/resource/{resource_id}
-# ========================= #
-
-
-def handle_delete_resource(resource_id: str):
-    try:
-        # check if resource_id exists
-        response = asyncio.run(
-            get_item_from_dynamodb(
-                id=resource_id,
-                key=ResourcesAttributes.resource_id.name,
-                table_name=resources_table_name,
-                dynamodb_client=dynamodb_client
-            )
-        )
-        item = response.get('Item', None)
-        if item is None:
-            return respond(err=TESSError("no object is found"), res=None)
-        else:
-            # if exists, delete it
-            response = asyncio.run(delete_item_from_dynamodb(
-                key=ResourcesAttributes.resource_id.name,
-                id=resource_id,
-                table_name=resources_table_name,
-                dynamodb_client=dynamodb_client
-            ))
-            return respond(err=None, res="delete data from dynamodb success")
-    except Exception as e:
-        raise Exception(str(e))

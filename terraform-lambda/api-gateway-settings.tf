@@ -6,21 +6,17 @@ resource "aws_apigatewayv2_integration" "lambda_settings" {
   integration_type   = "AWS_PROXY"
   integration_method = "POST"
 }
-
+# --------------------------------------------
+#  SETTING "GET /db/settings"
+# --------------------------------------------
 resource "aws_apigatewayv2_route" "get_list_of_settngs_from_device_id" {
   api_id = aws_apigatewayv2_api.main.id
-  # Get a list of agents ids from resource_id
-  # send payload {resource_id: "1234"}
-  route_key = "GET /db/settings/{device_id}"
+  route_key = "GET /db/settings"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_settings.id}"
 }
-resource "aws_apigatewayv2_route" "put_list_of_settngs_from_device_id" {
-  api_id = aws_apigatewayv2_api.main.id
-  # Get a list of agents ids from resource_id
-  # send payload {resource_id: "1234"}
-  route_key = "PUT /db/settings"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_settings.id}"
-}
+# --------------------------------------------
+#  SETTING "POST /db/settings"
+# --------------------------------------------
 resource "aws_apigatewayv2_route" "post_list_of_settngs_from_device_id" {
   api_id = aws_apigatewayv2_api.main.id
   # Get a list of agents ids from resource_id
@@ -28,6 +24,10 @@ resource "aws_apigatewayv2_route" "post_list_of_settngs_from_device_id" {
   route_key = "POST /db/settings"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_settings.id}"
 }
+
+# --------------------------------------------
+#  SETTING "DELETE /db/settings"
+# --------------------------------------------
 resource "aws_apigatewayv2_route" "delete_list_of_settngs_from_device_id" {
   api_id = aws_apigatewayv2_api.main.id
   # Get a list of agents ids from resource_id

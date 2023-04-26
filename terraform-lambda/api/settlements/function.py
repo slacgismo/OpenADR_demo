@@ -10,8 +10,7 @@ from boto3.dynamodb.conditions import Key
 import uuid
 import re
 # cmmmon_utils, constants is from shared layer
-from common_utils import respond, TESSError, put_item_to_dynamodb, get_item_from_dynamodb, delete_item_from_dynamodb, deserializer_dynamodb_data_to_json_format, get_path, HTTPMethods, guid, create_item
-
+from common_utils import respond, TESSError, get_path, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_create_item_to_dynamodb, handle_get_item_from_dynamodb_with_hash_key, create_items_to_dynamodb, delete_items_from_dynamodb
 dynamodb_client = boto3.client('dynamodb')
 settlements_table_name = os.environ["SETTLEMENTS_TABLE_NAME"]
 
@@ -86,43 +85,26 @@ def handle_settlements_route(event, context):
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
 
-        return post_list_of_settlements_to_dynamodb(
-            request_body=request_body, dynamodb_client=dynamodb_client, table_name=settlements_table_name
-        )
-    elif http_method == HTTPMethods.PUT.value:
-
-        if 'body' not in event:
-            raise KeyError("body is missing")
-        request_body = json.loads(event['body'])
-
-        return put_list_of_settlements_to_dynamodb(
-            request_body=request_body, dynamodb_client=dynamodb_client, table_name=settlements_table_name
+        return create_items_to_dynamodb(
+            request_body=request_body,
+            dynamodb_client=dynamodb_client,
+            table_name=settlements_table_name,
+            hash_key_name=SettlementsAttributes.order_id.name,
+            attributesTypeDict=SettlementsAttributesTypes,
         )
 
     elif http_method == HTTPMethods.DELETE.value:
         if 'body' not in event:
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
-        return delete_list_of_settlements_from_dynamodb(
-            request_body=request_body, dynamodb_client=dynamodb_client, table_name=settlements_table_name
+        return delete_items_from_dynamodb(
+            request_body=request_body,
+            dynamodb_client=dynamodb_client,
+            table_name=settlements_table_name,
+            hash_key_name=SettlementsAttributes.order_id.name,
         )
     else:
         raise Exception("http method is not supported")
-
-
-def post_list_of_settlements_to_dynamodb(request_body: dict = None, dynamodb_client: boto3.client = None, table_name: str = None, limit_items: int = None):
-    return respond(err=None, res="post list of settlements to dynamodb")
-
-
-def put_list_of_settlements_to_dynamodb(request_body: dict = None, dynamodb_client: boto3.client = None, table_name: str = None, limit_items: int = None):
-    return respond(err=None, res="put list of settlements to dynamodb")
-
-
-def delete_list_of_settlements_from_dynamodb(request_body: str, dynamodb_client, table_name: str):
-    return respond(err=None, res="delete list of settlements from dynamodb")
-    # =================================================================================================
-    # Agent /db/settlement/{order_id}
-    # =================================================================================================
 
 
 def handle_settlement_route(event, context):
@@ -131,14 +113,34 @@ def handle_settlement_route(event, context):
         if 'order_id' not in event['pathParameters']:
             raise KeyError("order_id is missing")
         order_id = event['pathParameters']['order_id']
-        return handle_get_settlement_from_order_id(
-            order_id=order_id, dynamodb_client=dynamodb_client, table_name=settlements_table_name
+        # ========================= #
+        # GET /db/settlement/{order_id}
+        # ========================= #
+        return handle_get_item_from_dynamodb_with_hash_key(
+            hash_key_name=SettlementsAttributes.order_id.name,
+            hash_key_value=order_id,
+            table_name=settlements_table_name,
+            attributesTypesDict=SettlementsAttributesTypes,
+            dynamodb_client=dynamodb_client
         )
     elif http_method == HTTPMethods.POST.value:
         if 'body' not in event:
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
-        return handle_post_settlement(request_body=request_body, table_name=settlements_table_name, dynamodb_client=dynamodb_client)
+        # ========================= #
+        # create a new agent
+        # POST /db/settlement/{order_id}
+        # ========================= #
+        return handle_create_item_to_dynamodb(
+            hash_key_name=SettlementsAttributes.order_id.name,
+            hash_key_value=str(guid()),
+            request_body=request_body,
+            table_name=settlements_table_name,
+            attributeTypeDice=SettlementsAttributesTypes,
+            attributesEnum=SettlementsAttributes,
+            dynamodb_client=dynamodb_client
+
+        )
     elif http_method == HTTPMethods.PUT.value:
         if 'order_id' not in event['pathParameters']:
             raise KeyError("order_id is missing")
@@ -147,141 +149,29 @@ def handle_settlement_route(event, context):
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
 
-        return handle_put_settlement(order_id=order_id, request_body=request_body)
+        # ========================= #
+        # update an agent
+        # PUT /db/settlement/{order_id}
+        # ========================= #
+
+        return handle_put_item_to_dynamodb_with_hash_key(
+            hash_key_name=SettlementsAttributes.order_id.name,
+            hash_key_value=order_id,
+            request_body=request_body,
+            table_name=settlements_table_name,
+            attributesTypeDict=SettlementsAttributesTypes,
+            attributesEnum=SettlementsAttributes,
+            dynamodb_client=dynamodb_client
+        )
     elif http_method == HTTPMethods.DELETE.value:
         if 'order_id' not in event['pathParameters']:
             raise KeyError("order_id is missing")
-        order_id = event['pathParameters']['order_id']
-        return handle_delete_settlement(order_id=order_id)
+        # ========================= #
+        # delete an agent
+        # DELETE /db/settlement/{order_id}
+        # ========================= #
+        return handle_delete_item_from_dynamodb_with_hash_key(
+            hash_key_name=SettlementsAttributes.order_id.name, hash_key_value=order_id, table_name=settlements_table_name, dynamodb_client=dynamodb_client
+        )
     else:
         return respond(err=TESSError("http method is not supported"), res=None)
-
-# ========================= #
-# GET /db/settlement/{order_id}
-# ========================= #
-
-
-def handle_get_settlement_from_order_id(order_id: str, dynamodb_client: boto3.client, table_name: str):
-    try:
-        response = asyncio.run(
-            get_item_from_dynamodb(
-                id=order_id,
-                key=SettlementsAttributes.order_id.name,
-                table_name=settlements_table_name,
-                dynamodb_client=dynamodb_client
-            )
-        )
-        item = response.get('Item', None)
-        if item is None:
-            return respond(err=TESSError("no object is found"), res=None)
-        else:
-            # Lazy-eval the dynamodb attribute (boto3 is dynamic!)
-            settlement_data = deserializer_dynamodb_data_to_json_format(
-                item=item, attributesTypes=SettlementsAttributesTypes)
-            return respond(err=None, res=settlement_data)
-    except Exception as e:
-        raise Exception(str(e))
-
-
-# ========================= #
-# create a new settlement
-# POST /db/settlement/{order_id}
-# ========================= #
-
-def handle_post_settlement(request_body: dict, table_name: str = None, dynamodb_client: boto3.client = None):
-
-    try:
-        # create a new settlement
-        order_id = str(guid())
-        item = create_item(
-            primary_key_name=SettlementsAttributes.order_id.name,
-            primary_key_value=order_id,
-            request_body=request_body,
-            attributeType=SettlementsAttributesTypes,
-            attributes=SettlementsAttributes
-        )
-        # if not exist, put data in it
-        response = asyncio.run(put_item_to_dynamodb(
-            item=item,
-            table_name=table_name,
-            dynamodb_client=dynamodb_client,
-        ))
-        return respond(err=None, res="post an settlement to dynamodb success")
-    except Exception as e:
-        raise Exception(str(e))
-
-
-# ========================= #
-# update an settlement
-# PUT /db/settlement/{order_id}
-# ========================= #
-
-
-def handle_put_settlement(order_id: str, request_body: dict, table_name: str = settlements_table_name, dynamodb_client: boto3.client = dynamodb_client):
-    if order_id is None:
-        raise KeyError("order_id is missing")
-    try:
-        # check if order_id exists
-        response = asyncio.run(
-            get_item_from_dynamodb(
-                id=order_id,
-                key=SettlementsAttributes.order_id.name,
-                table_name=settlements_table_name,
-                dynamodb_client=dynamodb_client
-            )
-        )
-        item = response.get('Item', None)
-        if item is None:
-            return respond(err=TESSError(f"order_id {order_id} is not exist, please use post method to create a new"), res=None)
-        else:
-            # update item
-
-            item = create_item(
-                primary_key_name=SettlementsAttributes.order_id.name,
-                primary_key_value=order_id,
-                request_body=request_body,
-                attributeType=SettlementsAttributesTypes,
-                attributes=SettlementsAttributes
-            )
-            # if not exist, put data in it
-            response = asyncio.run(put_item_to_dynamodb(
-                item=item,
-                table_name=table_name,
-                dynamodb_client=dynamodb_client,
-            ))
-            return respond(err=None, res="put an settlement to dynamodb success")
-    except Exception as e:
-        raise Exception(str(e))
-
-
-# ========================= #
-# delete an settlement
-# DELETE /db/settlement/{order_id}
-# ========================= #
-
-
-def handle_delete_settlement(order_id: str):
-    try:
-        # check if order_id exists
-        response = asyncio.run(
-            get_item_from_dynamodb(
-                id=order_id,
-                key=SettlementsAttributes.order_id.name,
-                table_name=settlements_table_name,
-                dynamodb_client=dynamodb_client
-            )
-        )
-        item = response.get('Item', None)
-        if item is None:
-            return respond(err=TESSError("no object is found"), res=None)
-        else:
-            # if exists, delete it
-            response = asyncio.run(delete_item_from_dynamodb(
-                key=SettlementsAttributes.order_id.name,
-                id=order_id,
-                table_name=settlements_table_name,
-                dynamodb_client=dynamodb_client
-            ))
-            return respond(err=None, res="delete data from dynamodb success")
-    except Exception as e:
-        raise Exception(str(e))

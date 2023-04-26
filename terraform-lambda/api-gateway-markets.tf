@@ -25,15 +25,7 @@ resource "aws_apigatewayv2_route" "post_markets" {
   route_key = "POST /db/markets"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_markets.id}"
 }
-# --------------------------------------------
-#  MARKETS "PUT /db/markets"
-# --------------------------------------------
-resource "aws_apigatewayv2_route" "put_markets" {
-  api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "PUT /db/markets"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_markets.id}"
-}
 # --------------------------------------------
 #  MARKETS "DELETE /db/markets"
 # --------------------------------------------

@@ -26,9 +26,6 @@ resource "aws_apigatewayv2_route" "post_list_of_dispatches" {
   route_key = "POST /db/dispatches"
   target = "integrations/${aws_apigatewayv2_integration.lambda_dispatches.id}"
 }
-# --------------------------------------------
-#  DISPATCHES "PUT /db/dispatches" 
-# --------------------------------------------
 
 # --------------------------------------------
 #  DISPATCHES "DELETE /db/dispatches" 

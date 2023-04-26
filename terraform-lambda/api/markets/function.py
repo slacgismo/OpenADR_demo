@@ -10,8 +10,7 @@ from boto3.dynamodb.conditions import Key
 import uuid
 import re
 # cmmmon_utils, constants is from shared layer
-from common_utils import respond, TESSError, put_item_to_dynamodb, get_item_from_dynamodb, delete_item_from_dynamodb, deserializer_dynamodb_data_to_json_format, get_path, HTTPMethods, guid, create_item
-
+from common_utils import respond, TESSError, get_path, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_create_item_to_dynamodb, handle_get_item_from_dynamodb_with_hash_key, create_items_to_dynamodb, delete_items_from_dynamodb
 dynamodb_client = boto3.client('dynamodb')
 markets_table_name = os.environ["MARKETS_TABLE_NAME"]
 markets_table_resource_id_valid_at_gsi = os.environ["MARKETS_TABLE_RESOURCE_ID_VALID_AT_GSI"]
@@ -101,43 +100,26 @@ def handle_markets_route(event, context):
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
 
-        return post_list_of_markets_to_dynamodb(
-            request_body=request_body, dynamodb_client=dynamodb_client, table_name=markets_table_name
-        )
-    elif http_method == HTTPMethods.PUT.value:
-
-        if 'body' not in event:
-            raise KeyError("body is missing")
-        request_body = json.loads(event['body'])
-
-        return put_list_of_markets_to_dynamodb(
-            request_body=request_body, dynamodb_client=dynamodb_client, table_name=markets_table_name
+        return create_items_to_dynamodb(
+            request_body=request_body,
+            dynamodb_client=dynamodb_client,
+            table_name=markets_table_name,
+            hash_key_name=MarketsAttributes.market_id.name,
+            attributesTypeDict=MarketsAttributesTypes,
         )
 
     elif http_method == HTTPMethods.DELETE.value:
         if 'body' not in event:
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
-        return delete_list_of_markets_from_dynamodb(
-            request_body=request_body, dynamodb_client=dynamodb_client, table_name=markets_table_name
+        return delete_items_from_dynamodb(
+            request_body=request_body,
+            dynamodb_client=dynamodb_client,
+            table_name=markets_table_name,
+            hash_key_name=MarketsAttributes.market_id.name,
         )
     else:
         raise Exception("http method is not supported")
-
-
-def post_list_of_markets_to_dynamodb(request_body: dict = None, dynamodb_client: boto3.client = None, table_name: str = None, limit_items: int = None):
-    return respond(err=None, res="post list of markets to dynamodb")
-
-
-def put_list_of_markets_to_dynamodb(request_body: dict = None, dynamodb_client: boto3.client = None, table_name: str = None, limit_items: int = None):
-    return respond(err=None, res="put list of markets to dynamodb")
-
-
-def delete_list_of_markets_from_dynamodb(request_body: str, dynamodb_client, table_name: str):
-    return respond(err=None, res="delete list of markets from dynamodb")
-    # =================================================================================================
-    # Agent /db/market/{market_id}
-    # =================================================================================================
 
 
 def handle_market_route(event, context):
@@ -146,14 +128,34 @@ def handle_market_route(event, context):
         if 'market_id' not in event['pathParameters']:
             raise KeyError("market_id is missing")
         market_id = event['pathParameters']['market_id']
-        return handle_get_market_from_market_id(
-            market_id=market_id, dynamodb_client=dynamodb_client, table_name=markets_table_name
+        # ========================= #
+        # GET /db/market/{market_id}
+        # ========================= #
+        return handle_get_item_from_dynamodb_with_hash_key(
+            hash_key_name=MarketsAttributes.market_id.name,
+            hash_key_value=market_id,
+            table_name=markets_table_name,
+            attributesTypesDict=MarketsAttributesTypes,
+            dynamodb_client=dynamodb_client
         )
     elif http_method == HTTPMethods.POST.value:
         if 'body' not in event:
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
-        return handle_post_market(request_body=request_body, table_name=markets_table_name, dynamodb_client=dynamodb_client)
+        # ========================= #
+        # create a new agent
+        # POST /db/market/{market_id}
+        # ========================= #
+        return handle_create_item_to_dynamodb(
+            hash_key_name=MarketsAttributes.market_id.name,
+            hash_key_value=str(guid()),
+            request_body=request_body,
+            table_name=markets_table_name,
+            attributeTypeDice=MarketsAttributesTypes,
+            attributesEnum=MarketsAttributes,
+            dynamodb_client=dynamodb_client
+
+        )
     elif http_method == HTTPMethods.PUT.value:
         if 'market_id' not in event['pathParameters']:
             raise KeyError("market_id is missing")
@@ -162,141 +164,33 @@ def handle_market_route(event, context):
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
 
-        return handle_put_market(market_id=market_id, request_body=request_body)
+        # ========================= #
+        # update an agent
+        # PUT /db/market/{market_id}
+        # ========================= #
+
+        return handle_put_item_to_dynamodb_with_hash_key(
+            hash_key_name=MarketsAttributes.market_id.name,
+            hash_key_value=market_id,
+            request_body=request_body,
+            table_name=markets_table_name,
+            attributesTypeDict=MarketsAttributesTypes,
+            attributesEnum=MarketsAttributes,
+            dynamodb_client=dynamodb_client
+        )
     elif http_method == HTTPMethods.DELETE.value:
         if 'market_id' not in event['pathParameters']:
             raise KeyError("market_id is missing")
         market_id = event['pathParameters']['market_id']
-        return handle_delete_market(market_id=market_id)
+        # ========================= #
+        # delete an agent
+        # DELETE /db/market/{market_id}
+        # ========================= #
+        return handle_delete_item_from_dynamodb_with_hash_key(
+            hash_key_name=MarketsAttributes.market_id.name,
+            hash_key_value=market_id,
+            table_name=markets_table_name,
+            dynamodb_client=dynamodb_client
+        )
     else:
         return respond(err=TESSError("http method is not supported"), res=None)
-
-# ========================= #
-# GET /db/market/{market_id}
-# ========================= #
-
-
-def handle_get_market_from_market_id(market_id: str, dynamodb_client: boto3.client, table_name: str):
-    try:
-        response = asyncio.run(
-            get_item_from_dynamodb(
-                id=market_id,
-                key=MarketsAttributes.market_id.name,
-                table_name=markets_table_name,
-                dynamodb_client=dynamodb_client
-            )
-        )
-        item = response.get('Item', None)
-        if item is None:
-            return respond(err=TESSError("no object is found"), res=None)
-        else:
-            # Lazy-eval the dynamodb attribute (boto3 is dynamic!)
-            market_data = deserializer_dynamodb_data_to_json_format(
-                item=item, attributesTypes=MarketsAttributesTypes)
-            return respond(err=None, res=market_data)
-    except Exception as e:
-        raise Exception(str(e))
-
-
-# ========================= #
-# create a new market
-# POST /db/market/{market_id}
-# ========================= #
-
-def handle_post_market(request_body: dict, table_name: str = None, dynamodb_client: boto3.client = None):
-
-    try:
-        # create a new market
-        market_id = str(guid())
-        item = create_item(
-            primary_key_name=MarketsAttributes.market_id.name,
-            primary_key_value=market_id,
-            request_body=request_body,
-            attributeType=MarketsAttributesTypes,
-            attributes=MarketsAttributes
-        )
-        # if not exist, put data in it
-        response = asyncio.run(put_item_to_dynamodb(
-            item=item,
-            table_name=table_name,
-            dynamodb_client=dynamodb_client,
-        ))
-        return respond(err=None, res="post an market to dynamodb success")
-    except Exception as e:
-        raise Exception(str(e))
-
-
-# ========================= #
-# update an market
-# PUT /db/market/{market_id}
-# ========================= #
-
-
-def handle_put_market(market_id: str, request_body: dict, table_name: str = markets_table_name, dynamodb_client: boto3.client = dynamodb_client):
-    if market_id is None:
-        raise KeyError("market_id is missing")
-    try:
-        # check if market_id exists
-        response = asyncio.run(
-            get_item_from_dynamodb(
-                id=market_id,
-                key=MarketsAttributes.market_id.name,
-                table_name=markets_table_name,
-                dynamodb_client=dynamodb_client
-            )
-        )
-        item = response.get('Item', None)
-        if item is None:
-            return respond(err=TESSError(f"market_id {market_id} is not exist, please use post method to create a new"), res=None)
-        else:
-            # update item
-
-            item = create_item(
-                primary_key_name=MarketsAttributes.market_id.name,
-                primary_key_value=market_id,
-                request_body=request_body,
-                attributeType=MarketsAttributesTypes,
-                attributes=MarketsAttributes
-            )
-            # if not exist, put data in it
-            response = asyncio.run(put_item_to_dynamodb(
-                item=item,
-                table_name=table_name,
-                dynamodb_client=dynamodb_client,
-            ))
-            return respond(err=None, res="put an market to dynamodb success")
-    except Exception as e:
-        raise Exception(str(e))
-
-
-# ========================= #
-# delete an market
-# DELETE /db/market/{market_id}
-# ========================= #
-
-
-def handle_delete_market(market_id: str):
-    try:
-        # check if market_id exists
-        response = asyncio.run(
-            get_item_from_dynamodb(
-                id=market_id,
-                key=MarketsAttributes.market_id.name,
-                table_name=markets_table_name,
-                dynamodb_client=dynamodb_client
-            )
-        )
-        item = response.get('Item', None)
-        if item is None:
-            return respond(err=TESSError("no object is found"), res=None)
-        else:
-            # if exists, delete it
-            response = asyncio.run(delete_item_from_dynamodb(
-                key=MarketsAttributes.market_id.name,
-                id=market_id,
-                table_name=markets_table_name,
-                dynamodb_client=dynamodb_client
-            ))
-            return respond(err=None, res="delete data from dynamodb success")
-    except Exception as e:
-        raise Exception(str(e))

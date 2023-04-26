@@ -26,15 +26,7 @@ resource "aws_apigatewayv2_route" "post_resources" {
   target    = "integrations/${aws_apigatewayv2_integration.lambda_resources.id}"
 }
 
-# --------------------------------------------
-#  RESOURCES "PUT /db/resources"
-# --------------------------------------------
 
-resource "aws_apigatewayv2_route" "put_resources" {
-  api_id = aws_apigatewayv2_api.main.id
-  route_key = "PUT /db/resources"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_resources.id}"
-}
 # --------------------------------------------
 #  RESOURCES "DELETE /db/resources"
 # --------------------------------------------

@@ -24,14 +24,7 @@ resource "aws_apigatewayv2_route" "post_readings" {
   route_key = "POST /db/readings"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_readings.id}"
 }
-# --------------------------------------------
-#  READINGS "PUT /db/readings"
-# --------------------------------------------
-resource "aws_apigatewayv2_route" "put_readings" {
-  api_id = aws_apigatewayv2_api.main.id
-  route_key = "PUT /db/readings"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_readings.id}"
-}
+
 # --------------------------------------------
 #  READINGS "DELETE /db/readings"
 # --------------------------------------------

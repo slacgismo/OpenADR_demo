@@ -95,9 +95,6 @@ def handle_agents_route(event, context):
             hash_key_name=AgentsAttributes.agent_id.name,
             attributesTypeDict=AgentsAttributesTypes
         )
-        # return post_list_of_agents_to_dynamodb(
-        #     request_body=request_body, dynamodb_client=dynamodb_client, table_name=agents_table_name
-        # )
     elif http_method == HTTPMethods.DELETE.value:
         if 'body' not in event:
             raise KeyError("body is missing")
@@ -108,9 +105,6 @@ def handle_agents_route(event, context):
             table_name=agents_table_name,
             hash_key_name=AgentsAttributes.agent_id.name,
         )
-        # return delete_list_of_agents_from_dynamodb(
-        #     request_body=request_body, dynamodb_client=dynamodb_client, table_name=agents_table_name
-        # )
     else:
         raise Exception("http method is not supported")
 
@@ -135,9 +129,7 @@ def handle_agent_route(event, context):
             attributesTypesDict=AgentsAttributesTypes,
             dynamodb_client=dynamodb_client
         )
-        # return handle_get_agent_from_agent_id(
-        #     agent_id=agent_id, dynamodb_client=dynamodb_client, table_name=agents_table_name
-        # )
+
     elif http_method == HTTPMethods.POST.value:
         if 'body' not in event:
             raise KeyError("body is missing")
@@ -156,7 +148,7 @@ def handle_agent_route(event, context):
             dynamodb_client=dynamodb_client
 
         )
-        # return handle_post_agent(request_body=request_body, table_name=agents_table_name, dynamodb_client=dynamodb_client)
+
     elif http_method == HTTPMethods.PUT.value:
         if 'agent_id' not in event['pathParameters']:
             raise KeyError("agent_id is missing")
@@ -168,7 +160,7 @@ def handle_agent_route(event, context):
         # update an agent
         # PUT /db/agent/{agent_id}
         # ========================= #
-        # return handle_put_agent(agent_id=agent_id, request_body=request_body)
+
         return handle_put_item_to_dynamodb_with_hash_key(
             hash_key_name=AgentsAttributes.agent_id.name,
             hash_key_value=agent_id,

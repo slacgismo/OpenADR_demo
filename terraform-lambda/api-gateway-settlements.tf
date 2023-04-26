@@ -16,6 +16,16 @@ resource "aws_apigatewayv2_route" "get_settlements" {
   route_key = "GET /db/settlements"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_settlements.id}"
 }
+# --------------------------------------------
+#  SETTLEMENT "POST /db/settlements"
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "post_settlements" {
+  api_id = aws_apigatewayv2_api.main.id
+
+  route_key = "POST /db/settlements"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_settlements.id}"
+}
+
 
 # --------------------------------------------
 #  SETTLEMENT "DELETE /db/settlements"
