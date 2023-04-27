@@ -1,0 +1,77 @@
+[
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/agents/query",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "gsi_name": "resource_id_valid_at_index",
+            "key_value": "1",
+            "key_name": "resource_id"
+        }
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/agents/scan",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "key_name": "resource_id",
+            "key_value": "1"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/agents",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"resource_id\":\"12321\",\"status\":\"1\"},{\"resource_id\":\"12321\",\"status\":\"1\"}]}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/agents",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"agent_id\":\"eed1e71df2495fbf2bdbf629afe8b0\"}]}"
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/agent",
+        "pathParameters": {
+            "agent_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/agent",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"resource_id\":\"123\",\"status\":\"1\"}"
+    },
+    {
+        "httpMethod": "PUT",
+        "path": "/STAGING/db/agent",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"agent_id\":\"eed1e71df2495fbf2bdbf629afe8b0\",\"resource_id\":\"123\",\"status\":\"1\"}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/agent",
+        "pathParameters": {
+            "agent_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    }
+]

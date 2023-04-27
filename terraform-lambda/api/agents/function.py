@@ -10,11 +10,21 @@ from boto3.dynamodb.conditions import Key
 import uuid
 import re
 # cmmmon_utils, constants is from shared layer
-from common_utils import respond, TESSError, get_path, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_create_item_to_dynamodb, handle_get_item_from_dynamodb_with_hash_key, create_items_to_dynamodb, delete_items_from_dynamodb
+from common_utils import respond, TESSError, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_create_item_to_dynamodb, handle_get_item_from_dynamodb_with_hash_key, create_items_to_dynamodb, delete_items_from_dynamodb, handle_query_items_from_dynamodb, handle_scan_items_from_dynamodb, match_path
+
 dynamodb_client = boto3.client('dynamodb')
-agents_table_name = os.environ["AGENTS_TABLE_NAME"]
-agents_table_resource_id_valid_at_gsi = os.environ["AGENTS_TABLE_RESOURCE_ID_VALID_AT_GSI"]
-boto3.resource('dynamodb')
+agents_table_name = os.environ.get("AGENTS_TABLE_NAME", None)
+agents_table_resource_id_valid_at_gsi = os.environ.get(
+    "AGENTS_TABLE_RESOURCE_ID_VALID_AT_GSI", None)
+
+
+environment_variables_list = []
+environment_variables_list.append(agents_table_name)
+environment_variables_list.append(agents_table_resource_id_valid_at_gsi)
+
+# =================================================================================================
+# Constants
+# =================================================================================================
 
 
 class AgentsAttributes(Enum):
@@ -47,43 +57,45 @@ AgentsAttributesTypes = {
 class AgentsRouteKeys(Enum):
     agents = "agents"
     agent = "agent"
+    agents_query = "agents/query"
+    agents_scan = "agents/scan"
+
+# =================================================================================================
+# Main handler
+# =================================================================================================
 
 
 def handler(event, context):
     try:
+        # check the environment variables
+        if None in environment_variables_list:
+            raise Exception(
+                f"environment variables are not set :{environment_variables_list}")
+
+        # parse the path
         path = event['path']
         if 'path' not in event:
             return respond(err=TESSError("path is missing"), res=None, status_code=400)
 
-        route_key = get_path(path=path, index=3)
-        if route_key == AgentsRouteKeys.agents.value:
+        if match_path(path=path, route_key=AgentsRouteKeys.agents.value):
             return handle_agents_route(event=event, context=context)
-        elif route_key == AgentsRouteKeys.agent.value:
+        elif match_path(path=path, route_key=AgentsRouteKeys.agent.value):
             return handle_agent_route(event=event, context=context)
-        else:
-            raise Exception("route key is not supported")
-
+        elif match_path(path=path, route_key=AgentsRouteKeys.agents_query.value):
+            return handle_agents_query_route(event=event, context=context)
+        elif match_path(path=path, route_key=AgentsRouteKeys.agents_scan.value):
+            return handle_agents_scan_route(event=event, context=context)
     except Exception as e:
         return respond(err=TESSError(str(e)), res=None, status_code=500)
 
-# =================================================================================================
-# Agents /db/agents
-# =================================================================================================
+    # =================================================================================================
+    # Agents /db/agents/{get_items_action}
+    # =================================================================================================
 
 
 def handle_agents_route(event, context):
     http_method = event['httpMethod']
-    if http_method == HTTPMethods.GET.value:
-
-        if 'resource_id' not in event['pathParameters']:
-            raise KeyError("resource_id is missing")
-        resource_id = event['pathParameters']['resource_id']
-        if 'body' not in event:
-            raise KeyError("body is missing")
-        request_body = json.loads(event['body'])
-        return respond(err=None, res="get list of agents from resource id")
-
-    elif http_method == HTTPMethods.POST.value:
+    if http_method == HTTPMethods.POST.value:
 
         if 'body' not in event:
             raise KeyError("body is missing")
@@ -183,3 +195,50 @@ def handle_agent_route(event, context):
         )
     else:
         return respond(err=TESSError("http method is not supported"), res=None)
+
+# ========================= #
+# query an agent
+# GET /db/agent/query
+# ========================= #
+
+
+def handle_agents_query_route(event, context):
+
+    http_method = event['httpMethod']
+    if http_method == HTTPMethods.GET.value:
+        # get query string parameters from event
+        query_string_parameters = event['queryStringParameters']
+        if query_string_parameters is None:
+            raise KeyError("query string parameters are missing")
+        return handle_query_items_from_dynamodb(
+            query_string_parameters=query_string_parameters,
+            table_name=agents_table_name,
+            dynamodb_client=dynamodb_client,
+            attributes_types_dict=AgentsAttributesTypes,
+            environment_variables_list=environment_variables_list,
+
+        )
+    else:
+        raise Exception(f"unsupported http method {http_method}")
+
+# ========================= #
+# scan an agent
+# GET /db/agent/scans
+# ========================= #
+
+
+def handle_agents_scan_route(event, context):
+    http_method = event['httpMethod']
+    if http_method == HTTPMethods.GET.value:
+        # get query string parameters from event
+        query_string_parameters = event['queryStringParameters']
+        if query_string_parameters is None:
+            raise KeyError("query string parameters are missing")
+        return handle_scan_items_from_dynamodb(
+            query_string_parameters=query_string_parameters,
+            table_name=agents_table_name,
+            dynamodb_client=dynamodb_client,
+            attributes_types_dict=AgentsAttributesTypes,
+        )
+    else:
+        raise Exception(f"unsupported http method {http_method}")

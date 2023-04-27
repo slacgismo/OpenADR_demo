@@ -15,6 +15,7 @@ resource "aws_lambda_function" "lambda_meters" {
     variables = {
       "METERS_TABLE_NAME" = aws_dynamodb_table.meters.name,
       "METERS_TABLE_RESOURCE_ID_DEVICE_ID_GSI" =  element(tolist(aws_dynamodb_table.meters.global_secondary_index), 0).name
+      "METERS_TABLE_STATUS_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.meters.global_secondary_index), 1).name
       # "READINGS_TIMESTREAM_TABLE_NAME" = aws_timestreamwrite_table.readings.table_name
       # "TIMESTREAM_DB_NAME" = aws_timestreamwrite_database.measurements.database_name
     }

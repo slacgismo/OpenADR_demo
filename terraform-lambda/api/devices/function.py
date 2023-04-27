@@ -10,17 +10,27 @@ from boto3.dynamodb.conditions import Key
 import uuid
 import re
 # cmmmon_utils, constants is from shared layer
-from common_utils import respond, TESSError, get_path, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_create_item_to_dynamodb, handle_get_item_from_dynamodb_with_hash_key, create_items_to_dynamodb, delete_items_from_dynamodb
+from common_utils import respond, TESSError, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_create_item_to_dynamodb, handle_get_item_from_dynamodb_with_hash_key, create_items_to_dynamodb, delete_items_from_dynamodb, handle_query_items_from_dynamodb, handle_scan_items_from_dynamodb, match_path
 
 dynamodb_client = boto3.client('dynamodb')
-devices_table_name = os.environ["DEVICES_TABLE_NAME"]
-devices_table_agent_id_valid_at_gsi = os.environ["DEVICES_TABLE_AGENT_ID_VALID_AT_GSI"]
+
+devices_table_name = os.environ.get("DEVICES_TABLE_NAME", None)
+devices_table_device_id_valid_at_gsi = os.environ.get(
+    "DEVICES_TABLE_AGENT_ID_VALID_AT_GSI", None)
+devices_table_status_valid_at_gsi = os.environ.get(
+    "DEVICES_TABLE_STATUS_VALID_AT_GSI", None)
 boto3.resource('dynamodb')
+
+
+environment_variables_list = []
+environment_variables_list.append(devices_table_name)
+environment_variables_list.append(devices_table_device_id_valid_at_gsi)
+environment_variables_list.append(devices_table_status_valid_at_gsi)
 
 
 class DevicesAttributes(Enum):
     device_id = 'device_id'
-    agent_id = 'agent_id'
+    agent_id = 'device_id'
     device_type = 'device_type'
     device_model = 'device_model'
     flexible = 'flexible'
@@ -33,7 +43,7 @@ DevicesAttributesTypes = {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    DevicesAttributes.agent_id.name: {
+    DevicesAttributes.device_id.name: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
@@ -63,24 +73,49 @@ DevicesAttributesTypes = {
 class DevicesRouteKeys(Enum):
     devices = "devices"
     device = "device"
+    devices_query = "devices/query"
+    devices_scan = "devices/scan"
 
 
 def handler(event, context):
     try:
+        # check the environment variables
+        if None in environment_variables_list:
+            raise Exception(
+                f"environment variables are not set :{environment_variables_list}")
+
+        # parse the path
         path = event['path']
         if 'path' not in event:
             return respond(err=TESSError("path is missing"), res=None, status_code=400)
 
-        route_key = get_path(path=path, index=3)
-        if route_key == DevicesRouteKeys.devices.value:
+        if match_path(path=path, route_key=DevicesRouteKeys.devices.value):
             return handle_devices_route(event=event, context=context)
-        elif route_key == DevicesRouteKeys.device.value:
+        elif match_path(path=path, route_key=DevicesRouteKeys.device.value):
             return handle_device_route(event=event, context=context)
-        else:
-            raise Exception("route key is not supported")
-
+        elif match_path(path=path, route_key=DevicesRouteKeys.devices_query.value):
+            return handle_devices_query_route(event=event, context=context)
+        elif match_path(path=path, route_key=DevicesRouteKeys.devices_scan.value):
+            return handle_devices_scan_route(event=event, context=context)
     except Exception as e:
         return respond(err=TESSError(str(e)), res=None, status_code=500)
+
+# def handler(event, context):
+#     try:
+#         path = event['path']
+#         if 'path' not in event:
+#             return respond(err=TESSError("path is missing"), res=None, status_code=400)
+
+#         route_key = get_path(path=path, index=3)
+#         if route_key == DevicesRouteKeys.devices.value:
+#             return handle_devices_route(event=event, context=context)
+#         elif route_key == DevicesRouteKeys.device.value:
+#             return handle_device_route(event=event, context=context)
+#         else:
+#             raise Exception("route key is not supported")
+
+#     except Exception as e:
+#         return respond(err=TESSError(str(e)), res=None, status_code=500)
 
 # =================================================================================================
 # Devices /db/devices
@@ -93,9 +128,9 @@ def handle_devices_route(event, context):
         # =================================================================================================
         # GET /db/devices
         # =================================================================================================
-        if 'agent_id' not in event['pathParameters']:
-            raise KeyError("agent_id is missing")
-        agent_id = event['pathParameters']['agent_id']
+        if 'device_id' not in event['pathParameters']:
+            raise KeyError("device_id is missing")
+        device_id = event['pathParameters']['device_id']
         if 'body' not in event:
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
@@ -155,7 +190,7 @@ def handle_device_route(event, context):
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
         # ========================= #
-        # create a new agent
+        # create a new device
         # POST /db/device/{device_id}
         # ========================= #
         return handle_create_item_to_dynamodb(
@@ -176,7 +211,7 @@ def handle_device_route(event, context):
         request_body = json.loads(event['body'])
 
         # ========================= #
-        # update an agent
+        # update an device
         # PUT  /db/device/{device_id}
         # ========================= #
 
@@ -205,3 +240,45 @@ def handle_device_route(event, context):
         )
     else:
         return respond(err=TESSError("http method is not supported"), res=None)
+
+
+def handle_devices_query_route(event, context):
+
+    http_method = event['httpMethod']
+    if http_method == HTTPMethods.GET.value:
+        # get query string parameters from event
+        query_string_parameters = event['queryStringParameters']
+        if query_string_parameters is None:
+            raise KeyError("query string parameters are missing")
+        return handle_query_items_from_dynamodb(
+            query_string_parameters=query_string_parameters,
+            table_name=devices_table_name,
+            dynamodb_client=dynamodb_client,
+            attributes_types_dict=DevicesAttributesTypes,
+            environment_variables_list=environment_variables_list,
+
+        )
+    else:
+        raise Exception(f"unsupported http method {http_method}")
+
+# ========================= #
+# scan an device
+# GET /db/device/scans
+# ========================= #
+
+
+def handle_devices_scan_route(event, context):
+    http_method = event['httpMethod']
+    if http_method == HTTPMethods.GET.value:
+        # get query string parameters from event
+        query_string_parameters = event['queryStringParameters']
+        if query_string_parameters is None:
+            raise KeyError("query string parameters are missing")
+        return handle_scan_items_from_dynamodb(
+            query_string_parameters=query_string_parameters,
+            table_name=devices_table_name,
+            dynamodb_client=dynamodb_client,
+            attributes_types_dict=DevicesAttributesTypes,
+        )
+    else:
+        raise Exception(f"unsupported http method {http_method}")

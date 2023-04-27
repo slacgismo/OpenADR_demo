@@ -26,6 +26,7 @@ resource "aws_lambda_function" "lamdba_devices" {
       variables = {
           "DEVICES_TABLE_NAME" = aws_dynamodb_table.devices.name
           "DEVICES_TABLE_AGENT_ID_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.devices.global_secondary_index), 0).name
+          "DEVICES_TABLE_STATUS_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.devices.global_secondary_index), 1).name
     }
   }
 

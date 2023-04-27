@@ -16,16 +16,29 @@ resource "aws_dynamodb_table" "markets" {
     name = "resource_id"
     type = "S"
   }
-
+  attribute{
+    name = "status"
+    type = "N"
+  }
   attribute {
     name = "valid_at"
     type = "N"
   }
 
   # query market_id from resource_id and valid_at > timestampe
+
   global_secondary_index {
     name            = "resource_id_valid_at_index"
     hash_key        = "resource_id"
+    range_key       = "valid_at"
+    projection_type = "ALL"
+    read_capacity   = 1
+    write_capacity  = 1
+  }
+
+  global_secondary_index {
+    name            = "status_valid_at_index"
+    hash_key        = "status"
     range_key       = "valid_at"
     projection_type = "ALL"
     read_capacity   = 1
@@ -109,7 +122,10 @@ resource "aws_dynamodb_table" "devices" {
     name = "valid_at"
     type = "N"
   }
-  
+  attribute {
+    name = "status"
+    type = "N"
+  }
   attribute {
     name = "agent_id"
     type = "S"
@@ -119,6 +135,14 @@ resource "aws_dynamodb_table" "devices" {
   global_secondary_index {
     name            = "agent_id_valid_at_index"
     hash_key        = "agent_id"
+    range_key       = "valid_at"
+    projection_type = "ALL"
+    read_capacity   = 1
+    write_capacity  = 1
+  }
+  global_secondary_index {
+    name            = "status_valid_at_index"
+    hash_key        = "status"
     range_key       = "valid_at"
     projection_type = "ALL"
     read_capacity   = 1
@@ -193,6 +217,7 @@ resource "aws_dynamodb_table" "orders" {
     type = "N"
   }
 
+  
   global_secondary_index {
     name            = "device_id_order_id_index"
     hash_key        = "device_id"
@@ -203,7 +228,7 @@ resource "aws_dynamodb_table" "orders" {
   }
 
   global_secondary_index {
-    name            = "device_id_valid_at_index"
+    name            = "order_id_valid_at_index"
     hash_key        = "order_id"
     range_key       = "valid_at"
     projection_type = "ALL"
@@ -260,16 +285,32 @@ resource "aws_dynamodb_table" "meters" {
     name = "device_id"
     type = "S"
   }
-
+  attribute {
+    name = "status"
+    type = "S"
+  }
   attribute {
     name = "resource_id"
     type = "S"
   }
+  attribute {
+    name = "valid_at"
+    type = "N"
+  }
 
   global_secondary_index {
-    name               = "resource-device-index"
+    name               = "resource_id_device_id_index"
     hash_key           = "resource_id"
     range_key          = "device_id"
+    projection_type    = "ALL"
+    write_capacity     = 1
+    read_capacity      = 1
+  }
+
+  global_secondary_index {
+    name               = "status_valid_at_index"
+    hash_key           = "status"
+    range_key          = "valid_at"
     projection_type    = "ALL"
     write_capacity     = 1
     read_capacity      = 1

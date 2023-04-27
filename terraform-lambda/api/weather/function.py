@@ -10,11 +10,16 @@ from boto3.dynamodb.conditions import Key
 import uuid
 import re
 # cmmmon_utils, constants is from shared layer
-from common_utils import respond, TESSError, get_path, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_create_item_to_dynamodb, handle_get_item_from_dynamodb_with_hash_key, create_items_to_dynamodb, delete_items_from_dynamodb
+from common_utils import respond, TESSError, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_create_item_to_dynamodb, handle_get_item_from_dynamodb_with_hash_key, create_items_to_dynamodb, delete_items_from_dynamodb, handle_query_items_from_dynamodb, handle_scan_items_from_dynamodb, match_path
+
 dynamodb_client = boto3.client('dynamodb')
-weather_table_name = os.environ["WEATHER_TABLE_NAME"]
-weather_table_zip_code_valid_at_gsi = os.environ["WEATHER_TABLE_ZIP_CODE_VALID_AT_GSI"]
-boto3.resource('dynamodb')
+weather_table_name = os.environ.get("WEATHER_TABLE_NAME", None)
+weather_table_zip_code_valid_at_gsi = os.environ.get(
+    "WEATHER_TABLE_ZIP_CODE_VALID_AT_GSI", None)
+
+environment_variables_list = []
+environment_variables_list.append(weather_table_name)
+environment_variables_list.append(weather_table_zip_code_valid_at_gsi)
 
 
 class WeathersAttributes(Enum):
@@ -67,24 +72,33 @@ WeathersAttributesTypes = {
 class WeathersRouteKeys(Enum):
     weathers = "weathers"
     weather = "weather"
+    weathers_query = "weathers/query"
+    weathers_scan = "weathers/scan"
 
 
 def handler(event, context):
     try:
+        # check the environment variables
+        if None in environment_variables_list:
+            raise Exception(
+                f"environment variables are not set :{environment_variables_list}")
+
+        # parse the path
         path = event['path']
         if 'path' not in event:
             return respond(err=TESSError("path is missing"), res=None, status_code=400)
 
-        route_key = get_path(path=path, index=3)
-        if route_key == WeathersRouteKeys.weathers.value:
+        if match_path(path=path, route_key=WeathersRouteKeys.weathers.value):
             return handle_weathers_route(event=event, context=context)
-        elif route_key == WeathersRouteKeys.weather.value:
+        elif match_path(path=path, route_key=WeathersRouteKeys.weather.value):
             return handle_weather_route(event=event, context=context)
-        else:
-            raise Exception("route key is not supported")
-
+        elif match_path(path=path, route_key=WeathersRouteKeys.weathers_query.value):
+            return handle_weathers_query_route(event=event, context=context)
+        elif match_path(path=path, route_key=WeathersRouteKeys.weathers_scan.value):
+            return handle_weathers_scan_route(event=event, context=context)
     except Exception as e:
         return respond(err=TESSError(str(e)), res=None, status_code=500)
+
 
 # =================================================================================================
 # Weathers /db/weathers
@@ -168,7 +182,7 @@ def handle_weather_route(event, context):
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
         # ========================= #
-        # update an agent
+        # update an weather
         # PUT /db/weather/{weather_id}
         # ========================= #
 
@@ -187,11 +201,57 @@ def handle_weather_route(event, context):
         weather_id = event['pathParameters']['weather_id']
         # if exists, delete it
         # ========================= #
-        # delete an agent
-        # DELETE /db/agent/{agent_id}
+        # delete an weather
+        # DELETE /db/weather/{weather_id}
         # ========================= #
         return handle_delete_item_from_dynamodb_with_hash_key(
             hash_key_name=WeathersAttributes.weather_id.name, hash_key_value=weather_id, table_name=weather_table_name, dynamodb_client=dynamodb_client
         )
     else:
         return respond(err=TESSError("http method is not supported"), res=None)
+# ========================= #
+# query an weather
+# GET /db/weather/query
+# ========================= #
+
+
+def handle_weathers_query_route(event, context):
+
+    http_method = event['httpMethod']
+    if http_method == HTTPMethods.GET.value:
+        # get query string parameters from event
+        query_string_parameters = event['queryStringParameters']
+        if query_string_parameters is None:
+            raise KeyError("query string parameters are missing")
+        return handle_query_items_from_dynamodb(
+            query_string_parameters=query_string_parameters,
+            table_name=weather_table_name,
+            dynamodb_client=dynamodb_client,
+            attributes_types_dict=WeathersAttributesTypes,
+            environment_variables_list=environment_variables_list,
+
+        )
+    else:
+        raise Exception(f"unsupported http method {http_method}")
+
+# ========================= #
+# scan an weather
+# GET /db/weather/scans
+# ========================= #
+
+
+def handle_weathers_scan_route(event, context):
+    http_method = event['httpMethod']
+    if http_method == HTTPMethods.GET.value:
+        # get query string parameters from event
+        query_string_parameters = event['queryStringParameters']
+        if query_string_parameters is None:
+            raise KeyError("query string parameters are missing")
+        return handle_scan_items_from_dynamodb(
+            query_string_parameters=query_string_parameters,
+            table_name=weather_table_name,
+            dynamodb_client=dynamodb_client,
+            attributes_types_dict=WeathersAttributesTypes,
+        )
+    else:
+        raise Exception(f"unsupported http method {http_method}")

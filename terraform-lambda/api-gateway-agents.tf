@@ -13,15 +13,48 @@ resource "aws_apigatewayv2_integration" "lambda_agents" {
 #  AGENTS
 # --------------------------------------------
 
+# --------------------------------------------
+# AGENTS "GET /db/agents/query"
+# get_items_action = "query" 
+# query: query items from hash_key or hash_key + range_key with global secondary index (gsi)
+# if query :
+# queryStringParameters: {
+#   gsi_name: string,
+#   key_value: string,
+#   key_name: string,
+#   key_type: string, // optional 'S' | 'N' dedault = 'S'
+#   range_key: string,  // optional default = None
+#   range_key_value: string, // optional 'S' | 'N' dedault = 'N'
+#   start_from: string, // optional timstamp
+#   end_at: string, // optional timstamp
+#}
 
 # --------------------------------------------
-# AGENTS "GET /db/agents"
-# --------------------------------------------
-resource "aws_apigatewayv2_route" "get_list_agents_from_resource_id" {
+
+resource "aws_apigatewayv2_route" "query_agents" {
   api_id = aws_apigatewayv2_api.main.id
-  route_key = "GET /db/agents"
+  route_key = "GET /db/agents/query"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_agents.id}"
 }
+
+# --------------------------------------------
+# AGENTS "GET /db/agents/scan"
+# scan: scan all items with key that not is hash_key nor one of global secondary index key
+# if scan:
+# queryStringParameters: {
+#  key_name: string,
+#  key_value: string,
+#  key_type: string, //optional 'S' | 'N' dedault = 'S'
+#}
+# --------------------------------------------
+resource "aws_apigatewayv2_route" "scan_agents" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "GET /db/agents/scan"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_agents.id}"
+}
+
+
+
 # --------------------------------------------
 # AGENTS "POST /db/agents"
 # --------------------------------------------
