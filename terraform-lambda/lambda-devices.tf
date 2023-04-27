@@ -10,18 +10,18 @@
 # DELETE /db/device/<device_id>
 # ---------------------------------------------- #
 
-resource "aws_lambda_function" "lamdba_devices" {
+resource "aws_lambda_function" "lambda_devices" {
 
   function_name = "${var.prefix}-${var.client}-${var.environment}-devices-api"
   s3_bucket     = aws_s3_bucket.lambda_bucket.id
-  s3_key        = aws_s3_object.lamdba_devices.key
+  s3_key        = aws_s3_object.lambda_devices.key
   runtime       = "python3.9"
   handler = "function.handler"
   layers        = [aws_lambda_layer_version.shared_layers.arn]
   timeout       = 60
   memory_size   = 128
  
-  source_code_hash = data.archive_file.lamdba_devices.output_base64sha256
+  source_code_hash = data.archive_file.lambda_devices.output_base64sha256
   environment {
       variables = {
           "DEVICES_TABLE_NAME" = aws_dynamodb_table.devices.name
@@ -37,25 +37,25 @@ resource "aws_lambda_function" "lamdba_devices" {
 # ---------------------------------------------- #
 # DEVICES and DEVICE API LAMBDA SHARE RESOURCES
 # ---------------------------------------------- #
-resource "aws_cloudwatch_log_group" "lamdba_devices" {
-  name = "/aws/lambda/${aws_lambda_function.lamdba_devices.function_name}"
+resource "aws_cloudwatch_log_group" "lambda_devices" {
+  name = "/aws/lambda/${aws_lambda_function.lambda_devices.function_name}"
 
   retention_in_days = 14
 }
 
-data "archive_file" "lamdba_devices" {
+data "archive_file" "lambda_devices" {
   type = "zip"
 
   source_dir  = "${path.module}/api/devices"
   output_path = "${path.module}/templates/devices.zip"
 }
 
-resource "aws_s3_object" "lamdba_devices" {
+resource "aws_s3_object" "lambda_devices" {
   bucket = aws_s3_bucket.lambda_bucket.id
 
   key    = "devices.zip"
-  source = data.archive_file.lamdba_devices.output_path
+  source = data.archive_file.lambda_devices.output_path
 
-  etag = filemd5(data.archive_file.lamdba_devices.output_path)
+  etag = filemd5(data.archive_file.lambda_devices.output_path)
 }
 

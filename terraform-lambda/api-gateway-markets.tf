@@ -10,10 +10,16 @@ resource "aws_apigatewayv2_integration" "lambda_markets" {
 # --------------------------------------------
 #  MARKET "GET /db/markets"
 # --------------------------------------------
-resource "aws_apigatewayv2_route" "get_markets" {
+resource "aws_apigatewayv2_route" "query_markets" {
   api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "GET /db/markets"
+  route_key = "GET /db/markets/query"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_markets.id}"
+}
+resource "aws_apigatewayv2_route" "scan_markets" {
+  api_id = aws_apigatewayv2_api.main.id
+
+  route_key = "GET /db/markets/scan"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_markets.id}"
 }
 # --------------------------------------------

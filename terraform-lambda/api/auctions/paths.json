@@ -1,0 +1,123 @@
+{
+    "paths": {
+        "/db/auctions/query": {
+            "get": {
+                "summary": "Query auctions from gsi",
+                "description": "Query agnets from auctions table with gsi or lsi",
+                "parameters": [
+                    {
+                        "name": "gsi_name",
+                        "required": true,
+                        "description": "The name of the global secondary index to use (required for query action).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "key_value",
+                        "required": true,
+                        "description": "The value of the key to use for the query or scan.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "key_name",
+                        "in": "query",
+                        "required": true,
+                        "description": "The name of the key to use for the query or scan.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "key_type",
+                        "required": false,
+                        "description": "The type of the key to use for the query or scan (string or number, default is string).",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "S",
+                                "N"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "range_key",
+                        "required": false,
+                        "description": "The name of the range key to use for the query (required for query action).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "range_key_value",
+                        "required": false,
+                        "description": "The value of the range key to use for the query.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "start_from",
+                        "required": false,
+                        "description": "The timestamp to start querying from (required for query action).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "end_at",
+                        "required": false,
+                        "description": "The timestamp to end querying at (required for query action).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/db/auctions/scan": {
+            "get": {
+                "summary": "scan auctions",
+                "description": "Scan items from auctions table",
+                "parameters": [
+                    {
+                        "name": "key_value",
+                        "required": true,
+                        "description": "The value of the key to use for the query or scan.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "key_name",
+                        "required": true,
+                        "description": "The name of the key to use for the query or scan.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "key_type",
+                        "required": false,
+                        "description": "The type of the key to use for the query or scan (string or number, default is string).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    }
+}

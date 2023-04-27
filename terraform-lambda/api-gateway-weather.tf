@@ -11,10 +11,16 @@ resource "aws_apigatewayv2_integration" "lambda_weather" {
 # --------------------------------------------
 #  WEATHERS "GET /db/weathers"
 # --------------------------------------------
-resource "aws_apigatewayv2_route" "get_a_list_of_weather" {
+resource "aws_apigatewayv2_route" "query_a_list_of_weather" {
   api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "GET /db/weathers"
+  route_key = "GET /db/weathers/query"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_weather.id}"
+}
+resource "aws_apigatewayv2_route" "scan_a_list_of_weather" {
+  api_id = aws_apigatewayv2_api.main.id
+
+  route_key = "GET /db/weathers/scan"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_weather.id}"
 }
 # --------------------------------------------

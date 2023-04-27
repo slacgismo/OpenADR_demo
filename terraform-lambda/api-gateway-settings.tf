@@ -9,9 +9,15 @@ resource "aws_apigatewayv2_integration" "lambda_settings" {
 # --------------------------------------------
 #  SETTING "GET /db/settings"
 # --------------------------------------------
-resource "aws_apigatewayv2_route" "get_list_of_settngs_from_device_id" {
+resource "aws_apigatewayv2_route" "query_list_of_settngs" {
   api_id = aws_apigatewayv2_api.main.id
-  route_key = "GET /db/settings"
+  route_key = "GET /db/settings/query"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_settings.id}"
+}
+
+resource "aws_apigatewayv2_route" "scan_list_of_settngs" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "GET /db/settings/scan"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_settings.id}"
 }
 # --------------------------------------------

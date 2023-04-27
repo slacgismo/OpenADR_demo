@@ -1,8 +1,39 @@
+# combine all openapi defintion files into one file
+locals {
+  openapi = jsondecode(file("${path.module}/api/openapi.json"))
+  agents_paths = jsondecode(file("${path.module}/api/agents/paths.json"))
+  auctions_paths = jsondecode(file("${path.module}/api/auctions/paths.json"))
+  combined_paths = merge(
+    local.openapi.paths, 
+    local.agents_paths.paths, 
+    local.auctions_paths.paths) 
+  combined_openapi = merge(local.openapi, { "paths": local.combined_paths })
+  combined_openapi_json = jsonencode(local.combined_openapi)
+}
+
 resource "aws_apigatewayv2_api" "main" {
   name          ="${var.prefix}-${var.client}-${var.environment}-main-api-gateway"
   protocol_type = "HTTP"
-  version       = "v1"
+  description  =  "Backend API Gateway"
+  body = local.combined_openapi_json
+  # body = join("", [
+  #   file("${path.module}/api/agents/openapi-agents.json"),
+  #   file("${path.module}/api/auctions/openapi-auctions.json"),
+  #   file("${path.module}/api/devices/openapi-devices.json"),
+  # ])
 }
+
+resource "aws_apigatewayv2_deployment" "main" {
+  depends_on = [aws_apigatewayv2_integration.lambda_agents, aws_apigatewayv2_integration.lambda_auctions, aws_apigatewayv2_integration.lambda_devices]
+  api_id      = aws_apigatewayv2_api.main.id
+  description = "Initial deployment"
+  lifecycle {
+    create_before_destroy = true
+  }
+  
+}
+
+
 
 resource "aws_apigatewayv2_stage" "environment" {
   api_id = aws_apigatewayv2_api.main.id

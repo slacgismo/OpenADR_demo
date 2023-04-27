@@ -10,10 +10,17 @@ resource "aws_apigatewayv2_integration" "lambda_settlements" {
 # --------------------------------------------
 #  SETTLEMENT "GET /db/settlements"
 # --------------------------------------------
-resource "aws_apigatewayv2_route" "get_settlements" {
+resource "aws_apigatewayv2_route" "query_settlements" {
   api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "GET /db/settlements"
+  route_key = "GET /db/settlements/query"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_settlements.id}"
+}
+
+resource "aws_apigatewayv2_route" "scan_settlements" {
+  api_id = aws_apigatewayv2_api.main.id
+
+  route_key = "GET /db/settlements/scan"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_settlements.id}"
 }
 # --------------------------------------------

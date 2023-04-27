@@ -11,9 +11,14 @@ resource "aws_apigatewayv2_integration" "lambda_meters" {
 # --------------------------------------------
 #  METER "GET /db/meters"
 # --------------------------------------------
-resource "aws_apigatewayv2_route" "get_meters" {
+resource "aws_apigatewayv2_route" "query_meters" {
   api_id = aws_apigatewayv2_api.main.id
-  route_key = "GET /db/meters"
+  route_key = "GET /db/meters/query"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_meters.id}"
+}
+resource "aws_apigatewayv2_route" "scan_meters" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "GET /db/meters/scan"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_meters.id}"
 }
 

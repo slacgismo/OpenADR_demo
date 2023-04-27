@@ -11,11 +11,19 @@ resource "aws_apigatewayv2_integration" "lambda_resources" {
 #  RESOURCES "GET /db/resources"
 # --------------------------------------------
 
-resource "aws_apigatewayv2_route" "get_resources" {
+resource "aws_apigatewayv2_route" "query_resources" {
   api_id = aws_apigatewayv2_api.main.id
-  route_key = "GET /db/resources"
+  route_key = "GET /db/resources/query"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_resources.id}"
 }
+
+resource "aws_apigatewayv2_route" "scan_resources" {
+  api_id = aws_apigatewayv2_api.main.id
+
+  route_key = "GET /db/resources/scan"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_orders.id}"
+}
+
 # --------------------------------------------
 #  RESOURCES "POST /db/resources"
 # --------------------------------------------

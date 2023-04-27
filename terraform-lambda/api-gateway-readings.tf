@@ -9,11 +9,18 @@ resource "aws_apigatewayv2_integration" "lambda_readings" {
 # --------------------------------------------
 #  READINGS "GET /db/readings"
 # --------------------------------------------
-resource "aws_apigatewayv2_route" "get_readings" {
+resource "aws_apigatewayv2_route" "query_readings" {
   # GET /db/reading/{reading_id}
   api_id = aws_apigatewayv2_api.main.id
-  route_key = "GET /db/readings"
+  route_key = "GET /db/readings/query"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_readings.id}"
+}
+
+resource "aws_apigatewayv2_route" "scan_readings" {
+  api_id = aws_apigatewayv2_api.main.id
+
+  route_key = "GET /db/readings/scan"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_orders.id}"
 }
 
 # --------------------------------------------

@@ -11,10 +11,16 @@ resource "aws_apigatewayv2_integration" "lambda_orders" {
 # --------------------------------------------
 #  ORDER "GET /db/orders"
 # --------------------------------------------
-resource "aws_apigatewayv2_route" "get_orders" {
+resource "aws_apigatewayv2_route" "query_orders" {
   api_id = aws_apigatewayv2_api.main.id
 
-  route_key = "GET /db/orders"
+  route_key = "GET /db/orders/query"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_orders.id}"
+}
+resource "aws_apigatewayv2_route" "scan_orders" {
+  api_id = aws_apigatewayv2_api.main.id
+
+  route_key = "GET /db/orders/scan"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_orders.id}"
 }
 

@@ -11,11 +11,17 @@ resource "aws_apigatewayv2_integration" "lambda_dispatches" {
 #  DISPATCHES "GET /db/dispatches" 
 # --------------------------------------------
 
-resource "aws_apigatewayv2_route" "get_list_of_dispatches" {
+resource "aws_apigatewayv2_route" "query_dispatches" {
   api_id    = aws_apigatewayv2_api.main.id
-  route_key = "GET /db/dispatches"
+  route_key = "GET /db/dispatches/query"
   target = "integrations/${aws_apigatewayv2_integration.lambda_dispatches.id}"
 }
+resource "aws_apigatewayv2_route" "scan_dispatches" {
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "GET /db/dispatches/scan"
+  target = "integrations/${aws_apigatewayv2_integration.lambda_dispatches.id}"
+}
+
 
 # --------------------------------------------
 #  DISPATCHES "POST /db/dispatches" 
