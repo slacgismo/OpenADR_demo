@@ -40,11 +40,11 @@ resource "aws_lambda_function" "lambda_agents" {
 # ---------------------------------------------- #
 #  Log Group for Lambda Function for Agents API  #
 # ---------------------------------------------- #
-resource "aws_cloudwatch_log_group" "lambda_agents" {
-  name = "/aws/lambda/${aws_lambda_function.lambda_agents.function_name}"
+# resource "aws_cloudwatch_log_group" "lambda_agents" {
+#   name = "/aws/lambda/${aws_lambda_function.lambda_agents.function_name}"
 
-  retention_in_days = 14
-}
+#   retention_in_days = 14
+# }
 
 # ---------------------------------------------- #
 #  Archieve file  #
@@ -75,6 +75,17 @@ locals {
   event = jsondecode(file("${path.module}/api/agents/event.json"))
 }
 
+
+resource "aws_lambda_invocation" "post_agents" {
+  function_name = aws_lambda_function.lambda_agents.function_name
+  input         = jsonencode(local.event[2])
+}
+
+resource "aws_lambda_invocation" "post_agent" {
+  function_name = aws_lambda_function.lambda_agents.function_name
+  input         = jsonencode(local.event[5])
+}
+
 resource "aws_lambda_invocation" "query_agents" {
   function_name = aws_lambda_function.lambda_agents.function_name
   input         = jsonencode(local.event[0])
@@ -85,10 +96,7 @@ resource "aws_lambda_invocation" "scan_agents" {
   input         = jsonencode(local.event[1])
 }
 
-resource "aws_lambda_invocation" "post_agents" {
-  function_name = aws_lambda_function.lambda_agents.function_name
-  input         = jsonencode(local.event[2])
-}
+
 resource "aws_lambda_invocation" "delete_agents" {
   function_name = aws_lambda_function.lambda_agents.function_name
   input         = jsonencode(local.event[3])
@@ -97,10 +105,7 @@ resource "aws_lambda_invocation" "get_agent" {
   function_name = aws_lambda_function.lambda_agents.function_name
   input         = jsonencode(local.event[4])
 }
-resource "aws_lambda_invocation" "post_agent" {
-  function_name = aws_lambda_function.lambda_agents.function_name
-  input         = jsonencode(local.event[5])
-}
+
 resource "aws_lambda_invocation" "put_agent" {
   function_name = aws_lambda_function.lambda_agents.function_name
   input         = jsonencode(local.event[6])

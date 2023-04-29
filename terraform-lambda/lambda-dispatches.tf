@@ -28,6 +28,7 @@ resource "aws_cloudwatch_log_group" "participated_vens" {
   name = "/aws/lambda/${aws_lambda_function.dispatches.function_name}"
 
   retention_in_days = 14
+  tags = local.common_tags
 }
 
 data "archive_file" "dispatch_vens" {

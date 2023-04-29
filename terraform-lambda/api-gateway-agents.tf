@@ -1,12 +1,12 @@
 
 
-resource "aws_apigatewayv2_integration" "lambda_agents" {
-  api_id = aws_apigatewayv2_api.main.id
+# resource "aws_apigatewayv2_integration" "lambda_agents" {
+#   api_id = aws_apigatewayv2_api.backend.id
 
-  integration_uri    = aws_lambda_function.lambda_agents.invoke_arn
-  integration_type   = "AWS_PROXY"
-  integration_method = "POST"
-}
+#   integration_uri    = aws_lambda_function.lambda_agents.invoke_arn
+#   integration_type   = "AWS_PROXY"
+#   integration_method = "POST"
+# }
 
 
 # --------------------------------------------
@@ -32,7 +32,7 @@ resource "aws_apigatewayv2_integration" "lambda_agents" {
 # --------------------------------------------
 
 # resource "aws_apigatewayv2_route" "query_agents" {
-#   api_id = aws_apigatewayv2_api.main.id
+#   api_id = aws_apigatewayv2_api.backend.id
 #   route_key = "GET /db/agents/query"
 #   target    = "integrations/${aws_apigatewayv2_integration.lambda_agents.id}"
 # }
@@ -48,10 +48,11 @@ resource "aws_apigatewayv2_integration" "lambda_agents" {
 #}
 # --------------------------------------------
 # resource "aws_apigatewayv2_route" "scan_agents" {
-#   api_id = aws_apigatewayv2_api.main.id
+#   api_id = aws_apigatewayv2_api.backend.id
 #   route_key = "GET /db/agents/scan"
 #   target    = "integrations/${aws_apigatewayv2_integration.lambda_agents.id}"
 # }
+
 
 
 
@@ -59,7 +60,7 @@ resource "aws_apigatewayv2_integration" "lambda_agents" {
 # AGENTS "POST /db/agents"
 # --------------------------------------------
 # resource "aws_apigatewayv2_route" "post_list_agents" {
-#   api_id = aws_apigatewayv2_api.main.id
+#   api_id = aws_apigatewayv2_api.backend.id
 #   route_key = "POST /db/agents"
 #   target    = "integrations/${aws_apigatewayv2_integration.lambda_agents.id}"
 # }
@@ -73,7 +74,7 @@ resource "aws_apigatewayv2_integration" "lambda_agents" {
 # --------------------------------------------
 
 # resource "aws_apigatewayv2_route" "delete_list_agents" {
-#   api_id = aws_apigatewayv2_api.main.id
+#   api_id = aws_apigatewayv2_api.backend.id
 #   route_key = "DELETE /db/agents"
 #   target    = "integrations/${aws_apigatewayv2_integration.lambda_agents.id}"
 # }
@@ -87,7 +88,7 @@ resource "aws_apigatewayv2_integration" "lambda_agents" {
 # AGENT "GET /db/agent/{agent_id}"
 # --------------------------------------------
 # resource "aws_apigatewayv2_route" "get_one_agent" {
-#   api_id = aws_apigatewayv2_api.main.id
+#   api_id = aws_apigatewayv2_api.backend.id
 #   # Get one agent from agent_id
 #   route_key = "GET /db/agent/{agent_id}"
 #   target    = "integrations/${aws_apigatewayv2_integration.lambda_agents.id}"
@@ -98,7 +99,7 @@ resource "aws_apigatewayv2_integration" "lambda_agents" {
 # AGENT "POST /db/agent"  
 # --------------------------------------------
 # resource "aws_apigatewayv2_route" "post_single_agent" {
-#   api_id    = aws_apigatewayv2_api.main.id
+#   api_id    = aws_apigatewayv2_api.backend.id
 #   route_key = "POST /db/agent"
 #   target = "integrations/${aws_apigatewayv2_integration.lambda_agents.id}"
 # }
@@ -109,7 +110,7 @@ resource "aws_apigatewayv2_integration" "lambda_agents" {
 # AGENT "PUT /db/agent/{agent_id}" 
 # --------------------------------------------
 # resource "aws_apigatewayv2_route" "put_single_agent" {
-#   api_id    = aws_apigatewayv2_api.main.id
+#   api_id    = aws_apigatewayv2_api.backend.id
 #   route_key = "PUT /db/agent/{agent_id}"
 #   target = "integrations/${aws_apigatewayv2_integration.lambda_agents.id}"
 # }
@@ -118,7 +119,7 @@ resource "aws_apigatewayv2_integration" "lambda_agents" {
 # --------------------------------------------
 
 # resource "aws_apigatewayv2_route" "delete_single_agent" {
-#   api_id    = aws_apigatewayv2_api.main.id
+#   api_id    = aws_apigatewayv2_api.backend.id
 #   route_key = "DELETE /db/agent/{agent_id}"
 #   target = "integrations/${aws_apigatewayv2_integration.lambda_agents.id}"
 # }
@@ -129,6 +130,6 @@ resource "aws_lambda_permission" "api_gw_agent" {
   function_name = aws_lambda_function.lambda_agents.function_name
   principal     = "apigateway.amazonaws.com"
 
-  source_arn = "${aws_apigatewayv2_api.main.execution_arn}/*/*"
+  source_arn = "${aws_apigatewayv2_api.backend.execution_arn}/*/*"
 }
 

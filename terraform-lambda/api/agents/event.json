@@ -62,7 +62,10 @@
         "headers": {
             "Content-Type": "application/json"
         },
-        "body": "{\"agent_id\":\"eed1e71df2495fbf2bdbf629afe8b0\",\"resource_id\":\"123\",\"status\":\"1\"}"
+        "pathParameters": {
+            "agent_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "body": "{\"resource_id\":\"123\",\"status\":\"1\"}"
     },
     {
         "httpMethod": "DELETE",

@@ -93,7 +93,6 @@ def respond(err=None, res: dict = None, status_code=200):
             status_code = 400
     else:
         response_body['data'] = res
-        # json_data = json.dumps(response_body, default=decimal_default)
 
     return {
         'statusCode': str(status_code),
@@ -420,6 +419,7 @@ def handle_put_item_to_dynamodb_with_hash_key(hash_key_value: str,
                 table_name=table_name,
                 dynamodb_client=dynamodb_client,
             ))
+
             return respond(err=None, res="put an agent to dynamodb success")
     except Exception as e:
         raise Exception(str(e))
@@ -514,7 +514,7 @@ def create_items_to_dynamodb(
 
         return respond(err=None, res=json.dumps(created_hash_key_values))
     except Exception as e:
-        return respond(err=TESSError(str(e)), res=None, status_code=500)
+        return respond(err=TESSError(str(e)), res=None, status_code=400)
 
 
 def delete_items_from_dynamodb(
@@ -533,9 +533,10 @@ def delete_items_from_dynamodb(
         # delete data from dynamodb
         response = asyncio.run(delete_batch_items_from_dynamodb(
             chunks=delete_data_list, table_name=table_name, dynamodb_client=dynamodb_client))
-        return respond(err=None, res="delete agents success")
+        message = {"message": "success"}
+        return respond(err=None, res=message)
     except Exception as e:
-        return respond(err=TESSError(str(e)), res=None, status_code=500)
+        return respond(err=TESSError(str(e)), res=None, status_code=400)
 
 # ======================================================#
 # Query items from dynamodb  with global secondary index#
@@ -687,14 +688,6 @@ async def scan_dynamodb_table_with_pagination(key_name: str = None,
     while True:
         # Execute the scan with the current parameters
         response = await asyncio.to_thread(dynamodb_client.scan, **scan_params)
-        # print("response", response)
-        # Append the matching items to the result list
-        # items.extend(response['Items'])
-        # for item in response.get('Items', []):
-        #     item_dict = {}
-        #     for key, value in item.items():
-        #         item_dict[key] = value.get('S', value.get('N'))
-        #     items.append(item_dict)
 
         # convert dynamodb data to json format
         for item in response.get('Items', []):

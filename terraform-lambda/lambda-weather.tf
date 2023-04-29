@@ -27,6 +27,7 @@ resource "aws_cloudwatch_log_group" "lambda_weather" {
   name = "/aws/lambda/${aws_lambda_function.lambda_weather.function_name}"
 
   retention_in_days = 14
+  tags = local.common_tags
 }
 
 data "archive_file" "lambda_weather" {

@@ -52,3 +52,9 @@ variable "api_version" {
   type        = string
   default     = "v1"
 }
+
+variable "api_gateway_timeoutInMillis" {
+  description = "api gateway timeoutInMillis"
+  type        = string
+  default     = "29000"
+}
