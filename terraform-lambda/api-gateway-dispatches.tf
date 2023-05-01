@@ -86,14 +86,14 @@
 # }
 
 
-# resource "aws_lambda_permission" "api_gw_dispatches" {
-#   statement_id  = "AllowExecutionFromAPIGateway-dispatches"
-#   action        = "lambda:InvokeFunction"
-#   function_name = aws_lambda_function.dispatches.function_name
-#   principal     = "apigateway.amazonaws.com"
+resource "aws_lambda_permission" "api_gw_dispatches" {
+  statement_id  = "AllowExecutionFromAPIGateway-dispatches"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.dispatches.function_name
+  principal     = "apigateway.amazonaws.com"
 
-#   source_arn = "${aws_apigatewayv2_api.backend.execution_arn}/*/*"
-# }
+  source_arn = "${aws_apigatewayv2_api.backend.execution_arn}/*/*"
+}
 
 # output "dispatches_vens_base_url" {
 #   value = "${aws_apigatewayv2_stage.dev.invoke_url}/${aws_apigatewayv2_route.get_dispatches.route_key}"

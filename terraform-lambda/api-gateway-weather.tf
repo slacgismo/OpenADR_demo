@@ -87,12 +87,12 @@
 #   target = "integrations/${aws_apigatewayv2_integration.lambda_weather.id}"
 # }
 
-# resource "aws_lambda_permission" "api_gw_lambda_weather" {
-#   statement_id  = "AllowExecutionFromAPIGateway-weather"
-#   action        = "lambda:InvokeFunction"
-#   function_name = aws_lambda_function.lambda_weather.function_name
-#   principal     = "apigateway.amazonaws.com"
+resource "aws_lambda_permission" "api_gw_lambda_weather" {
+  statement_id  = "AllowExecutionFromAPIGateway-weather"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_weather.function_name
+  principal     = "apigateway.amazonaws.com"
 
-#   source_arn = "${aws_apigatewayv2_api.backend.execution_arn}/*/*"
-# }
+  source_arn = "${aws_apigatewayv2_api.backend.execution_arn}/*/*"
+}
 

@@ -15,6 +15,7 @@ resource "aws_lambda_function" "lambda_settings" {
   environment {
     variables = {
       "SETTINGS_TABLE_NAME" = aws_dynamodb_table.settings.name
+       "SETTINGS_TABLE_DEVICE_ID_VALID_AT_GSI" = element(tolist(aws_dynamodb_table.settings.global_secondary_index), 0).name
     }
   }
 
@@ -44,3 +45,72 @@ resource "aws_s3_object" "lambda_settings" {
 
   etag = filemd5(data.archive_file.lambda_settings.output_path)
 }
+
+# ---------------------------------------------- #
+#  TEST EVENT  Example
+# ---------------------------------------------- #
+
+
+# locals {
+#   settings_test_event = jsondecode(file("${path.module}/api/settings/event.json"))
+# }
+
+
+# resource "aws_lambda_invocation" "post_settings" {
+#   depends_on = [aws_lambda_function.lambda_settings, aws_dynamodb_table.settings]
+#   function_name = aws_lambda_function.lambda_settings.function_name
+#   input         = jsonencode(local.settings_test_event[2])
+# }
+
+# resource "aws_lambda_invocation" "post_setting" {
+#   depends_on = [aws_lambda_function.lambda_settings, aws_dynamodb_table.settings]
+#   function_name = aws_lambda_function.lambda_settings.function_name
+#   input         = jsonencode(local.settings_test_event[5])
+# }
+
+# resource "aws_lambda_invocation" "query_settings" {
+#   depends_on = [aws_lambda_function.lambda_settings, aws_dynamodb_table.settings]
+#   function_name = aws_lambda_function.lambda_settings.function_name
+#   input         = jsonencode(local.settings_test_event[0])
+# }
+
+# resource "aws_lambda_invocation" "scan_settings" {
+#   depends_on = [aws_lambda_function.lambda_settings, aws_dynamodb_table.settings]
+#   function_name = aws_lambda_function.lambda_settings.function_name
+#   input         = jsonencode(local.settings_test_event[1])
+# }
+
+
+# resource "aws_lambda_invocation" "delete_settings" {
+#   depends_on = [aws_lambda_function.lambda_settings, aws_dynamodb_table.settings]
+#   function_name = aws_lambda_function.lambda_settings.function_name
+#   input         = jsonencode(local.settings_test_event[3])
+# }
+# resource "aws_lambda_invocation" "get_setting" {
+#   depends_on = [aws_lambda_function.lambda_settings, aws_dynamodb_table.settings]
+#   function_name = aws_lambda_function.lambda_settings.function_name
+#   input         = jsonencode(local.settings_test_event[4])
+# }
+
+# resource "aws_lambda_invocation" "put_setting" {
+#   depends_on = [aws_lambda_function.lambda_settings, aws_dynamodb_table.settings]
+#   function_name = aws_lambda_function.lambda_settings.function_name
+#   input         = jsonencode(local.settings_test_event[6])
+# }
+# resource "aws_lambda_invocation" "delete_setting" {
+#   depends_on = [aws_lambda_function.lambda_settings, aws_dynamodb_table.settings]
+#   function_name = aws_lambda_function.lambda_settings.function_name
+#   input         = jsonencode(local.settings_test_event[7])
+# }
+# output "settings_test_settings_test_events_results" {
+#   value = {
+#     query_settings = aws_lambda_invocation.query_settings.result,
+#     scan_settings = aws_lambda_invocation.scan_settings.result
+#     post_settings = aws_lambda_invocation.post_settings.result
+#     delete_settings = aws_lambda_invocation.delete_settings.result
+#     get_setting = aws_lambda_invocation.get_setting.result
+#     post_setting = aws_lambda_invocation.post_setting.result
+#     put_setting = aws_lambda_invocation.put_setting.result
+#     delete_setting = aws_lambda_invocation.delete_setting.result
+#   }
+# }

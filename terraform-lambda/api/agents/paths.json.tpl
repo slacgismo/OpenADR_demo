@@ -304,25 +304,10 @@
                                                     "agent_id": {
                                                         "type": "string",
                                                         "description": "The ID of the created agent"
-                                                    },
-                                                    "resource_id": {
-                                                        "type": "string",
-                                                        "description": "The resource ID of the created agent"
-                                                    },
-                                                    "status": {
-                                                        "type": "integer",
-                                                        "description": "The status of the created agent"
-                                                    },
-                                                    "valid_at": {
-                                                        "type": "integer",
-                                                        "description": "The valid_at of the created agent"
                                                     }
                                                 },
                                                 "required": [
-                                                    "agent_id",
-                                                    "resource_id",
-                                                    "status",
-                                                    "valid_at"
+                                                    "agent_id"
                                                 ]
                                             }
                                         }
@@ -673,22 +658,10 @@
                                     "properties": {
                                         "agent_id": {
                                             "type": "string"
-                                        },
-                                        "resource_id": {
-                                            "type": "string"
-                                        },
-                                        "status": {
-                                            "type": "integer"
-                                        },
-                                        "valid_at": {
-                                            "type": "integer"
                                         }
                                     },
                                     "required": [
-                                        "agent_id",
-                                        "resource_id",
-                                        "status",
-                                        "valid_at"
+                                        "agent_id"
                                     ]
                                 }
                             }

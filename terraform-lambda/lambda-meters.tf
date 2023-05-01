@@ -46,3 +46,70 @@ resource "aws_s3_object" "lambda_meters" {
 
   etag = filemd5(data.archive_file.lambda_meters.output_path)
 }
+
+# ---------------------------------------------- #
+#  TEST EVENT  Example
+# ---------------------------------------------- #
+
+
+locals {
+  meters_test_event = jsondecode(file("${path.module}/api/meters/event.json"))
+}
+
+
+resource "aws_lambda_invocation" "post_meters" {
+  depends_on = [aws_lambda_function.lambda_meters, aws_dynamodb_table.meters]
+  function_name = aws_lambda_function.lambda_meters.function_name
+  input         = jsonencode(local.meters_test_event[2])
+}
+
+resource "aws_lambda_invocation" "post_meter" {
+  depends_on = [aws_lambda_function.lambda_meters, aws_dynamodb_table.meters]
+  function_name = aws_lambda_function.lambda_meters.function_name
+  input         = jsonencode(local.meters_test_event[5])
+}
+
+resource "aws_lambda_invocation" "query_meters" {
+  depends_on = [aws_lambda_function.lambda_meters, aws_dynamodb_table.meters]
+  function_name = aws_lambda_function.lambda_meters.function_name
+  input         = jsonencode(local.meters_test_event[0])
+}
+
+resource "aws_lambda_invocation" "scan_meters" {
+  depends_on = [aws_lambda_function.lambda_meters, aws_dynamodb_table.meters]
+  function_name = aws_lambda_function.lambda_meters.function_name
+  input         = jsonencode(local.meters_test_event[1])
+}
+
+
+resource "aws_lambda_invocation" "delete_meters" {
+  function_name = aws_lambda_function.lambda_meters.function_name
+  input         = jsonencode(local.meters_test_event[3])
+}
+resource "aws_lambda_invocation" "get_meter" {
+  depends_on = [aws_lambda_function.lambda_meters, aws_dynamodb_table.meters]
+  function_name = aws_lambda_function.lambda_meters.function_name
+  input         = jsonencode(local.meters_test_event[4])
+}
+
+resource "aws_lambda_invocation" "put_meter" {
+  function_name = aws_lambda_function.lambda_meters.function_name
+  input         = jsonencode(local.meters_test_event[6])
+}
+resource "aws_lambda_invocation" "delete_meter" {
+  depends_on = [aws_lambda_function.lambda_meters, aws_dynamodb_table.meters]
+  function_name = aws_lambda_function.lambda_meters.function_name
+  input         = jsonencode(local.meters_test_event[7])
+}
+output "meters_test_meters_test_events_results" {
+  value = {
+    query_meters = aws_lambda_invocation.query_meters.result,
+    scan_meters = aws_lambda_invocation.scan_meters.result
+    post_meters = aws_lambda_invocation.post_meters.result
+    delete_meters = aws_lambda_invocation.delete_meters.result
+    get_meter = aws_lambda_invocation.get_meter.result
+    post_meter = aws_lambda_invocation.post_meter.result
+    put_meter = aws_lambda_invocation.put_meter.result
+    delete_meter = aws_lambda_invocation.delete_meter.result
+  }
+}

@@ -32,7 +32,7 @@ get_battery_data = {
 }
 
 
-class DeviceBrand(Enum):
+class DeviceModels(Enum):
     SONNEN_BATTERY = 'sonnen_battery'
     EGAUGE = 'egauge'
     THEROMSTAT = 'thermostat'
@@ -46,20 +46,20 @@ def handler(event, context):
         if http_method == 'GET':
             serial = event['pathParameters']['serial']
             query_params = event['queryStringParameters']
-            if 'device_brand' not in query_params:
+            if 'device_model' not in query_params:
                 return {
                     'statusCode': 500,
                     'headers': {'Content-Type': 'application/json'},
                     'body': json.dumps({'error ': 'query_params is missing'})
                 }
-            device_brand = query_params.get('device_brand', None)
-            if device_brand is None:
+            device_model = query_params.get('device_model', None)
+            if device_model is None:
                 return {
                     'statusCode': 500,
                     'headers': {'Content-Type': 'application/json'},
-                    'body': json.dumps({'error ': 'device_brand is missing'})
+                    'body': json.dumps({'error ': 'device_model is missing'})
                 }
-            if device_brand.lower() == DeviceBrand.SONNEN_BATTERY.value:
+            if device_model.lower() == DeviceModels.SONNEN_BATTERY.value:
                 # control mode
                 enable_manual_mode = query_params.get(
                     'enable_manual_mode', None)
@@ -96,19 +96,19 @@ def handler(event, context):
                 return {
                     'statusCode': 500,
                     'headers': {'Content-Type': 'application/json'},
-                    'body': json.dumps({'error ': f'device brand{device_brand} not supported'})
+                    'body': json.dumps({'error ': f'device brand{device_model} not supported'})
                 }
         elif http_method == 'PUT':
             serial = event['pathParameters']['serial']
             request_body = json.loads(event['body'])
-            if 'device_brand' not in request_body:
+            if 'device_model' not in request_body:
                 return {
                     'statusCode': 500,
                     'headers': {'Content-Type': 'application/json'},
-                    'body': json.dumps({'error ': 'device_brand is missing'})
+                    'body': json.dumps({'error ': 'device_model is missing'})
                 }
-            device_brand = request_body['device_brand']
-            if device_brand == DeviceBrand.SONNEN_BATTERY.value:
+            device_model = request_body['device_model']
+            if device_model == DeviceModels.SONNEN_BATTERY.value:
                 # control battery
 
                 return {
@@ -120,7 +120,7 @@ def handler(event, context):
                 return {
                     'statusCode': 500,
                     'headers': {'Content-Type': 'application/json'},
-                    'body': json.dumps({'error ': f'device brand{device_brand} not supported'})
+                    'body': json.dumps({'error ': f'device brand{device_model} not supported'})
                 }
     except Exception as e:
         return {

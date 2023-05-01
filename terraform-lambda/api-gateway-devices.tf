@@ -100,12 +100,12 @@
 #   target    = "integrations/${aws_apigatewayv2_integration.lambda_devices.id}"
 # }
 
-# resource "aws_lambda_permission" "api_gw_device" {
-#   statement_id  = "AllowExecutionFromAPIGateway-devicces"
-#   action        = "lambda:InvokeFunction"
-#   function_name = aws_lambda_function.lambda_devices.function_name
-#   principal     = "apigateway.amazonaws.com"
+resource "aws_lambda_permission" "api_gw_device" {
+  statement_id  = "AllowExecutionFromAPIGateway-devicces"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_devices.function_name
+  principal     = "apigateway.amazonaws.com"
 
-#   source_arn = "${aws_apigatewayv2_api.backend.execution_arn}/*/*"
-# }
+  source_arn = "${aws_apigatewayv2_api.backend.execution_arn}/*/*"
+}
 

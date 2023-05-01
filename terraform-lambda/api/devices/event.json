@@ -1,0 +1,80 @@
+[
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/devices/query",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "gsi_name": "agent_id_valid_at_index",
+            "key_name": "agent_id",
+            "key_value": "123"
+        }
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/devices/scan",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "key_name": "agent_id",
+            "key_value": "123"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/devices",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"agent_id\":\"12321\",\"device_type\":\"ES\",\"device_model\":\"SONNEN_BATTERY\",\"flexible\":\"1\",\"status\":\"1\"}]}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/devices",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"device_id\":\"eed1e71df2495fbf2bdbf629afe8b0\"}]}"
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/device",
+        "pathParameters": {
+            "device_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/device",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"agent_id\":\"12321\",\"device_type\":\"ES\",\"device_model\":\"SONNEN_BATTERY\",\"flexible\":\"1\",\"status\":\"1\"}"
+    },
+    {
+        "httpMethod": "PUT",
+        "path": "/STAGING/db/device",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "pathParameters": {
+            "device_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "body": "{\"device_id\":\"eed1e71df2495fbf2bdbf629afe8b0\",\"agent_id\":\"12321\",\"device_type\":\"ES\",\"device_model\":\"SONNEN_BATTERY\",\"flexible\":\"1\",\"status\":\"1\"}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/device",
+        "pathParameters": {
+            "device_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    }
+]

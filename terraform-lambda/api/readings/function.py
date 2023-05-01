@@ -32,29 +32,29 @@ environment_variables_list.append(readings_table_meter_id_valid_at_gsi)
 class ReadingsAttributes(Enum):
     reading_id = 'reading_id'
     meter_id = 'meter_id'
-    name = 'name'
-    value = 'value'
+    reading_name = 'name'
+    reading_value = 'value'
     valid_at = 'valid_at'
 
 
 ReadingsAttributesTypes = {
-    ReadingsAttributes.reading_id.name: {
+    ReadingsAttributes.reading_id.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    ReadingsAttributes.meter_id.name: {
+    ReadingsAttributes.meter_id.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    ReadingsAttributes.name.name: {
+    ReadingsAttributes.reading_name.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    ReadingsAttributes.value.name: {
+    ReadingsAttributes.reading_value.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    ReadingsAttributes.valid_at.name: {
+    ReadingsAttributes.valid_at.value: {
         'dynamodb_type': 'N',
         'return_type': 'integer'
     },
@@ -80,7 +80,7 @@ def handler(event, context):
         # parse the path
         path = event['path']
         if 'path' not in event:
-            return respond(err=TESSError("path is missing"), res=None, status_code=400)
+            return respond(err=TESSError("path is missing"))
 
         if match_path(path=path, route_key=ReadingsRouteKeys.readings.value):
             return handle_readings_route(event=event, context=context)
@@ -91,7 +91,7 @@ def handler(event, context):
         elif match_path(path=path, route_key=ReadingsRouteKeys.readings_scan.value):
             return handle_readings_scan_route(event=event, context=context)
     except Exception as e:
-        return respond(err=TESSError(str(e)), res=None, status_code=500)
+        return respond(err=TESSError(str(e)))
 
 # =================================================================================================
 # Readings /db/readings
@@ -100,13 +100,7 @@ def handler(event, context):
 
 def handle_readings_route(event, context):
     http_method = event['httpMethod']
-    if http_method == HTTPMethods.GET.value:
-
-        if 'body' not in event:
-            raise KeyError("body is missing")
-        request_body = json.loads(event['body'])
-        return respond(err=None, res="get list of readings from resource id")
-    elif http_method == HTTPMethods.POST.value:
+    if http_method == HTTPMethods.POST.value:
 
         if 'body' not in event:
             raise KeyError("body is missing")
@@ -201,7 +195,7 @@ def handle_reading_route(event, context):
             dynamodb_client=dynamodb_client
         )
     else:
-        return respond(err=TESSError("http method is not supported"), res=None)
+        return respond(err=TESSError("http method is not supported"))
 
 
 # ========================= #

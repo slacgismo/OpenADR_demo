@@ -34,19 +34,19 @@ class DispatchesAttributes(Enum):
 
 
 DispatchesAttributesTypes = {
-    DispatchesAttributes.order_id.name: {
+    DispatchesAttributes.order_id.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    DispatchesAttributes.record_time.name: {
+    DispatchesAttributes.record_time.value: {
         'dynamodb_type': 'N',
         'return_type': 'integer'
     },
-    DispatchesAttributes.quantity.name: {
+    DispatchesAttributes.quantity.value: {
         'dynamodb_type': 'N',
         'return_type': 'float'
     },
-    DispatchesAttributes.valid_at.name: {
+    DispatchesAttributes.valid_at.value: {
         'dynamodb_type': 'N',
         'return_type': 'integer'
     },
@@ -70,7 +70,7 @@ def handler(event, context):
         # parse the path
         path = event['path']
         if 'path' not in event:
-            return respond(err=TESSError("path is missing"), res=None, status_code=400)
+            return respond(err=TESSError("path is missing"))
 
         if match_path(path=path, route_key=DispatchesRouteKeys.dispatches.value):
             return handle_dispatches_route(event=event, context=context)
@@ -81,23 +81,7 @@ def handler(event, context):
         elif match_path(path=path, route_key=DispatchesRouteKeys.dispatches_scan.value):
             return handle_dispatches_scan_route(event=event, context=context)
     except Exception as e:
-        return respond(err=TESSError(str(e)), res=None, status_code=500)
-# def handler(event, context):
-#     try:
-#         path = event['path']
-#         if 'path' not in event:
-#             return respond(err=TESSError("path is missing"), res=None, status_code=400)
-
-#         route_key = get_path(path=path, index=3)
-#         if route_key == DispatchesRouteKeys.dispatches.value:
-#             return handle_dispatches_route(event=event, context=context)
-#         elif route_key == DispatchesRouteKeys.dispatch.value:
-#             return handle_dispatch_route(event=event, context=context)
-#         else:
-#             raise Exception("route key is not supported")
-
-#     except Exception as e:
-#         return respond(err=TESSError(str(e)), res=None, status_code=500)
+        return respond(err=TESSError(str(e)))
 
 # =================================================================================================
 # Dispatches /db/dispatches
@@ -106,13 +90,7 @@ def handler(event, context):
 
 def handle_dispatches_route(event, context):
     http_method = event['httpMethod']
-    if http_method == HTTPMethods.GET.value:
-
-        if 'body' not in event:
-            raise KeyError("body is missing")
-        request_body = json.loads(event['body'])
-        return respond(err=None, res="get list of dispatches from resource id")
-    elif http_method == HTTPMethods.POST.value:
+    if http_method == HTTPMethods.POST.value:
 
         if 'body' not in event:
             raise KeyError("body is missing")
@@ -212,7 +190,7 @@ def handle_dispatch_route(event, context):
             dynamodb_client=dynamodb_client
         )
     else:
-        return respond(err=TESSError("http method is not supported"), res=None)
+        return respond(err=TESSError("http method is not supported"))
 
 
 # ========================= #

@@ -49,3 +49,73 @@ resource "aws_s3_object" "lambda_orders" {
 
   etag = filemd5(data.archive_file.lambda_orders.output_path)
 }
+
+
+# ---------------------------------------------- #
+#  TEST EVENT  Example
+# ---------------------------------------------- #
+
+
+# locals {
+#   orders_test_event = jsondecode(file("${path.module}/api/orders/event.json"))
+# }
+
+
+# resource "aws_lambda_invocation" "post_orders" {
+#   depends_on = [aws_lambda_function.lambda_orders, aws_dynamodb_table.orders]
+#   function_name = aws_lambda_function.lambda_orders.function_name
+#   input         = jsonencode(local.orders_test_event[2])
+# }
+
+# resource "aws_lambda_invocation" "post_order" {
+#   depends_on = [aws_lambda_function.lambda_orders, aws_dynamodb_table.orders]
+#   function_name = aws_lambda_function.lambda_orders.function_name
+#   input         = jsonencode(local.orders_test_event[5])
+# }
+
+# resource "aws_lambda_invocation" "query_orders" {
+#   depends_on = [aws_lambda_function.lambda_orders, aws_dynamodb_table.orders]
+#   function_name = aws_lambda_function.lambda_orders.function_name
+#   input         = jsonencode(local.orders_test_event[0])
+# }
+
+# resource "aws_lambda_invocation" "scan_orders" {
+#   depends_on = [aws_lambda_function.lambda_orders, aws_dynamodb_table.orders]
+#   function_name = aws_lambda_function.lambda_orders.function_name
+#   input         = jsonencode(local.orders_test_event[1])
+# }
+
+
+# resource "aws_lambda_invocation" "delete_orders" {
+#   depends_on = [aws_lambda_function.lambda_orders, aws_dynamodb_table.orders]
+#   function_name = aws_lambda_function.lambda_orders.function_name
+#   input         = jsonencode(local.orders_test_event[3])
+# }
+# resource "aws_lambda_invocation" "get_order" {
+#   depends_on = [aws_lambda_function.lambda_orders, aws_dynamodb_table.orders]
+#   function_name = aws_lambda_function.lambda_orders.function_name
+#   input         = jsonencode(local.orders_test_event[4])
+# }
+
+# resource "aws_lambda_invocation" "put_order" {
+#   depends_on = [aws_lambda_function.lambda_orders, aws_dynamodb_table.orders]
+#   function_name = aws_lambda_function.lambda_orders.function_name
+#   input         = jsonencode(local.orders_test_event[6])
+# }
+# resource "aws_lambda_invocation" "delete_order" {
+#   depends_on = [aws_lambda_function.lambda_orders, aws_dynamodb_table.orders]
+#   function_name = aws_lambda_function.lambda_orders.function_name
+#   input         = jsonencode(local.orders_test_event[7])
+# }
+# output "orders_test_orders_test_events_results" {
+#   value = {
+#     query_orders = aws_lambda_invocation.query_orders.result,
+#     scan_orders = aws_lambda_invocation.scan_orders.result
+#     post_orders = aws_lambda_invocation.post_orders.result
+#     delete_orders = aws_lambda_invocation.delete_orders.result
+#     get_order = aws_lambda_invocation.get_order.result
+#     post_order = aws_lambda_invocation.post_order.result
+#     put_order = aws_lambda_invocation.put_order.result
+#     delete_order = aws_lambda_invocation.delete_order.result
+#   }
+# }

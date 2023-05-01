@@ -30,40 +30,40 @@ environment_variables_list.append(devices_table_status_valid_at_gsi)
 
 class DevicesAttributes(Enum):
     device_id = 'device_id'
-    agent_id = 'device_id'
+    agent_id = 'agent_id'
     device_type = 'device_type'
     device_model = 'device_model'
     flexible = 'flexible'
-    status = 'status'
+    device_status = 'status'
     valid_at = 'valid_at'
 
 
 DevicesAttributesTypes = {
-    DevicesAttributes.device_id.name: {
+    DevicesAttributes.device_id.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    DevicesAttributes.device_id.name: {
+    DevicesAttributes.agent_id.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    DevicesAttributes.device_type.name: {
+    DevicesAttributes.device_type.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    DevicesAttributes.device_model.name: {
+    DevicesAttributes.device_model.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    DevicesAttributes.flexible.name: {
+    DevicesAttributes.flexible.value: {
         'dynamodb_type': 'N',
         'return_type': 'integer'
     },
-    DevicesAttributes.status.name: {
+    DevicesAttributes.device_status.value: {
         'dynamodb_type': 'N',
         'return_type': 'integer'
     },
-    DevicesAttributes.valid_at.name: {
+    DevicesAttributes.valid_at.value: {
         'dynamodb_type': 'N',
         'return_type': 'integer'
     },
@@ -87,7 +87,7 @@ def handler(event, context):
         # parse the path
         path = event['path']
         if 'path' not in event:
-            return respond(err=TESSError("path is missing"), res=None, status_code=400)
+            return respond(err=TESSError("path is missing"))
 
         if match_path(path=path, route_key=DevicesRouteKeys.devices.value):
             return handle_devices_route(event=event, context=context)
@@ -98,24 +98,8 @@ def handler(event, context):
         elif match_path(path=path, route_key=DevicesRouteKeys.devices_scan.value):
             return handle_devices_scan_route(event=event, context=context)
     except Exception as e:
-        return respond(err=TESSError(str(e)), res=None, status_code=500)
+        return respond(err=TESSError(str(e)))
 
-# def handler(event, context):
-#     try:
-#         path = event['path']
-#         if 'path' not in event:
-#             return respond(err=TESSError("path is missing"), res=None, status_code=400)
-
-#         route_key = get_path(path=path, index=3)
-#         if route_key == DevicesRouteKeys.devices.value:
-#             return handle_devices_route(event=event, context=context)
-#         elif route_key == DevicesRouteKeys.device.value:
-#             return handle_device_route(event=event, context=context)
-#         else:
-#             raise Exception("route key is not supported")
-
-#     except Exception as e:
-#         return respond(err=TESSError(str(e)), res=None, status_code=500)
 
 # =================================================================================================
 # Devices /db/devices
@@ -124,18 +108,8 @@ def handler(event, context):
 
 def handle_devices_route(event, context):
     http_method = event['httpMethod']
-    if http_method == HTTPMethods.GET.value:
-        # =================================================================================================
-        # GET /db/devices
-        # =================================================================================================
-        if 'device_id' not in event['pathParameters']:
-            raise KeyError("device_id is missing")
-        device_id = event['pathParameters']['device_id']
-        if 'body' not in event:
-            raise KeyError("body is missing")
-        request_body = json.loads(event['body'])
-        return respond(err=None, res="get list of devices from resource id")
-    elif http_method == HTTPMethods.POST.value:
+
+    if http_method == HTTPMethods.POST.value:
        # =================================================================================================
         # POST /db/devices
         # =================================================================================================
@@ -239,7 +213,7 @@ def handle_device_route(event, context):
             dynamodb_client=dynamodb_client
         )
     else:
-        return respond(err=TESSError("http method is not supported"), res=None)
+        return respond(err=TESSError("http method is not supported"))
 
 
 def handle_devices_query_route(event, context):

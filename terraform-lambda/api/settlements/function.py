@@ -13,9 +13,12 @@ import re
 from common_utils import respond, TESSError, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_create_item_to_dynamodb, handle_get_item_from_dynamodb_with_hash_key, create_items_to_dynamodb, delete_items_from_dynamodb, handle_query_items_from_dynamodb, handle_scan_items_from_dynamodb, match_path
 dynamodb_client = boto3.client('dynamodb')
 settlements_table_name = os.environ.get("SETTLEMENTS_TABLE_NAME", None)
+settlements_table_order_id_valid_at_gsi = os.environ.get(
+    "SETTLEMENTS_TABLE_ORDER_ID_VALID_AT_GSI", None)
 
 environment_variables_list = []
 environment_variables_list.append(settlements_table_name)
+environment_variables_list.append(settlements_table_order_id_valid_at_gsi)
 
 
 class SettlementsAttributes(Enum):
@@ -26,19 +29,19 @@ class SettlementsAttributes(Enum):
 
 
 SettlementsAttributesTypes = {
-    SettlementsAttributes.order_id.name: {
+    SettlementsAttributes.order_id.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    SettlementsAttributes.record_time.name: {
+    SettlementsAttributes.record_time.value: {
         'dynamodb_type': 'N',
         'return_type': 'integer'
     },
-    SettlementsAttributes.cost.name: {
+    SettlementsAttributes.cost.value: {
         'dynamodb_type': 'N',
         'return_type': 'float'
     },
-    SettlementsAttributes.valid_at.name: {
+    SettlementsAttributes.valid_at.value: {
         'dynamodb_type': 'N',
         'return_type': 'integer'
     },
@@ -62,7 +65,7 @@ def handler(event, context):
         # parse the path
         path = event['path']
         if 'path' not in event:
-            return respond(err=TESSError("path is missing"), res=None, status_code=400)
+            return respond(err=TESSError("path is missing"))
 
         if match_path(path=path, route_key=SettlementsRouteKeys.settlements.value):
             return handle_settlements_route(event=event, context=context)
@@ -73,7 +76,7 @@ def handler(event, context):
         elif match_path(path=path, route_key=SettlementsRouteKeys.settlements_scan.value):
             return handle_settlements_scan_route(event=event, context=context)
     except Exception as e:
-        return respond(err=TESSError(str(e)), res=None, status_code=500)
+        return respond(err=TESSError(str(e)))
 
 # =================================================================================================
 # Settlements /db/settlements
@@ -82,13 +85,7 @@ def handler(event, context):
 
 def handle_settlements_route(event, context):
     http_method = event['httpMethod']
-    if http_method == HTTPMethods.GET.value:
-
-        if 'body' not in event:
-            raise KeyError("body is missing")
-        request_body = json.loads(event['body'])
-        return respond(err=None, res="get list of settlements from settlement id")
-    elif http_method == HTTPMethods.POST.value:
+    if http_method == HTTPMethods.POST.value:
 
         if 'body' not in event:
             raise KeyError("body is missing")
@@ -175,15 +172,17 @@ def handle_settlement_route(event, context):
     elif http_method == HTTPMethods.DELETE.value:
         if 'order_id' not in event['pathParameters']:
             raise KeyError("order_id is missing")
+
         # ========================= #
         # delete an settlement
         # DELETE /db/settlement/{order_id}
         # ========================= #
+        order_id = event['pathParameters']['order_id']
         return handle_delete_item_from_dynamodb_with_hash_key(
             hash_key_name=SettlementsAttributes.order_id.name, hash_key_value=order_id, table_name=settlements_table_name, dynamodb_client=dynamodb_client
         )
     else:
-        return respond(err=TESSError("http method is not supported"), res=None)
+        return respond(err=TESSError("http method is not supported"))
 # ========================= #
 # query an settlement
 # GET /db/settlement/query

@@ -71,12 +71,12 @@
 # }
 
 
-# resource "aws_lambda_permission" "api_lambda_readings" {
-#   statement_id  = "AllowExecutionFromAPIGateway-readings"
-#   action        = "lambda:InvokeFunction"
-#   function_name = aws_lambda_function.lambda_readings.function_name
-#   principal     = "apigateway.amazonaws.com"
+resource "aws_lambda_permission" "api_lambda_readings" {
+  statement_id  = "AllowExecutionFromAPIGateway-readings"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_readings.function_name
+  principal     = "apigateway.amazonaws.com"
 
-#   source_arn = "${aws_apigatewayv2_api.backend.execution_arn}/*/*"
-# }
+  source_arn = "${aws_apigatewayv2_api.backend.execution_arn}/*/*"
+}
 

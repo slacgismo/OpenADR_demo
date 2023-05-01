@@ -30,24 +30,24 @@ environment_variables_list.append(agents_table_resource_id_valid_at_gsi)
 class AgentsAttributes(Enum):
     agent_id = 'agent_id'
     resource_id = 'resource_id'
-    status = 'status'
+    agent_status = 'status'
     valid_at = 'valid_at'
 
 
 AgentsAttributesTypes = {
-    AgentsAttributes.agent_id.name: {
+    AgentsAttributes.agent_id.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    AgentsAttributes.resource_id.name: {
+    AgentsAttributes.resource_id.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    AgentsAttributes.status.name: {
+    AgentsAttributes.agent_status.value: {
         'dynamodb_type': 'N',
         'return_type': 'integer'
     },
-    AgentsAttributes.valid_at.name: {
+    AgentsAttributes.valid_at.value: {
         'dynamodb_type': 'N',
         'return_type': 'integer'
     },
@@ -75,7 +75,7 @@ def handler(event, context):
         # parse the path
         path = event['path']
         if 'path' not in event:
-            return respond(err=TESSError("path is missing"), res=None, status_code=400)
+            return respond(err=TESSError("path is missing"))
 
         if match_path(path=path, route_key=AgentsRouteKeys.agents.value):
             return handle_agents_route(event=event, context=context)
@@ -86,7 +86,7 @@ def handler(event, context):
         elif match_path(path=path, route_key=AgentsRouteKeys.agents_scan.value):
             return handle_agents_scan_route(event=event, context=context)
     except Exception as e:
-        return respond(err=TESSError(str(e)), res=None, status_code=500)
+        return respond(err=TESSError(str(e)))
 
     # =================================================================================================
     # Agents /db/agents/{get_items_action}
@@ -194,7 +194,7 @@ def handle_agent_route(event, context):
             hash_key_name=AgentsAttributes.agent_id.name, hash_key_value=agent_id, table_name=agents_table_name, dynamodb_client=dynamodb_client
         )
     else:
-        return respond(err=TESSError("http method is not supported"), res=None)
+        return respond(err=TESSError("http method is not supported"))
 
 # ========================= #
 # query an agent

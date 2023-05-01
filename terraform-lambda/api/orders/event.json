@@ -1,0 +1,80 @@
+[
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/orders/query",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "gsi_name": "order_id_valid_at_index",
+            "key_name": "order_id",
+            "key_value": "123"
+        }
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/orders/scan",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "key_name": "order_id",
+            "key_value": "123"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/orders",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"device_id\":\"eed1e71df2495fbf2bdbf629afe8b0\",\"auction_id\":\"123\",\"resource_id\":\"1232\",\"record_time\":\"12321\",\"quantity\":\"0.1\",\"price\":\"5.1\",\"flexible\":\"1\",\"state\":\"66.2\"}]}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/orders",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"order_id\":\"eed1e71df2495fbf2bdbf629afe8b0\"}]}"
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/order",
+        "pathParameters": {
+            "order_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/order",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"device_id\":\"eed1e71df2495fbf2bdbf629afe8b0\",\"auction_id\":\"123\",\"resource_id\":\"1232\",\"record_time\":\"12321\",\"quantity\":\"0.1\",\"price\":\"5.1\",\"flexible\":\"1\",\"state\":\"66.2\"}"
+    },
+    {
+        "httpMethod": "PUT",
+        "path": "/STAGING/db/order",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "pathParameters": {
+            "order_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "body": "{\"order_id\":\"eed1e71df2495fbf2bdbf629afe8b0\",\"device_id\":\"eed1e71df2495fbf2bdbf629afe8b0\",\"auction_id\":\"123\",\"resource_id\":\"1232\",\"record_time\":\"12321\",\"quantity\":\"0.1\",\"price\":\"5.1\",\"flexible\":\"1\",\"state\":\"66.2\",\"valid_at\":\"12321321\"}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/order",
+        "pathParameters": {
+            "order_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    }
+]

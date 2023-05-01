@@ -47,3 +47,65 @@ resource "aws_s3_object" "lambda_auctions" {
 
   etag = filemd5(data.archive_file.lambda_auctions.output_path)
 }
+
+
+# ---------------------------------------------- #
+#  TEST EVENT  Example
+# ---------------------------------------------- #
+
+
+# locals {
+#   auctions_test_event = jsondecode(file("${path.module}/api/auctions/event.json"))
+# }
+
+
+# resource "aws_lambda_invocation" "post_auctions" {
+#   function_name = aws_lambda_function.lambda_auctions.function_name
+#   input         = jsonencode(local.auctions_test_event[2])
+# }
+
+# resource "aws_lambda_invocation" "post_auction" {
+#   function_name = aws_lambda_function.lambda_auctions.function_name
+#   input         = jsonencode(local.auctions_test_event[5])
+# }
+
+# resource "aws_lambda_invocation" "query_auctions" {
+#   function_name = aws_lambda_function.lambda_auctions.function_name
+#   input         = jsonencode(local.auctions_test_event[0])
+# }
+
+# resource "aws_lambda_invocation" "scan_auctions" {
+#   function_name = aws_lambda_function.lambda_auctions.function_name
+#   input         = jsonencode(local.auctions_test_event[1])
+# }
+
+
+# resource "aws_lambda_invocation" "delete_auctions" {
+#   function_name = aws_lambda_function.lambda_auctions.function_name
+#   input         = jsonencode(local.auctions_test_event[3])
+# }
+# resource "aws_lambda_invocation" "get_auction" {
+#   function_name = aws_lambda_function.lambda_auctions.function_name
+#   input         = jsonencode(local.auctions_test_event[4])
+# }
+
+# resource "aws_lambda_invocation" "put_auction" {
+#   function_name = aws_lambda_function.lambda_auctions.function_name
+#   input         = jsonencode(local.auctions_test_event[6])
+# }
+# resource "aws_lambda_invocation" "delete_auction" {
+#   function_name = aws_lambda_function.lambda_auctions.function_name
+#   input         = jsonencode(local.auctions_test_event[7])
+# }
+# output "auctions_test_auctions_test_events_results" {
+#   value = {
+#     query_auctions = aws_lambda_invocation.query_auctions.result,
+#     scan_auctions = aws_lambda_invocation.scan_auctions.result
+#     post_auctions = aws_lambda_invocation.post_auctions.result
+#     delete_auctions = aws_lambda_invocation.delete_auctions.result
+#     get_auction = aws_lambda_invocation.get_auction.result
+#     post_auction = aws_lambda_invocation.post_auction.result
+#     put_auction = aws_lambda_invocation.put_auction.result
+#     delete_auction = aws_lambda_invocation.delete_auction.result
+#   }
+# }

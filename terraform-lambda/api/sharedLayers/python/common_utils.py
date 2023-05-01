@@ -85,14 +85,17 @@ class TESSError:
         return self.msg
 
 
-def respond(err=None, res: dict = None, status_code=200):
+def respond(err=None, res_message: str = None, res_data: dict = None,  status_code=200):
     response_body = {}
     if err:
         response_body['error'] = err.msg
         if status_code == 200:
             status_code = 400
     else:
-        response_body['data'] = res
+        if res_message is not None:
+            response_body['message'] = res_message
+        if res_data is not None:
+            response_body['data'] = res_data
 
     return {
         'statusCode': str(status_code),
@@ -364,7 +367,7 @@ def handle_delete_item_from_dynamodb_with_hash_key(
         )
         item = response.get('Item', None)
         if item is None:
-            return respond(err=TESSError("no object is found"), res=None)
+            return respond(err=TESSError("no object is found"))
         else:
             # if exists, delete it
             response = asyncio.run(delete_item_from_dynamodb(
@@ -373,7 +376,7 @@ def handle_delete_item_from_dynamodb_with_hash_key(
                 table_name=table_name,
                 dynamodb_client=dynamodb_client
             ))
-            return respond(err=None, res="delete data from dynamodb success")
+            return respond(res_message="success")
     except Exception as e:
         raise Exception(str(e))
 
@@ -402,7 +405,7 @@ def handle_put_item_to_dynamodb_with_hash_key(hash_key_value: str,
         )
         item = response.get('Item', None)
         if item is None:
-            return respond(err=TESSError(f"{hash_key_name}: {hash_key_value} is not exist, please use post method to create a new"), res=None)
+            return respond(err=TESSError(f"{hash_key_name}: {hash_key_value} is not exist, please use post method to create a new"))
         else:
             # update item
 
@@ -420,7 +423,7 @@ def handle_put_item_to_dynamodb_with_hash_key(hash_key_value: str,
                 dynamodb_client=dynamodb_client,
             ))
 
-            return respond(err=None, res="put an agent to dynamodb success")
+            return respond(res_message="success")
     except Exception as e:
         raise Exception(str(e))
 
@@ -452,7 +455,7 @@ def handle_create_item_to_dynamodb(
         created_item_hash_key = {
             hash_key_name: hash_key_value
         }
-        return respond(err=None, res=json.dumps(created_item_hash_key))
+        return respond(res_data=json.dumps(created_item_hash_key))
     except Exception as e:
         raise Exception(str(e))
 # ======================================================#
@@ -477,12 +480,12 @@ def handle_get_item_from_dynamodb_with_hash_key(
         )
         item = response.get('Item', None)
         if item is None:
-            return respond(err=TESSError("no object is found"), res=None)
+            return respond(err=TESSError("no object is found"))
         else:
             # Lazy-eval the dynamodb attribute (boto3 is dynamic!)
             deserializer_data = deserializer_dynamodb_data_to_json_format(
                 item=item, attributesTypes=attributesTypesDict)
-            return respond(err=None, res=deserializer_data)
+            return respond(res_data=deserializer_data)
     except Exception as e:
         raise Exception(str(e))
 
@@ -512,9 +515,9 @@ def create_items_to_dynamodb(
         response = asyncio.run(write_batch_items_to_dynamodb(
             chunks=dynamodb_items, table_name=table_name, dynamodb_client=dynamodb_client))
 
-        return respond(err=None, res=json.dumps(created_hash_key_values))
+        return respond(res_data=json.dumps(created_hash_key_values))
     except Exception as e:
-        return respond(err=TESSError(str(e)), res=None, status_code=400)
+        return respond(err=TESSError(str(e)))
 
 
 def delete_items_from_dynamodb(
@@ -533,10 +536,10 @@ def delete_items_from_dynamodb(
         # delete data from dynamodb
         response = asyncio.run(delete_batch_items_from_dynamodb(
             chunks=delete_data_list, table_name=table_name, dynamodb_client=dynamodb_client))
-        message = {"message": "success"}
-        return respond(err=None, res=message)
+
+        return respond(res_message="success")
     except Exception as e:
-        return respond(err=TESSError(str(e)), res=None, status_code=400)
+        return respond(err=TESSError(str(e)))
 
 # ======================================================#
 # Query items from dynamodb  with global secondary index#
@@ -742,7 +745,8 @@ def handle_query_items_from_dynamodb(
         raise Exception(f"key_type {key_type} is not valid")
     # check if the key_name is valid
     if key_name is not None and key_name not in attributes_types_dict:
-        raise Exception(f"key_name {key_name} is not valid")
+        raise Exception(
+            f"key_name {key_name} is not valid")
 
     # check if the range_key is valid
     if range_key is not None and range_key not in attributes_types_dict:
@@ -768,7 +772,7 @@ def handle_query_items_from_dynamodb(
         )
     )
 
-    return respond(err=None, res=items)
+    return respond(res_data=items)
 
 
 def handle_scan_items_from_dynamodb(
@@ -788,7 +792,8 @@ def handle_scan_items_from_dynamodb(
             f"key_name, key_value are required for scan action")
     # check if key_name is valid
     if key_name not in attributes_types_dict:
-        raise Exception(f"key_name {key_name} is not valid")
+        raise Exception(
+            f"key_name {key_name} is not valid")
     # check if key_type is valid
     if key_type is not None and key_type not in attributes_types_dict[key_name]['dynamodb_type']:
         raise Exception(f"key_type {key_type} is not valid")
@@ -806,7 +811,7 @@ def handle_scan_items_from_dynamodb(
             attributes_types_dict=attributes_types_dict,
         ))
     # items = {"key_name": key_name, "key_value": key_value}
-    return respond(err=None, res=items)
+    return respond(res_data=items)
 
 
 def match_path(split_prefix: str = "/db/", path: str = None, route_key: str = None) -> bool:

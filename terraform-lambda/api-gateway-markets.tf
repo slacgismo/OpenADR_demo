@@ -81,12 +81,12 @@
 #   target = "integrations/${aws_apigatewayv2_integration.lambda_markets.id}"
 # }
 
-# resource "aws_lambda_permission" "api_gw_lambda_markets" {
-#   statement_id  = "AllowExecutionFromAPIGateway-markets"
-#   action        = "lambda:InvokeFunction"
-#   function_name = aws_lambda_function.lambda_markets.function_name
-#   principal     = "apigateway.amazonaws.com"
+resource "aws_lambda_permission" "api_gw_lambda_markets" {
+  statement_id  = "AllowExecutionFromAPIGateway-markets"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_markets.function_name
+  principal     = "apigateway.amazonaws.com"
 
-#   source_arn = "${aws_apigatewayv2_api.backend.execution_arn}/*/*"
-# }
+  source_arn = "${aws_apigatewayv2_api.backend.execution_arn}/*/*"
+}
 

@@ -1,0 +1,80 @@
+[
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/settlements/query",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "gsi_name": "order_id_valid_at_index",
+            "key_name": "order_id",
+            "key_value": "123"
+        }
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/settlements/scan",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "key_name": "order_id",
+            "key_value": "1123"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/settlements",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"record_time\":\"11232\",\"cost\":\"2.3\"}]}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/settlements",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"order_id\":\"eed1e71df2495fbf2bdbf629afe8b0\"}]}"
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/settlement",
+        "pathParameters": {
+            "order_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/settlement",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"record_time\":\"11232\",\"cost\":\"2.3\"}"
+    },
+    {
+        "httpMethod": "PUT",
+        "path": "/STAGING/db/settlement",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "pathParameters": {
+            "order_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "body": "{\"order_id\":\"11232\",\"record_time\":\"11232\",\"cost\":\"2.3\",\"valid_at\":\"123232\"}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/settlement",
+        "pathParameters": {
+            "order_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    }
+]

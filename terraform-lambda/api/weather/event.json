@@ -1,0 +1,80 @@
+[
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/weathers/query",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "gsi_name": "zip_code_valid_at_index",
+            "key_name": "zip_code",
+            "key_value": "95772"
+        }
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/weathers/scan",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "key_name": "zip_code",
+            "key_value": "95772"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/weathers",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"zip_code\":\"95772\",\"temperature\":\"25.6\",\"humidity\":\"56.3\",\"solar\":\"30\",\"wind_speed\":\"30\",\"wind_direction\":\"30\"}]}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/weathers",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"weather_id\":\"eed1e71df2495fbf2bdbf629afe8b0\"}]}"
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/weather",
+        "pathParameters": {
+            "weather_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/weather",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"zip_code\":\"95772\",\"temperature\":\"25.6\",\"humidity\":\"56.3\",\"solar\":\"30\",\"wind_speed\":\"30\",\"wind_direction\":\"30\"}"
+    },
+    {
+        "httpMethod": "PUT",
+        "path": "/STAGING/db/weather",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "pathParameters": {
+            "weather_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "body": "{\"weather_id\":\"1232\",\"zip_code\":\"95772\",\"temperature\":\"25.6\",\"humidity\":\"56.3\",\"solar\":\"30\",\"wind_speed\":\"30\",\"wind_direction\":\"30\",\"valid_at\":\"12321\"}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/weather",
+        "pathParameters": {
+            "weather_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    }
+]

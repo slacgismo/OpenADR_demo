@@ -13,32 +13,34 @@ import re
 from common_utils import respond, TESSError, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_create_item_to_dynamodb, handle_get_item_from_dynamodb_with_hash_key, create_items_to_dynamodb, delete_items_from_dynamodb, handle_query_items_from_dynamodb, handle_scan_items_from_dynamodb, match_path
 dynamodb_client = boto3.client('dynamodb')
 resources_table_name = os.environ.get("RESOURCES_TABLE_NAME", None)
-
+resources_table_status_valid_at_gsi = os.environ.get(
+    "RESOURCES_TABLE_STATUS_VALID_AT_GSI", None)
 environment_variables_list = []
 environment_variables_list.append(resources_table_name)
+environment_variables_list.append(resources_table_status_valid_at_gsi)
 
 
 class ResourcesAttributes(Enum):
     resource_id = 'resource_id'
-    status = 'status'
-    name = 'name'
+    resource_status = 'status'
+    resource_name = 'name'
     valid_at = 'valid_at'
 
 
 ResourcesAttributesTypes = {
-    ResourcesAttributes.resource_id.name: {
+    ResourcesAttributes.resource_id.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    ResourcesAttributes.status.name: {
+    ResourcesAttributes.resource_status.value: {
         'dynamodb_type': 'N',
         'return_type': 'integer'
     },
-    ResourcesAttributes.name.name: {
+    ResourcesAttributes.resource_name.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    ResourcesAttributes.valid_at.name: {
+    ResourcesAttributes.valid_at.value: {
         'dynamodb_type': 'N',
         'return_type': 'integer'
     },
@@ -66,7 +68,7 @@ def handler(event, context):
         # parse the path
         path = event['path']
         if 'path' not in event:
-            return respond(err=TESSError("path is missing"), res=None, status_code=400)
+            return respond(err=TESSError("path is missing"))
 
         if match_path(path=path, route_key=ResourcesRouteKeys.resources.value):
             return handle_resources_route(event=event, context=context)
@@ -77,7 +79,7 @@ def handler(event, context):
         elif match_path(path=path, route_key=ResourcesRouteKeys.resources_scan.value):
             return handle_resources_scan_route(event=event, context=context)
     except Exception as e:
-        return respond(err=TESSError(str(e)), res=None, status_code=500)
+        return respond(err=TESSError(str(e)))
 
 # =================================================================================================
 # Resources /db/resources
@@ -91,7 +93,7 @@ def handle_resources_route(event, context):
         if 'body' not in event:
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
-        return respond(err=None, res="get list of resources from resource id")
+        return respond(res_message="message")
     elif http_method == HTTPMethods.POST.value:
 
         if 'body' not in event:
@@ -189,7 +191,7 @@ def handle_resource_route(event, context):
             dynamodb_client=dynamodb_client
         )
     else:
-        return respond(err=TESSError("http method is not supported"), res=None)
+        return respond(err=TESSError("http method is not supported"))
 
 
 # ========================= #

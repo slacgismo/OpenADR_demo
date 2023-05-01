@@ -1,0 +1,80 @@
+[
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/meters/query",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "gsi_name": "resource_id_device_id_index",
+            "key_name": "resource_id",
+            "key_value": "123"
+        }
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/meters/scan",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "key_name": "resource_id",
+            "key_value": "123"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/meters",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"device_id\":\"1232\",\"resource_id\":\"123\",\"status\":\"1\"}]}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/meters",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"meter_id\":\"eed1e71df2495fbf2bdbf629afe8b0\"}]}"
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/meter",
+        "pathParameters": {
+            "meter_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/meter",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"device_id\":\"1232\",\"resource_id\":\"123\",\"status\":\"1\"}"
+    },
+    {
+        "httpMethod": "PUT",
+        "path": "/STAGING/db/meter",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "pathParameters": {
+            "meter_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "body": "{\"meter_id\":\"eed1e71df2495fbf2bdbf629afe8b0\",\"device_id\":\"1232\",\"resource_id\":\"123\",\"status\":\"1\", \"valid_at\": \"12312321\"}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/meter",
+        "pathParameters": {
+            "meter_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    }
+]

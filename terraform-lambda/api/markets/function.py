@@ -27,40 +27,40 @@ environment_variables_list.append(markets_table_resource_id_valid_at_gsi)
 
 class MarketsAttributes(Enum):
     market_id = 'market_id'
-    name = 'name'
+    market_name = 'name'
     resource_id = 'resource_id'
     units = 'units'
     interval = 'interval'
-    status = 'status'
+    market_status = 'status'
     valid_at = 'valid_at'
 
 
 MarketsAttributesTypes = {
-    MarketsAttributes.market_id.name: {
+    MarketsAttributes.market_id.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    MarketsAttributes.name.name: {
+    MarketsAttributes.market_name.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    MarketsAttributes.resource_id.name: {
+    MarketsAttributes.resource_id.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    MarketsAttributes.units.name: {
+    MarketsAttributes.units.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    MarketsAttributes.interval.name: {
+    MarketsAttributes.interval.value: {
         'dynamodb_type': 'N',
         'return_type': 'integer'
     },
-    MarketsAttributes.status.name: {
+    MarketsAttributes.market_status.value: {
         'dynamodb_type': 'N',
         'return_type': 'integer'
     },
-    MarketsAttributes.valid_at.name: {
+    MarketsAttributes.valid_at.value: {
         'dynamodb_type': 'N',
         'return_type': 'integer'
     },
@@ -84,7 +84,7 @@ def handler(event, context):
         # parse the path
         path = event['path']
         if 'path' not in event:
-            return respond(err=TESSError("path is missing"), res=None, status_code=400)
+            return respond(err=TESSError("path is missing"))
 
         if match_path(path=path, route_key=MarketsRouteKeys.markets.value):
             return handle_markets_route(event=event, context=context)
@@ -95,7 +95,7 @@ def handler(event, context):
         elif match_path(path=path, route_key=MarketsRouteKeys.markets_scan.value):
             return handle_markets_scan_route(event=event, context=context)
     except Exception as e:
-        return respond(err=TESSError(str(e)), res=None, status_code=500)
+        return respond(err=TESSError(str(e)))
 
 # =================================================================================================
 # Markets /db/markets
@@ -104,13 +104,7 @@ def handler(event, context):
 
 def handle_markets_route(event, context):
     http_method = event['httpMethod']
-    if http_method == HTTPMethods.GET.value:
-
-        if 'body' not in event:
-            raise KeyError("body is missing")
-        request_body = json.loads(event['body'])
-        return respond(err=None, res="get list of markets from resource id")
-    elif http_method == HTTPMethods.POST.value:
+    if http_method == HTTPMethods.POST.value:
 
         if 'body' not in event:
             raise KeyError("body is missing")
@@ -209,7 +203,7 @@ def handle_market_route(event, context):
             dynamodb_client=dynamodb_client
         )
     else:
-        return respond(err=TESSError("http method is not supported"), res=None)
+        return respond(err=TESSError("http method is not supported"))
 
 
 # ========================= #

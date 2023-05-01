@@ -1,0 +1,80 @@
+[
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/resources/query",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "gsi_name": "status_valid_at_index",
+            "key_name": "status",
+            "key_value": "1"
+        }
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/resources/scan",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "key_name": "status",
+            "key_value": "1"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/resources",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"status\":\"1\",\"name\":\"sf-1\",\"value\":\"12321\"}]}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/resources",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"resource_id\":\"eed1e71df2495fbf2bdbf629afe8b0\"}]}"
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/resource",
+        "pathParameters": {
+            "resource_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/resource",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"status\":\"1\",\"name\":\"sf-1\",\"value\":\"12321\"}"
+    },
+    {
+        "httpMethod": "PUT",
+        "path": "/STAGING/db/resource",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "pathParameters": {
+            "resource_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "body": "{\"resource_id\":\"123\",\"status\":\"1\",\"name\":\"sf-1\",\"value\":\"12321\",\"valid_at\":\"12321\"}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/resource",
+        "pathParameters": {
+            "resource_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    }
+]

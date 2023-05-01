@@ -1,0 +1,80 @@
+[
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/readings/query",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "gsi_name": "meter_id_valid_at_index",
+            "key_name": "meter_id",
+            "key_value": "123"
+        }
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/readings/scan",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "key_name": "meter_id",
+            "key_value": "123"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/readings",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"meter_id\":\"eed1e71df2495fbf2bdbf629afe8b0\",\"name\":\"123\",\"resource_id\":\"1232\",\"value\":\"12321\"}]}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/readings",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"reading_id\":\"eed1e71df2495fbf2bdbf629afe8b0\"}]}"
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/reading",
+        "pathParameters": {
+            "reading_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/reading",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"meter_id\":\"eed1e71df2495fbf2bdbf629afe8b0\",\"name\":\"123\",\"resource_id\":\"1232\",\"value\":\"12321\"}"
+    },
+    {
+        "httpMethod": "PUT",
+        "path": "/STAGING/db/reading",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "pathParameters": {
+            "reading_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "body": "{\"reading_id\":\"eed1e71df2495fbf2bdbf629afe8b0\",\"meter_id\":\"eed1e71df2495fbf2bdbf629afe8b0\",\"name\":\"123\",\"resource_id\":\"1232\",\"value\":\"12321\",\"valid_at\":\"12312\"}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/reading",
+        "pathParameters": {
+            "reading_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    }
+]

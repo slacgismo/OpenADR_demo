@@ -71,58 +71,66 @@ resource "aws_s3_object" "lambda_agents" {
 # ---------------------------------------------- #
 
 
-locals {
-  event = jsondecode(file("${path.module}/api/agents/event.json"))
-}
+# locals {
+#   agents_test_event = jsondecode(file("${path.module}/api/agents/event.json"))
+# }
 
 
-resource "aws_lambda_invocation" "post_agents" {
-  function_name = aws_lambda_function.lambda_agents.function_name
-  input         = jsonencode(local.event[2])
-}
+# resource "aws_lambda_invocation" "post_agents" {
+#   depends_on = [aws_lambda_function.lambda_agents, aws_dynamodb_table.agents]
+#   function_name = aws_lambda_function.lambda_agents.function_name
+#   input         = jsonencode(local.agents_test_event[2])
+# }
 
-resource "aws_lambda_invocation" "post_agent" {
-  function_name = aws_lambda_function.lambda_agents.function_name
-  input         = jsonencode(local.event[5])
-}
+# resource "aws_lambda_invocation" "post_agent" {
+#   depends_on = [aws_lambda_function.lambda_agents,aws_dynamodb_table.agents]
+#   function_name = aws_lambda_function.lambda_agents.function_name
+#   input         = jsonencode(local.agents_test_event[5])
+# }
 
-resource "aws_lambda_invocation" "query_agents" {
-  function_name = aws_lambda_function.lambda_agents.function_name
-  input         = jsonencode(local.event[0])
-}
+# resource "aws_lambda_invocation" "query_agents" {
+#   depends_on = [aws_lambda_function.lambda_agents,aws_dynamodb_table.agents]
+#   function_name = aws_lambda_function.lambda_agents.function_name
+#   input         = jsonencode(local.agents_test_event[0])
+# }
 
-resource "aws_lambda_invocation" "scan_agents" {
-  function_name = aws_lambda_function.lambda_agents.function_name
-  input         = jsonencode(local.event[1])
-}
+# resource "aws_lambda_invocation" "scan_agents" {
+#   depends_on = [aws_lambda_function.lambda_agents,aws_dynamodb_table.agents]
+#   function_name = aws_lambda_function.lambda_agents.function_name
+#   input         = jsonencode(local.agents_test_event[1])
+# }
 
 
-resource "aws_lambda_invocation" "delete_agents" {
-  function_name = aws_lambda_function.lambda_agents.function_name
-  input         = jsonencode(local.event[3])
-}
-resource "aws_lambda_invocation" "get_agent" {
-  function_name = aws_lambda_function.lambda_agents.function_name
-  input         = jsonencode(local.event[4])
-}
+# resource "aws_lambda_invocation" "delete_agents" {
+#   depends_on = [aws_lambda_function.lambda_agents,aws_dynamodb_table.agents]
+#   function_name = aws_lambda_function.lambda_agents.function_name
+#   input         = jsonencode(local.agents_test_event[3])
+# }
+# resource "aws_lambda_invocation" "get_agent" {
+#   depends_on = [aws_lambda_function.lambda_agents,aws_dynamodb_table.agents]
+#   function_name = aws_lambda_function.lambda_agents.function_name
+#   input         = jsonencode(local.agents_test_event[4])
+# }
 
-resource "aws_lambda_invocation" "put_agent" {
-  function_name = aws_lambda_function.lambda_agents.function_name
-  input         = jsonencode(local.event[6])
-}
-resource "aws_lambda_invocation" "delete_agent" {
-  function_name = aws_lambda_function.lambda_agents.function_name
-  input         = jsonencode(local.event[7])
-}
-output "results" {
-  value = {
-    query_agents = aws_lambda_invocation.query_agents.result,
-    scan_agents = aws_lambda_invocation.scan_agents.result
-    post_agents = aws_lambda_invocation.post_agents.result
-    delete_agents = aws_lambda_invocation.delete_agents.result
-    get_agent = aws_lambda_invocation.get_agent.result
-    post_agent = aws_lambda_invocation.post_agent.result
-    put_agent = aws_lambda_invocation.put_agent.result
-    delete_agent = aws_lambda_invocation.delete_agent.result
-  }
-}
+# resource "aws_lambda_invocation" "put_agent" {
+#   depends_on = [aws_lambda_function.lambda_agents,aws_dynamodb_table.agents]
+#   function_name = aws_lambda_function.lambda_agents.function_name
+#   input         = jsonencode(local.agents_test_event[6])
+# }
+# resource "aws_lambda_invocation" "delete_agent" {
+#   depends_on = [aws_lambda_function.lambda_agents]
+#   function_name = aws_lambda_function.lambda_agents.function_name
+#   input         = jsonencode(local.agents_test_event[7])
+# }
+# output "agents_test_agents_test_events_results" {
+#   value = {
+#     query_agents = aws_lambda_invocation.query_agents.result,
+#     scan_agents = aws_lambda_invocation.scan_agents.result
+#     post_agents = aws_lambda_invocation.post_agents.result
+#     delete_agents = aws_lambda_invocation.delete_agents.result
+#     get_agent = aws_lambda_invocation.get_agent.result
+#     post_agent = aws_lambda_invocation.post_agent.result
+#     put_agent = aws_lambda_invocation.put_agent.result
+#     delete_agent = aws_lambda_invocation.delete_agent.result
+#   }
+# }

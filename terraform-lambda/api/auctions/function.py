@@ -38,35 +38,35 @@ class AuctionsAttributes(Enum):
 
 
 AuctionsAttributesTypes = {
-    AuctionsAttributes.auction_id.name: {
+    AuctionsAttributes.auction_id.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    AuctionsAttributes.market_id.name: {
+    AuctionsAttributes.market_id.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    AuctionsAttributes.clearing_time.name: {
+    AuctionsAttributes.clearing_time.value: {
         'dynamodb_type': 'N',
         'return_type': 'integer'
     },
-    AuctionsAttributes.expected_price.name: {
+    AuctionsAttributes.expected_price.value: {
         'dynamodb_type': 'N',
         'return_type': 'float'
     },
-    AuctionsAttributes.expected_stdev.name: {
+    AuctionsAttributes.expected_stdev.value: {
         'dynamodb_type': 'N',
         'return_type': 'float'
     },
-    AuctionsAttributes.reference_price.name: {
+    AuctionsAttributes.reference_price.value: {
         'dynamodb_type': 'N',
         'return_type': 'float'
     },
-    AuctionsAttributes.price.name: {
+    AuctionsAttributes.price.value: {
         'dynamodb_type': 'N',
         'return_type': 'float'
     },
-    AuctionsAttributes.quantity.name: {
+    AuctionsAttributes.quantity.value: {
         'dynamodb_type': 'N',
         'return_type': 'float'
     },
@@ -93,11 +93,15 @@ AuctionsAttributesTypes = {
 }
 
 
-class AgentsRouteKeys(Enum):
+class AuctionsRouteKeys(Enum):
     auctions = "auctions"
     auction = "auction"
-    auction_query = "auction/query"
-    auction_scan = "auction/scan"
+    auctions_query = "auctions/query"
+    auctions_scan = "auctions/scan"
+
+# =================================================================================================
+# Main handler
+# =================================================================================================
 
 
 def handler(event, context):
@@ -107,44 +111,31 @@ def handler(event, context):
             raise Exception(
                 f"environment variables are not set :{environment_variables_list}")
 
+        # parse the path
         path = event['path']
         if 'path' not in event:
-            return respond(err=TESSError("path is missing"), res=None, status_code=400)
+            return respond(err=TESSError("path is missing"))
 
-        if match_path(path=path, route_key=AgentsRouteKeys.agents.value):
+        if match_path(path=path, route_key=AuctionsRouteKeys.auctions.value):
             return handle_auctions_route(event=event, context=context)
-        elif match_path(path=path, route_key=AgentsRouteKeys.agent.value):
+        elif match_path(path=path, route_key=AuctionsRouteKeys.auction.value):
             return handle_auction_route(event=event, context=context)
-        elif match_path(path=path, route_key=AgentsRouteKeys.agents_query.value):
+        elif match_path(path=path, route_key=AuctionsRouteKeys.auctions_query.value):
             return handle_auctions_query_route(event=event, context=context)
-        elif match_path(path=path, route_key=AgentsRouteKeys.agents_scan.value):
+        elif match_path(path=path, route_key=AuctionsRouteKeys.auctions_scan.value):
             return handle_auctions_scan_route(event=event, context=context)
-
     except Exception as e:
-        return respond(err=TESSError(str(e)), res=None, status_code=500)
+        return respond(err=TESSError(str(e)))
 
-# =================================================================================================
-# Agents /db/auctions
-# =================================================================================================
+    # =================================================================================================
+    # Auctions /db/auctions/{get_items_action}
+    # =================================================================================================
 
 
 def handle_auctions_route(event, context):
     http_method = event['httpMethod']
-    if http_method == HTTPMethods.GET.value:
-        # ========================= #
-        # GET /db/auctions
-        # ========================= #
-        if 'market_id' not in event['pathParameters']:
-            raise KeyError("market_id is missing")
-        market_id = event['pathParameters']['market_id']
-        if 'body' not in event:
-            raise KeyError("body is missing")
-        request_body = json.loads(event['body'])
-        return respond(err=None, res="get list of auctions from resource id")
-    elif http_method == HTTPMethods.POST.value:
-        # ========================= #
-        # POST /db/auctions
-        # ========================= #
+    if http_method == HTTPMethods.POST.value:
+
         if 'body' not in event:
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
@@ -152,14 +143,10 @@ def handle_auctions_route(event, context):
             request_body=request_body,
             dynamodb_client=dynamodb_client,
             table_name=auctions_table_name,
-            hash_key_name=AuctionsAttributes.agent_id.name,
+            hash_key_name=AuctionsAttributes.auction_id.name,
             attributesTypeDict=AuctionsAttributesTypes
         )
-
     elif http_method == HTTPMethods.DELETE.value:
-        # ========================= #
-        # DELETE /db/auctions
-        # ========================= #
         if 'body' not in event:
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
@@ -171,6 +158,10 @@ def handle_auctions_route(event, context):
         )
     else:
         raise Exception("http method is not supported")
+
+    # =================================================================================================
+    # Agent /db/auction/{auction_id}
+    # =================================================================================================
 
 
 def handle_auction_route(event, context):
@@ -191,12 +182,13 @@ def handle_auction_route(event, context):
         )
 
     elif http_method == HTTPMethods.POST.value:
-        # ========================= #
-        # POST /db/auction/{auction_id}
-        # ========================= #
         if 'body' not in event:
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
+        # ========================= #
+        # create a new auction
+        # POST /db/auction/{auction_id}
+        # ========================= #
         return handle_create_item_to_dynamodb(
             hash_key_name=AuctionsAttributes.auction_id.name,
             hash_key_value=str(guid()),
@@ -207,17 +199,19 @@ def handle_auction_route(event, context):
             dynamodb_client=dynamodb_client
 
         )
-        # return handle_post_auction(request_body=request_body, table_name=auctions_table_name, dynamodb_client=dynamodb_client)
+
     elif http_method == HTTPMethods.PUT.value:
-        # ========================= #
-        # PUT /db/auction/{auction_id}
-        # ========================= #
         if 'auction_id' not in event['pathParameters']:
             raise KeyError("auction_id is missing")
         auction_id = event['pathParameters']['auction_id']
         if 'body' not in event:
             raise KeyError("body is missing")
         request_body = json.loads(event['body'])
+        # ========================= #
+        # update an auction
+        # PUT /db/auction/{auction_id}
+        # ========================= #
+
         return handle_put_item_to_dynamodb_with_hash_key(
             hash_key_name=AuctionsAttributes.auction_id.name,
             hash_key_value=auction_id,
@@ -227,28 +221,23 @@ def handle_auction_route(event, context):
             attributesEnum=AuctionsAttributes,
             dynamodb_client=dynamodb_client
         )
-        # return handle_put_auction(auction_id=auction_id, request_body=request_body)
     elif http_method == HTTPMethods.DELETE.value:
-        # ========================= #
-        # DELETE /db/auction/{auction_id}
-        # ========================= #
         if 'auction_id' not in event['pathParameters']:
             raise KeyError("auction_id is missing")
         auction_id = event['pathParameters']['auction_id']
+        # ========================= #
+        # delete an auction
+        # DELETE /db/auction/{auction_id}
+        # ========================= #
         return handle_delete_item_from_dynamodb_with_hash_key(
-            hash_key_name=AuctionsAttributes.auction_id.name,
-            hash_key_value=auction_id,
-            table_name=auctions_table_name,
-            dynamodb_client=dynamodb_client
+            hash_key_name=AuctionsAttributes.auction_id.name, hash_key_value=auction_id, table_name=auctions_table_name, dynamodb_client=dynamodb_client
         )
-        # return handle_delete_auction(auction_id=auction_id)
     else:
-        return respond(err=TESSError("http method is not supported"), res=None)
-
+        return respond(err=TESSError("http method is not supported"))
 
 # ========================= #
-# query an agent
-# GET /db/agent/query
+# query an auction
+# GET /db/auction/query
 # ========================= #
 
 
@@ -272,8 +261,8 @@ def handle_auctions_query_route(event, context):
         raise Exception(f"unsupported http method {http_method}")
 
 # ========================= #
-# scan an agent
-# GET /db/agent/scans
+# scan an auction
+# GET /db/auction/scans
 # ========================= #
 
 

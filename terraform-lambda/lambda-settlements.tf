@@ -15,6 +15,7 @@ resource "aws_lambda_function" "lambda_settlements" {
   environment {
     variables = {
       "SETTLEMENTS_TABLE_NAME" = aws_dynamodb_table.settlements.name
+      "SETTLEMENTS_TABLE_ORDER_ID_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.settlements.global_secondary_index), 0).name
     }
   }
 
@@ -44,3 +45,73 @@ resource "aws_s3_object" "lambda_settlements" {
 
   etag = filemd5(data.archive_file.lambda_settlements.output_path)
 }
+
+
+# ---------------------------------------------- #
+#  TEST EVENT  Example
+# ---------------------------------------------- #
+
+
+# locals {
+#   settlements_test_event = jsondecode(file("${path.module}/api/settlements/event.json"))
+# }
+
+
+# resource "aws_lambda_invocation" "post_settlements" {
+#   depends_on = [aws_lambda_function.lambda_settlements, aws_dynamodb_table.settlements]
+#   function_name = aws_lambda_function.lambda_settlements.function_name
+#   input         = jsonencode(local.settlements_test_event[2])
+# }
+
+# resource "aws_lambda_invocation" "post_settlement" {
+#   depends_on = [aws_lambda_function.lambda_settlements, aws_dynamodb_table.settlements]
+#   function_name = aws_lambda_function.lambda_settlements.function_name
+#   input         = jsonencode(local.settlements_test_event[5])
+# }
+
+# resource "aws_lambda_invocation" "query_settlements" {
+#   depends_on = [aws_lambda_function.lambda_settlements, aws_dynamodb_table.settlements]
+#   function_name = aws_lambda_function.lambda_settlements.function_name
+#   input         = jsonencode(local.settlements_test_event[0])
+# }
+
+# resource "aws_lambda_invocation" "scan_settlements" {
+#   depends_on = [aws_lambda_function.lambda_settlements, aws_dynamodb_table.settlements]
+#   function_name = aws_lambda_function.lambda_settlements.function_name
+#   input         = jsonencode(local.settlements_test_event[1])
+# }
+
+
+# resource "aws_lambda_invocation" "delete_settlements" {
+#   depends_on = [aws_lambda_function.lambda_settlements, aws_dynamodb_table.settlements]
+#   function_name = aws_lambda_function.lambda_settlements.function_name
+#   input         = jsonencode(local.settlements_test_event[3])
+# }
+# resource "aws_lambda_invocation" "get_settlement" {
+#   depends_on = [aws_lambda_function.lambda_settlements, aws_dynamodb_table.settlements]
+#   function_name = aws_lambda_function.lambda_settlements.function_name
+#   input         = jsonencode(local.settlements_test_event[4])
+# }
+
+# resource "aws_lambda_invocation" "put_settlement" {
+#   depends_on = [aws_lambda_function.lambda_settlements, aws_dynamodb_table.settlements]
+#   function_name = aws_lambda_function.lambda_settlements.function_name
+#   input         = jsonencode(local.settlements_test_event[6])
+# }
+# resource "aws_lambda_invocation" "delete_settlement" {
+#   depends_on = [aws_lambda_function.lambda_settlements, aws_dynamodb_table.settlements]
+#   function_name = aws_lambda_function.lambda_settlements.function_name
+#   input         = jsonencode(local.settlements_test_event[7])
+# }
+# output "settlements_test_settlements_test_events_results" {
+#   value = {
+#     query_settlements = aws_lambda_invocation.query_settlements.result,
+#     scan_settlements = aws_lambda_invocation.scan_settlements.result
+#     post_settlements = aws_lambda_invocation.post_settlements.result
+#     delete_settlements = aws_lambda_invocation.delete_settlements.result
+#     get_settlement = aws_lambda_invocation.get_settlement.result
+#     post_settlement = aws_lambda_invocation.post_settlement.result
+#     put_settlement = aws_lambda_invocation.put_settlement.result
+#     delete_settlement = aws_lambda_invocation.delete_settlement.result
+#   }
+# }

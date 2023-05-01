@@ -89,12 +89,12 @@
 #   target = "integrations/${aws_apigatewayv2_integration.lambda_settlements.id}"
 # }
 
-# resource "aws_lambda_permission" "api_gw_lambda_settlements" {
-#   statement_id  = "AllowExecutionFromAPIGateway-settlements"
-#   action        = "lambda:InvokeFunction"
-#   function_name = aws_lambda_function.lambda_settlements.function_name
-#   principal     = "apigateway.amazonaws.com"
+resource "aws_lambda_permission" "api_gw_lambda_settlements" {
+  statement_id  = "AllowExecutionFromAPIGateway-settlements"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_settlements.function_name
+  principal     = "apigateway.amazonaws.com"
 
-#   source_arn = "${aws_apigatewayv2_api.backend.execution_arn}/*/*"
-# }
+  source_arn = "${aws_apigatewayv2_api.backend.execution_arn}/*/*"
+}
 

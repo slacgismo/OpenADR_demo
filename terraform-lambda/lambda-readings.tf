@@ -49,3 +49,72 @@ resource "aws_s3_object" "lambda_readings" {
 
   etag = filemd5(data.archive_file.lambda_orders.output_path)
 }
+
+# ---------------------------------------------- #
+#  TEST EVENT  Example
+# ---------------------------------------------- #
+
+
+# locals {
+#   readings_test_event = jsondecode(file("${path.module}/api/readings/event.json"))
+# }
+
+
+# resource "aws_lambda_invocation" "post_readings" {
+#   depends_on = [aws_lambda_function.lambda_readings, aws_dynamodb_table.readings]
+#   function_name = aws_lambda_function.lambda_readings.function_name
+#   input         = jsonencode(local.readings_test_event[2])
+# }
+
+# resource "aws_lambda_invocation" "post_reading" {
+#   depends_on = [aws_lambda_function.lambda_readings, aws_dynamodb_table.readings]
+#   function_name = aws_lambda_function.lambda_readings.function_name
+#   input         = jsonencode(local.readings_test_event[5])
+# }
+
+# resource "aws_lambda_invocation" "query_readings" {
+#   depends_on = [aws_lambda_function.lambda_readings, aws_dynamodb_table.readings]
+#   function_name = aws_lambda_function.lambda_readings.function_name
+#   input         = jsonencode(local.readings_test_event[0])
+# }
+
+# resource "aws_lambda_invocation" "scan_readings" {
+#   depends_on = [aws_lambda_function.lambda_readings, aws_dynamodb_table.readings]
+#   function_name = aws_lambda_function.lambda_readings.function_name
+#   input         = jsonencode(local.readings_test_event[1])
+# }
+
+
+# resource "aws_lambda_invocation" "delete_readings" {
+#   depends_on = [aws_lambda_function.lambda_readings, aws_dynamodb_table.readings]
+#   function_name = aws_lambda_function.lambda_readings.function_name
+#   input         = jsonencode(local.readings_test_event[3])
+# }
+# resource "aws_lambda_invocation" "get_reading" {
+#   depends_on = [aws_lambda_function.lambda_readings, aws_dynamodb_table.readings]
+#   function_name = aws_lambda_function.lambda_readings.function_name
+#   input         = jsonencode(local.readings_test_event[4])
+# }
+
+# resource "aws_lambda_invocation" "put_reading" {
+#   depends_on = [aws_lambda_function.lambda_readings, aws_dynamodb_table.readings]
+#   function_name = aws_lambda_function.lambda_readings.function_name
+#   input         = jsonencode(local.readings_test_event[6])
+# }
+# resource "aws_lambda_invocation" "delete_reading" {
+#   depends_on = [aws_lambda_function.lambda_readings, aws_dynamodb_table.readings]
+#   function_name = aws_lambda_function.lambda_readings.function_name
+#   input         = jsonencode(local.readings_test_event[7])
+# }
+# output "readings_test_readings_test_events_results" {
+#   value = {
+#     query_readings = aws_lambda_invocation.query_readings.result,
+#     scan_readings = aws_lambda_invocation.scan_readings.result
+#     post_readings = aws_lambda_invocation.post_readings.result
+#     delete_readings = aws_lambda_invocation.delete_readings.result
+#     get_reading = aws_lambda_invocation.get_reading.result
+#     post_reading = aws_lambda_invocation.post_reading.result
+#     put_reading = aws_lambda_invocation.put_reading.result
+#     delete_reading = aws_lambda_invocation.delete_reading.result
+#   }
+# }

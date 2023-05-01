@@ -34,31 +34,31 @@ class WeathersAttributes(Enum):
 
 
 WeathersAttributesTypes = {
-    WeathersAttributes.weather_id.name: {
+    WeathersAttributes.weather_id.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    WeathersAttributes.zip_code.name: {
+    WeathersAttributes.zip_code.value: {
         'dynamodb_type': 'S',
         'return_type': 'string'
     },
-    WeathersAttributes.temperature.name: {
+    WeathersAttributes.temperature.value: {
         'dynamodb_type': 'N',
         'return_type': 'float'
     },
-    WeathersAttributes.humidity.name: {
+    WeathersAttributes.humidity.value: {
         'dynamodb_type': 'N',
         'return_type': 'float'
     },
-    WeathersAttributes.solar.name: {
+    WeathersAttributes.solar.value: {
         'dynamodb_type': 'N',
         'return_type': 'float'
     },
-    WeathersAttributes.wind_speed.name: {
+    WeathersAttributes.wind_speed.value: {
         'dynamodb_type': 'N',
         'return_type': 'float'
     },
-    WeathersAttributes.wind_direction.name: {
+    WeathersAttributes.wind_direction.value: {
         'dynamodb_type': 'N',
         'return_type': 'float'
     },
@@ -86,7 +86,7 @@ def handler(event, context):
         # parse the path
         path = event['path']
         if 'path' not in event:
-            return respond(err=TESSError("path is missing"), res=None, status_code=400)
+            return respond(err=TESSError("path is missing"))
 
         if match_path(path=path, route_key=WeathersRouteKeys.weathers.value):
             return handle_weathers_route(event=event, context=context)
@@ -97,7 +97,7 @@ def handler(event, context):
         elif match_path(path=path, route_key=WeathersRouteKeys.weathers_scan.value):
             return handle_weathers_scan_route(event=event, context=context)
     except Exception as e:
-        return respond(err=TESSError(str(e)), res=None, status_code=500)
+        return respond(err=TESSError(str(e)))
 
 
 # =================================================================================================
@@ -107,13 +107,7 @@ def handler(event, context):
 
 def handle_weathers_route(event, context):
     http_method = event['httpMethod']
-    if http_method == HTTPMethods.GET.value:
-
-        if 'body' not in event:
-            raise KeyError("body is missing")
-        request_body = json.loads(event['body'])
-        return respond(err=None, res="get list of weathers from weather id")
-    elif http_method == HTTPMethods.POST.value:
+    if http_method == HTTPMethods.POST.value:
 
         if 'body' not in event:
             raise KeyError("body is missing")
@@ -208,7 +202,7 @@ def handle_weather_route(event, context):
             hash_key_name=WeathersAttributes.weather_id.name, hash_key_value=weather_id, table_name=weather_table_name, dynamodb_client=dynamodb_client
         )
     else:
-        return respond(err=TESSError("http method is not supported"), res=None)
+        return respond(err=TESSError("http method is not supported"))
 # ========================= #
 # query an weather
 # GET /db/weather/query

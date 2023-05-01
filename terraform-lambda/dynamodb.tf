@@ -60,8 +60,24 @@ resource "aws_dynamodb_table" "resources" {
     name = "resource_id"
     type = "S"
   }
+  attribute {
+    name = "status"
+    type = "N"
+  }
 
-
+  attribute {
+    name = "valid_at"
+    type = "N"
+  }
+  global_secondary_index {
+    name            = "status_valid_at_index"
+    hash_key        = "status"
+    range_key       = "valid_at"
+    projection_type = "ALL"
+    read_capacity   = 1
+    write_capacity  = 1
+  }
+  tags = local.common_tags
 }
 
 
@@ -336,11 +352,15 @@ resource "aws_dynamodb_table" "settings" {
     type = "S"
   }
 
-
+  attribute {
+    name = "valid_at"
+    type = "N"
+  }
 
   global_secondary_index {
-    name            = "device_id-index"
+    name            = "device_id_valid_at_index"
     hash_key        = "device_id"
+    range_key       = "valid_at"
     projection_type = "ALL"
     read_capacity   = 1
     write_capacity  = 1
@@ -408,6 +428,20 @@ resource "aws_dynamodb_table" "settlements" {
     type = "S"
   }
 
+
+  attribute {
+    name = "valid_at"
+    type = "N"
+  }
+
+  global_secondary_index {
+    name            = "order_id_valid_at_index"
+    hash_key        = "order_id"
+    range_key       = "valid_at"
+    projection_type = "ALL"
+    read_capacity   = 1
+    write_capacity  = 1
+  }
   tags = local.common_tags
 }
 

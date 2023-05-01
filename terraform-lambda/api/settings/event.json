@@ -1,0 +1,80 @@
+[
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/settings/query",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "gsi_name": "device_id_valid_at_index",
+            "key_name": "device_id",
+            "key_value": "1123"
+        }
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/settings/scan",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "key_name": "device_id",
+            "key_value": "123"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/settings",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"device_id\":\"1\",\"name\":\"device-1\",\"value\":\"12321\"}]}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/settings",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"setting_id\":\"eed1e71df2495fbf2bdbf629afe8b0\"}]}"
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/setting",
+        "pathParameters": {
+            "setting_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/setting",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"device_id\":\"1\",\"name\":\"device-1\",\"value\":\"12321\"}"
+    },
+    {
+        "httpMethod": "PUT",
+        "path": "/STAGING/db/setting",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "pathParameters": {
+            "setting_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "body": "{\"setting_id\":\"123\",\"device_id\":\"1\",\"name\":\"device-1\",\"value\":\"12321\",\"valid_at\":\"12321\"}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/setting",
+        "pathParameters": {
+            "setting_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    }
+]

@@ -1,0 +1,80 @@
+[
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/auctions/query",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "gsi_name": "market_id_valid_at_index",
+            "key_value": "1",
+            "key_name": "market_id"
+        }
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/auctions/scan",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "queryStringParameters": {
+            "key_name": "market_id",
+            "key_value": "1"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/auctions",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"market_id\": \"84a5bf35-4a31-4e11-a63c-4c3f3baf3f16\", \"clearing_time\": \"1\", \"expected_price\": \"1\", \"expected_stdev\": \"4.226222\", \"reference_price\": \"1.433214\", \"price\": \"0.056986\", \"quantity\": \"1.524547\", \"marginal_type\": \"7206e7d8-3b97-4983-b18c-6cda2e70ed5c\", \"marginal_order\": \"a9510678-934f-4de1-b882-4d4b4c63b3f3\", \"marginal_quantity\": \"2092f600-0c69-4ef2-a29c-7d7360c66991\", \"marginal_rank\": \"55b0d8c1-7642-4efb-8c85-0cc9f0e9e47c\", \"valid_at\": \"1\"}]}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/auctions",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"data\":[{\"auction_id\":\"eed1e71df2495fbf2bdbf629afe8b0\"}]}"
+    },
+    {
+        "httpMethod": "GET",
+        "path": "/STAGING/db/auction",
+        "pathParameters": {
+            "auction_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    },
+    {
+        "httpMethod": "POST",
+        "path": "/STAGING/db/auction",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": "{\"market_id\": \"84a5bf35-4a31-4e11-a63c-4c3f3baf3f16\", \"clearing_time\": \"1\", \"expected_price\": \"1\", \"expected_stdev\": \"4.226222\", \"reference_price\": \"1.433214\", \"price\": \"0.056986\", \"quantity\": \"1.524547\", \"marginal_type\": \"7206e7d8-3b97-4983-b18c-6cda2e70ed5c\", \"marginal_order\": \"a9510678-934f-4de1-b882-4d4b4c63b3f3\", \"marginal_quantity\": \"2092f600-0c69-4ef2-a29c-7d7360c66991\", \"marginal_rank\": \"55b0d8c1-7642-4efb-8c85-0cc9f0e9e47c\", \"valid_at\": \"1\"}"
+    },
+    {
+        "httpMethod": "PUT",
+        "path": "/STAGING/db/auction",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "pathParameters": {
+            "auction_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "body": "{\"auction_id\": \"fe77dbd3-3f18-4cfc-8d70-0ab9d0e55c47\", \"market_id\": \"84a5bf35-4a31-4e11-a63c-4c3f3baf3f16\", \"clearing_time\": \"1\", \"expected_price\": \"1\", \"expected_stdev\": \"4.226222\", \"reference_price\": \"1.433214\", \"price\": \"0.056986\", \"quantity\": \"1.524547\", \"marginal_type\": \"7206e7d8-3b97-4983-b18c-6cda2e70ed5c\", \"marginal_order\": \"a9510678-934f-4de1-b882-4d4b4c63b3f3\", \"marginal_quantity\": \"2092f600-0c69-4ef2-a29c-7d7360c66991\", \"marginal_rank\": \"55b0d8c1-7642-4efb-8c85-0cc9f0e9e47c\", \"valid_at\": \"1\"}"
+    },
+    {
+        "httpMethod": "DELETE",
+        "path": "/STAGING/db/auction",
+        "pathParameters": {
+            "auction_id": "eed1e71df2495fbf2bdbf629afe8b0"
+        },
+        "headers": {
+            "Content-Type": "application/json"
+        }
+    }
+]

@@ -60,3 +60,65 @@ resource "aws_s3_object" "lambda_devices" {
   etag = filemd5(data.archive_file.lambda_devices.output_path)
 }
 
+
+
+# ---------------------------------------------- #
+#  TEST EVENT  Example
+# ---------------------------------------------- #
+
+
+# locals {
+#   devices_test_event = jsondecode(file("${path.module}/api/devices/event.json"))
+# }
+
+
+# resource "aws_lambda_invocation" "post_devices" {
+#   function_name = aws_lambda_function.lambda_devices.function_name
+#   input         = jsonencode(local.devices_test_event[2])
+# }
+
+# resource "aws_lambda_invocation" "post_device" {
+#   function_name = aws_lambda_function.lambda_devices.function_name
+#   input         = jsonencode(local.devices_test_event[5])
+# }
+
+# resource "aws_lambda_invocation" "query_devices" {
+#   function_name = aws_lambda_function.lambda_devices.function_name
+#   input         = jsonencode(local.devices_test_event[0])
+# }
+
+# resource "aws_lambda_invocation" "scan_devices" {
+#   function_name = aws_lambda_function.lambda_devices.function_name
+#   input         = jsonencode(local.devices_test_event[1])
+# }
+
+
+# resource "aws_lambda_invocation" "delete_devices" {
+#   function_name = aws_lambda_function.lambda_devices.function_name
+#   input         = jsonencode(local.devices_test_event[3])
+# }
+# resource "aws_lambda_invocation" "get_device" {
+#   function_name = aws_lambda_function.lambda_devices.function_name
+#   input         = jsonencode(local.devices_test_event[4])
+# }
+
+# resource "aws_lambda_invocation" "put_device" {
+#   function_name = aws_lambda_function.lambda_devices.function_name
+#   input         = jsonencode(local.devices_test_event[6])
+# }
+# resource "aws_lambda_invocation" "delete_device" {
+#   function_name = aws_lambda_function.lambda_devices.function_name
+#   input         = jsonencode(local.devices_test_event[7])
+# }
+# output "devices_test_devices_test_events_results" {
+#   value = {
+#     query_devices = aws_lambda_invocation.query_devices.result,
+#     scan_devices = aws_lambda_invocation.scan_devices.result
+#     post_devices = aws_lambda_invocation.post_devices.result
+#     delete_devices = aws_lambda_invocation.delete_devices.result
+#     get_device = aws_lambda_invocation.get_device.result
+#     post_device = aws_lambda_invocation.post_device.result
+#     put_device = aws_lambda_invocation.put_device.result
+#     delete_device = aws_lambda_invocation.delete_device.result
+#   }
+# }

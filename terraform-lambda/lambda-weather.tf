@@ -45,3 +45,73 @@ resource "aws_s3_object" "lambda_weather" {
 
   etag = filemd5(data.archive_file.lambda_weather.output_path)
 }
+
+
+# ---------------------------------------------- #
+#  TEST EVENT  Example
+# ---------------------------------------------- #
+
+
+# locals {
+#   weathers_test_event = jsondecode(file("${path.module}/api/weather/event.json"))
+# }
+
+
+# resource "aws_lambda_invocation" "post_weathers" {
+#   depends_on = [aws_lambda_function.lambda_weather, aws_dynamodb_table.weather]
+#   function_name = aws_lambda_function.lambda_weather.function_name
+#   input         = jsonencode(local.weathers_test_event[2])
+# }
+
+# resource "aws_lambda_invocation" "post_weather" {
+#   depends_on = [aws_lambda_function.lambda_weather, aws_dynamodb_table.weather]
+#   function_name = aws_lambda_function.lambda_weather.function_name
+#   input         = jsonencode(local.weathers_test_event[5])
+# }
+
+# resource "aws_lambda_invocation" "query_weathers" {
+#   depends_on = [aws_lambda_function.lambda_weather, aws_dynamodb_table.weather]
+#   function_name = aws_lambda_function.lambda_weather.function_name
+#   input         = jsonencode(local.weathers_test_event[0])
+# }
+
+# resource "aws_lambda_invocation" "scan_weathers" {
+#   depends_on = [aws_lambda_function.lambda_weather, aws_dynamodb_table.weather]
+#   function_name = aws_lambda_function.lambda_weather.function_name
+#   input         = jsonencode(local.weathers_test_event[1])
+# }
+
+
+# resource "aws_lambda_invocation" "delete_weathers" {
+#   depends_on = [aws_lambda_function.lambda_weather, aws_dynamodb_table.weather]
+#   function_name = aws_lambda_function.lambda_weather.function_name
+#   input         = jsonencode(local.weathers_test_event[3])
+# }
+# resource "aws_lambda_invocation" "get_weather" {
+#   depends_on = [aws_lambda_function.lambda_weather, aws_dynamodb_table.weather]
+#   function_name = aws_lambda_function.lambda_weather.function_name
+#   input         = jsonencode(local.weathers_test_event[4])
+# }
+
+# resource "aws_lambda_invocation" "put_weather" {
+#   depends_on = [aws_lambda_function.lambda_weather, aws_dynamodb_table.weather]
+#   function_name = aws_lambda_function.lambda_weather.function_name
+#   input         = jsonencode(local.weathers_test_event[6])
+# }
+# resource "aws_lambda_invocation" "delete_weather" {
+#   depends_on = [aws_lambda_function.lambda_weather, aws_dynamodb_table.weather]
+#   function_name = aws_lambda_function.lambda_weather.function_name
+#   input         = jsonencode(local.weathers_test_event[7])
+# }
+# output "weathers_test_weathers_test_events_results" {
+#   value = {
+#     query_weathers = aws_lambda_invocation.query_weathers.result,
+#     scan_weathers = aws_lambda_invocation.scan_weathers.result
+#     post_weathers = aws_lambda_invocation.post_weathers.result
+#     delete_weathers = aws_lambda_invocation.delete_weathers.result
+#     get_weather = aws_lambda_invocation.get_weather.result
+#     post_weather = aws_lambda_invocation.post_weather.result
+#     put_weather = aws_lambda_invocation.put_weather.result
+#     delete_weather = aws_lambda_invocation.delete_weather.result
+#   }
+# }
