@@ -171,7 +171,7 @@ def deserializer_dynamodb_data_to_json_format(
     for key, value in attributesTypes.items():
         return_type = value.get('return_type', None)
         if return_type is None:
-            raise TESSError(
+            raise KeyError(
                 f"  {key}  missing return type {value}")
         if return_type == ReturnTypes.integer.value:
             json_data[key] = int(json_data[key])
@@ -201,7 +201,7 @@ def create_item(
         else:
             value = request_body.get(attribute_name, None)
             if value is None:
-                raise TESSError(f"{attribute_name} is missing in request body")
+                raise KeyError(f"{attribute_name} not exist in request body.")
             item[attribute_name] = {
                 attribute_info['dynamodb_type']: value
             }
@@ -793,7 +793,7 @@ def handle_scan_items_from_dynamodb(
     # check if key_name is valid
     if key_name not in attributes_types_dict:
         raise Exception(
-            f"key_name {key_name} is not valid")
+            f"key_name {key_name} is not in {attributes_types_dict}")
     # check if key_type is valid
     if key_type is not None and key_type not in attributes_types_dict[key_name]['dynamodb_type']:
         raise Exception(f"key_type {key_type} is not valid")
