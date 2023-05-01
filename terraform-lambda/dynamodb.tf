@@ -17,7 +17,7 @@ resource "aws_dynamodb_table" "markets" {
     type = "S"
   }
   attribute{
-    name = "status"
+    name = "market_status"
     type = "N"
   }
   attribute {
@@ -37,8 +37,8 @@ resource "aws_dynamodb_table" "markets" {
   }
 
   global_secondary_index {
-    name            = "status_valid_at_index"
-    hash_key        = "status"
+    name            = "market_status_valid_at_index"
+    hash_key        = "market_status"
     range_key       = "valid_at"
     projection_type = "ALL"
     read_capacity   = 1
@@ -61,7 +61,7 @@ resource "aws_dynamodb_table" "resources" {
     type = "S"
   }
   attribute {
-    name = "status"
+    name = "resource_status"
     type = "N"
   }
 
@@ -70,8 +70,8 @@ resource "aws_dynamodb_table" "resources" {
     type = "N"
   }
   global_secondary_index {
-    name            = "status_valid_at_index"
-    hash_key        = "status"
+    name            = "resource_status_valid_at_index"
+    hash_key        = "resource_status"
     range_key       = "valid_at"
     projection_type = "ALL"
     read_capacity   = 1
@@ -139,7 +139,7 @@ resource "aws_dynamodb_table" "devices" {
     type = "N"
   }
   attribute {
-    name = "status"
+    name = "device_status"
     type = "N"
   }
   attribute {
@@ -157,8 +157,8 @@ resource "aws_dynamodb_table" "devices" {
     write_capacity  = 1
   }
   global_secondary_index {
-    name            = "status_valid_at_index"
-    hash_key        = "status"
+    name            = "device_status_valid_at_index"
+    hash_key        = "device_status"
     range_key       = "valid_at"
     projection_type = "ALL"
     read_capacity   = 1
@@ -302,7 +302,7 @@ resource "aws_dynamodb_table" "meters" {
     type = "S"
   }
   attribute {
-    name = "status"
+    name = "meter_status"
     type = "S"
   }
   attribute {
@@ -324,8 +324,8 @@ resource "aws_dynamodb_table" "meters" {
   }
 
   global_secondary_index {
-    name               = "status_valid_at_index"
-    hash_key           = "status"
+    name               = "meter_status_valid_at_index"
+    hash_key           = "meter_status"
     range_key          = "valid_at"
     projection_type    = "ALL"
     write_capacity     = 1
@@ -479,6 +479,10 @@ resource "aws_dynamodb_table" "weather" {
 
   tags = local.common_tags
 }
+
+# ==================================
+# dump json file to dynamodb exmaple
+# ==================================
 
 # locals {
 #   dispatch_json = file("./templates/dump_dispatches.json")

@@ -34,7 +34,7 @@ class DevicesAttributes(Enum):
     device_type = 'device_type'
     device_model = 'device_model'
     flexible = 'flexible'
-    device_status = 'status'
+    device_status = 'device_status'
     valid_at = 'valid_at'
 
 

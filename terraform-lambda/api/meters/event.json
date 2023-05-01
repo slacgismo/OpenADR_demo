@@ -28,7 +28,7 @@
         "headers": {
             "Content-Type": "application/json"
         },
-        "body": "{\"data\":[{\"device_id\":\"1232\",\"resource_id\":\"123\",\"status\":\"1\"}]}"
+        "body": "{\"data\":[{\"device_id\":\"1232\",\"resource_id\":\"123\",\"meter_status\":\"1\"}]}"
     },
     {
         "httpMethod": "DELETE",
@@ -54,7 +54,7 @@
         "headers": {
             "Content-Type": "application/json"
         },
-        "body": "{\"device_id\":\"1232\",\"resource_id\":\"123\",\"status\":\"1\"}"
+        "body": "{\"device_id\":\"1232\",\"resource_id\":\"123\",\"meter_status\":\"1\"}"
     },
     {
         "httpMethod": "PUT",
@@ -65,7 +65,7 @@
         "pathParameters": {
             "meter_id": "eed1e71df2495fbf2bdbf629afe8b0"
         },
-        "body": "{\"meter_id\":\"eed1e71df2495fbf2bdbf629afe8b0\",\"device_id\":\"1232\",\"resource_id\":\"123\",\"status\":\"1\", \"valid_at\": \"12312321\"}"
+        "body": "{\"meter_id\":\"eed1e71df2495fbf2bdbf629afe8b0\",\"device_id\":\"1232\",\"resource_id\":\"123\",\"meter_status\":\"1\", \"valid_at\": \"12312321\"}"
     },
     {
         "httpMethod": "DELETE",

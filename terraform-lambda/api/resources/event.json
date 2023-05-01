@@ -6,8 +6,8 @@
             "Content-Type": "application/json"
         },
         "queryStringParameters": {
-            "gsi_name": "status_valid_at_index",
-            "key_name": "status",
+            "gsi_name": "resource_status_valid_at_index",
+            "key_name": "resource_status",
             "key_value": "1"
         }
     },
@@ -18,7 +18,7 @@
             "Content-Type": "application/json"
         },
         "queryStringParameters": {
-            "key_name": "status",
+            "key_name": "resource_status",
             "key_value": "1"
         }
     },
@@ -28,7 +28,7 @@
         "headers": {
             "Content-Type": "application/json"
         },
-        "body": "{\"data\":[{\"status\":\"1\",\"name\":\"sf-1\",\"value\":\"12321\"}]}"
+        "body": "{\"data\":[{\"resource_status\":\"1\",\"resource_name\":\"sf-1\",\"resource_value\":\"12321\"}]}"
     },
     {
         "httpMethod": "DELETE",
@@ -54,7 +54,7 @@
         "headers": {
             "Content-Type": "application/json"
         },
-        "body": "{\"status\":\"1\",\"name\":\"sf-1\",\"value\":\"12321\"}"
+        "body": "{\"resource_status\":\"1\",\"resource_name\":\"sf-1\",\"resource_value\":\"12321\"}"
     },
     {
         "httpMethod": "PUT",
@@ -65,7 +65,7 @@
         "pathParameters": {
             "resource_id": "eed1e71df2495fbf2bdbf629afe8b0"
         },
-        "body": "{\"resource_id\":\"123\",\"status\":\"1\",\"name\":\"sf-1\",\"value\":\"12321\",\"valid_at\":\"12321\"}"
+        "body": "{\"resource_id\":\"123\",\"resource_status\":\"1\",\"resource_name\":\"sf-1\",\"resource_value\":\"12321\",\"valid_at\":\"12321\"}"
     },
     {
         "httpMethod": "DELETE",

@@ -1,6 +1,8 @@
 
 
 
+# Swagger UI have to be integrated after the open API 3.0 definitons are imlemented.
+
 
 resource "aws_apigatewayv2_integration" "lambda_swagger" {
   api_id = aws_apigatewayv2_api.backend.id

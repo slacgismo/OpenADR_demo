@@ -224,7 +224,7 @@ def conver_josn_to_dynamodb_format(
     return: created_hash_keys: list of created hash keys
     """
     dynamodb_items = []
-    created_hash_keys = []
+    created_items = []
     for item in items:
         dynamodb_item = {}
         for key, value in attributesType.items():
@@ -237,14 +237,14 @@ def conver_josn_to_dynamodb_format(
             elif key == hash_key:
                 item_value = str(guid())
                 hash_key_item = {hash_key: item_value}
-                created_hash_keys.append(hash_key_item)
+                created_items.append(hash_key_item)
             else:
                 item_value = item[key]
             dynamodb_item[key] = {dynamodb_type: item_value}
 
         dynamodb_items.append(dynamodb_item)
     # print(dynamodb_items)
-    return dynamodb_items, created_hash_keys
+    return dynamodb_items, created_items
 
 
 async def delete_batch_items_from_dynamodb(chunks: list = None, key_type: str = 'S',  table_name: str = None, dynamodb_client: boto3.client = None, page_size: int = 25):
@@ -507,7 +507,7 @@ def create_items_to_dynamodb(
             raise KeyError("data is missing")
         json_data = request_body['data']
         # convert json data to dynamodb format
-        dynamodb_items, created_hash_key_values = conver_josn_to_dynamodb_format(
+        dynamodb_items, created_items = conver_josn_to_dynamodb_format(
             hash_key=hash_key_name,
             items=json_data,
             attributesType=attributesTypeDict)
@@ -515,7 +515,7 @@ def create_items_to_dynamodb(
         response = asyncio.run(write_batch_items_to_dynamodb(
             chunks=dynamodb_items, table_name=table_name, dynamodb_client=dynamodb_client))
 
-        return respond(res_data=json.dumps(created_hash_key_values))
+        return respond(res_data=json.dumps(created_items))
     except Exception as e:
         return respond(err=TESSError(str(e)))
 

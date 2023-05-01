@@ -30,7 +30,7 @@ environment_variables_list.append(agents_table_resource_id_valid_at_gsi)
 class AgentsAttributes(Enum):
     agent_id = 'agent_id'
     resource_id = 'resource_id'
-    agent_status = 'status'
+    agent_status = 'agent_status'
     valid_at = 'valid_at'
 
 

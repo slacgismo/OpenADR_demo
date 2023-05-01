@@ -10,7 +10,7 @@ from boto3.dynamodb.conditions import Key
 import uuid
 import re
 # cmmmon_utils, constants is from shared layer
-from common_utils import respond, TESSError, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_create_item_to_dynamodb, handle_get_item_from_dynamodb_with_hash_key, create_items_to_dynamodb, delete_items_from_dynamodb, handle_query_items_from_dynamodb, match_path
+from common_utils import respond, TESSError, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_create_item_to_dynamodb, handle_get_item_from_dynamodb_with_hash_key, create_items_to_dynamodb, delete_items_from_dynamodb, handle_query_items_from_dynamodb, match_path, handle_scan_items_from_dynamodb
 dynamodb_client = boto3.client('dynamodb')
 resources_table_name = os.environ.get("RESOURCES_TABLE_NAME", None)
 resources_table_status_valid_at_gsi = os.environ.get(
@@ -22,8 +22,8 @@ environment_variables_list.append(resources_table_status_valid_at_gsi)
 
 class ResourcesAttributes(Enum):
     resource_id = 'resource_id'
-    resource_status = 'status'
-    resource_name = 'name'
+    resource_status = 'resource_status'
+    resource_name = 'resource_name'
     valid_at = 'valid_at'
 
 
@@ -242,147 +242,3 @@ def handle_resources_scan_route(event, context):
         raise Exception(f"unsupported http method {http_method}")
 
 # shared layer
-
-
-class QueryStringParametersOfScan(Enum):
-    key_name = 'key_name'
-    key_value = 'key_value'
-    key_type = 'key_type'
-
-
-def handle_scan_items_from_dynamodb(
-    query_string_parameters: dict,
-    table_name: str,
-    dynamodb_client,
-    attributes_types_dict: dict,
-):
-    key_name = query_string_parameters.get(
-        QueryStringParametersOfScan.key_name.value, None)
-    key_value = query_string_parameters.get(
-        QueryStringParametersOfScan.key_value.value, None)
-    key_type = query_string_parameters.get(
-        QueryStringParametersOfScan.key_type.value, None)
-    if key_name is None or key_value is None:
-        raise Exception(
-            f"key_name, key_value are required for scan action")
-    # check if key_name is valid
-    if key_name not in attributes_types_dict:
-        raise Exception(
-            f"key_name {key_name} is not valid")
-    # check if key_type is valid
-    if key_type is not None and key_type not in attributes_types_dict[key_name]['dynamodb_type']:
-        raise Exception(f"key_type {key_type} is not valid")
-    # default key_type to string
-    if key_type is None:
-        key_type = 'S'
-    # perform scan
-    items = asyncio.run(
-        scan_dynamodb_table_with_pagination(
-            key_name=key_name,
-            key_value=key_value,
-            key_type=key_type,
-            table_name=table_name,
-            dynamodb_client=dynamodb_client,
-            attributes_types_dict=attributes_types_dict,
-        ))
-    # items = {"key_name": key_name, "key_value": key_value}
-    return respond(res_data=items)
-
-
-async def scan_dynamodb_table_with_pagination(key_name: str = None,
-                                              key_value: str = None,
-                                              key_type: str = 'S',
-                                              page_size: int = 100,
-                                              start_key: str = None,
-                                              table_name: str = None,
-                                              dynamodb_client: boto3.client = None,
-                                              attributes_types_dict: dict = None):
-    """
-    Scan all items from dynamodb table with pagination with key that is nor primary key or global secondary index
-    params: key_name: name of key
-    params: key_value: value of key
-    params: key_type: type of key
-    """
-    # Define the parameters for the scan
-    if key_name is None or key_value is None:
-        raise Exception('key_name or key_value is required')
-    table_name = table_name
-    filter_expression = f'{key_name} = :id'
-    expression_attribute_values = {
-        ':id': {key_type: str(key_value)}
-    }
-
-    # Create an empty list to store the matching items
-    items = []
-
-    # Set the initial parameters for the scan
-    scan_params = {
-        'TableName': table_name,
-        'FilterExpression': filter_expression,
-        'ExpressionAttributeValues': expression_attribute_values,
-        'Limit': page_size,
-        'Select': 'ALL_ATTRIBUTES'
-    }
-
-    # If there is a start key from a previous scan, use it to resume the scan
-    if start_key:
-        scan_params['ExclusiveStartKey'] = start_key
-
-    # Scan the table until there are no more items to retrieve
-    while True:
-        # Execute the scan with the current parameters
-        response = await asyncio.to_thread(dynamodb_client.scan, **scan_params)
-
-        # convert dynamodb data to json format
-        for item in response.get('Items', []):
-            item_dict = deserializer_dynamodb_data_to_json_format(
-                item=item,
-                attributesTypes=attributes_types_dict
-            )
-            items.append(item_dict)
-        # Check if there are more items to retrieve
-        if 'LastEvaluatedKey' in response:
-            # If there are more items, update the start key and continue scanning
-            start_key = response['LastEvaluatedKey']
-            scan_params['ExclusiveStartKey'] = start_key
-        else:
-            # If there are no more items, stop scanning and return the result list
-            break
-
-    return items
-
-
-def deserializer_dynamodb_data_to_json_format(
-        item: dict,
-        attributesTypes: dict):
-    boto3.resource('dynamodb')
-    deserializer = boto3.dynamodb.types.TypeDeserializer()
-    decimal_data = {k: deserializer.deserialize(
-        v) for k, v in item.items()}
-    # covert decimal to float
-    str_data = json.dumps(
-        decimal_data, default=decimal_default)
-    json_data = json.loads(str_data)
-    # convert the value to correct type
-    for key, value in attributesTypes.items():
-        return_type = value.get('return_type', None)
-        if return_type is None:
-            raise KeyError(
-                f"  {key}  missing return type {value}")
-        if return_type == ReturnTypes.integer.value:
-            json_data[key] = int(json_data[key])
-
-    return json_data
-
-
-def decimal_default(obj):
-    if isinstance(obj, Decimal):
-        return float(obj)
-    raise TypeError
-
-
-class ReturnTypes(Enum):
-    string = 'string'
-    integer = 'integer'
-    float = 'float'
-    boolean = 'boolean'

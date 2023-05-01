@@ -32,8 +32,8 @@ environment_variables_list.append(readings_table_meter_id_valid_at_gsi)
 class ReadingsAttributes(Enum):
     reading_id = 'reading_id'
     meter_id = 'meter_id'
-    reading_name = 'name'
-    reading_value = 'value'
+    reading_name = 'reading_name'
+    reading_value = 'reading_value'
     valid_at = 'valid_at'
 
 

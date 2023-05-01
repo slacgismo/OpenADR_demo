@@ -10,7 +10,7 @@ from boto3.dynamodb.conditions import Key
 import uuid
 import re
 # cmmmon_utils, constants is from shared layer
-from common_utils import respond, TESSError, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_get_item_from_dynamodb_with_hash_key, create_items_to_dynamodb, delete_items_from_dynamodb, handle_query_items_from_dynamodb, handle_scan_items_from_dynamodb, match_path
+from common_utils import respond, TESSError, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_get_item_from_dynamodb_with_hash_key, create_items_to_dynamodb, delete_items_from_dynamodb, handle_query_items_from_dynamodb, handle_scan_items_from_dynamodb, match_path, handle_create_item_to_dynamodb
 
 dynamodb_client = boto3.client('dynamodb')
 
@@ -242,79 +242,3 @@ def handle_meters_scan_route(event, context):
 
 
 # Shared layer
-
-def handle_create_item_to_dynamodb(
-        hash_key_name: str = None,
-        hash_key_value: str = None,
-        request_body: dict = None,
-        table_name: str = None,
-        attributeTypeDice=None,
-        attributesEnum=None,
-        dynamodb_client: boto3.client = None):
-
-    try:
-        # create a new agent
-        # agent_id = str(guid())
-        item = create_item(
-            primary_key_name=hash_key_name,
-            primary_key_value=hash_key_value,
-            request_body=request_body,
-            attributeType=attributeTypeDice,
-            attributes=attributesEnum
-        )
-        response = asyncio.run(put_item_to_dynamodb(
-            item=item,
-            table_name=table_name,
-            dynamodb_client=dynamodb_client,
-        ))
-        created_item_hash_key = {
-            hash_key_name: hash_key_value
-        }
-        return respond(res_data=json.dumps(created_item_hash_key))
-    except Exception as e:
-
-        raise Exception(str(e))
-
-
-def create_item(
-        primary_key_name: str,
-        primary_key_value: str,
-        request_body: dict = None,
-        attributeType: dict = None,
-        attributes: Enum = None,
-):
-    item = {}
-
-    valid_at = str(int(time.time()))
-    for attribute_name, attribute_info in attributeType.items():
-        if attribute_name == attributes.valid_at.name:
-            item[attribute_name] = {
-                attribute_info['dynamodb_type']: valid_at
-            }
-        elif attribute_name == primary_key_name:
-            item[attribute_name] = {
-                attribute_info['dynamodb_type']: primary_key_value
-            }
-        else:
-            value = request_body.get(attribute_name, None)
-            if value is None:
-                raise KeyError(f"{attribute_name} not exist in request body.")
-            item[attribute_name] = {
-                attribute_info['dynamodb_type']: value
-            }
-    return item
-
-
-async def put_item_to_dynamodb(item: dict,
-                               table_name: str,
-                               dynamodb_client):
-    try:
-
-        response = await asyncio.to_thread(dynamodb_client.put_item,
-                                           TableName=table_name,
-                                           Item=item
-                                           )
-        return response
-
-    except Exception as e:
-        raise Exception(str(e))

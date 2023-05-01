@@ -25,8 +25,8 @@ environment_variables_list.append(settings_table_device_id_valid_at_gsi)
 class SettingsAttributes(Enum):
     setting_id = 'setting_id'
     device_id = 'device_id'
-    setting_name = 'name'
-    setting_value = 'value'
+    setting_name = 'setting_name'
+    setting_value = 'setting_value'
     valid_at = 'valid_at'
 
 

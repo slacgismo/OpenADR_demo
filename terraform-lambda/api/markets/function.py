@@ -31,7 +31,7 @@ class MarketsAttributes(Enum):
     resource_id = 'resource_id'
     units = 'units'
     interval = 'interval'
-    market_status = 'status'
+    market_status = 'market_status'
     valid_at = 'valid_at'
 
 

@@ -34,7 +34,7 @@ class OrdersAttributes(Enum):
     quantity = 'quantity'
     price = 'price'
     flexible = 'flexible'
-    state = 'state'
+    last_state = 'last_state'
     valid_at = 'valid_at'
 
 
