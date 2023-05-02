@@ -4,7 +4,7 @@ resource "aws_lambda_function" "lambda_swagger" {
   depends_on = [aws_s3_object.openapi_file]
   function_name = "${var.prefix}-${var.client}-${var.environment}-swagger-api"
 
-  s3_bucket = aws_s3_bucket.lambda_bucket.id
+  s3_bucket = var.meta_data_bucket_name
   s3_key    = aws_s3_object.lambda_swagger.key
   runtime   = "python3.9"
   timeout       = 60
@@ -15,7 +15,7 @@ resource "aws_lambda_function" "lambda_swagger" {
 
   environment {
     variables = {
-      "S3_BUCKET" = aws_s3_bucket.lambda_bucket.id
+      "S3_BUCKET" = var.meta_data_bucket_name
       "OPENAPI_KEY" = aws_s3_object.openapi_file.key
     }
   }
@@ -40,9 +40,9 @@ data "archive_file" "lambda_swagger" {
 
 # lambda function zip
 resource "aws_s3_object" "lambda_swagger" {
-  bucket = aws_s3_bucket.lambda_bucket.id
+  bucket = var.meta_data_bucket_name
 
-  key    = "swagger.zip"
+  key    = "swagger/swagger.zip"
   source = data.archive_file.lambda_swagger.output_path
 
   etag = filemd5(data.archive_file.lambda_swagger.output_path)
@@ -51,7 +51,7 @@ resource "aws_s3_object" "lambda_swagger" {
 # 
 resource "aws_s3_object" "openapi_file" {
   depends_on = [local_file.openapi_json]
-  bucket = aws_s3_bucket.lambda_bucket.id
+  bucket = var.meta_data_bucket_name
 
   key    = "openapi.json"
   source = "${path.module}/api/openapi.json"

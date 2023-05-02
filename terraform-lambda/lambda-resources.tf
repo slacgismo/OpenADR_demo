@@ -3,7 +3,7 @@
 resource "aws_lambda_function" "lambda_resources" {
   function_name = "${var.prefix}-${var.client}-${var.environment}-resources-api"
 
-  s3_bucket =aws_s3_bucket.lambda_bucket.id
+  s3_bucket =var.meta_data_bucket_name
   s3_key    = aws_s3_object.lambda_resources.key
   runtime   = "python3.9"
   timeout       = 60
@@ -38,12 +38,31 @@ data "archive_file" "lambda_resources" {
 }
 
 resource "aws_s3_object" "lambda_resources" {
-  bucket = aws_s3_bucket.lambda_bucket.id
+  bucket = var.meta_data_bucket_name
 
-  key    = "resources.zip"
+  key    = "resources/resources.zip"
   source = data.archive_file.lambda_resources.output_path
 
   etag = filemd5(data.archive_file.lambda_resources.output_path)
+}
+
+
+# Log stream
+resource "aws_cloudwatch_log_stream" "lambda_resources" {
+  name = "/aws/lambda_logstream/${aws_lambda_function.lambda_resources.function_name}"
+  log_group_name = aws_cloudwatch_log_group.lambda_resources.name
+}
+
+
+resource "aws_lambda_permission" "lambda_resources" {
+  statement_id  = "AllowExecutionFromCloudWatchLogs"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_resources.function_name
+
+  principal = "logs.${var.aws_region}.amazonaws.com"
+
+  source_arn = aws_cloudwatch_log_group.lambda_resources.arn
+
 }
 
 

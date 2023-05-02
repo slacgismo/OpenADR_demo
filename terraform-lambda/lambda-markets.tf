@@ -3,7 +3,7 @@
 resource "aws_lambda_function" "lambda_markets" {
   function_name = "${var.prefix}-${var.client}-${var.environment}-markets-api"
 
-  s3_bucket = aws_s3_bucket.lambda_bucket.id
+  s3_bucket = var.meta_data_bucket_name
   s3_key    = aws_s3_object.lambda_markets.key
   runtime   = "python3.9"
   handler = "function.handler"
@@ -39,12 +39,31 @@ data "archive_file" "lambda_markets" {
 }
 
 resource "aws_s3_object" "lambda_markets" {
-  bucket = aws_s3_bucket.lambda_bucket.id
+  bucket = var.meta_data_bucket_name
 
-  key    = "markets.zip"
+  key    = "markes/markets.zip"
   source = data.archive_file.lambda_markets.output_path
 
   etag = filemd5(data.archive_file.lambda_markets.output_path)
+}
+
+
+# Log stream
+resource "aws_cloudwatch_log_stream" "lambda_markets" {
+  name = "/aws/lambda_logstream/${aws_lambda_function.lambda_markets.function_name}"
+  log_group_name = aws_cloudwatch_log_group.lambda_markets.name
+}
+
+
+resource "aws_lambda_permission" "lambda_markets" {
+  statement_id  = "AllowExecutionFromCloudWatchLogs"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_markets.function_name
+
+  principal = "logs.${var.aws_region}.amazonaws.com"
+
+  source_arn = aws_cloudwatch_log_group.lambda_markets.arn
+
 }
 
 # ---------------------------------------------- #

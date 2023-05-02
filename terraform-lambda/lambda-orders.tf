@@ -4,7 +4,7 @@
 resource "aws_lambda_function" "lambda_orders" {
   function_name = "${var.prefix}-${var.client}-${var.environment}-orders-api"
 
-  s3_bucket =aws_s3_bucket.lambda_bucket.id
+  s3_bucket =var.meta_data_bucket_name
   s3_key    = aws_s3_object.lambda_orders.key
   runtime   = "python3.9"
   timeout       = 60
@@ -42,15 +42,31 @@ data "archive_file" "lambda_orders" {
 }
 
 resource "aws_s3_object" "lambda_orders" {
-  bucket = aws_s3_bucket.lambda_bucket.id
+  bucket = var.meta_data_bucket_name
 
-  key    = "orders.zip"
+  key    = "orders/orders.zip"
   source = data.archive_file.lambda_orders.output_path
 
   etag = filemd5(data.archive_file.lambda_orders.output_path)
 }
 
+# Log stream
+resource "aws_cloudwatch_log_stream" "lambda_orders" {
+  name = "/aws/lambda_logstream/${aws_lambda_function.lambda_orders.function_name}"
+  log_group_name = aws_cloudwatch_log_group.lambda_orders.name
+}
 
+
+resource "aws_lambda_permission" "lambda_orders" {
+  statement_id  = "AllowExecutionFromCloudWatchLogs"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_orders.function_name
+
+  principal = "logs.${var.aws_region}.amazonaws.com"
+
+  source_arn = aws_cloudwatch_log_group.lambda_orders.arn
+
+}
 # ---------------------------------------------- #
 #  TEST EVENT  Example
 # ---------------------------------------------- #

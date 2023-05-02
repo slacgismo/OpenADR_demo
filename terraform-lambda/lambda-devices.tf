@@ -13,7 +13,7 @@
 resource "aws_lambda_function" "lambda_devices" {
 
   function_name = "${var.prefix}-${var.client}-${var.environment}-devices-api"
-  s3_bucket     = aws_s3_bucket.lambda_bucket.id
+  s3_bucket     = var.meta_data_bucket_name
   s3_key        = aws_s3_object.lambda_devices.key
   runtime       = "python3.9"
   handler = "function.handler"
@@ -52,16 +52,32 @@ data "archive_file" "lambda_devices" {
 }
 
 resource "aws_s3_object" "lambda_devices" {
-  bucket = aws_s3_bucket.lambda_bucket.id
+  bucket = var.meta_data_bucket_name
 
-  key    = "devices.zip"
+  key    = "devices/devices.zip"
   source = data.archive_file.lambda_devices.output_path
 
   etag = filemd5(data.archive_file.lambda_devices.output_path)
 }
 
 
+# Log stream
+resource "aws_cloudwatch_log_stream" "lambda_devices" {
+  name = "/aws/lambda_logstream/${aws_lambda_function.lambda_devices.function_name}"
+  log_group_name = aws_cloudwatch_log_group.lambda_devices.name
+}
 
+
+resource "aws_lambda_permission" "lambda_devices" {
+  statement_id  = "AllowExecutionFromCloudWatchLogs"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_devices.function_name
+
+  principal = "logs.${var.aws_region}.amazonaws.com"
+
+  source_arn = aws_cloudwatch_log_group.lambda_devices.arn
+
+}
 # ---------------------------------------------- #
 #  TEST EVENT  Example
 # ---------------------------------------------- #

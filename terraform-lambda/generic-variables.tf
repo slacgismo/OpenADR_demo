@@ -190,21 +190,17 @@ variable "weather_gsi_info" {
 
 
 # SQS  variables
-variable "devices_tables_event_sqs_name" {
+variable "devices_settings_event_sqs_name" {
   description = "weather_table_name"
   type       = string
 }
 
-variable "settings_tables_event_sqs_name" {
-  description = "weather_table_name"
-  type       = string
-}
 
 # S3 bucket
-# variable "meta_data_bucket_name" {
-#   description = "meta_data_bucket_name"
-#   type       = string
-# }
+variable "meta_data_bucket_name" {
+  description = "meta_data_bucket_name"
+  type       = string
+}
 
 
 
