@@ -14,9 +14,9 @@ resource "aws_lambda_function" "lambda_markets" {
 
   environment {
     variables = {
-      "MARKETS_TABLE_NAME" = aws_dynamodb_table.markets.name
-      "MARKETS_TABLE_RESOURCE_ID_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.markets.global_secondary_index), 0).name
-      "MARKETS_TABLE_STATUS_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.markets.global_secondary_index), 1).name
+      "MARKETS_TABLE_NAME" = var.markets_table_name
+      "MARKETS_TABLE_RESOURCE_ID_VALID_AT_GSI" = element(jsondecode(var.markets_gsi_info),0).name
+      "MARKETS_TABLE_STATUS_VALID_AT_GSI" =  element(jsondecode(var.markets_gsi_info),1).name
     }
   }
 

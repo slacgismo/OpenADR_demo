@@ -27,8 +27,8 @@ resource "aws_lambda_function" "lambda_agents" {
 
   environment {
     variables = {
-      "AGENTS_TABLE_NAME" = aws_dynamodb_table.agents.name
-      "AGENTS_TABLE_RESOURCE_ID_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.agents.global_secondary_index), 0).name
+      "AGENTS_TABLE_NAME" = var.agents_table_name
+      "AGENTS_TABLE_RESOURCE_ID_VALID_AT_GSI" =  element( jsondecode(var.agents_gsi_info),0).name
     }
   }
 
@@ -40,11 +40,12 @@ resource "aws_lambda_function" "lambda_agents" {
 # ---------------------------------------------- #
 #  Log Group for Lambda Function for Agents API  #
 # ---------------------------------------------- #
-# resource "aws_cloudwatch_log_group" "lambda_agents" {
-#   name = "/aws/lambda/${aws_lambda_function.lambda_agents.function_name}"
+resource "aws_cloudwatch_log_group" "lambda_agents" {
+  name = "/aws/lambda/${aws_lambda_function.lambda_agents.function_name}"
 
-#   retention_in_days = 14
-# }
+  retention_in_days = 14
+  tags = local.common_tags
+}
 
 # ---------------------------------------------- #
 #  Archieve file  #
@@ -58,7 +59,6 @@ data "archive_file" "lambda_agents" {
 
 resource "aws_s3_object" "lambda_agents" {
   bucket = aws_s3_bucket.lambda_bucket.id
-
   key    = "agents.zip"
   source = data.archive_file.lambda_agents.output_path
 

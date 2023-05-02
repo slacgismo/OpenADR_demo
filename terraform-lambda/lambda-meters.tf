@@ -13,9 +13,9 @@ resource "aws_lambda_function" "lambda_meters" {
   source_code_hash = data.archive_file.lambda_meters.output_base64sha256
   environment {
     variables = {
-      "METERS_TABLE_NAME" = aws_dynamodb_table.meters.name,
-      "METERS_TABLE_RESOURCE_ID_DEVICE_ID_GSI" =  element(tolist(aws_dynamodb_table.meters.global_secondary_index), 0).name
-      "METERS_TABLE_STATUS_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.meters.global_secondary_index), 1).name
+      "METERS_TABLE_NAME" = var.meters_table_name
+      "METERS_TABLE_RESOURCE_ID_DEVICE_ID_GSI" =  element(jsondecode(var.meters_gsi_info),0).name
+      "METERS_TABLE_METER_STATUS_VALID_AT_GSI" =  element(jsondecode(var.meters_gsi_info),1).name
       # "READINGS_TIMESTREAM_TABLE_NAME" = aws_timestreamwrite_table.readings.table_name
       # "TIMESTREAM_DB_NAME" = aws_timestreamwrite_database.measurements.database_name
     }
@@ -58,25 +58,26 @@ locals {
 
 
 resource "aws_lambda_invocation" "post_meters" {
-  depends_on = [aws_lambda_function.lambda_meters, aws_dynamodb_table.meters]
+  depends_on = [aws_lambda_function.lambda_meters,]
   function_name = aws_lambda_function.lambda_meters.function_name
   input         = jsonencode(local.meters_test_event[2])
 }
 
 resource "aws_lambda_invocation" "post_meter" {
-  depends_on = [aws_lambda_function.lambda_meters, aws_dynamodb_table.meters]
-  function_name = aws_lambda_function.lambda_meters.function_name
+
+  depends_on = [aws_lambda_function.lambda_meters]
+   function_name = aws_lambda_function.lambda_meters.function_name
   input         = jsonencode(local.meters_test_event[5])
 }
 
 resource "aws_lambda_invocation" "query_meters" {
-  depends_on = [aws_lambda_function.lambda_meters, aws_dynamodb_table.meters]
+  depends_on = [aws_lambda_function.lambda_meters]
   function_name = aws_lambda_function.lambda_meters.function_name
   input         = jsonencode(local.meters_test_event[0])
 }
 
 resource "aws_lambda_invocation" "scan_meters" {
-  depends_on = [aws_lambda_function.lambda_meters, aws_dynamodb_table.meters]
+  depends_on = [aws_lambda_function.lambda_meters]
   function_name = aws_lambda_function.lambda_meters.function_name
   input         = jsonencode(local.meters_test_event[1])
 }
@@ -87,7 +88,7 @@ resource "aws_lambda_invocation" "delete_meters" {
   input         = jsonencode(local.meters_test_event[3])
 }
 resource "aws_lambda_invocation" "get_meter" {
-  depends_on = [aws_lambda_function.lambda_meters, aws_dynamodb_table.meters]
+  depends_on = [aws_lambda_function.lambda_meters]
   function_name = aws_lambda_function.lambda_meters.function_name
   input         = jsonencode(local.meters_test_event[4])
 }
@@ -97,7 +98,7 @@ resource "aws_lambda_invocation" "put_meter" {
   input         = jsonencode(local.meters_test_event[6])
 }
 resource "aws_lambda_invocation" "delete_meter" {
-  depends_on = [aws_lambda_function.lambda_meters, aws_dynamodb_table.meters]
+  depends_on = [aws_lambda_function.lambda_meters]
   function_name = aws_lambda_function.lambda_meters.function_name
   input         = jsonencode(local.meters_test_event[7])
 }

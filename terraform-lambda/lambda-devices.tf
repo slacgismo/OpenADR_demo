@@ -24,10 +24,10 @@ resource "aws_lambda_function" "lambda_devices" {
   source_code_hash = data.archive_file.lambda_devices.output_base64sha256
   environment {
       variables = {
-          "DEVICES_TABLE_NAME" = aws_dynamodb_table.devices.name
-          "DEVICES_TABLE_AGENT_ID_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.devices.global_secondary_index), 0).name
-          "DEVICES_TABLE_STATUS_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.devices.global_secondary_index), 1).name
-    }
+          "DEVICES_TABLE_NAME" = var.devices_table_name
+          "DEVICES_TABLE_AGENT_ID_VALID_AT_GSI" =  element(jsondecode(var.devices_gsi_info),0).name
+          "DEVICES_TABLE_STATUS_VALID_AT_GSI" = element(jsondecode(var.devices_gsi_info),1).name
+      }
   }
 
 

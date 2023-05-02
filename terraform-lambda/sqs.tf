@@ -1,8 +1,17 @@
-resource "aws_sqs_queue" "device_table_event_sqs" {
-  name = "${var.prefix}-${var.client}-${var.environment}-devices-table-event-sqs"
+# resource "aws_sqs_queue" "device_table_event_sqs" {
+#   name = "${var.prefix}-${var.client}-${var.environment}-devices-table-event-sqs"
 
-  tags = local.common_tags
-}
+#   tags = local.common_tags
+# }
+
+# data "aws_sqs_queue" "devices_tables_event_sqs" {
+#   name = var.devices_tables_event_sqs_name
+# }
+
+# data "aws_sqs_queue" "settings_tables_event_sqs" {
+#   name = var.settings_tables_event_sqs_name
+# }
+
 
 
 
@@ -25,9 +34,9 @@ resource "aws_sqs_queue" "worker_dlq" {
   fifo_queue = true
 }
 
-output "device_table_event_sqs" {
-  value = aws_sqs_queue.device_table_event_sqs.url
-}
+# output "device_table_event_sqs" {
+#   value = aws_sqs_queue.device_table_event_sqs.url
+# }
 
 output "opneadr_workers_sqs_url" {
   value = aws_sqs_queue.opneadr_workers_sqs.url

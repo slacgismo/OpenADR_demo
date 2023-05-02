@@ -14,8 +14,9 @@ resource "aws_lambda_function" "lambda_settlements" {
 
   environment {
     variables = {
-      "SETTLEMENTS_TABLE_NAME" = aws_dynamodb_table.settlements.name
-      "SETTLEMENTS_TABLE_ORDER_ID_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.settlements.global_secondary_index), 0).name
+      "SETTLEMENTS_TABLE_NAME" = var.settlements_table_name
+      "SETTLEMENTS_TABLE_ORDER_ID_VALID_AT_GSI" =  element(jsondecode(var.settlements_gsi_info),0).name
+      # "SETTLEMENTS_TABLE_ORDER_ID_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.settlements.global_secondary_index), 0).name
     }
   }
 

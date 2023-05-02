@@ -14,8 +14,8 @@ resource "aws_lambda_function" "dispatches" {
   source_code_hash = data.archive_file.dispatch_vens.output_base64sha256
   environment {
       variables = {
-        "DISPATCHED_TABLE_NAME" = aws_dynamodb_table.dispatches.name
-        "DISPATCHED_TABLE_ORDER_ID_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.dispatches.global_secondary_index), 0).name
+        "DISPATCHED_TABLE_NAME" = var.dispatches_table_name
+        "DISPATCHED_TABLE_ORDER_ID_VALID_AT_GSI" =  element(jsondecode(var.dispatches_gsi_info),0).name
           # "DISPATCHES_TIMESTREAM_TABLE_NAME" = aws_timestreamwrite_table.dispatches.table_name
           # "TIMESTREAM_DB_NAME"= aws_timestreamwrite_database.measurements.database_name
     }

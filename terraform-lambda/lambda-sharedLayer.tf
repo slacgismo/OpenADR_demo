@@ -24,7 +24,7 @@ resource "aws_s3_object" "lambda_shared_layers" {
 
 
 resource "aws_lambda_layer_version" "shared_layers" {
-  compatible_runtimes = ["python3.9", "python3.8", "python3.7"] 
+  compatible_runtimes = ["python3.9"] 
   layer_name = "${var.prefix}-${var.client}-${var.environment}-shared-layers"
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_shared_layers.key

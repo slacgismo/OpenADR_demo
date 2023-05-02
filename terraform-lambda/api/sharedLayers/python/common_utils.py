@@ -187,17 +187,19 @@ def create_item(
         attributes: Enum = None,
 ):
     item = {}
-
+    return_item = {}
     valid_at = str(int(time.time()))
     for attribute_name, attribute_info in attributeType.items():
         if attribute_name == attributes.valid_at.name:
             item[attribute_name] = {
                 attribute_info['dynamodb_type']: valid_at
             }
+            return_item[attribute_name] = valid_at
         elif attribute_name == primary_key_name:
             item[attribute_name] = {
                 attribute_info['dynamodb_type']: primary_key_value
             }
+            return_item[attribute_name] = primary_key_value
         else:
             value = request_body.get(attribute_name, None)
             if value is None:
@@ -205,7 +207,8 @@ def create_item(
             item[attribute_name] = {
                 attribute_info['dynamodb_type']: value
             }
-    return item
+            return_item[attribute_name] = value
+    return item, return_item
 
 
 def conver_josn_to_dynamodb_format(
@@ -227,21 +230,26 @@ def conver_josn_to_dynamodb_format(
     created_items = []
     for item in items:
         dynamodb_item = {}
+        single_item = {}
         for key, value in attributesType.items():
-            # print(key, value['dynamodb_type'])
+            print(key, value['dynamodb_type'])
             dynamodb_type = value['dynamodb_type']
             # valid at is the current timestamp
             if key == timestam_index_name:
                 item_value = str(int(time.time()))
+                single_item[timestam_index_name] = item_value
             # create a unique id for hash key
             elif key == hash_key:
                 item_value = str(guid())
-                hash_key_item = {hash_key: item_value}
-                created_items.append(hash_key_item)
+                # hash_key_item = {hash_key: item_value}
+                single_item[hash_key] = item_value
+                # created_items.append(hash_key_item)
             else:
                 item_value = item[key]
+                single_item[key] = item_value
             dynamodb_item[key] = {dynamodb_type: item_value}
 
+        created_items.append(single_item)
         dynamodb_items.append(dynamodb_item)
     # print(dynamodb_items)
     return dynamodb_items, created_items
@@ -440,7 +448,7 @@ def handle_create_item_to_dynamodb(
     try:
         # create a new agent
         # agent_id = str(guid())
-        item = create_item(
+        item, return_item = create_item(
             primary_key_name=hash_key_name,
             primary_key_value=hash_key_value,
             request_body=request_body,
@@ -452,10 +460,10 @@ def handle_create_item_to_dynamodb(
             table_name=table_name,
             dynamodb_client=dynamodb_client,
         ))
-        created_item_hash_key = {
-            hash_key_name: hash_key_value
-        }
-        return respond(res_data=json.dumps(created_item_hash_key))
+        # created_item_hash_key = {
+        #     hash_key_name: hash_key_value
+        # }
+        return respond(res_data=json.dumps(return_item))
     except Exception as e:
         raise Exception(str(e))
 # ======================================================#
@@ -743,6 +751,8 @@ def handle_query_items_from_dynamodb(
     # check if the key_type is valid
     if key_type is not None and key_type not in attributes_types_dict[key_name]['dynamodb_type']:
         raise Exception(f"key_type {key_type} is not valid")
+    if key_type is None:
+        key_type = 'S'
     # check if the key_name is valid
     if key_name is not None and key_name not in attributes_types_dict:
         raise Exception(
@@ -764,14 +774,14 @@ def handle_query_items_from_dynamodb(
             gsi_name=gsi_name,
             key_value=key_value,
             key_name=key_name,
-            range_key=key_type,
+            key_type=key_type,
+            range_key=range_key,
             range_key_type=range_key_type,
             start_from=start_from,
             end_at=end_at,
             attributes_types_dict=attributes_types_dict
         )
     )
-
     return respond(res_data=items)
 
 

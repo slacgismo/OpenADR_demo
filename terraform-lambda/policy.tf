@@ -27,7 +27,7 @@
 
 
 resource "aws_iam_policy" "tess_lambda_dyanmodb_access" {
-  depends_on = [aws_dynamodb_table.devices]
+
   # name = "dyanmodb_lambda_access"
   name = "${var.prefix}-${var.client}-${var.environment}-lambda-dynamodb-limit-access-ploicy"
   policy = jsonencode({
@@ -52,7 +52,7 @@ resource "aws_iam_policy" "tess_lambda_dyanmodb_access" {
 }
 
 resource "aws_iam_policy" "tess_lambda_timestream_access" {
-  depends_on = [aws_dynamodb_table.devices]
+
   # name = "dyanmodb_lambda_access"
   name = "${var.prefix}-${var.client}-${var.environment}-lambda-timestream-limit-access-ploicy"
   policy = jsonencode({
@@ -94,6 +94,5 @@ resource "aws_iam_policy" "tess_lambda_s3_access" {
   })
 
 }
-
 
 

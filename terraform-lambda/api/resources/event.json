@@ -8,7 +8,8 @@
         "queryStringParameters": {
             "gsi_name": "resource_status_valid_at_index",
             "key_name": "resource_status",
-            "key_value": "1"
+            "key_value": "1",
+            "key_type": "N"
         }
     },
     {

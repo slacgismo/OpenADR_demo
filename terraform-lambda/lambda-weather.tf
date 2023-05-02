@@ -14,8 +14,8 @@ resource "aws_lambda_function" "lambda_weather" {
 
   environment {
     variables = {
-      "WEATHER_TABLE_NAME" = aws_dynamodb_table.weather.name
-      "WEATHER_TABLE_ZIP_CODE_VALID_AT_GSI" = element(tolist(aws_dynamodb_table.weather.global_secondary_index), 0).name
+      "WEATHER_TABLE_NAME" = var.weather_table_name
+      "WEATHER_TABLE_ZIP_CODE_VALID_AT_GSI" =element(jsondecode(var.weather_gsi_info),0).name
     }
   }
 
@@ -38,7 +38,7 @@ data "archive_file" "lambda_weather" {
 }
 
 resource "aws_s3_object" "lambda_weather" {
-  bucket = aws_s3_bucket.lambda_bucket.id
+  bucket =aws_s3_bucket.lambda_bucket.id
 
   key    = "weather.zip"
   source = data.archive_file.lambda_weather.output_path

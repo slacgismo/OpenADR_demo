@@ -14,8 +14,8 @@ resource "aws_lambda_function" "lambda_settings" {
 
   environment {
     variables = {
-      "SETTINGS_TABLE_NAME" = aws_dynamodb_table.settings.name
-       "SETTINGS_TABLE_DEVICE_ID_VALID_AT_GSI" = element(tolist(aws_dynamodb_table.settings.global_secondary_index), 0).name
+      "SETTINGS_TABLE_NAME" = var.settings_table_name
+       "SETTINGS_TABLE_DEVICE_ID_VALID_AT_GSI" = element(jsondecode(var.settings_gsi_info),0).name
     }
   }
 

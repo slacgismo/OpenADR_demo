@@ -15,9 +15,9 @@ resource "aws_lambda_function" "lambda_readings" {
 
   environment {
     variables = {
-      "READINGS_TABLE_NAME" = aws_dynamodb_table.readings.name
-      "READINGS_TABLE_METER_ID_GSI" = element(tolist(aws_dynamodb_table.readings.global_secondary_index), 0).name
-      "READINGS_TABLE_METER_ID_VALID_AT_GSI" = element(tolist(aws_dynamodb_table.readings.global_secondary_index), 1).name
+      "READINGS_TABLE_NAME" =var.readings_table_name
+      "READINGS_TABLE_METER_ID_GSI" = element(jsondecode(var.readings_gsi_info),0).name
+      "READINGS_TABLE_METER_ID_VALID_AT_GSI" =element(jsondecode(var.readings_gsi_info),1).name
       # "ORDERS_TIMESTEAM_TABLE_NAME" = aws_timestreamwrite_table.orders.table_name
       # "TIMESTREAM_DB_NAME" = aws_timestreamwrite_database.measurements.database_name
     }

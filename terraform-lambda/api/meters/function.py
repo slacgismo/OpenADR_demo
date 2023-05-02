@@ -10,17 +10,20 @@ from boto3.dynamodb.conditions import Key
 import uuid
 import re
 # cmmmon_utils, constants is from shared layer
-from common_utils import respond, TESSError, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_get_item_from_dynamodb_with_hash_key, create_items_to_dynamodb, delete_items_from_dynamodb, handle_query_items_from_dynamodb, handle_scan_items_from_dynamodb, match_path, handle_create_item_to_dynamodb
+from common_utils import respond, TESSError, HTTPMethods, guid, handle_delete_item_from_dynamodb_with_hash_key, handle_put_item_to_dynamodb_with_hash_key, handle_get_item_from_dynamodb_with_hash_key, delete_items_from_dynamodb, handle_query_items_from_dynamodb, handle_scan_items_from_dynamodb, match_path, create_items_to_dynamodb, handle_create_item_to_dynamodb
 
 dynamodb_client = boto3.client('dynamodb')
 
 meters_table_name = os.environ.get("METERS_TABLE_NAME", None)
 meters_table_resource_id_device_id_gsi = os.environ.get(
     "METERS_TABLE_RESOURCE_ID_DEVICE_ID_GSI", None)
+meters_table_meter_status_valid_at_gsi = os.environ.get(
+    "METERS_TABLE_METER_STATUS_VALID_AT_GSI", None)
 
 environment_variables_list = []
 environment_variables_list.append(meters_table_name)
 environment_variables_list.append(meters_table_resource_id_device_id_gsi)
+environment_variables_list.append(meters_table_meter_status_valid_at_gsi)
 
 
 class MetersAttributes(Enum):
@@ -102,7 +105,7 @@ def handle_meters_route(event, context):
             dynamodb_client=dynamodb_client,
             table_name=meters_table_name,
             hash_key_name=MetersAttributes.meter_id.name,
-            attributesTypeDict=MetersAttributes
+            attributesTypeDict=MetersAttributesTypes
         )
 
     elif http_method == HTTPMethods.DELETE.value:

@@ -16,8 +16,8 @@ resource "aws_lambda_function" "lambda_auctions" {
 
   environment {
     variables = {
-      "AUCTIONS_TABLE_NAME" = aws_dynamodb_table.auctions.name
-      "AUCTIONS_TABLE_MARKET_ID_VALID_AT_GSI" =  element(tolist(aws_dynamodb_table.auctions.global_secondary_index), 0).name
+      "AUCTIONS_TABLE_NAME" = var.auctions_table_name
+      "AUCTIONS_TABLE_MARKET_ID_VALID_AT_GSI" =  element( jsondecode(var.auctions_gsi_info),0).name
     }
   }
 
