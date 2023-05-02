@@ -374,12 +374,12 @@ resource "aws_dynamodb_table" "settings" {
 }
 
 # Define Lambda function event trigger for DynamoDB
-# resource "aws_lambda_event_source_mapping" "settings_event_source_mapping" {
-#   event_source_arn  = aws_dynamodb_table.settings.stream_arn
-#   function_name     = aws_lambda_function.lambda_dynamodb_event_trigger.arn
-#   starting_position = "LATEST"
+resource "aws_lambda_event_source_mapping" "settings_event_source_mapping" {
+  event_source_arn  = aws_dynamodb_table.settings.stream_arn
+  function_name     = aws_lambda_function.lambda_dynamodb_event_trigger.arn
+  starting_position = "LATEST"
 
-# }
+}
 
 
 # Readings

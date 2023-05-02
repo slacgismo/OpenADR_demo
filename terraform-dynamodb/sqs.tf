@@ -1,22 +1,18 @@
-resource "aws_sqs_queue" "devices_tables_event_sqs" {
-  name = "${var.prefix}-${var.client}-${var.environment}-devices-table-event-sqs"
+resource "aws_sqs_queue" "devices_settings_tables_event_sqs" {
+  name = "${var.prefix}-${var.client}-${var.environment}-devices-settings-table-event-sqs"
 
-  # redrive_policy = jsonencode({
-  #   deadLetterTargetArn = aws_sqs_queue.event_dlq.arn
-  #   maxReceiveCount     = 3
-  # })
   tags = local.common_tags
 }
 
-resource "aws_sqs_queue" "settings_tables_event_sqs" {
-  name = "${var.prefix}-${var.client}-${var.environment}-settings-table-event-sqs"
+# resource "aws_sqs_queue" "settings_tables_event_sqs" {
+#   name = "${var.prefix}-${var.client}-${var.environment}-settings-table-event-sqs"
 
-  # redrive_policy = jsonencode({
-  #   deadLetterTargetArn = aws_sqs_queue.event_dlq.arn
-  #   maxReceiveCount     = 3
-  # })
-  tags = local.common_tags
-}
+#   # redrive_policy = jsonencode({
+#   #   deadLetterTargetArn = aws_sqs_queue.event_dlq.arn
+#   #   maxReceiveCount     = 3
+#   # })
+#   tags = local.common_tags
+# }
 
 # resource "aws_sqs_queue" "event_dlq" {
 #   name       = "${var.prefix}-${var.client}-${var.environment}-event-dlq"

@@ -60,15 +60,6 @@ resource "aws_iam_policy" "lambda_dynamodb_event_trigger_policy" {
           "dynamodb:ListStreams"
         ]
         Resource = [aws_dynamodb_table.devices.stream_arn, aws_dynamodb_table.settings.stream_arn]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ]
-        Resource = "arn:aws:logs:*:*:*"
       }
     ]
   })
@@ -78,6 +69,7 @@ resource "aws_iam_role_policy_attachment" "lambda_dynamodb_event_trigger_stream"
   role       = aws_iam_role.lambda_dynamodb_event_trigger.name
   policy_arn = aws_iam_policy.lambda_dynamodb_event_trigger_policy.arn
 }
+
 
 
 resource "aws_iam_policy" "lambda_dynamodb_sqs_trigger_policy" {
@@ -94,8 +86,29 @@ resource "aws_iam_policy" "lambda_dynamodb_sqs_trigger_policy" {
           "sqs:DeleteMessage",
           "sqs:GetQueueAttributes"
           ]
-        Resource = [aws_sqs_queue.devices_tables_event_sqs.arn, aws_sqs_queue.settings_tables_event_sqs.arn]
-      },
+        Resource = [aws_sqs_queue.devices_settings_tables_event_sqs.arn]
+      }
+    
+    ]
+  })
+}
+
+
+
+
+resource "aws_iam_role_policy_attachment" "lambda_dynamodb_event_trigger_sqs" {
+  role       = aws_iam_role.lambda_dynamodb_event_trigger.name
+  policy_arn = aws_iam_policy.lambda_dynamodb_sqs_trigger_policy.arn
+}
+
+
+
+resource "aws_iam_policy" "lambda_dynamodb_event_trigger_logs_policy" {
+  name = "${var.prefix}-${var.client}-${var.environment}-lambda-dynamodb-event-trigger-logs-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
       {
         Effect = "Allow"
         Action = [
@@ -109,10 +122,12 @@ resource "aws_iam_policy" "lambda_dynamodb_sqs_trigger_policy" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_dynamodb_event_trigger_sqs" {
+resource "aws_iam_role_policy_attachment" "lambda_dynamodb_event_trigger_logs" {
   role       = aws_iam_role.lambda_dynamodb_event_trigger.name
-  policy_arn = aws_iam_policy.lambda_dynamodb_sqs_trigger_policy.arn
+  policy_arn = aws_iam_policy.lambda_dynamodb_event_trigger_logs_policy.arn
 }
+
+
 
 
 
@@ -120,8 +135,7 @@ resource "aws_lambda_function" "lambda_dynamodb_event_trigger" {
   depends_on = [
     aws_dynamodb_table.devices,
     aws_dynamodb_table.settings,
-    aws_sqs_queue.devices_tables_event_sqs,
-    aws_sqs_queue.settings_tables_event_sqs,
+    aws_sqs_queue.devices_settings_tables_event_sqs,
     aws_s3_bucket.meta_data_bucket
   ]
   function_name = "${var.prefix}-${var.client}-${var.environment}-lambda-dynamodb-event-trigger"
@@ -136,8 +150,8 @@ resource "aws_lambda_function" "lambda_dynamodb_event_trigger" {
     variables = {
         "DEVICES_TABLE_NAME" = aws_dynamodb_table.devices.name
         "SETTINGS_TABLE_NAME" = aws_dynamodb_table.settings.name
-        "DEVICES_EVENT_SQS" = aws_sqs_queue.devices_tables_event_sqs.url
-        "SETTINGS_EVENT_SQS" = aws_sqs_queue.settings_tables_event_sqs.url
+        "DEVICES_SETTING_EVENT_SQS" = aws_sqs_queue.devices_settings_tables_event_sqs.url
+    
     }
   }
     source_code_hash = data.archive_file.lambda_dynamodb_event_trigger.output_base64sha256
@@ -152,4 +166,21 @@ resource "aws_cloudwatch_log_group" "lambda_dynamodb_events_trigger" {
 
   retention_in_days = 14
   tags = local.common_tags
+}
+
+resource "aws_cloudwatch_log_stream" "lambda_dynamodb_events_trigger" {
+  name = "/aws/lambda_logstream/${aws_lambda_function.lambda_dynamodb_event_trigger.function_name}"
+  log_group_name = aws_cloudwatch_log_group.lambda_dynamodb_events_trigger.name
+}
+
+
+resource "aws_lambda_permission" "lambda_dynamodb_events_trigger" {
+  statement_id  = "AllowExecutionFromCloudWatchLogs"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_dynamodb_event_trigger.function_name
+
+  principal = "logs.${var.aws_region}.amazonaws.com"
+
+  source_arn = aws_cloudwatch_log_group.lambda_dynamodb_events_trigger.arn
+
 }

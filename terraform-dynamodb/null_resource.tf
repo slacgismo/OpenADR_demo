@@ -15,8 +15,7 @@ resource "null_resource" "export_terrafrom_tfvars_to_output" {
     aws_dynamodb_table.weather,
     aws_dynamodb_table.settlements,
     aws_dynamodb_table.auctions,
-    aws_sqs_queue.devices_tables_event_sqs,
-    aws_sqs_queue.settings_tables_event_sqs
+    aws_sqs_queue.devices_settings_tables_event_sqs
   ]
   # always run this resource
   triggers = {
@@ -55,8 +54,7 @@ resource "null_resource" "export_terrafrom_tfvars_to_output" {
 
 
         echo '# SQS settings' >> terraform.tfvars
-        echo 'settings_tables_event_sqs_name="${aws_sqs_queue.settings_tables_event_sqs.name}"' >> terraform.tfvars
-        echo 'devices_tables_event_sqs_name="${aws_sqs_queue.devices_tables_event_sqs.name}"' >> terraform.tfvars
+        echo 'devices_settings_event_sqs_name="${aws_sqs_queue.devices_settings_tables_event_sqs.name}"' >> terraform.tfvars
         echo '# S3 settings' >> terraform.tfvars
         echo 'meta_data_bucket_name="${aws_s3_bucket.meta_data_bucket.id}"' >> terraform.tfvars
         echo '# S3 settings' >> terraform.tfvars

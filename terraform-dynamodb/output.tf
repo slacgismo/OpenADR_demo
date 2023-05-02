@@ -147,10 +147,10 @@ output "shared_meta_data_s3_bucket" {
 # EVENT SQS
 # ===========
 
-output "devices_table_event_sqs_id" {
-    value = aws_sqs_queue.devices_tables_event_sqs.id
+output "devices_settings_event_sqs_id" {
+    value = aws_sqs_queue.devices_settings_tables_event_sqs.id
 }
 
-output "settings_table_event_sqs_id" {
-     value = aws_sqs_queue.settings_tables_event_sqs.id
-}
+# output "settings_table_event_sqs_id" {
+#      value = aws_sqs_queue.settings_tables_event_sqs.id
+# }
