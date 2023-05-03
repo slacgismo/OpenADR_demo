@@ -14,6 +14,7 @@ install:
 create-python-dir:
 	mkdir -p $(ARTIFACTS_DIR)
 
+
 .PHONY: move-files
 move-files:
 	source $(VENV_DIR)/bin/activate; \
@@ -21,5 +22,10 @@ move-files:
 	cp -r $(VENV_DIR)/lib/python3.9/site-packages/* $(ARTIFACTS_DIR)/lib/; \
 	cp common_utils.py $(ARTIFACTS_DIR)
 
+
+.PHONY: remove-venv
+remove-venv:
+	rm -rf $(VENV_DIR)
+
 .PHONY: build-SharedLayer
-build-SharedLayer: create-venv install create-python-dir move-files
+build-SharedLayer: create-venv install create-python-dir move-files remove-venv
