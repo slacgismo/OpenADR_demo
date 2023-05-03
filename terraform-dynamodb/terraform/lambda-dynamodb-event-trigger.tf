@@ -1,8 +1,8 @@
 
 data "archive_file" "lambda_dynamodb_event_trigger" {
   type = "zip"
-
-  source_dir  = "${path.module}/api/lambda-dynamodb-event-trigger"
+  # the api is locted in the parent directory of the current directory in teh docker container
+  source_dir  = "../api/lambda-dynamodb-event-trigger"
   output_path = "${path.module}/templates/lambda-dynamodb-event-trigger.zip"
 }
 

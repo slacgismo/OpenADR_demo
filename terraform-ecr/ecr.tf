@@ -1,14 +1,9 @@
-resource "aws_ecr_repository" "devices_worker" {
-  name         = "devices_worker"
+resource "aws_ecr_repository" "openadr_generator" {
+  name         = "openadr-generator"
   tags         = local.common_tags
   force_delete = true
 }
 
-resource "aws_ecr_repository" "device_cli" {
-  name         = "device_cli"
-  tags         = local.common_tags
-  force_delete = true
-}
 
 
 resource "aws_ecr_repository" "vtn" {

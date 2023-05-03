@@ -1,9 +1,8 @@
-version: "3.9"
+version: "3.7"
 
 services:
   terraform:
-    build:
-      context: .
+    image: hashicorp/terraform:1.3.9
     volumes:
       - .:/infra
     working_dir: /infra
